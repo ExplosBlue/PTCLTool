@@ -49,7 +49,8 @@ void MainWindow::LoadData() {
         return;
     }
 
-//    QByteArray ptclResData = file.readAll();
+    QByteArray* ptclResData = new QByteArray(file.readAll());
+    file.seek(0);
 
     QDataStream stream(&file);
     stream.setByteOrder(QDataStream::LittleEndian);
@@ -78,9 +79,14 @@ void MainWindow::LoadData() {
         ptcl::ResourceEmitterSet resEmitterSet;
 
         // EmitterSetData
-        file.seek(basePos + ptcl::EMITTER_SET_DATA_SIZE * resEmiterSetIdx);
+//        qDebug() << basePos + ptcl::RES_HEADER_DATA_SIZE + (ptcl::EMITTER_SET_DATA_SIZE * resEmiterSetIdx);
+
+        file.seek(basePos + ptcl::RES_HEADER_DATA_SIZE + (ptcl::EMITTER_SET_DATA_SIZE * resEmiterSetIdx));
         ptcl::EmitterSetData* emitterSetData = new ptcl::EmitterSetData();
         stream >> *emitterSetData;
+
+//        emitterSetData->printData();
+//        break;
 
         emitterSetData->name = nameTbl.data() + emitterSetData->namePos;
 
@@ -92,11 +98,52 @@ void MainWindow::LoadData() {
 
         if (emitterSetData->emitterTblPos) {
 
-            // TODO
+            // TODO: Should be an array of all emitter tables
+            file.seek(basePos + emitterSetData->emitterTblPos);
+            ptcl::EmitterTblData tblData;
+            stream >> tblData;
+
+            resEmitterSet.tblData;
+
+            if (resEmitterSet.numEmitter > 0) {
+
+                int emitterIdx = 0;
+                while (resEmitterSet.numEmitter > emitterIdx) {
+
+                    file.seek(basePos + emitterSetData->emitterTblPos + ptcl::EMITTER_TBL_DATA_SIZE * emitterIdx);
+                    ptcl::EmitterTblData emitterTblData;
+                    stream >> emitterTblData;
+
+                    if (emitterTblData.emitterPos) {
+
+                        file.seek(basePos + emitterTblData.emitterPos);
+                        ptcl::CommonEmitterData* commonEmitterData = new ptcl::CommonEmitterData();
+                        stream >> *commonEmitterData;
+
+                        emitterTblData.emitter = commonEmitterData;
+
+                        commonEmitterData->name  = nameTbl.data() + commonEmitterData->namePos;
+
+                        // emitterTblData->emitter->texture = someFunc();
+                        if (emitterTblData.emitter->type == ptcl::EFT_EMITTER_TYPE_COMPLEX ) {
+                           // emitterTblData->emitter->texture = someFunc();
+                        }
+
+                        resEmitterSet.tblData.append(emitterTblData);
+
+                    } else {
+
+//                        emitterTblData = nullptr;
+                    }
+
+                    ++emitterIdx;
+                }
+
+            }
 
         } else {
 
-            resEmitterSet.tblData = nullptr;
+//            resEmitterSet.tblData = nullptr;
         }
 
         resEmitterSet.userDataROM   = resEmitterSet.userData;
@@ -107,7 +154,9 @@ void MainWindow::LoadData() {
         mEmitterSets.append(resEmitterSet);
     }
 
-    foreach(ptcl::ResourceEmitterSet set, mEmitterSets) {
+    for (int i = 0; i < mEmitterSets.length(); i++) {
+        qDebug() << "ResourceEmitterSet" << i << ":";
+        ptcl::ResourceEmitterSet set = mEmitterSets.at(i);
         set.printData();
     }
 
