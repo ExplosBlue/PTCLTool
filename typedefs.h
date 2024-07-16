@@ -17,4 +17,6 @@ typedef wchar_t             char16;
 typedef float               f32;
 typedef double              f64;
 
+typedef unsigned int        uptr32;
+
 #endif // TYPEDEFS_H
