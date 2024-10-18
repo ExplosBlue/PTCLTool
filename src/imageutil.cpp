@@ -189,14 +189,14 @@ void ImageUtil::getTextureRaster(const QByteArray& textureData, QImage* image, b
                                         a = 255;  // Opaque since there's no alpha in L8
                                         break;
                                     }
-                                    case gr::PicaDataTextureFormat::A8: // TODO: Check this
-                                    {
-                                        quint8 alpha;
-                                        stream >> alpha;
-                                        r = g = b = 0;  // Set R, G, B to 0 (black)
-                                        a = alpha;      // Set the alpha value
-                                        break;
-                                    }
+                                    // case gr::PicaDataTextureFormat::A8: // TODO: Check this
+                                    // {
+                                    //     quint8 alpha;
+                                    //     stream >> alpha;
+                                    //     r = g = b = 0;  // Set R, G, B to 0 (black)
+                                    //     a = alpha;      // Set the alpha value
+                                    //     break;
+                                    // }
                                     case gr::PicaDataTextureFormat::LA88: // TODO: Check this
                                     {
                                         quint8 luminance, alpha;
@@ -252,7 +252,7 @@ void ImageUtil::getTextureRaster(const QByteArray& textureData, QImage* image, b
                                     }
                                     default:
                                     {
-                                        throw std::runtime_error("CTPK: Unsupported Texture Format");
+                                        throw std::runtime_error("ImageUtil: Unsupported Texture Format");
                                         break;
                                     }
                                     }

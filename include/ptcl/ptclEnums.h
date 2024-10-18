@@ -34,6 +34,21 @@ inline QDebug operator<<(QDebug dbg, const EmitterType& type)
     return dbg;
 }
 
+inline const QString toString(const EmitterType& type) {
+
+    switch (type) {
+    case EmitterType::SIMPLE:
+        return "SIMPLE";
+        break;
+    case EmitterType::COMPLEX:
+        return "COMPLEX";
+        break;
+    case EmitterType::EMITTER_TYPE_MAX:
+        return "EMITTER_TYPE_MAX";
+        break;
+    }
+}
+
 enum class VolumeType : u32
 {
     POINT                 = 0x0,
@@ -107,6 +122,44 @@ inline QDebug operator<<(QDebug dbg, const VolumeType& type)
     }
 
     return dbg;
+}
+
+inline QString toString(const VolumeType& type)
+{
+    switch (type) {
+    case VolumeType::POINT:
+        return "POINT";
+    case VolumeType::CIRCLE:
+        return "CIRCLE";
+    case VolumeType::CIRCLE_SAME_DIVIDE:
+        return "CIRCLE_SAME_DIVIDE";
+    case VolumeType::CIRCLE_FILL:
+        return "CIRCLE_FILL";
+    case VolumeType::SPHERE:
+        return "SPHERE";
+    case VolumeType::SPHERE_SAME_DIVIDE:
+        return "SPHERE_SAME_DIVIDE";
+    case VolumeType::SPHERE_FILL:
+        return "SPHERE_FILL";
+    case VolumeType::CYLINDER:
+        return "CYLINDER";
+    case VolumeType::CYLINDER_FILL:
+        return "CYLINDER_FILL";
+    case VolumeType::BOX:
+        return "BOX";
+    case VolumeType::BOX_FILL:
+        return "BOX_FILL";
+    case VolumeType::LINE:
+        return "LINE";
+    case VolumeType::LINE_SAME_DIVIDE:
+        return "LINE_SAME_DIVIDE";
+    case VolumeType::RECTANGLE:
+        return "RECTANGLE";
+    case VolumeType::VOLUME_TYPE_MAX:
+        return "VOLUME_TYPE_MAX";
+    }
+
+    return "UNKNOWN";
 }
 
 } // namespace Ptcl

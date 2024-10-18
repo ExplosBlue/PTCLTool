@@ -298,6 +298,9 @@ struct alignas(4) BinTextureRes
            >> item.magFilter
            >> item.minFilter;
 
+        // Account for padding
+        in.readRawData(nullptr, 3);
+
         return in;
     }
 
@@ -310,6 +313,9 @@ struct alignas(4) BinTextureRes
             << item.wrapS
             << item.magFilter
             << item.minFilter;
+
+        // Account for padding
+        out.writeRawData(nullptr, 3);
 
         return out;
     }
@@ -607,39 +613,39 @@ struct alignas(4) BinEmitterTblData {
 static_assert(sizeof(BinEmitterTblData) == 0x08, "BinEmitterTblData is incorrect size.");
 
 
-// Size 0x28
-struct alignas(4) BinResourceEmitterSet {
+// // Size 0x28
+// struct alignas(4) BinResourceEmitterSet {
 
-    uptr32 setDataPtr;      // 0x00 - placeholder for a 32 bit BinEmitterSetData* (should always be 0)
-    uptr32 tblDataPtr;      // 0x04 - placeholder for a 32 bit BinEmitterTblData* (should always be 0)
-    s32 numEmitter;         // 0x08
-    u32 userData;           // 0x0C
-    uptr32 setDataROMPtr;   // 0x10 - placeholder for a 32 bit BinEmitterSetData* (should always be 0)
-    uptr32 tblDataROMPtr;   // 0x14 - placeholder for a 32 bit BinEmitterTblData* (should always be 0)
-    s32 numEmitterROM;      // 0x18
-    u32 userDataROM;        // 0x1C
-    uptr32 setNamePtr;      // 0x20 - placeholder for a 32 bit const char* (should always be 0)
-    bool isShowDetail;      // 0x24
+//     uptr32 setDataPtr;      // 0x00 - placeholder for a 32 bit BinEmitterSetData* (should always be 0)
+//     uptr32 tblDataPtr;      // 0x04 - placeholder for a 32 bit BinEmitterTblData* (should always be 0)
+//     s32 numEmitter;         // 0x08
+//     u32 userData;           // 0x0C
+//     uptr32 setDataROMPtr;   // 0x10 - placeholder for a 32 bit BinEmitterSetData* (should always be 0)
+//     uptr32 tblDataROMPtr;   // 0x14 - placeholder for a 32 bit BinEmitterTblData* (should always be 0)
+//     s32 numEmitterROM;      // 0x18
+//     u32 userDataROM;        // 0x1C
+//     uptr32 setNamePtr;      // 0x20 - placeholder for a 32 bit const char* (should always be 0)
+//     bool isShowDetail;      // 0x24
 
-    void printData(u32 indentationLevel = 0) {
+//     void printData(u32 indentationLevel = 0) {
 
-        const char* indentation = PrintUtil::createIndentation(indentationLevel);
+//         const char* indentation = PrintUtil::createIndentation(indentationLevel);
 
-        qDebug() << indentation << "- setDataPtr:    " << setDataPtr;
-        qDebug() << indentation << "- tblDataPtr:    " << tblDataPtr;
-        qDebug() << indentation << "- numEmitter:    " << numEmitter;
-        qDebug() << indentation << "- userData:      " << userData;
-        qDebug() << indentation << "- setDataROMPtr: " << setDataROMPtr;
-        qDebug() << indentation << "- tblDataROMPtr: " << setDataROMPtr;
-        qDebug() << indentation << "- numEmitterROM: " << numEmitterROM;
-        qDebug() << indentation << "- userDataROM:   " << userDataROM;
-        qDebug() << indentation << "- setNamePtr:    " << setNamePtr;
-        qDebug() << indentation << "- isShowDetail:  " << isShowDetail;
-        qDebug() << "\n";
-    }
-};
+//         qDebug() << indentation << "- setDataPtr:    " << setDataPtr;
+//         qDebug() << indentation << "- tblDataPtr:    " << tblDataPtr;
+//         qDebug() << indentation << "- numEmitter:    " << numEmitter;
+//         qDebug() << indentation << "- userData:      " << userData;
+//         qDebug() << indentation << "- setDataROMPtr: " << setDataROMPtr;
+//         qDebug() << indentation << "- tblDataROMPtr: " << setDataROMPtr;
+//         qDebug() << indentation << "- numEmitterROM: " << numEmitterROM;
+//         qDebug() << indentation << "- userDataROM:   " << userDataROM;
+//         qDebug() << indentation << "- setNamePtr:    " << setNamePtr;
+//         qDebug() << indentation << "- isShowDetail:  " << isShowDetail;
+//         qDebug() << "\n";
+//     }
+// };
 
-static_assert(sizeof(BinResourceEmitterSet) == 0x28, "BinResourceEmitterSet is incorrect size.");
+// static_assert(sizeof(BinResourceEmitterSet) == 0x28, "BinResourceEmitterSet is incorrect size.");
 
 
 #pragma pack(pop)

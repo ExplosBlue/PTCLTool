@@ -1,0 +1,44 @@
+#ifndef EMITTERSETWIDGET_H
+#define EMITTERSETWIDGET_H
+
+#include <QWidget>
+#include <QListView>
+#include <QStandardItemModel>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QComboBox>
+#include <QLineEdit>
+
+#include "ptcl/ptcl.h"
+#include "emitterwidget.h"
+
+class EmitterSetWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit EmitterSetWidget(QWidget* parent = nullptr);
+
+    void setEmitterSet(Ptcl::EmitterSet* emitterSet);
+
+private:
+    void populateEmitterPicker();
+    void populateProperties();
+
+private slots:
+    void selectedEmitterChanged(u32 index);
+
+private:
+    // TODO: this should not be a raw pointer...
+    Ptcl::EmitterSet* mEmitterSetPtr;
+
+    QVBoxLayout mMainLayout;
+
+    QLineEdit mNameLineEdit;
+    QLabel mEmitterCountLabel;
+
+    QComboBox mEmitterPicker;
+
+    EmitterWidget mEmitterWidget;
+};
+
+#endif // EMITTERSETWIDGET_H
