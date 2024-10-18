@@ -4,9 +4,9 @@
 #include <QMainWindow>
 
 #include <QLabel>
-#include <QComboBox>
 
 #include "ptclList.h"
+#include "emitterSetWidget.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,20 +23,18 @@ public:
 
 public slots:
     void selectedEmitterSetChanged(u32 index);
-    void selectedEmitterChanged(u32 index);
 
 private:
     Ui::MainWindow* ui;
 
     std::unique_ptr<Ptcl::PtclRes> mPtclRes;
     std::unique_ptr<PtclList> mPtclList;
+    std::unique_ptr<EmitterSetWidget> mEmitterSetWidget;
 
-    QVBoxLayout mImageInfoLayout;
-    QComboBox mEmitterPicker;
-    QLabel mImageLabel; // TODO: replace with graphics view
-    QLabel mImageInfoLabel; // TODO: replace with graphics view
+    // Todo: this shouldn't be in main window
+    QLineEdit mNameEdit;
 
-    QWidget mCenteralWidget;
+    QWidget* mCenteralWidget;
     QHBoxLayout mMainLayout;
 
     u32 mCurEmitterSetIdx;

@@ -12,7 +12,6 @@ class PtclList : public QWidget
 {
     Q_OBJECT
 public:
-    void extracted(Ptcl::PtclRes *&res);
     explicit PtclList(Ptcl::PtclRes *ptclRes, QWidget *parent = nullptr);
 
 private slots:

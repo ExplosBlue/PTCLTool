@@ -31,6 +31,11 @@ enum class PicaDataTextureFormat : u8
     ETC1_A4    = 0xD,
 };
 
+inline PicaDataTextureFormat& assignFromInt(PicaDataTextureFormat& e, int value) {
+    e = static_cast<PicaDataTextureFormat>(value);
+    return e;
+}
+
 inline QDebug operator<<(QDebug dbg, const PicaDataTextureFormat& type)
 {
     QDebugStateSaver stateSaver(dbg);
@@ -131,29 +136,163 @@ inline QString toQString(PicaDataTextureFormat type)
     }
 }
 
-enum PicaDataTextureWrap : u8
+enum class PicaDataTextureWrap : u8
 {
-    PICA_DATA_TEXTURE_WRAP_CLAMP_TO_EDGE = 0x0,
-    PICA_DATA_TEXTURE_WRAP_CLAMP_TO_BORDER = 0x1,
-    PICA_DATA_TEXTURE_WRAP_REPEAT = 0x2,
-    PICA_DATA_TEXTURE_WRAP_MIRRORED_REPEAT = 0x3,
+    WRAP_CLAMP_TO_EDGE = 0x0,
+    WRAP_CLAMP_TO_BORDER = 0x1,
+    WRAP_REPEAT = 0x2,
+    WRAP_MIRRORED_REPEAT = 0x3,
 };
 
-enum PicaDataTextureMagFilter : u8
+inline PicaDataTextureWrap& assignFromInt(PicaDataTextureWrap& e, int value) {
+    e = static_cast<PicaDataTextureWrap>(value);
+    return e;
+}
+
+inline QDebug operator<<(QDebug dbg, const PicaDataTextureWrap& type)
 {
-    PICA_DATA_TEXTURE_MAG_FILTER_NEAREST = 0x0,
-    PICA_DATA_TEXTURE_MAG_FILTER_LINEAR = 0x1,
+    QDebugStateSaver stateSaver(dbg);
+
+    switch (type) {
+    case PicaDataTextureWrap::WRAP_CLAMP_TO_EDGE:
+        dbg.nospace() << "WRAP_CLAMP_TO_EDGE";
+        break;
+    case PicaDataTextureWrap::WRAP_CLAMP_TO_BORDER:
+        dbg.nospace() << "WRAP_CLAMP_TO_BORDER";
+        break;
+    case PicaDataTextureWrap::WRAP_REPEAT:
+        dbg.nospace() << "WRAP_REPEAT";
+        break;
+    case PicaDataTextureWrap::WRAP_MIRRORED_REPEAT:
+        dbg.nospace() << "WRAP_MIRRORED_REPEAT";
+        break;
+    }
+
+    return dbg;
+}
+
+inline const QString toString(const PicaDataTextureWrap& type) {
+
+    switch (type) {
+    case PicaDataTextureWrap::WRAP_CLAMP_TO_EDGE:
+        return "WRAP_CLAMP_TO_EDGE";
+        break;
+    case PicaDataTextureWrap::WRAP_CLAMP_TO_BORDER:
+        return "WRAP_CLAMP_TO_BORDER";
+        break;
+    case PicaDataTextureWrap::WRAP_REPEAT:
+        return "WRAP_REPEAT";
+    case PicaDataTextureWrap::WRAP_MIRRORED_REPEAT:
+        return "WRAP_MIRRORED_REPEAT";
+        break;
+    }
+}
+
+enum class PicaDataTextureMagFilter : u8
+{
+    MAG_FILTER_NEAREST = 0x0,
+    MAG_FILTER_LINEAR = 0x1,
 };
 
-enum PicaDataTextureMinFilter : u8
+inline PicaDataTextureMagFilter& assignFromInt(PicaDataTextureMagFilter& e, int value) {
+    e = static_cast<PicaDataTextureMagFilter>(value);
+    return e;
+}
+
+inline QDebug operator<<(QDebug dbg, const PicaDataTextureMagFilter& type)
 {
-    PICA_DATA_TEXTURE_MIN_FILTER_NEAREST = 0x0,
-    PICA_DATA_TEXTURE_MIN_FILTER_NEAREST_MIPMAP_NEAREST = 0x1,
-    PICA_DATA_TEXTURE_MIN_FILTER_NEAREST_MIPMAP_LINEAR = 0x2,
-    PICA_DATA_TEXTURE_MIN_FILTER_LINEAR = 0x3,
-    PICA_DATA_TEXTURE_MIN_FILTER_LINEAR_MIPMAP_NEAREST = 0x4,
-    PICA_DATA_TEXTURE_MIN_FILTER_LINEAR_MIPMAP_LINEAR = 0x5,
+    QDebugStateSaver stateSaver(dbg);
+
+    switch (type) {
+    case PicaDataTextureMagFilter::MAG_FILTER_NEAREST:
+        dbg.nospace() << "MAG_FILTER_NEAREST";
+        break;
+    case PicaDataTextureMagFilter::MAG_FILTER_LINEAR:
+        dbg.nospace() << "MAG_FILTER_LINEAR";
+        break;
+        break;
+    }
+
+    return dbg;
+}
+
+inline const QString toString(const PicaDataTextureMagFilter& type) {
+
+    switch (type) {
+    case PicaDataTextureMagFilter::MAG_FILTER_NEAREST:
+        return "MAG_FILTER_NEAREST";
+        break;
+    case PicaDataTextureMagFilter::MAG_FILTER_LINEAR:
+        return "MAG_FILTER_LINEAR";
+        break;
+    }
+}
+
+enum class PicaDataTextureMinFilter : u8
+{
+    MIN_FILTER_NEAREST = 0x0,
+    MIN_FILTER_NEAREST_MIPMAP_NEAREST = 0x1,
+    MIN_FILTER_NEAREST_MIPMAP_LINEAR = 0x2,
+    MIN_FILTER_LINEAR = 0x3,
+    MIN_FILTER_LINEAR_MIPMAP_NEAREST = 0x4,
+    MIN_FILTER_LINEAR_MIPMAP_LINEAR = 0x5,
 };
+
+inline PicaDataTextureMinFilter& assignFromInt(PicaDataTextureMinFilter& e, int value) {
+    e = static_cast<PicaDataTextureMinFilter>(value);
+    return e;
+}
+
+inline QDebug operator<<(QDebug dbg, const PicaDataTextureMinFilter& type)
+{
+    QDebugStateSaver stateSaver(dbg);
+
+    switch (type) {
+    case PicaDataTextureMinFilter::MIN_FILTER_NEAREST:
+        dbg.nospace() << "MIN_FILTER_NEAREST";
+        break;
+    case PicaDataTextureMinFilter::MIN_FILTER_NEAREST_MIPMAP_NEAREST:
+        dbg.nospace() << "MIN_FILTER_NEAREST_MIPMAP_NEAREST";
+        break;
+    case PicaDataTextureMinFilter::MIN_FILTER_NEAREST_MIPMAP_LINEAR:
+        dbg.nospace() << "MIN_FILTER_NEAREST_MIPMAP_LINEAR";
+        break;
+    case PicaDataTextureMinFilter::MIN_FILTER_LINEAR:
+        dbg.nospace() << "MIN_FILTER_LINEAR";
+        break;
+    case PicaDataTextureMinFilter::MIN_FILTER_LINEAR_MIPMAP_NEAREST:
+        dbg.nospace() << "MIN_FILTER_LINEAR_MIPMAP_NEAREST";
+        break;
+    case PicaDataTextureMinFilter::MIN_FILTER_LINEAR_MIPMAP_LINEAR:
+        dbg.nospace() << "MIN_FILTER_LINEAR_MIPMAP_LINEAR";
+        break;
+    }
+
+    return dbg;
+}
+
+inline const QString toString(const PicaDataTextureMinFilter& type) {
+
+    switch (type) {
+    case PicaDataTextureMinFilter::MIN_FILTER_NEAREST:
+        return "MIN_FILTER_NEAREST";
+        break;
+    case PicaDataTextureMinFilter::MIN_FILTER_NEAREST_MIPMAP_NEAREST:
+        return "MIN_FILTER_NEAREST_MIPMAP_NEAREST";
+        break;
+    case PicaDataTextureMinFilter::MIN_FILTER_NEAREST_MIPMAP_LINEAR:
+        return "MIN_FILTER_NEAREST_MIPMAP_LINEAR";
+        break;
+    case PicaDataTextureMinFilter::MIN_FILTER_LINEAR:
+        return "MIN_FILTER_LINEAR";
+    case PicaDataTextureMinFilter::MIN_FILTER_LINEAR_MIPMAP_NEAREST:
+        return "MIN_FILTER_LINEAR_MIPMAP_NEAREST";
+        break;
+    case PicaDataTextureMinFilter::MIN_FILTER_LINEAR_MIPMAP_LINEAR:
+        return "MIN_FILTER_LINEAR_MIPMAP_LINEAR";
+        break;
+    }
+}
 
 // size: 0xA8
 struct alignas(4) Texture {
