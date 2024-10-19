@@ -14,35 +14,45 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         src/main.cpp
-        src/mainwindow.cpp
         src/imageutil.cpp
-        src/emitterwidget.cpp
-        src/emitterSetWidget.cpp
-        src/ptclList.cpp
+        src/editor/mainwindow.cpp
+        src/editor/emitterwidget.cpp
+        src/editor/emitterSetWidget.cpp
+        src/editor/texturewidget.cpp
+        src/editor/ptclList.cpp
         src/ptcl/ptcl.cpp
+        src/ptcl/ptclTexture.cpp
 )
 
 set(PROJECT_HEADERS
         include/gr.h
-        include/mainwindow.h
         include/printUtil.h
         include/typedefs.h
         include/imageutil.h
-        include/emitterwidget.h
-        include/emitterSetWidget.h
-        include/ptclList.h
+        include/editor/mainwindow.h
+        include/editor/emitterwidget.h
+        include/editor/emitterSetWidget.h
+        include/editor/texturewidget.h
+        include/editor/ptclList.h
         include/ptcl/ptcl.h
         include/ptcl/ptclEnums.h
         include/ptcl/ptclRes.h
+        include/ptcl/ptclTexture.h
 )
 
 set(PROJECT_FORMS
-        ui/mainwindow.ui
+        src/editor/ui/mainwindow.ui
 )
 
 qt_add_executable(EffectTool
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES} ${PROJECT_HEADERS} ${PROJECT_FORMS}
+)
+
+qt_add_resources(EffectTool "icons"
+    PREFIX "/"
+    FILES
+        res/icons/remove.png
 )
 
 target_link_libraries(EffectTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)

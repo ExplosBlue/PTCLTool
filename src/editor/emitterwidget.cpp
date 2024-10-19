@@ -1,4 +1,6 @@
-#include "emitterwidget.h"
+#include "editor/emitterwidget.h"
+
+namespace PtclEditor {
 
 EmitterWidget::EmitterWidget(QWidget* parent) :
     QWidget(parent) {
@@ -55,17 +57,21 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mNameLabel.setText("Name: " + mEmitterPtr->name());
 
     // TODO: Move this...
-    QImage texture = mEmitterPtr->texture();
+    if (mEmitterPtr->textureHandle().isValid()) {
+        QImage texture = mEmitterPtr->textureHandle().get()->textureData();
+        auto format = mEmitterPtr->textureHandle().get()->textureFormat();
 
-    auto format = mEmitterPtr->textureFormat();
-    auto width = texture.width();
-    auto height = texture.height();
+        qDebug() << "Texture User Count: " << mEmitterPtr->textureHandle()->userCount();
 
-    QPixmap pixmap = QPixmap::fromImage(texture);
-    mImageLabel.setPixmap(pixmap.scaled(width * 3, height * 3, Qt::KeepAspectRatio));
+        auto width = texture.width();
+        auto height = texture.height();
 
-    QString labelText = QString("Format: %1 \nWidth: %2 \nHeight: %3").arg(gr::toQString(format)).arg(width).arg(height);
-    mImageInfoLabel.setText(labelText);
+        QPixmap pixmap = QPixmap::fromImage(texture);
+        mImageLabel.setPixmap(pixmap.scaled(width * 3, height * 3, Qt::KeepAspectRatio));
+
+        QString labelText = QString("Format: %1 \nWidth: %2 \nHeight: %3").arg(gr::toQString(format)).arg(width).arg(height);
+        mImageInfoLabel.setText(labelText);
+    }
 
     // More Stuff
     m_2CLabel.setText("_2C: " + QString::number(mEmitterPtr->_2C()));
@@ -79,3 +85,5 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mVolumeRadiusLabel.setText(QString("VolumeRadius: {%1, %2, %3}").arg(mEmitterPtr->volumeRadius().x()).arg(mEmitterPtr->volumeRadius().y()).arg(mEmitterPtr->volumeRadius().z()));
 
 }
+
+} // namespace PtclEditor

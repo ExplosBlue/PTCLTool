@@ -7,6 +7,8 @@
 
 #include "ptcl/ptcl.h"
 
+namespace PtclEditor {
+
 class EmitterWidget : public QWidget
 {
     Q_OBJECT
@@ -70,5 +72,7 @@ private:
     // std::array<u32, 9> m_1D0;
 
 };
+
+} // namespace PtclEditor
 
 #endif // EMITTERWIDGET_H

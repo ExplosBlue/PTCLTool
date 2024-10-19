@@ -1,4 +1,6 @@
-#include "emitterSetWidget.h"
+#include "editor/emitterSetWidget.h"
+
+namespace PtclEditor {
 
 EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
     QWidget(parent) {
@@ -42,7 +44,7 @@ void EmitterSetWidget::setEmitterSet(Ptcl::EmitterSet* emitterSet) {
 void EmitterSetWidget::selectedEmitterChanged(u32 index) {
 
     if (index < mEmitterSetPtr->emitters().size()) {
-        mEmitterWidget.setEmitter(&mEmitterSetPtr->emitters()[index]);
+        mEmitterWidget.setEmitter(mEmitterSetPtr->emitters()[index].get());
     }
 }
 
@@ -53,12 +55,12 @@ void EmitterSetWidget::populateEmitterPicker() {
 
     u32 idx = 0;
     for (auto& emitter : mEmitterSetPtr->emitters()) {
-        mEmitterPicker.addItem(emitter.name(), idx);
+        mEmitterPicker.addItem(emitter->name(), idx);
         ++idx;
     }
 
     mEmitterPicker.blockSignals(false);
-    mEmitterWidget.setEmitter(&mEmitterSetPtr->emitters()[0]);
+    mEmitterWidget.setEmitter(mEmitterSetPtr->emitters()[0].get());
 }
 
 void EmitterSetWidget::populateProperties() {
@@ -66,3 +68,5 @@ void EmitterSetWidget::populateProperties() {
     mNameLineEdit.setText(mEmitterSetPtr->name());
     mEmitterCountLabel.setText("Emitter Count: " + QString::number(mEmitterSetPtr->emitterCount()));
 }
+
+} // namespace PtclEditor

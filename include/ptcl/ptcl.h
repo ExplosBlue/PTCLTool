@@ -12,8 +12,8 @@
 #include "typedefs.h"
 
 #include "ptclEnums.h"
+#include "ptclTexture.h"
 
-#include "gr.h"
 
 namespace Ptcl {
 
@@ -37,11 +37,8 @@ public:
     const QString& name() const { return mName; }
     void setName(const QString& name) { mName = name; }
 
-    const QImage& texture() const { return mTexture; }
-    void setTexture(const QImage& texture) { mTexture = texture; }
-
-    const gr::PicaDataTextureFormat textureFormat() const { return mTextureFormat; }
-    void setTextureFormat(const gr::PicaDataTextureFormat textureFormat) { mTextureFormat = textureFormat; }
+    const TextureHandle& textureHandle() const { return mTextureHande; }
+    void setTexture(std::shared_ptr<Texture> texture) { mTextureHande.set(texture); }
 
     const u8 _2C() const { return m_2C; }
     void set_2C(const u8 _2C) { m_2C = _2C; }
@@ -142,7 +139,7 @@ public:
     const std::array<u32, 9>& _1D0() const { return m_1D0; }
     void set_1D0(const std::array<u32, 9>& _1D0) { m_1D0 = _1D0; }
 
-    void setFromBinEmitter(const BinCommonEmitterData& emitterData);
+    void initFromBinary(const BinCommonEmitterData& emitterData);
 
 private:
     EmitterType mType;
@@ -150,9 +147,9 @@ private:
     u32 mRandomSeed;
 
     QString mName; // namePos, name
-    QImage mTexture; // - textureRes, texturePos, textureSize, textureHandle
 
-    gr::PicaDataTextureFormat mTextureFormat;
+    TextureHandle mTextureHande;
+    // Texture Wrap etc should go here...
 
     u8 m_2C;
     u8 m_2D;
@@ -189,6 +186,7 @@ private:
     std::array<u32, 9> m_1D0;
 };
 
+using EmitterList = std::vector<std::unique_ptr<Emitter>>;
 
 class EmitterSet
 {
@@ -196,7 +194,7 @@ public:
     EmitterSet() = default;
     EmitterSet(const BinEmitterSet& binEmitterSet);
 
-    std::vector<Emitter>& emitters() { return mEmitters; }
+    EmitterList& emitters() { return mEmitters; }
 
     const QString& name() const { return mName; }
     void setName(const QString& name) { mName = name; }
@@ -206,17 +204,19 @@ public:
     const u32 userData() const { return mUserData; }
     void setUserData(u32 data) { mUserData = data; }
 
-    const bool isShowDetail() const { return mIsShowDetail; }
-    void setisShowDetail(bool isShowDetail) { mIsShowDetail = isShowDetail; }
+    // const bool isShowDetail() const { return mIsShowDetail; }
+    // void setisShowDetail(bool isShowDetail) { mIsShowDetail = isShowDetail; }
 
 private:
     QString mName;
-    std::vector<Emitter> mEmitters;
+    EmitterList mEmitters;
 
     u32 mUserData;
-    bool mIsShowDetail; // idk what this is
+    // bool mIsShowDetail; // idk what this is
 };
 
+using TextureList = std::vector<std::shared_ptr<Texture>>;
+using EmitterSetList = std::vector<std::unique_ptr<EmitterSet>>;
 
 class PtclRes
 {
@@ -229,13 +229,18 @@ public:
     const QString& name() const { return mName; }
     void setName(const QString& name) { mName = name; }
 
-    std::vector<EmitterSet>& getEmitterSets() { return mEmitterSets; }
+    EmitterSetList& getEmitterSets() { return mEmitterSets; }
 
-    // void printInfo();
+    void addTexture(const Texture& texture);
+    void removeTexture(u32 textureIndex);
+
+    const TextureList& textures() const { return mTextures; }
+    TextureList& textures() { return mTextures; }
 
 private:
     QString mName;
-    std::vector<EmitterSet> mEmitterSets;
+    EmitterSetList mEmitterSets;
+    TextureList mTextures;
 };
 
 }
