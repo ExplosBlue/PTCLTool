@@ -8,11 +8,18 @@
 
 #include "ptcl/ptcl.h"
 
+namespace PtclEditor {
+
 class PtclList : public QWidget
 {
     Q_OBJECT
 public:
-    explicit PtclList(Ptcl::PtclRes *ptclRes, QWidget *parent = nullptr);
+    explicit PtclList(QWidget *parent = nullptr);
+
+    void setPtclRes(Ptcl::PtclRes *ptclRes);
+
+private:
+    void populateList();
 
 private slots:
     void selectionChanged(const QItemSelection& selection);
@@ -21,11 +28,13 @@ signals:
     void selectedIndexChanged(u32 index);
 
 private:
-    Ptcl::PtclRes* mRes; // TODO: this should not be a raw pointer...
+    Ptcl::PtclRes* mResPtr; // TODO: this should not be a raw pointer...
     QStandardItemModel mListModel;
     QListView mListView;
 
     QVBoxLayout mMainLayout;
 };
+
+} //namespace PtclEditor
 
 #endif // PTCLLIST_H

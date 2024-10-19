@@ -1,11 +1,12 @@
-#include "mainwindow.h"
+#include "editor/mainwindow.h"
 
 #include <QApplication>
 
-int main(int argc, char *argv[])
-{
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    return a.exec();
+int main(int argc, char* argv[]) {
+
+    QApplication app(argc, argv);
+    PtclEditor::MainWindow win;
+    win.show();
+
+    return app.exec();
 }

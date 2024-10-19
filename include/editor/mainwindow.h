@@ -4,20 +4,23 @@
 #include <QMainWindow>
 
 #include <QLabel>
+#include <QScrollArea>
 
-#include "ptclList.h"
-#include "emitterSetWidget.h"
+#include "typedefs.h"
+
+#include "ptcl/ptcl.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
+
+namespace PtclEditor {
 
 class MainWindow final : public QMainWindow {
     Q_OBJECT
 
 public:
     MainWindow(QWidget* parent = nullptr);
-    ~MainWindow() final;
 
     void LoadData();
 
@@ -25,18 +28,13 @@ public slots:
     void selectedEmitterSetChanged(u32 index);
 
 private:
-    Ui::MainWindow* ui;
-
+    Ui::MainWindow* mUi;
+    // std::unique_ptr<Ui::MainWindow> mUi;
     std::unique_ptr<Ptcl::PtclRes> mPtclRes;
-    std::unique_ptr<PtclList> mPtclList;
-    std::unique_ptr<EmitterSetWidget> mEmitterSetWidget;
-
-    // Todo: this shouldn't be in main window
-    QLineEdit mNameEdit;
-
-    QWidget* mCenteralWidget;
-    QHBoxLayout mMainLayout;
 
     u32 mCurEmitterSetIdx;
 };
+
+} // namespace PtclEditor
+
 #endif // MAINWINDOW_H

@@ -1,98 +1,23 @@
 #include "imageutil.h"
 
-QImage ImageUtil::picaTextureToQImage(const QByteArray& textureData, u32 width, u32 height, gr::PicaDataTextureFormat format) {
+#include "ptcl/ptclTexture.h"
 
-    bool hasAlpha = false;
+namespace ImageUtil {
 
-    switch (format) {
-    case gr::PicaDataTextureFormat::RGBA4444:
-    case gr::PicaDataTextureFormat::RGBA5551:
-    case gr::PicaDataTextureFormat::ETC1_A4:
-        hasAlpha = true;
-        break;
-    default:
-        break;
-    }
+namespace /* Anonymous */ {
 
-    QImage::Format imageFormat = (hasAlpha) ? QImage::Format_RGBA8888 : QImage::Format_RGB888;
-    QImage texture = QImage(width, height, imageFormat);
-
-    try {
-
-        switch (format) {
-        case gr::PicaDataTextureFormat::ETC1:
-        case gr::PicaDataTextureFormat::ETC1_A4:
-            getTextureETC1(textureData, &texture, hasAlpha);
-            break;
-        default:
-            getTextureRaster(textureData, &texture, hasAlpha, format);
-            break;
-        }
-
-    } catch(std::exception& e) {
-        qDebug() << e.what() << format;
-    }
-
-    return texture;
+quint32 align(quint32 value, quint32 alignment) {
+    return (value + alignment - 1) & ~(alignment - 1);
 }
 
-u32 ImageUtil::getTextureSize(s32 width, s32 height, gr::PicaDataTextureFormat format, u32 alignment)
-{
-    u32 bitsPerPixel = 0;
-
-    switch (format)
-    {
-    case gr::PicaDataTextureFormat::RGBA4444:
-    case gr::PicaDataTextureFormat::RGBA5551:
-    case gr::PicaDataTextureFormat::RGB565:
-    case gr::PicaDataTextureFormat::LA88:
-        bitsPerPixel = 16;
-        break;
-
-    case gr::PicaDataTextureFormat::RGBA8888:
-        bitsPerPixel = 32;
-        break;
-
-    case gr::PicaDataTextureFormat::RGB888:
-        bitsPerPixel = 24;
-        break;
-
-    case gr::PicaDataTextureFormat::L8:
-    case gr::PicaDataTextureFormat::A8:
-    case gr::PicaDataTextureFormat::LA44:
-        bitsPerPixel = 8;
-        break;
-
-    case gr::PicaDataTextureFormat::A4:
-        bitsPerPixel = 4;
-        break;
-
-    case gr::PicaDataTextureFormat::ETC1:
-    {
-        int widthBlocks = (width + 3) / 4;
-        int heightBlocks = (height + 3) / 4;
-        return widthBlocks * heightBlocks * 8;
-    }
-
-    case gr::PicaDataTextureFormat::ETC1_A4:
-    {
-        int widthBlocks = (width + 3) / 4;
-        int heightBlocks = (height + 3) / 4;
-        return widthBlocks * heightBlocks * 16;
-    }
-
-    default:
-        // throw std::runtime_error("Unsupported Texture Format");
-        return 0;
-    }
-
-    u32 rowSize = (width * bitsPerPixel) / 8;
-    u32 alignedRowSize = align(rowSize, alignment);
-    return alignedRowSize * height;
+u32 clampColor(u32 val) {
+    if (val > 255) return 255;
+    if (val < 0) return 0;
+    return val;
 }
 
-void ImageUtil::getTextureRaster(const QByteArray& textureData, QImage* image, bool hasAlpha, gr::PicaDataTextureFormat format)
-{
+void getTextureRaster(const QByteArray& textureData, QImage* image, bool hasAlpha, gr::PicaDataTextureFormat format) {
+
     quint8* lineData = image->scanLine(0);
     bool premultiply = (image->format() == QImage::Format_RGBA8888_Premultiplied);
 
@@ -205,37 +130,37 @@ void ImageUtil::getTextureRaster(const QByteArray& textureData, QImage* image, b
                                         a = alpha;              // Set the alpha value
                                         break;
                                     }
-                                    // case gr::PicaDataTextureFormat::A4: // TODO: Check this
-                                    // {
-                                    //     quint8 alphaPair;
-                                    //     stream >> alphaPair;
+                                        // case gr::PicaDataTextureFormat::A4: // TODO: Check this
+                                        // {
+                                        //     quint8 alphaPair;
+                                        //     stream >> alphaPair;
 
-                                    //     // First 4-bit alpha (upper nibble)
-                                    //     quint8 alpha1 = (alphaPair >> 4) * 17;  // Scale from 0-15 to 0-255
-                                    //     r = g = b = 0;  // Set R, G, B to black
-                                    //     a = alpha1;
+                                        //     // First 4-bit alpha (upper nibble)
+                                        //     quint8 alpha1 = (alphaPair >> 4) * 17;  // Scale from 0-15 to 0-255
+                                        //     r = g = b = 0;  // Set R, G, B to black
+                                        //     a = alpha1;
 
-                                    //     // Write the first pixel
-                                    //     quint32 dstpos1 = ((yy + sy + ty + y) * image->width() + xx + sx + tx + x) * 4;
-                                    //     lineData[dstpos1 + 0] = r;
-                                    //     lineData[dstpos1 + 1] = g;
-                                    //     lineData[dstpos1 + 2] = b;
-                                    //     lineData[dstpos1 + 3] = a;
+                                        //     // Write the first pixel
+                                        //     quint32 dstpos1 = ((yy + sy + ty + y) * image->width() + xx + sx + tx + x) * 4;
+                                        //     lineData[dstpos1 + 0] = r;
+                                        //     lineData[dstpos1 + 1] = g;
+                                        //     lineData[dstpos1 + 2] = b;
+                                        //     lineData[dstpos1 + 3] = a;
 
-                                    //     // Second 4-bit alpha (lower nibble)
-                                    //     quint8 alpha2 = (alphaPair & 0xF) * 17;  // Scale from 0-15 to 0-255
-                                    //     r = g = b = 0;  // Set R, G, B to black
-                                    //     a = alpha2;
+                                        //     // Second 4-bit alpha (lower nibble)
+                                        //     quint8 alpha2 = (alphaPair & 0xF) * 17;  // Scale from 0-15 to 0-255
+                                        //     r = g = b = 0;  // Set R, G, B to black
+                                        //     a = alpha2;
 
-                                    //     // Write the second pixel (increment positions as needed)
-                                    //     quint32 dstpos2 = ((yy + sy + ty + y) * image->width() + xx + sx + tx + x + 1) * 4;
-                                    //     lineData[dstpos2 + 0] = r;
-                                    //     lineData[dstpos2 + 1] = g;
-                                    //     lineData[dstpos2 + 2] = b;
-                                    //     lineData[dstpos2 + 3] = a;
+                                        //     // Write the second pixel (increment positions as needed)
+                                        //     quint32 dstpos2 = ((yy + sy + ty + y) * image->width() + xx + sx + tx + x + 1) * 4;
+                                        //     lineData[dstpos2 + 0] = r;
+                                        //     lineData[dstpos2 + 1] = g;
+                                        //     lineData[dstpos2 + 2] = b;
+                                        //     lineData[dstpos2 + 3] = a;
 
-                                    //     break;
-                                    // }
+                                        //     break;
+                                        // }
                                     case gr::PicaDataTextureFormat::LA44: // TODO: Check this
                                     {
                                         quint8 la;
@@ -291,13 +216,13 @@ void ImageUtil::getTextureRaster(const QByteArray& textureData, QImage* image, b
 }
 
 
-void ImageUtil::getTextureETC1(const QByteArray& textureData, QImage* image, bool hasAlpha) {
+void getTextureETC1(const QByteArray& textureData, QImage* image, bool hasAlpha) {
 
     const std::array<std::array<s32, 2>, 8> etc1_mod =
-    {{
-        {2, 8}, {5, 17}, {9, 29}, {13, 42},
-        {18, 60}, {24, 80}, {33, 106}, {47, 183}
-    }};
+        {{
+            {2, 8}, {5, 17}, {9, 29}, {13, 42},
+            {18, 60}, {24, 80}, {33, 106}, {47, 183}
+        }};
 
     u8* lineData = image->scanLine(0);
     bool premultiply = (image->format() == QImage::Format_RGBA8888_Premultiplied);
@@ -434,3 +359,104 @@ void ImageUtil::getTextureETC1(const QByteArray& textureData, QImage* image, boo
     }
 
 }
+
+} // namespace Anonymous
+
+QImage picaTextureToQImage(const QByteArray& textureData, s32 width, s32 height, gr::PicaDataTextureFormat format) {
+
+    bool hasAlpha = false;
+
+    switch (format) {
+    case gr::PicaDataTextureFormat::RGBA4444:
+    case gr::PicaDataTextureFormat::RGBA5551:
+    case gr::PicaDataTextureFormat::ETC1_A4:
+        hasAlpha = true;
+        break;
+    default:
+        break;
+    }
+
+    QImage::Format imageFormat = (hasAlpha) ? QImage::Format_RGBA8888 : QImage::Format_RGB888;
+    QImage texture = QImage(width, height, imageFormat);
+
+    try {
+
+        switch (format) {
+        case gr::PicaDataTextureFormat::ETC1:
+        case gr::PicaDataTextureFormat::ETC1_A4:
+            getTextureETC1(textureData, &texture, hasAlpha);
+            break;
+        default:
+            getTextureRaster(textureData, &texture, hasAlpha, format);
+            break;
+        }
+
+    } catch(std::exception& e) {
+        qDebug() << e.what() << format;
+    }
+
+    return texture;
+}
+
+Ptcl::Texture createTexture(const QByteArray& textureData, u32 width, u32 height, gr::PicaDataTextureFormat format) {
+
+    QImage image = picaTextureToQImage(textureData, width, height, format);
+    return {std::move(image), format};
+}
+
+u32 getTextureSize(s32 width, s32 height, gr::PicaDataTextureFormat format, u32 alignment)
+{
+    u32 bitsPerPixel = 0;
+
+    switch (format)
+    {
+    case gr::PicaDataTextureFormat::RGBA4444:
+    case gr::PicaDataTextureFormat::RGBA5551:
+    case gr::PicaDataTextureFormat::RGB565:
+    case gr::PicaDataTextureFormat::LA88:
+        bitsPerPixel = 16;
+        break;
+
+    case gr::PicaDataTextureFormat::RGBA8888:
+        bitsPerPixel = 32;
+        break;
+
+    case gr::PicaDataTextureFormat::RGB888:
+        bitsPerPixel = 24;
+        break;
+
+    case gr::PicaDataTextureFormat::L8:
+    case gr::PicaDataTextureFormat::A8:
+    case gr::PicaDataTextureFormat::LA44:
+        bitsPerPixel = 8;
+        break;
+
+    case gr::PicaDataTextureFormat::A4:
+        bitsPerPixel = 4;
+        break;
+
+    case gr::PicaDataTextureFormat::ETC1:
+    {
+        int widthBlocks = (width + 3) / 4;
+        int heightBlocks = (height + 3) / 4;
+        return widthBlocks * heightBlocks * 8;
+    }
+
+    case gr::PicaDataTextureFormat::ETC1_A4:
+    {
+        int widthBlocks = (width + 3) / 4;
+        int heightBlocks = (height + 3) / 4;
+        return widthBlocks * heightBlocks * 16;
+    }
+
+    default:
+        // throw std::runtime_error("Unsupported Texture Format");
+        return 0;
+    }
+
+    u32 rowSize = (width * bitsPerPixel) / 8;
+    u32 alignedRowSize = align(rowSize, alignment);
+    return alignedRowSize * height;
+}
+
+} // namespace ImageUtil

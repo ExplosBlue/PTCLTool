@@ -12,6 +12,8 @@
 #include "ptcl/ptcl.h"
 #include "emitterwidget.h"
 
+namespace PtclEditor {
+
 class EmitterSetWidget : public QWidget
 {
     Q_OBJECT
@@ -40,5 +42,7 @@ private:
 
     EmitterWidget mEmitterWidget;
 };
+
+} // namespace PtclEditor
 
 #endif // EMITTERSETWIDGET_H
