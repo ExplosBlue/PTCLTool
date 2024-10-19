@@ -11,14 +11,17 @@
 
 #include "typedefs.h"
 
-#include "ptclEnums.h"
+#include "ptclEnum.h"
 #include "ptclTexture.h"
 
+#include "ptclRes.h"
 
 namespace Ptcl {
 
 class BinEmitterSet;
 class BinCommonEmitterData;
+// class BinComplexEmitterData;
+// class BinEmitterDataType2;
 
 class Emitter
 {
@@ -39,6 +42,18 @@ public:
 
     const TextureHandle& textureHandle() const { return mTextureHande; }
     void setTexture(std::shared_ptr<Texture> texture) { mTextureHande.set(texture); }
+
+    const TextureWrap textureWrapT() const { return mTextureWrapT; }
+    void setTextureWrapT(TextureWrap wrap) { mTextureWrapT = wrap; }
+
+    const TextureWrap textureWrapS() const { return mTextureWrapS; }
+    void setTextureWrapS(TextureWrap wrap) { mTextureWrapS = wrap; }
+
+    const TextureMagFilter textureMagFilter() const { return mTextureMagFilter; }
+    void setTextureMagFilter(TextureMagFilter filter) { mTextureMagFilter = filter; }
+
+    const TextureMinFilter textureMinFilter() const { return mTextureMinFilter; }
+    void setTextureMinFilter(TextureMinFilter filter) { mTextureMinFilter = filter; }
 
     const u8 _2C() const { return m_2C; }
     void set_2C(const u8 _2C) { m_2C = _2C; }
@@ -141,6 +156,13 @@ public:
 
     void initFromBinary(const BinCommonEmitterData& emitterData);
 
+    // TODO: This is temporary, replace with better solution
+    void setComplexEmitterData(const BinComplexEmitterData& emitterData) { mComplexEmitterData = emitterData; }
+    const BinComplexEmitterData& complexEmitterData() const { return mComplexEmitterData; }
+
+    void setEmitterDataType2(const BinEmitterDataType2& emitterData) { mEmitterDataType2 = emitterData; }
+    const BinEmitterDataType2& emitterDataType2() const { return mEmitterDataType2; }
+
 private:
     EmitterType mType;
     u32 mFlag;
@@ -150,6 +172,10 @@ private:
 
     TextureHandle mTextureHande;
     // Texture Wrap etc should go here...
+    TextureWrap mTextureWrapT;
+    TextureWrap mTextureWrapS;
+    TextureMagFilter mTextureMagFilter;
+    TextureMinFilter mTextureMinFilter;
 
     u8 m_2C;
     u8 m_2D;
@@ -184,6 +210,10 @@ private:
     QMatrix3x4 m_170; // SRT related
     QMatrix3x4 m_1A0; // RT related
     std::array<u32, 9> m_1D0;
+
+    // TODO: This is temporary, replace with better solution
+    BinComplexEmitterData mComplexEmitterData;
+    BinEmitterDataType2 mEmitterDataType2;
 };
 
 using EmitterList = std::vector<std::unique_ptr<Emitter>>;
@@ -201,8 +231,12 @@ public:
 
     const u32 emitterCount() const { return mEmitters.size(); }
 
+    const u32 lastUpdateDate() const { return mLastUpdateDate; }
+    void setLastUpdateDate(u32 lastUpdateDate) { mLastUpdateDate = lastUpdateDate; }
+
     const u32 userData() const { return mUserData; }
     void setUserData(u32 data) { mUserData = data; }
+
 
     // const bool isShowDetail() const { return mIsShowDetail; }
     // void setisShowDetail(bool isShowDetail) { mIsShowDetail = isShowDetail; }
@@ -212,6 +246,7 @@ private:
     EmitterList mEmitters;
 
     u32 mUserData;
+    u32 mLastUpdateDate; // TODO: check this
     // bool mIsShowDetail; // idk what this is
 };
 

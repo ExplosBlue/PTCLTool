@@ -21,11 +21,12 @@ set(PROJECT_SOURCES
         src/editor/texturewidget.cpp
         src/editor/ptclList.cpp
         src/ptcl/ptcl.cpp
+        src/ptcl/ptclEnum.cpp
+        src/ptcl/ptclRes.cpp
         src/ptcl/ptclTexture.cpp
 )
 
 set(PROJECT_HEADERS
-        include/gr.h
         include/printUtil.h
         include/typedefs.h
         include/imageutil.h
@@ -35,7 +36,7 @@ set(PROJECT_HEADERS
         include/editor/texturewidget.h
         include/editor/ptclList.h
         include/ptcl/ptcl.h
-        include/ptcl/ptclEnums.h
+        include/ptcl/ptclEnum.h
         include/ptcl/ptclRes.h
         include/ptcl/ptclTexture.h
 )

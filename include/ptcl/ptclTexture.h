@@ -4,7 +4,7 @@
 #include <QImage>
 #include <utility>
 
-#include "gr.h"
+#include "ptcl/ptclEnum.h"
 
 namespace Ptcl {
 
@@ -14,7 +14,7 @@ public:
     Texture() = delete;
 
     // TODO: Rethink this maybe...
-    Texture(const QImage& image, gr::PicaDataTextureFormat format) :
+    Texture(const QImage& image, TextureFormat format) :
         mTextureFormat{format} {
         mTextureData = image;
     }
@@ -22,14 +22,14 @@ public:
     // TODO: getters/setters/whatever
     const QImage& textureData() const { return mTextureData; }
 
-    const gr::PicaDataTextureFormat textureFormat() const { return mTextureFormat; }
+    const TextureFormat textureFormat() const { return mTextureFormat; }
     // void setTextureFormat(gr::PicaDataTextureFormat format) { mTextureFormat = format; }
 
     const u32 userCount() const { return mUserCount; }
 
 private:
     QImage mTextureData;
-    gr::PicaDataTextureFormat mTextureFormat;
+    TextureFormat mTextureFormat;
 
     // TODO: maybe other stuff here?
 

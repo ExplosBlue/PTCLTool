@@ -69,7 +69,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
         QPixmap pixmap = QPixmap::fromImage(texture);
         mImageLabel.setPixmap(pixmap.scaled(width * 3, height * 3, Qt::KeepAspectRatio));
 
-        QString labelText = QString("Format: %1 \nWidth: %2 \nHeight: %3").arg(gr::toQString(format)).arg(width).arg(height);
+        QString labelText = QString("Format: %1 \nWidth: %2 \nHeight: %3").arg(toQString(format)).arg(width).arg(height);
         mImageInfoLabel.setText(labelText);
     }
 
