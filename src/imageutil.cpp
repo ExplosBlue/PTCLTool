@@ -16,7 +16,7 @@ u32 clampColor(u32 val) {
     return val;
 }
 
-void getTextureRaster(const QByteArray& textureData, QImage* image, bool hasAlpha, gr::PicaDataTextureFormat format) {
+void getTextureRaster(const QByteArray& textureData, QImage* image, bool hasAlpha, Ptcl::TextureFormat format) {
 
     quint8* lineData = image->scanLine(0);
     bool premultiply = (image->format() == QImage::Format_RGBA8888_Premultiplied);
@@ -45,7 +45,7 @@ void getTextureRaster(const QByteArray& textureData, QImage* image, bool hasAlph
 
                                     switch (format)
                                     {
-                                    case gr::PicaDataTextureFormat::RGBA4444:
+                                    case Ptcl::TextureFormat::RGBA4444:
                                     {
                                         quint16 i;
                                         stream >> i;
@@ -55,7 +55,7 @@ void getTextureRaster(const QByteArray& textureData, QImage* image, bool hasAlph
                                         a = (i & 0xF) << 4;
                                         break;
                                     }
-                                    case gr::PicaDataTextureFormat::RGBA5551:
+                                    case Ptcl::TextureFormat::RGBA5551:
                                     {
                                         quint16 i;
                                         stream >> i;
@@ -68,7 +68,7 @@ void getTextureRaster(const QByteArray& textureData, QImage* image, bool hasAlph
                                             a = 0;
                                         break;
                                     }
-                                    case gr::PicaDataTextureFormat::RGBA8888:
+                                    case Ptcl::TextureFormat::RGBA8888:
                                     {
                                         u8 temp;
                                         stream >> temp;
@@ -84,7 +84,7 @@ void getTextureRaster(const QByteArray& textureData, QImage* image, bool hasAlph
                                         r = temp;
                                         break;
                                     }
-                                    case gr::PicaDataTextureFormat::RGB565:
+                                    case Ptcl::TextureFormat::RGB565:
                                     {
                                         quint16 i;
                                         stream >> i;
@@ -93,7 +93,7 @@ void getTextureRaster(const QByteArray& textureData, QImage* image, bool hasAlph
                                         b = (i & 0x1F) << 3;
                                         break;
                                     }
-                                    case gr::PicaDataTextureFormat::RGB888:
+                                    case Ptcl::TextureFormat::RGB888:
                                     {
                                         u8 temp;
                                         stream >> temp;
@@ -106,7 +106,7 @@ void getTextureRaster(const QByteArray& textureData, QImage* image, bool hasAlph
                                         r = temp;
                                         break;
                                     }
-                                    case gr::PicaDataTextureFormat::L8: // TODO: Check this
+                                    case Ptcl::TextureFormat::L8: // TODO: Check this
                                     {
                                         quint8 luminance;
                                         stream >> luminance;
@@ -114,7 +114,7 @@ void getTextureRaster(const QByteArray& textureData, QImage* image, bool hasAlph
                                         a = 255;  // Opaque since there's no alpha in L8
                                         break;
                                     }
-                                    // case gr::PicaDataTextureFormat::A8: // TODO: Check this
+                                    // case Ptcl::TextureFormat::A8: // TODO: Check this
                                     // {
                                     //     quint8 alpha;
                                     //     stream >> alpha;
@@ -122,7 +122,7 @@ void getTextureRaster(const QByteArray& textureData, QImage* image, bool hasAlph
                                     //     a = alpha;      // Set the alpha value
                                     //     break;
                                     // }
-                                    case gr::PicaDataTextureFormat::LA88: // TODO: Check this
+                                    case Ptcl::TextureFormat::LA88: // TODO: Check this
                                     {
                                         quint8 luminance, alpha;
                                         stream >> luminance >> alpha;
@@ -130,7 +130,7 @@ void getTextureRaster(const QByteArray& textureData, QImage* image, bool hasAlph
                                         a = alpha;              // Set the alpha value
                                         break;
                                     }
-                                        // case gr::PicaDataTextureFormat::A4: // TODO: Check this
+                                        // case Ptcl::TextureFormat::A4: // TODO: Check this
                                         // {
                                         //     quint8 alphaPair;
                                         //     stream >> alphaPair;
@@ -161,7 +161,7 @@ void getTextureRaster(const QByteArray& textureData, QImage* image, bool hasAlph
 
                                         //     break;
                                         // }
-                                    case gr::PicaDataTextureFormat::LA44: // TODO: Check this
+                                    case Ptcl::TextureFormat::LA44: // TODO: Check this
                                     {
                                         quint8 la;
                                         stream >> la;
@@ -362,14 +362,14 @@ void getTextureETC1(const QByteArray& textureData, QImage* image, bool hasAlpha)
 
 } // namespace Anonymous
 
-QImage picaTextureToQImage(const QByteArray& textureData, s32 width, s32 height, gr::PicaDataTextureFormat format) {
+QImage picaTextureToQImage(const QByteArray& textureData, s32 width, s32 height, Ptcl::TextureFormat format) {
 
     bool hasAlpha = false;
 
     switch (format) {
-    case gr::PicaDataTextureFormat::RGBA4444:
-    case gr::PicaDataTextureFormat::RGBA5551:
-    case gr::PicaDataTextureFormat::ETC1_A4:
+    case Ptcl::TextureFormat::RGBA4444:
+    case Ptcl::TextureFormat::RGBA5551:
+    case Ptcl::TextureFormat::ETC1_A4:
         hasAlpha = true;
         break;
     default:
@@ -382,8 +382,8 @@ QImage picaTextureToQImage(const QByteArray& textureData, s32 width, s32 height,
     try {
 
         switch (format) {
-        case gr::PicaDataTextureFormat::ETC1:
-        case gr::PicaDataTextureFormat::ETC1_A4:
+        case Ptcl::TextureFormat::ETC1:
+        case Ptcl::TextureFormat::ETC1_A4:
             getTextureETC1(textureData, &texture, hasAlpha);
             break;
         default:
@@ -398,51 +398,51 @@ QImage picaTextureToQImage(const QByteArray& textureData, s32 width, s32 height,
     return texture;
 }
 
-Ptcl::Texture createTexture(const QByteArray& textureData, u32 width, u32 height, gr::PicaDataTextureFormat format) {
+Ptcl::Texture createTexture(const QByteArray& textureData, u32 width, u32 height, Ptcl::TextureFormat format) {
 
     QImage image = picaTextureToQImage(textureData, width, height, format);
     return {std::move(image), format};
 }
 
-u32 getTextureSize(s32 width, s32 height, gr::PicaDataTextureFormat format, u32 alignment)
+u32 getTextureSize(s32 width, s32 height, Ptcl::TextureFormat format, u32 alignment)
 {
     u32 bitsPerPixel = 0;
 
     switch (format)
     {
-    case gr::PicaDataTextureFormat::RGBA4444:
-    case gr::PicaDataTextureFormat::RGBA5551:
-    case gr::PicaDataTextureFormat::RGB565:
-    case gr::PicaDataTextureFormat::LA88:
+    case Ptcl::TextureFormat::RGBA4444:
+    case Ptcl::TextureFormat::RGBA5551:
+    case Ptcl::TextureFormat::RGB565:
+    case Ptcl::TextureFormat::LA88:
         bitsPerPixel = 16;
         break;
 
-    case gr::PicaDataTextureFormat::RGBA8888:
+    case Ptcl::TextureFormat::RGBA8888:
         bitsPerPixel = 32;
         break;
 
-    case gr::PicaDataTextureFormat::RGB888:
+    case Ptcl::TextureFormat::RGB888:
         bitsPerPixel = 24;
         break;
 
-    case gr::PicaDataTextureFormat::L8:
-    case gr::PicaDataTextureFormat::A8:
-    case gr::PicaDataTextureFormat::LA44:
+    case Ptcl::TextureFormat::L8:
+    case Ptcl::TextureFormat::A8:
+    case Ptcl::TextureFormat::LA44:
         bitsPerPixel = 8;
         break;
 
-    case gr::PicaDataTextureFormat::A4:
+    case Ptcl::TextureFormat::A4:
         bitsPerPixel = 4;
         break;
 
-    case gr::PicaDataTextureFormat::ETC1:
+    case Ptcl::TextureFormat::ETC1:
     {
         int widthBlocks = (width + 3) / 4;
         int heightBlocks = (height + 3) / 4;
         return widthBlocks * heightBlocks * 8;
     }
 
-    case gr::PicaDataTextureFormat::ETC1_A4:
+    case Ptcl::TextureFormat::ETC1_A4:
     {
         int widthBlocks = (width + 3) / 4;
         int heightBlocks = (height + 3) / 4;
