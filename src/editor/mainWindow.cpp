@@ -1,4 +1,4 @@
-#include "editor/mainwindow.h"
+#include "editor/mainWindow.h"
 #include "ui/ui_mainwindow.h"
 
 #include <QFileDialog>
@@ -17,11 +17,9 @@ MainWindow::MainWindow(QWidget* parent) :
     mUi->setupUi(this);
 
     connect(mUi->ptclList, &PtclList::selectedIndexChanged, this, &MainWindow::selectedEmitterSetChanged);
-
-    LoadData();
 }
 
-void MainWindow::LoadData() {
+void MainWindow::openFile() {
 
     QString filename = QFileDialog::getOpenFileName(this, "Select File", basePath);
 
@@ -32,6 +30,16 @@ void MainWindow::LoadData() {
 
     mUi->ptclList->setPtclRes(mPtclRes.get());
     mUi->textureWidget->setTextures(&mPtclRes->textures());
+}
+
+void MainWindow::saveFile() {
+
+    if (!mPtclRes) {
+        return;
+    }
+
+    QString filename = QFileDialog::getSaveFileName(this, "Save As", basePath);
+    mPtclRes->save(filename);
 }
 
 void MainWindow::selectedEmitterSetChanged(u32 index) {

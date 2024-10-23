@@ -2,10 +2,16 @@
 #define EMITTERWIDGET_H
 
 #include <QWidget>
+#include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
 
-#include "ptcl/ptcl.h"
+#include "ptcl/ptclEmitter.h"
+
+#include "sizedSpinBox.h"
 
 namespace PtclEditor {
 
@@ -24,10 +30,12 @@ private:
 
     QGridLayout mMainLayout;
 
-    QLabel mTypeLabel;
-    QLabel mFlagLabel;
-    QLabel mRandomSeedLabel;
-    QLabel mNameLabel;
+    QComboBox mTypeComboBox;
+    // QSpinBox mFlagSpinBox;
+    SizedSpinBox<u32> mFlagSpinBox;
+
+    SizedSpinBox<u32> mRandomSeedSpinBox;
+    QLineEdit mNameLineEdit;
 
     // TODO: Texture Info (move to dedicated widget?)
     QLabel mImageLabel;
@@ -35,24 +43,27 @@ private:
 
     // TODO: More
 
-    QLabel m_2CLabel;
-    QLabel m_2DLabel;
-    QLabel m_2ELabel;
-    QLabel m_2FLabel;
-    QLabel m_30Label;
-    QLabel m_31Label;
-    QLabel m_32Label; // probably padding...
+    SizedSpinBox<u8> m_2CSpinBox;
+    SizedSpinBox<u8> m_2DSpinBox;
+    SizedSpinBox<u8> m_2ESpinBox;
+    SizedSpinBox<u8> m_2FSpinBox;
+    SizedSpinBox<u8> m_30SpinBox;
+    SizedSpinBox<u8> m_31SpinBox;
+    SizedSpinBox<u16> m_32SpinBox; // probably padding...
 
     QLabel mVolumeTypeLabel;
     QLabel mVolumeRadiusLabel;
 
-    // f32 m_44;
-    // f32 m_48;
-    // f32 m_4C;
+    QDoubleSpinBox m_44SpinBox;
+    QDoubleSpinBox m_48SpinBox;
+    QDoubleSpinBox m_4CSpinBox;
+
     // std::array<u32, 13> m_50;
-    // s32 mPtclLife;
-    // u32 m_88;
-    // f32 m_8C;
+
+    SizedSpinBox<s32> mPtclLifeSpinBox;
+    SizedSpinBox<u32> m_88SpinBox;
+    QDoubleSpinBox m_8CSpinBox;
+
     // std::array<u32, 3> m_90;
     // f32 m_9C;
     // f32 m_A0;

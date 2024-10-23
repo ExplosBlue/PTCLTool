@@ -9,8 +9,8 @@
 #include <QComboBox>
 #include <QLineEdit>
 
-#include "ptcl/ptcl.h"
-#include "emitterwidget.h"
+#include "emitterWidget.h"
+#include "ptcl/ptclEmitterSet.h"
 
 namespace PtclEditor {
 

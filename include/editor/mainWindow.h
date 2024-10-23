@@ -22,10 +22,11 @@ class MainWindow final : public QMainWindow {
 public:
     MainWindow(QWidget* parent = nullptr);
 
-    void LoadData();
-
 public slots:
     void selectedEmitterSetChanged(u32 index);
+
+    void openFile();
+    void saveFile();
 
 private:
     Ui::MainWindow* mUi;

@@ -1,4 +1,4 @@
-#include "editor/ptclList.h"
+#include "editor/ptclListWidget.h"
 
 namespace PtclEditor {
 

@@ -13,36 +13,43 @@ find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
-        src/main.cpp
-        src/imageutil.cpp
-        src/editor/mainwindow.cpp
-        src/editor/emitterwidget.cpp
-        src/editor/emitterSetWidget.cpp
-        src/editor/texturewidget.cpp
-        src/editor/ptclList.cpp
-        src/ptcl/ptcl.cpp
-        src/ptcl/ptclEnum.cpp
-        src/ptcl/ptclRes.cpp
-        src/ptcl/ptclTexture.cpp
+    src/main.cpp
+    src/imageUtil.cpp
+    src/editor/mainWindow.cpp
+    src/editor/emitterWidget.cpp
+    src/editor/emitterSetWidget.cpp
+    src/editor/textureWidget.cpp
+    src/editor/ptclListWidget.cpp
+    src/ptcl/ptcl.cpp
+    src/ptcl/ptclBinary.cpp
+    src/ptcl/ptclEmitter.cpp
+    src/ptcl/ptclEmitterSet.cpp
+    src/ptcl/ptclEnum.cpp
+    src/ptcl/ptclTexture.cpp
+    src/etc1/rg_etc1.cpp
 )
 
 set(PROJECT_HEADERS
-        include/printUtil.h
-        include/typedefs.h
-        include/imageutil.h
-        include/editor/mainwindow.h
-        include/editor/emitterwidget.h
-        include/editor/emitterSetWidget.h
-        include/editor/texturewidget.h
-        include/editor/ptclList.h
-        include/ptcl/ptcl.h
-        include/ptcl/ptclEnum.h
-        include/ptcl/ptclRes.h
-        include/ptcl/ptclTexture.h
+    include/printUtil.h
+    include/typedefs.h
+    include/imageUtil.h
+    include/editor/mainWindow.h
+    include/editor/emitterWidget.h
+    include/editor/emitterSetWidget.h
+    include/editor/textureWidget.h
+    include/editor/ptclListWidget.h
+    include/editor/sizedSpinBox.h
+    include/ptcl/ptcl.h
+    include/ptcl/ptclBinary.h
+    include/ptcl/ptclEmitter.h
+    include/ptcl/ptclEmitterSet.h
+    include/ptcl/ptclEnum.h
+    include/ptcl/ptclTexture.h
+    include/etc1/rg_etc1.h
 )
 
 set(PROJECT_FORMS
-        src/editor/ui/mainwindow.ui
+    src/editor/ui/mainwindow.ui
 )
 
 qt_add_executable(EffectTool
@@ -55,6 +62,10 @@ qt_add_resources(EffectTool "icons"
     FILES
         res/icons/remove.png
 )
+
+add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
+add_link_options(-fsanitize=address)
+add_definitions(-DADDRESS_SANITIZER)
 
 target_link_libraries(EffectTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
