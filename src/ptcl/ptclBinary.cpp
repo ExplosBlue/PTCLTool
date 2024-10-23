@@ -1,11 +1,14 @@
-#include "ptcl/ptclRes.h"
+#include "ptcl/ptclBinary.h"
 
 #include "printUtil.h"
-#include "ptcl/ptcl.h"
-
+#include "ptcl/ptclEmitter.h"
 
 
 namespace Ptcl {
+
+
+// ========================================================================== //
+
 
 binVec2f::binVec2f() :
     x(1.0f), y(1.0f) {
@@ -136,7 +139,7 @@ QDebug operator<<(QDebug dbg, const binColor4f& item) {
 // ========================================================================== //
 
 
-BinHeaderData::BinHeaderData() {}
+// BinHeaderData::BinHeaderData() {}
 
 QDataStream& operator>>(QDataStream& in, BinHeaderData& item) {
 
@@ -152,13 +155,13 @@ QDataStream& operator>>(QDataStream& in, BinHeaderData& item) {
 
 QDataStream& operator<<(QDataStream& out, const BinHeaderData& item) {
 
-    out << item.magic.data()
-    << item.version
-    << item.numEmitterSet
-    << item.namePos
-    << item.nameTblPos
-    << item.textureTblPos
-    << item.textureTblSize;
+    out.writeRawData(item.magic.data(), 4);
+    out << item.version
+        << item.numEmitterSet
+        << item.namePos
+        << item.nameTblPos
+        << item.textureTblPos
+        << item.textureTblSize;
     return out;
 }
 
@@ -178,9 +181,6 @@ void BinHeaderData::printData(u32 indentationLevel) {
 
 // ========================================================================== //
 
-
-BinEmitterSetData::BinEmitterSetData() {
-}
 
 QDataStream &operator>>(QDataStream& in, BinEmitterSetData& item) {
 
@@ -223,9 +223,6 @@ void BinEmitterSetData::printData(u32 indentationLevel) {
 // ========================================================================== //
 
 
-BinTextureRes::BinTextureRes() {
-}
-
 QDataStream& operator>>(QDataStream& in, BinTextureRes& item) {
 
     in >> item.width
@@ -248,7 +245,10 @@ QDataStream& operator<<(QDataStream& out, const BinTextureRes& item) {
         << item.wrapS
         << item.magFilter
         << item.minFilter;
-    out.writeRawData(nullptr, 3);
+
+    static const std::array<char, 3> padding = {0, 0, 0};
+    out.writeRawData(padding.data(), 3);
+
     return out;
 }
 
@@ -269,11 +269,6 @@ void BinTextureRes::printData(u32 indentationLevel) {
 // ========================================================================== //
 
 
-BinCommonEmitterData::BinCommonEmitterData() {
-
-}
-
-
 BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
 
     type = emitter.type();
@@ -281,13 +276,16 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     randomSeed = emitter.randomSeed();
     namePos = 0; // To be assigned after construction...
     namePtr = 0;
-    textureRes.width = emitter.textureHandle()->textureData().width();
-    textureRes.height = emitter.textureHandle()->textureData().height();
-    textureRes.format = emitter.textureHandle()->textureFormat();
-    textureRes.wrapT = emitter.textureWrapT();
-    textureRes.wrapS = emitter.textureWrapS();
-    textureRes.magFilter = emitter.textureMagFilter();
-    textureRes.minFilter = emitter.textureMinFilter();
+
+    textureRes = {
+        .width = static_cast<u16>(emitter.textureHandle()->textureData().width()),
+        .height = static_cast<u16>(emitter.textureHandle()->textureData().height()),
+        .format = emitter.textureHandle()->textureFormat(),
+        .wrapT = emitter.textureWrapT(),
+        .wrapS = emitter.textureWrapS(),
+        .magFilter = emitter.textureMagFilter(),
+        .minFilter = emitter.textureMinFilter(),
+    };
 
     textureSize = 0; // To be assigned after construction...
     texturePos = 0; // To be assigned after construction...
@@ -487,34 +485,36 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
 // ========================================================================== //
 
 
-BinComplexEmitterData::BinComplexEmitterData() {
+BinComplexEmitterData::BinComplexEmitterData(const Ptcl::Emitter& emitter) :
+    BinCommonEmitterData{emitter} {
+
+    _1F4 = emitter.complexEmitterData()._1F4;
+    _1F8 = emitter.complexEmitterData()._1F8;
+    _1FC = emitter.complexEmitterData()._1FC;
+    _200 = emitter.complexEmitterData()._200;
+    mDataSize = emitter.complexEmitterData().mDataSize;
 }
 
 QDataStream& operator>>(QDataStream& in, BinComplexEmitterData& item) {
 
-    in >> item._0
-        >> item._4
-        >> item._8
-        >> item._C
-        >> item._10
-        >> item._14
-        >> item._18
-        >> item._1C
-        >> item._20;
+    in >> item._1F4
+        >> item._1F8
+        >> item._1FC
+        >> item._200
+        >> item.mDataSize;
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinComplexEmitterData& item) {
 
-    out << item._0
-        << item._4
-        << item._8
-        << item._C
-        << item._10
-        << item._14
-        << item._18
-        << item._1C
-        << item._20;
+    out << static_cast<const BinCommonEmitterData&>(item);
+
+    out << item._1F4
+        << item._1F8
+        << item._1FC
+        << item._200
+        << item.mDataSize;
+
     return out;
 }
 
@@ -522,22 +522,25 @@ void BinComplexEmitterData::printData(u32 indentationLevel) {
 
     const char* indentation = PrintUtil::createIndentation(indentationLevel);
 
-    qDebug() << indentation << "- _0:  " << _0;
-    qDebug() << indentation << "- _4:  " << _4;
-    qDebug() << indentation << "- _8:  " << _8;
-    qDebug() << indentation << "- _C:  " << _C;
-    qDebug() << indentation << "- _10: " << _10;
-    qDebug() << indentation << "- _14: " << _14;
-    qDebug() << indentation << "- _18: " << _18;
-    qDebug() << indentation << "- _1C: " << _1C;
-    qDebug() << indentation << "- _20: " << _20;
+    qDebug() << indentation << "- _1F4:      " << _1F4;
+    qDebug() << indentation << "- _1F8:      " << _1F8;
+    qDebug() << indentation << "- _1FC:      " << _1FC;
+    qDebug() << indentation << "- _200:      " << _200;
+    qDebug() << indentation << "- mDataSize: " << mDataSize;
 }
 
 
 // ========================================================================== //
 
 
-BinEmitterDataType2::BinEmitterDataType2() {
+BinEmitterDataType2::BinEmitterDataType2(const Ptcl::Emitter& emitter) :
+    BinCommonEmitterData{emitter} {
+
+    _0 = emitter.emitterDataType2()._0;
+    _4 = emitter.emitterDataType2()._4;
+    _8 = emitter.emitterDataType2()._8;
+    _C = emitter.emitterDataType2()._C;
+    mDataSize = emitter.emitterDataType2().mDataSize;
 }
 
 QDataStream& operator>>(QDataStream& in, BinEmitterDataType2& item) {
@@ -546,17 +549,19 @@ QDataStream& operator>>(QDataStream& in, BinEmitterDataType2& item) {
         >> item._4
         >> item._8
         >> item._C
-        >> item._10;
+        >> item.mDataSize;
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinEmitterDataType2& item) {
 
+    out << static_cast<const BinCommonEmitterData&>(item);
+
     out << item._0
         << item._4
         << item._8
         << item._C
-        << item._10;
+        << item.mDataSize;
     return out;
 }
 
@@ -564,19 +569,16 @@ void BinEmitterDataType2::printData(u32 indentationLevel) {
 
     const char* indentation = PrintUtil::createIndentation(indentationLevel);
 
-    qDebug() << indentation << "- _0:  " << _0;
-    qDebug() << indentation << "- _4:  " << _4;
-    qDebug() << indentation << "- _8:  " << _8;
-    qDebug() << indentation << "- _C:  " << _C;
-    qDebug() << indentation << "- _10: " << _10;
+    qDebug() << indentation << "- _0:        " << _0;
+    qDebug() << indentation << "- _4:        " << _4;
+    qDebug() << indentation << "- _8:        " << _8;
+    qDebug() << indentation << "- _C:        " << _C;
+    qDebug() << indentation << "- mDataSize: " << mDataSize;
 }
 
 
 // ========================================================================== //
 
-
-BinEmitterTblData::BinEmitterTblData() {
-}
 
 QDataStream& operator>>(QDataStream& in, BinEmitterTblData& item) {
 

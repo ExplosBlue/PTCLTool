@@ -1,5 +1,5 @@
-#ifndef PTCLLIST_H
-#define PTCLLIST_H
+#ifndef PTCLLISTWIDGET_H
+#define PTCLLISTWIDGET_H
 
 #include <QWidget>
 #include <QListView>
@@ -37,4 +37,4 @@ private:
 
 } //namespace PtclEditor
 
-#endif // PTCLLIST_H
+#endif // PTCLLISTWIDGET_H

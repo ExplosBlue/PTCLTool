@@ -1,5 +1,5 @@
-#ifndef PTCLRES_H
-#define PTCLRES_H
+#ifndef PTCLBINARY_H
+#define PTCLBINARY_H
 
 #include <QVector2D>
 #include <QVector3D>
@@ -10,6 +10,7 @@
 
 #include "typedefs.h"
 #include "ptclEnum.h"
+
 
 namespace Ptcl {
     class Emitter;
@@ -115,13 +116,13 @@ struct alignas(4) BinHeaderData {
 
     std::array<char, 4> magic;   // 0x00
     u32 version;                 // 0x04
-    s32 numEmitterSet;           // 0x08
-    s32 namePos;                 // 0x0C
-    s32 nameTblPos;              // 0x10
-    s32 textureTblPos;           // 0x14
-    s32 textureTblSize;          // 0x18
+    u32 numEmitterSet;           // 0x08
+    u32 namePos;                 // 0x0C
+    u32 nameTblPos;              // 0x10
+    u32 textureTblPos;           // 0x14
+    u32 textureTblSize;          // 0x18
 
-    BinHeaderData();
+    // BinHeaderData();
 
     friend QDataStream& operator>>(QDataStream& in, BinHeaderData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinHeaderData& item);
@@ -136,17 +137,17 @@ static_assert(sizeof(BinHeaderData) == 0x1C, "BinHeaderData is incorrect size.")
 
 
 // Size 0x1C
-struct alignas(4) BinEmitterSetData
-{
+struct alignas(4) BinEmitterSetData {
+
     u32 userData;         // 0x00
     u32 lastUpdateDate;   // 0x04
-    s32 namePos;          // 0x08
+    u32 namePos;          // 0x08
     uptr32 namePtr;       // 0x0C - a placeholder for a 32 bit const char* (should always be 0)
     u32 numEmitter;       // 0x10
     u32 emitterTblPos;    // 0x14
     u32 emitterTbl;       // 0x18
 
-    BinEmitterSetData();
+    // BinEmitterSetData();
 
     friend QDataStream &operator>>(QDataStream& in, BinEmitterSetData& item);
     friend QDataStream &operator<<(QDataStream& out, const BinEmitterSetData& item);
@@ -161,8 +162,8 @@ static_assert(sizeof(BinEmitterSetData) == 0x1C, "BinEmitterSetData is incorrect
 
 
 // Size 0x0C
-struct alignas(4) BinTextureRes
-{
+struct alignas(4) BinTextureRes {
+
     u16 width;                            // 0x00
     u16 height;                           // 0x02
     TextureFormat format;                 // 0x04
@@ -170,8 +171,6 @@ struct alignas(4) BinTextureRes
     TextureWrap wrapS;                    // 0x06
     TextureMagFilter magFilter;           // 0x07
     TextureMinFilter minFilter;           // 0x08
-
-    BinTextureRes();
 
     friend QDataStream& operator>>(QDataStream& in, BinTextureRes& item);
     friend QDataStream& operator<<(QDataStream& out, const BinTextureRes& item);
@@ -186,12 +185,12 @@ static_assert(sizeof(BinTextureRes) == 0x0C, "BinTextureRes is incorrect size.")
 
 
 // Size 0x1F4
-struct alignas(4) BinCommonEmitterData
-{
+struct alignas(4) BinCommonEmitterData {
+
     EmitterType type;                    // 0x00
     u32 flag;                            // 0x04
     u32 randomSeed;                      // 0x08
-    s32 namePos;                         // 0x0C
+    u32 namePos;                         // 0x0C
     uptr32 namePtr;                      // 0x10 - placeholder for a 32 bit const char* (should always be 0)
     BinTextureRes textureRes;            // 0x14
     u32 textureSize;                     // 0x20
@@ -231,7 +230,7 @@ struct alignas(4) BinCommonEmitterData
     binMtx34f _1A0;                      // 0x1A0 - RT related
     u32 _1D0[9];                         // 0x1D0
 
-    BinCommonEmitterData();
+    BinCommonEmitterData() = default;
     BinCommonEmitterData(const Ptcl::Emitter& emitter);
 
     friend QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item);
@@ -246,20 +245,17 @@ static_assert(sizeof(BinCommonEmitterData) == 0x1F4, "BinCommonEmitterData is in
 // ========================================================================== //
 
 
-// Size 0x24
-struct alignas(4) BinComplexEmitterData
-{
-    u32 _0;    // 0x00
-    u32 _4;    // 0x04
-    u32 _8;    // 0x08
-    u32 _C;    // 0x0C
-    u32 _10;   // 0x10
-    u32 _14;   // 0x14
-    u32 _18;   // 0x18
-    u32 _1C;   // 0x1C
-    u32 _20;   // 0x20
+// Size 0x208
+struct alignas(4) BinComplexEmitterData : BinCommonEmitterData {
 
-    BinComplexEmitterData();
+    u32 _1F4;        // 0x1F4
+    u32 _1F8;        // 0x1F8
+    u32 _1FC;        // 0x1FC
+    u32 _200;        // 0x200
+    s32 mDataSize;   // 0x204
+
+    BinComplexEmitterData() = default;
+    BinComplexEmitterData(const Ptcl::Emitter& emitter);
 
     friend QDataStream& operator>>(QDataStream& in, BinComplexEmitterData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinComplexEmitterData& item);
@@ -267,22 +263,23 @@ struct alignas(4) BinComplexEmitterData
     void printData(u32 indentationLevel = 0);
 };
 
-static_assert(sizeof(BinComplexEmitterData) == 0x24, "BinComplexEmitterData is incorrect size.");
+static_assert(sizeof(BinComplexEmitterData) == 0x208, "BinComplexEmitterData is incorrect size.");
 
 
 // ========================================================================== //
 
 
-// Size 0x14
-struct alignas(4) BinEmitterDataType2
-{
-    u32 _0;    // 0x00
-    u32 _4;    // 0x04
-    u32 _8;    // 0x08
-    u32 _C;    // 0x0C
-    u32 _10;   // 0x10
+// Size 0x208
+struct alignas(4) BinEmitterDataType2 : BinCommonEmitterData {
 
-    BinEmitterDataType2();
+    u32 _0;          // 0x00
+    u32 _4;          // 0x04
+    u32 _8;          // 0x08
+    u32 _C;          // 0x0C
+    u32 mDataSize;   // 0x10
+
+    BinEmitterDataType2() = default;
+    BinEmitterDataType2(const Ptcl::Emitter& emitter);
 
     friend QDataStream& operator>>(QDataStream& in, BinEmitterDataType2& item);
     friend QDataStream& operator<<(QDataStream& out, const BinEmitterDataType2& item);
@@ -290,7 +287,7 @@ struct alignas(4) BinEmitterDataType2
     void printData(u32 indentationLevel = 0);
 };
 
-static_assert(sizeof(BinEmitterDataType2) == 0x14, "BinEmitterDataType2 is incorrect size.");
+static_assert(sizeof(BinEmitterDataType2) == 0x208, "BinEmitterDataType2 is incorrect size.");
 
 
 // ========================================================================== //
@@ -299,10 +296,8 @@ static_assert(sizeof(BinEmitterDataType2) == 0x14, "BinEmitterDataType2 is incor
 // Size 0x08
 struct alignas(4) BinEmitterTblData {
 
-    s32 emitterPos;      // 0x00
+    u32 emitterPos;      // 0x00
     uptr32 emitterPtr;   // 0x04 - placeholder for a 32 bit Emitter* (should always be 0)
-
-    BinEmitterTblData();
 
     friend QDataStream& operator>>(QDataStream& in, BinEmitterTblData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinEmitterTblData& item);
@@ -316,4 +311,4 @@ static_assert(sizeof(BinEmitterTblData) == 0x08, "BinEmitterTblData is incorrect
 
 }
 
-#endif //PTCLRES_H
+#endif //PTCLBINARY_H

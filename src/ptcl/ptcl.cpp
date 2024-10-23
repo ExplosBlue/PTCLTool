@@ -3,68 +3,10 @@
 #include <QDataStream>
 #include <QFile>
 
-#include "ptcl/ptclRes.h"
-#include "imageutil.h"
+#include "ptcl/ptclBinary.h"
+#include "imageUtil.h"
 
 namespace Ptcl {
-
-void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
-
-    mType = emitterData.type;
-    mFlag = emitterData.flag;
-    mRandomSeed = emitterData.randomSeed;
-    // mName
-    // mTexture
-    // mTextureFormat
-    m_2C = emitterData._2C;
-    m_2D = emitterData._2D;
-    m_2E = emitterData._2E;
-    m_2F = emitterData._2F;
-    m_30 = emitterData._30;
-    m_31 = emitterData._31;
-    m_32 = emitterData._32;
-    mVolumeType = emitterData.volumeType;
-    mVolumeRadius = QVector3D(emitterData.volumeRadius.x, emitterData.volumeRadius.y, emitterData.volumeRadius.z);
-    m_44 = emitterData._44;
-    m_48 = emitterData._48;
-    m_4C = emitterData._4C;
-    std::ranges::copy(emitterData._50, m_50.begin());
-    mPtclLife = emitterData.ptclLife;
-    m_88 = emitterData._88;
-    m_8C = emitterData._8C;
-    std::ranges::copy(emitterData._90, m_90.begin());
-    m_9C = emitterData._9C;
-    m_A0 = emitterData._A0;
-    m_A4 = emitterData._A4;
-
-    for (size_t idx = 0; idx < mColors.size(); ++idx) {
-        auto& color = mColors[idx];
-        auto& binColor = emitterData.color[idx];
-
-        // qDebug() << "BinColor {" << binColor.r << "," << binColor.r << "," << binColor.b << "," << binColor.a << "}";
-
-        color.fromRgbF(binColor.r, binColor.g, binColor.b, binColor.a);
-    }
-
-    std::ranges::copy(emitterData._D8, m_D8.begin());
-
-    mColorSection1 = emitterData.colorSection1;
-    mColorSection2 = emitterData.colorSection2;
-    mColorSection3 = emitterData.colorSection3;
-    mColorNumRepeat = emitterData.colorNumRepeat;
-    mInitAlpha = emitterData.initAlpha;
-
-    std::ranges::copy(emitterData._F8, m_F8.begin());
-
-    mInitScale = QVector2D(emitterData.initScale.x, emitterData.initScale.y);
-
-    std::ranges::copy(emitterData._110, m_110.begin());
-
-    m_170 = QMatrix3x4(emitterData._170.cells.data());
-    m_1A0 = QMatrix3x4(emitterData._1A0.cells.data());
-
-    std::ranges::copy(emitterData._1D0, m_1D0.begin());
-}
 
 void PtclRes::load(const QString& filePath) {
 
@@ -140,23 +82,27 @@ void PtclRes::load(const QString& filePath) {
                     emitter->setName(name);
 
                     // Read texture data
+
+                    qDebug() << binCommonEmitterData.texturePos;
+
                     u32 textureOffset = textureTblPos + binCommonEmitterData.texturePos;
 
                     if (textureOffsetMap.find(textureOffset) == textureOffsetMap.end()) {
-
-                        file.seek(textureOffset);
-                        QByteArray textureData;
 
                         auto height = binCommonEmitterData.textureRes.height;
                         auto width = binCommonEmitterData.textureRes.width;
                         auto format = binCommonEmitterData.textureRes.format;
                         auto size = binCommonEmitterData.textureSize;
 
-                        textureData.resize(size);
-                        stream.readRawData(textureData.data(), size);
+                        file.seek(textureOffset);
+                        std::vector<u8> textureData(size);
+                        auto bytesRead = stream.readRawData(reinterpret_cast<char*>(textureData.data()), size);
+                        if (bytesRead != size) {
+                            qWarning() << "Warning: Expected to read" << size << "bytes but only read" << bytesRead;
+                        }
 
-                        auto texture = std::make_shared<Texture>(ImageUtil::createTexture(textureData, width, height, format));
-                        mTextures.push_back(std::move(texture));
+                        auto texture = std::make_shared<Texture>(Texture(&textureData, width, height, format));
+                        mTextures.push_back(texture);
 
                         u32 textureIdx = mTextures.size() - 1;
                         textureOffsetMap[textureOffset] = textureIdx;
@@ -169,6 +115,11 @@ void PtclRes::load(const QString& filePath) {
                         BinComplexEmitterData binComplexEmitterData;
                         stream >> binComplexEmitterData;
 
+                        std::vector<char> complexData;
+                        stream.readRawData(complexData.data(), binComplexEmitterData.mDataSize);
+                        emitter->setComplexData(complexData);
+                        emitter->setComplexEmitterData(binComplexEmitterData);
+
                         // TODO: handle complex emitter data
                         // if ((type = complex) && (_1F4 & 1) != 0) => textureHandle2 = textureTbl + unkTexturePos
                     }
@@ -179,6 +130,10 @@ void PtclRes::load(const QString& filePath) {
                         BinEmitterDataType2 binEmitterDataType2;
                         stream >> binEmitterDataType2;
                         // TODO: Do something with this data...
+                        std::vector<char> complexData;
+                        stream.readRawData(complexData.data(), binEmitterDataType2.mDataSize);
+                        emitter->setComplexData(complexData);
+                        emitter->setEmitterDataType2(binEmitterDataType2);
                     }
                 }
 
@@ -191,7 +146,23 @@ void PtclRes::load(const QString& filePath) {
     }
 }
 
-/*
+u32 PtclRes::emitterSetCount() const {
+
+    return mEmitterSets.size();
+}
+
+u32 PtclRes::emitterCount() const {
+
+    // TODO: this could probably be optimized
+
+    s32 count = 0;
+
+    for (auto& emitterSet : mEmitterSets) {
+        count += emitterSet->emitterCount();
+    }
+    return count;
+}
+
 void PtclRes::save(const QString& filePath) {
 
     // Structure Overview
@@ -215,176 +186,209 @@ void PtclRes::save(const QString& filePath) {
     // ║    Offset: W     Size: ?            ║
     // ╚═════════════════════════════════════╝
 
-    // std::unordered_map<u32, u32> textureOffsetMap;
-
     QFile file(filePath);
     if (!file.open(QIODevice::WriteOnly)) {
         throw("PtclRes::save - Failed to open file.");
         return;
     }
 
-    file.seek(0);
+    std::vector<BinEmitterSetData> binEmitterSetsList;
+    std::vector<BinEmitterTblData> binEmitterTblsList;
+    std::vector<std::unique_ptr<BinCommonEmitterData>> binEmitterDataList;
+    std::vector<char> nameTbl;
 
-    QDataStream stream(&file);
-    stream.setByteOrder(QDataStream::LittleEndian);
+    constexpr u32 headerBasePos = 0;
+    constexpr u32 emitterSetsBasePos = headerBasePos + sizeof(BinHeaderData);
+    const u32 emitterTblDataBasePos = emitterSetsBasePos + (emitterSetCount() * sizeof(BinEmitterSetData));
+    const u32 emitterDataBasePos = emitterTblDataBasePos + (emitterCount() * sizeof(BinEmitterTblData));
 
-    QByteArray nameTbl;
-    std::vector<BinEmitterTblData> emitterTables;
+    u32 emitterSetsCurOffset = emitterSetsBasePos;
+    u32 emitterTblDataCurOffset = emitterTblDataBasePos;
+    u32 emitterDataCurOffset = emitterDataBasePos;
+    u32 nameTblCurOffset = 0;
 
-    QByteArray emitterDataTable;
+    auto appendToNameTbl = [&nameTbl, &nameTblCurOffset](const QString& name) {
+        QByteArray byteArray = name.toUtf8();
+        const char* cStr = byteArray.constData();
 
-    const u32 basePos = 0;
-    const u32 emitterSetTblPos = basePos + sizeof(BinHeaderData);
-    const u32 emitterTblDataTblPos = emitterSetTblPos + (sizeof(BinEmitterSetData) * mEmitterSets.size());
+        nameTbl.insert(nameTbl.end(), cStr, cStr + byteArray.size());
+        nameTbl.push_back('\0');
 
-    // Create binary header + write to file
+        nameTblCurOffset += byteArray.size() + 1;
+    };
 
-    BinHeaderData headerData;
-    *headerData.magic.data() = *"BPBD"; // TODO - this but properly
-    headerData.version = 11;
-    headerData.numEmitterSet = mEmitterSets.size();
+    // Create binary header
+    BinHeaderData headerData = {
+        .magic          = {'S', 'P', 'B', 'D'},
+        .version        = 11,
+        .numEmitterSet  = emitterSetCount(),
+        .namePos        = nameTblCurOffset,
+        .nameTblPos     = 0,
+        .textureTblPos  = 0,
+        .textureTblSize = 0
+    };
 
-    // Add Name to name table
-    headerData.namePos = nameTbl.size(); // name pos is always table size before appending name
-    nameTbl.append(name().toUtf8());
-
-    headerData.nameTblPos = 0;     // TODO - calculate this
-    headerData.textureTblPos = 0;  // TODO - calculate this
-    headerData.textureTblSize = 0; // TODO - calculate this
+    // Add PTCL name to name table
+    appendToNameTbl(name());
 
     for (auto& emitterSet : mEmitterSets) {
 
-        BinEmitterSetData binEmitterSet;
-        binEmitterSet.userData = emitterSet->userData();
-        binEmitterSet.lastUpdateDate = emitterSet->lastUpdateDate();
+        // Create Binary emitterSet
+        BinEmitterSetData binEmitterSet = {
+            .userData       = emitterSet->userData(),
+            .lastUpdateDate = emitterSet->lastUpdateDate(),
+            .namePos        = nameTblCurOffset,
+            .namePtr        = 0,
+            .numEmitter     = emitterSet->emitterCount(),
+            .emitterTblPos  = emitterTblDataCurOffset,
+            .emitterTbl     = 0
+        };
 
-        // Add Name to name table
-        binEmitterSet.namePos = nameTbl.size(); // name pos is always table size before appending name
-        nameTbl.append(emitterSet->name().toUtf8());
-        binEmitterSet.namePtr = 0;
-
-        binEmitterSet.numEmitter = emitterSet->emitterCount();
-        binEmitterSet.emitterTblPos = 0 + emitterTblDataTblPos + (emitterTables.size() * sizeof(BinEmitterTblData));
+        // Add emitterSet name to name table
+        appendToNameTbl(emitterSet->name());
 
         for (auto& emitter : emitterSet->emitters()) {
 
-            const Ptcl::Emitter& e = *emitter;
+            // Create emiterTblData
+            BinEmitterTblData emitterTblData = {
+                .emitterPos = emitterDataCurOffset,
+                .emitterPtr = 0
+            };
 
-            // Build emitter data
-            BinCommonEmitterData binCommonEmitterData(e);
+            emitterTblDataCurOffset += sizeof(BinEmitterTblData);
+            binEmitterTblsList.push_back(emitterTblData);
 
-            // Add Name to name table
-            binCommonEmitterData.namePos = nameTbl.size(); // name pos is always table size before appending name
-            nameTbl.append(emitter->name().toUtf8());
-            binCommonEmitterData.namePtr = 0;
+            // Create emitterData
+            if (emitter->type() == Ptcl::EmitterType::Simple) {
 
-            // TODO: not this...
-            binCommonEmitterData.textureSize = ImageUtil::getTextureSize(binCommonEmitterData.textureRes.width, binCommonEmitterData.textureRes.height, binCommonEmitterData.textureRes.format, 32);
-            binCommonEmitterData.texturePos = 0; // TODO
-            binCommonEmitterData.textureHandlePtr = 0;
+                qDebug() << "Creating Simple Emitter Data";
 
-            emitterDataTable.size();
+                // Create Simple EmitterData
+                BinCommonEmitterData emitterData(*emitter.get());
 
-            // Build emitter table data
-            BinEmitterTblData binTableData;
-            binTableData.emitterPos = ;
-            binTableData.emitterPtr = 0;
-            emitterTables.push_back(binTableData);
-        }
+                emitterData.namePos = nameTblCurOffset;
+                appendToNameTbl(emitter->name());
 
-    }
+                // TODO: set emitterData texture pos...
 
-    // Read EmitterSets
-    mEmitterSets.reserve(binHeader.numEmitterSet);
+                emitterDataCurOffset += sizeof(BinCommonEmitterData);
+                binEmitterDataList.push_back(std::make_unique<BinCommonEmitterData>(emitterData));
 
-    for (int resEmitterSetIdx = 0; resEmitterSetIdx < binHeader.numEmitterSet; resEmitterSetIdx++) {
+            } else if (emitter->type() == Ptcl::EmitterType::Complex) {
 
-        auto emitterSet = std::make_unique<EmitterSet>();
+                qDebug() << "Creating Complex Emitter Data";
 
-        file.seek(emitterSetTblPos + (sizeof(BinEmitterSetData) * resEmitterSetIdx));
-        BinEmitterSetData binEmitterSetData;
-        stream >> binEmitterSetData;
+                // Create Complex EmitterData
+                BinComplexEmitterData emitterData(*emitter.get());
 
-        const char* name = nameTbl.data() + binEmitterSetData.namePos;
-        emitterSet->setName(name);
-        emitterSet->setUserData(binEmitterSetData.userData);
+                emitterData.namePos = nameTblCurOffset;
+                appendToNameTbl(emitter->name());
 
-        emitterSet->emitters().reserve(binEmitterSetData.numEmitter);
+                emitterDataCurOffset += emitterData.mDataSize; // This is dumb
+                binEmitterDataList.push_back(std::make_unique<BinCommonEmitterData>(emitterData));
 
-        // Read Emitters
-        if (binEmitterSetData.numEmitter > 0) {
+            } else if (emitter->type() == Ptcl::EmitterType::UnkType2) {
 
-            int emitterIdx = 0;
-            while (binEmitterSetData.numEmitter > emitterIdx) {
+                qDebug() << "Creating Unk Emitter Data";
 
-                auto emitter = std::make_unique<Emitter>();
+                // Create UnkType2 EmitterData
+                BinEmitterDataType2 emitterData(*emitter.get());
 
-                file.seek(binEmitterSetData.emitterTblPos + (sizeof(BinEmitterTblData) * emitterIdx));
-                BinEmitterTblData binEmitterTblData;
-                stream >> binEmitterTblData;
+                emitterData.namePos = nameTblCurOffset;
+                appendToNameTbl(emitter->name());
 
-                if (binEmitterTblData.emitterPos > 0) {
-
-                    file.seek(binEmitterTblData.emitterPos);
-                    BinCommonEmitterData binCommonEmitterData;
-                    stream >> binCommonEmitterData;
-
-                    emitter->initFromBinary(binCommonEmitterData);
-
-                    const char* name = nameTbl.data() + binCommonEmitterData.namePos;
-                    emitter->setName(name);
-
-                    // Read texture data
-                    u32 textureOffset = textureTblPos + binCommonEmitterData.texturePos;
-
-                    if (textureOffsetMap.find(textureOffset) == textureOffsetMap.end()) {
-
-                        file.seek(textureOffset);
-                        QByteArray textureData;
-
-                        auto height = binCommonEmitterData.textureRes.height;
-                        auto width = binCommonEmitterData.textureRes.width;
-                        auto format = binCommonEmitterData.textureRes.format;
-                        auto size = binCommonEmitterData.textureSize;
-
-                        textureData.resize(size);
-                        stream.readRawData(textureData.data(), size);
-
-                        auto texture = std::make_shared<Texture>(ImageUtil::createTexture(textureData, width, height, format));
-                        mTextures.push_back(std::move(texture));
-
-                        u32 textureIdx = mTextures.size() - 1;
-                        textureOffsetMap[textureOffset] = textureIdx;
-                    }
-
-                    emitter->setTexture(mTextures[textureOffsetMap[textureOffset]]);
-
-                    if (binCommonEmitterData.type == EmitterType::COMPLEX) {
-                        file.seek(binEmitterTblData.emitterPos + sizeof(BinCommonEmitterData));
-                        BinComplexEmitterData binComplexEmitterData;
-                        stream >> binComplexEmitterData;
-
-                        // TODO: handle complex emitter data
-                        // if ((type = complex) && (_1F4 & 1) != 0) => textureHandle2 = textureTbl + unkTexturePos
-                    }
-
-
-                    if (binCommonEmitterData.type == EmitterType::UNK_EMITTER_TYPE) {
-                        file.seek(binEmitterTblData.emitterPos + sizeof(BinCommonEmitterData));
-                        BinEmitterDataType2 binEmitterDataType2;
-                        stream >> binEmitterDataType2;
-                        // TODO: Do something with this data...
-                    }
-                }
-
-                emitterSet->emitters().push_back(std::move(emitter));
-
-                ++emitterIdx;
+                emitterDataCurOffset += emitterData.mDataSize;
+                binEmitterDataList.push_back(std::make_unique<BinEmitterDataType2>(emitterData));
             }
         }
-        mEmitterSets.push_back(std::move(emitterSet));
+
+        // Increment current offset
+        emitterSetsCurOffset += sizeof(BinEmitterSetData);
+        binEmitterSetsList.push_back(binEmitterSet);
     }
+
+    // TODO: Build texture table
+
+    // Write to the file
+    QDataStream stream(&file);
+    stream.setByteOrder(QDataStream::LittleEndian);
+
+    stream << headerData;
+
+    for (auto& emtSet : binEmitterSetsList) {
+        stream << emtSet;
+    }
+
+    for (auto& emtTbl : binEmitterTblsList) {
+        stream << emtTbl;
+    }
+
+    for (auto& emtData : binEmitterDataList) {
+
+        switch (emtData->type) {
+        case Ptcl::EmitterType::Simple:
+            stream << *emtData.get();
+            break;
+        case Ptcl::EmitterType::Complex:
+            stream << static_cast<BinComplexEmitterData&>(*emtData.get());
+            break;
+        case Ptcl::EmitterType::UnkType2:
+            stream << static_cast<BinEmitterDataType2&>(*emtData.get());
+            break;
+        default:
+            break;
+        }
+    }
+
+    // TODO: Write texture table
+
+    s32 nameTblPos = file.pos();
+    stream.writeRawData(nameTbl.data(), nameTbl.size());
+
+    // Update header with nameTbl/textureTbl pos & size
+    headerData.nameTblPos = nameTblPos;
+
+    file.seek(0);
+    stream << headerData; // would be better to avoid doing this twice...
+
+    file.flush();
+    file.close();
 }
-*/
+
+
+const QString& PtclRes::name() const {
+
+    return mName;
+}
+
+
+void PtclRes::setName(const QString& name) {
+
+    mName = name;
+}
+
+EmitterSetList& PtclRes::getEmitterSets() {
+
+    return mEmitterSets;
+}
+
+void PtclRes::addTexture(const Texture& texture) {
+
+}
+
+void PtclRes::removeTexture(u32 textureIndex) {
+
+}
+
+const TextureList& PtclRes::textures() const {
+
+    return mTextures;
+}
+
+
+TextureList& PtclRes::textures() {
+
+    return mTextures;
+}
 
 } // namespace Ptcl

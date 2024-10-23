@@ -2,34 +2,35 @@
 #define PTCLTEXTURE_H
 
 #include <QImage>
-#include <utility>
 
 #include "ptcl/ptclEnum.h"
 
 namespace Ptcl {
 
+
+// ========================================================================== //
+
+
 class Texture
 {
 public:
     Texture() = delete;
+    Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format);
 
-    // TODO: Rethink this maybe...
-    Texture(const QImage& image, TextureFormat format) :
-        mTextureFormat{format} {
-        mTextureData = image;
-    }
+    // Texture(const Texture&) = delete;
+    Texture& operator=(const Texture&) = delete;
 
     // TODO: getters/setters/whatever
-    const QImage& textureData() const { return mTextureData; }
+    const QImage& textureData() const;
 
-    const TextureFormat textureFormat() const { return mTextureFormat; }
-    // void setTextureFormat(gr::PicaDataTextureFormat format) { mTextureFormat = format; }
+    const TextureFormat textureFormat() const;
 
-    const u32 userCount() const { return mUserCount; }
+    u32 userCount() const;
 
 private:
-    QImage mTextureData;
+    std::vector<u8> mEncodedData;
     TextureFormat mTextureFormat;
+    QImage mDecodedTexture;
 
     // TODO: maybe other stuff here?
 
@@ -40,35 +41,31 @@ protected:
 };
 
 
+// ========================================================================== //
+
+
 class TextureHandle
 {
 public:
-    TextureHandle(std::shared_ptr<Texture> texture = nullptr) :
-        mTexturePtr(std::move(texture)) { incrementCount(); }
+    TextureHandle(std::shared_ptr<Texture> texture = nullptr);
 
-    ~TextureHandle() { decrementCount(); }
+    TextureHandle(const TextureHandle&) = delete;
+    TextureHandle& operator=(const TextureHandle&) = delete;
 
-    void invalidate() { mTexturePtr = nullptr; }
-    bool isValid() const { return mTexturePtr != nullptr; }
+    ~TextureHandle();
 
-    std::shared_ptr<Texture> get() const { return mTexturePtr; }
-    void set(std::shared_ptr<Texture> texture) {
+    void invalidate();
+    bool isValid() const;
 
-        qDebug() << "setting texture handle";
+    std::shared_ptr<Texture> get() const;
+    void set(std::shared_ptr<Texture> texture);
 
-        if (mTexturePtr != texture) {
-            decrementCount();
-            mTexturePtr = texture;
-            incrementCount();
-        }
-    }
-
-    TextureHandle& operator=(std::shared_ptr<Texture> texture) { set(texture); return *this; }
-    std::shared_ptr<Texture> operator->() const { return mTexturePtr; }
+    TextureHandle& operator=(std::shared_ptr<Texture> texture);
+    std::shared_ptr<Texture> operator->() const;
 
 private:
-    void incrementCount() { qDebug() << "Incrementing count"; if (mTexturePtr) mTexturePtr->mUserCount++; }
-    void decrementCount() { qDebug() << "Decrementing count"; if (mTexturePtr) mTexturePtr->mUserCount--; }
+    void incrementCount();
+    void decrementCount();
 
 private:
     std::shared_ptr<Texture> mTexturePtr;

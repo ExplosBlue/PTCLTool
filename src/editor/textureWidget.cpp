@@ -1,4 +1,4 @@
-#include "editor/texturewidget.h"
+#include "editor/textureWidget.h"
 
 #include <QStandardItemModel>
 
