@@ -6,6 +6,70 @@ namespace Ptcl {
 // ========================================================================== //
 
 
+QDebug operator<<(QDebug dbg, const BillboardType& type) {
+
+    QDebugStateSaver stateSaver(dbg);
+
+    switch (type) {
+    case BillboardType::Billboard:
+        dbg.nospace() << "Billboard";
+        break;
+    case BillboardType::PolygonXY:
+        dbg.nospace() << "PolygonXY";
+        break;
+    case BillboardType::PolygonXZ:
+        dbg.nospace() << "PolygonXZ";
+        break;
+    case BillboardType::VelLook:
+        dbg.nospace() << "VelLook";
+        break;
+    case BillboardType::VelLookPolygon:
+        dbg.nospace() << "VelLookPolygon";
+        break;
+    case BillboardType::Stripe:
+        dbg.nospace() << "Stripe";
+        break;
+    case BillboardType::ComplexStripe:
+        dbg.nospace() << "ComplexStripe";
+        break;
+    case BillboardType::Primitive:
+        dbg.nospace() << "Primitive";
+        break;
+    case BillboardType::BillboardY:
+        dbg.nospace() << "BillboardY";
+        break;
+    case BillboardType::BILLBOARD_TYPE_MAX:
+        dbg.nospace() << "BILLBOARD_TYPE_MAX";
+        break;
+    default:
+        dbg.nospace() << "Unknown";
+        break;
+    }
+
+    return dbg;
+}
+
+const QString toString(const BillboardType& type) {
+
+    switch (type) {
+    case BillboardType::Billboard:          return "Billboard";
+    case BillboardType::PolygonXY:          return "PolygonXY";
+    case BillboardType::PolygonXZ:          return "PolygonXZ";
+    case BillboardType::VelLook:            return "VelLook";
+    case BillboardType::VelLookPolygon:     return "VelLookPolygon";
+    case BillboardType::Stripe:             return "Stripe";
+    case BillboardType::ComplexStripe:      return "ComplexStripe";
+    case BillboardType::Primitive:          return "Primitive";
+    case BillboardType::BillboardY:         return "BillboardY";
+    case BillboardType::BILLBOARD_TYPE_MAX: return "BILLBOARD_TYPE_MAX";
+    default: return "UNKNOWN";
+    }
+}
+
+
+// ========================================================================== //
+
+
 QDebug operator<<(QDebug dbg, const EmitterType& type) {
 
     QDebugStateSaver stateSaver(dbg);

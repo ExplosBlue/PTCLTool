@@ -158,12 +158,12 @@ void Emitter::set_31(const u8 _31) {
     m_31 = _31;
 }
 
-u16 Emitter::_32() const {
+const std::array<u8, 2>& Emitter::_32() const {
 
     return m_32;
 }
 
-void Emitter::set_32(const u16 _32) {
+void Emitter::set_32(const std::array<u8, 2>& _32) {
 
     m_32 = _32;
 }
@@ -208,24 +208,74 @@ void Emitter::set_48(const f32 _48) {
     m_48 = _48;
 }
 
-f32 Emitter::_4C() const {
+f32 Emitter::figureVel() const {
 
-    return m_4C;
+    return mFigureVel;
 }
 
-void Emitter::set_4C(const f32 _4C) {
+void Emitter::setFigureVel(const f32 figureVel) {
 
-    m_4C = _4C;
+    mFigureVel = figureVel;
 }
 
-const std::array<u32, 13>& Emitter::_50() const {
+const QVector3D& Emitter::emitterVelDir() const {
 
-    return m_50;
+    return mEmitterVelDir;
 }
 
-void Emitter::set_50(const std::array<u32, 13>& _50) {
+void Emitter::setEmitterVelDir(const QVector3D& emitterVelDir) {
 
-    m_50 = _50;
+    mEmitterVelDir = emitterVelDir;
+}
+
+f32 Emitter::_5C() const {
+
+    return m_5C;
+}
+
+void Emitter::set_5C(const f32 _5C) {
+
+    m_5C = _5C;
+}
+
+f32 Emitter::initVelRnd() const {
+
+    return mInitVelRnd;
+}
+
+void Emitter::setInitVelRnd(const f32 initVelRnd) {
+
+    mInitVelRnd = initVelRnd;
+}
+
+const QVector3D& Emitter::spreadVec() const {
+
+    return mSpreadVec;
+}
+
+void Emitter::setSpreadVec(const QVector3D& spreadVec) {
+
+    mSpreadVec = spreadVec;
+}
+
+const std::array<u32, 4>& Emitter::_70() const {
+
+    return m_70;
+}
+
+void Emitter::set_70(const std::array<u32, 4>& _70) {
+
+    m_70 = _70;
+}
+
+u32 Emitter::_80() const {
+
+    return m_80;
+}
+
+void Emitter::set_80(const u32 _80) {
+
+    m_80 = _80;
 }
 
 s32 Emitter::ptclLife() const {
@@ -238,14 +288,14 @@ void Emitter::setPtclLife(const s32 ptclLife) {
     mPtclLife = ptclLife;
 }
 
-u32 Emitter::_88() const {
+s32 Emitter::ptclLifeRnd() const {
 
-    return m_88;
+    return mPtclLifeRnd;
 }
 
-void Emitter::set_88(const u32 _88) {
+void Emitter::setPtclLifeRnd(const s32 ptclLifeRnd) {
 
-    m_88 = _88;
+    mPtclLifeRnd = ptclLifeRnd;
 }
 
 f32 Emitter::_8C() const {
@@ -258,14 +308,34 @@ void Emitter::set_8C(const f32 _8C) {
     m_8C = _8C;
 }
 
-const std::array<u32, 3>& Emitter::_90() const {
+u32 Emitter::_90() const {
 
     return m_90;
 }
 
-void Emitter::set_90(const std::array<u32, 3>& _90) {
+void Emitter::set_90(const u32 _90) {
 
     m_90 = _90;
+}
+
+BillboardType Emitter::billboardType() const {
+
+    return mBillboardType;
+}
+
+void Emitter::setBillboardType(const BillboardType billboardType) {
+
+    mBillboardType = billboardType;
+}
+
+u32 Emitter::_98() const {
+
+    return m_98;
+}
+
+void Emitter::set_98(const u32 _98) {
+
+    m_98 = _98;
 }
 
 f32 Emitter::_9C() const {
@@ -368,14 +438,46 @@ void Emitter::setInitAlpha(const f32 initAlpha) {
     mInitAlpha = initAlpha;
 }
 
-const std::array<u32, 4>& Emitter::_F8() const {
+///////////////
 
-    return m_F8;
+f32 Emitter::diffAlpha21() const {
+
+    return mDiffAlpha21;
 }
 
-void Emitter::set_F8(const std::array<u32, 4>& _F8) {
+void Emitter::setDiffAlpha21(const f32 diffAlpha21) {
 
-    m_F8 = _F8;
+    mDiffAlpha21 = diffAlpha21;
+}
+
+f32 Emitter::diffAlpha32() const {
+
+    return mDiffAlpha32;
+}
+
+void Emitter::setDiffAlpha32(const f32 diffAlpha32) {
+
+    mDiffAlpha32 = diffAlpha32;
+}
+
+s32 Emitter::alphaSection1() const {
+
+    return mAlphaSection1;
+}
+
+void Emitter::setAlphaSection1(const s32 alphaSection1) {
+
+    mAlphaSection1 = alphaSection1;
+}
+
+s32 Emitter::alphaSection2() const {
+
+    return mAlphaSection1;
+}
+
+void Emitter::setAlphaSection2(const s32 alphaSection2) {
+
+    mAlphaSection2 = alphaSection2;
 }
 
 const QVector2D& Emitter::initScale() const {
@@ -388,43 +490,234 @@ void Emitter::setInitScale(const QVector2D& initScale) {
     mInitScale = initScale;
 }
 
-const std::array<u32, 24>& Emitter::_110() const {
+const QVector2D& Emitter::diffScale21() const {
 
-    return m_110;
+    return mDiffScale21;
 }
 
-void Emitter::set_110(const std::array<u32, 24>& _110) {
+void Emitter::setDiffScale21(const QVector2D& diffScale21) {
 
-    m_110 = _110;
+    mDiffScale21 = diffScale21;
 }
 
-const QMatrix3x4& Emitter::_170() const {
+const QVector2D& Emitter::diffScale32() const {
 
-    return m_170;
+    return mDiffScale32;
 }
 
-void Emitter::set_170(const QMatrix3x4& _170) {
+void Emitter::setDiffScale32(const QVector2D& diffScale32) {
 
-    m_170 = _170;
+    mDiffScale32 = diffScale32;
 }
 
-const QMatrix3x4& Emitter::_1A0() const {
+s32 Emitter::scaleSection1() const {
 
-    return m_1A0;
-}
-void Emitter::set_1A0(const QMatrix3x4& _1A0) {
-
-    m_1A0 = _1A0;
+    return mScaleSection1;
 }
 
-const std::array<u32, 9>& Emitter::_1D0() const {
+void Emitter::setScaleSection1(const s32 scaleSection1) {
 
-    return m_1D0;
+    mScaleSection1 = scaleSection1;
 }
 
-void Emitter::set_1D0(const std::array<u32, 9>& _1D0) {
+s32 Emitter::scaleSection2() const {
 
-    m_1D0 = _1D0;
+    return mScaleSection1;
+}
+
+void Emitter::setScaleSection2(const s32 scaleSection2) {
+
+    mScaleSection2 = scaleSection2;
+}
+
+f32 Emitter::scaleRand() const {
+
+    return mScaleRand;
+}
+
+void Emitter::setScaleRand(const f32 scaleRand) {
+
+    mScaleRand = scaleRand;
+}
+
+u32 Emitter::_12C() const {
+
+    return m_12C;
+}
+
+void Emitter::set_12C(const u32 _12C) {
+
+    m_12C = _12C;
+}
+
+u32 Emitter::_130() const {
+
+    return m_130;
+}
+
+void Emitter::set_130(const u32 _130) {
+
+    m_130 = _130;
+}
+
+u32 Emitter::_134() const {
+
+    return m_134;
+}
+
+void Emitter::set_134(const u32 _134) {
+
+    m_134 = _134;
+}
+
+const QVector3D& Emitter::initRot() const {
+
+    return mInitRot;
+}
+
+void Emitter::setInitRot(const QVector3D& initRot) {
+
+    mInitRot = initRot;
+}
+
+const QVector3D& Emitter::initRotRand() const {
+
+    return mInitRotRand;
+}
+
+void Emitter::setInitRotRand(const QVector3D& initRotRand) {
+
+    mInitRotRand = initRotRand;
+}
+
+const QVector3D& Emitter::rotVel() const {
+
+    return mRotVel;
+}
+
+void Emitter::setRotVel(const QVector3D& rotVel) {
+
+    mRotVel = rotVel;
+}
+
+const QVector3D& Emitter::rotVelRand() const {
+
+    return mRotVelRand;
+}
+
+void Emitter::setRotVelRand(const QVector3D& rotVelRand) {
+
+    mRotVelRand = rotVelRand;
+}
+
+const std::array<u32, 2>& Emitter::_168() const {
+
+    return m_168;
+}
+
+void Emitter::set_168(const std::array<u32, 2>& _168) {
+
+    m_168 = _168;
+}
+
+const QMatrix3x4& Emitter::transformSRT() const {
+
+    return mTransformSRT;
+}
+
+void Emitter::setTransformSRT(const QMatrix3x4& transformSRT) {
+
+    mTransformSRT = transformSRT;
+}
+
+const QMatrix3x4& Emitter::transformRT() const {
+
+    return mTransformRT;
+}
+
+void Emitter::setTransformRT(const QMatrix3x4& transformRT) {
+
+    mTransformRT = transformRT;
+}
+
+f32 Emitter::alphaAddInFade() const {
+
+    return mAlphaAddInFade;
+}
+
+void Emitter::setAlphaAddInFade(const f32 alphaAddInFade) {
+
+    mAlphaAddInFade = alphaAddInFade;
+}
+
+u16 Emitter::numTexPat() const {
+
+    return mNumTexPat;
+}
+
+void Emitter::setNumTexPat(const u16 numTexPat) {
+
+    mNumTexPat = numTexPat;
+}
+
+u8 Emitter::numTexDivX() const {
+
+    return mNumTexDivX;
+}
+
+void Emitter::setNumTexDivX(const u8 numTexDivX) {
+
+    mNumTexDivX = numTexDivX;
+}
+
+u8 Emitter::numTexDivY() const {
+
+    return mNumTexDivY;
+}
+
+void Emitter::setNumTexDivY(const u8 numTexDivY) {
+
+    mNumTexDivY = numTexDivY;
+}
+
+const QVector2D& Emitter::texUVScale() const {
+
+    return mTexUVScale;
+}
+
+void Emitter::setTexUVScale(const QVector2D& texUVScale) {
+
+    mTexUVScale = texUVScale;
+}
+
+const std::array<u8, 16>& Emitter::texPatTbl() const {
+
+    return mTexPatTbl;
+}
+
+void Emitter::setTexPatTbl(const std::array<u8, 16>& texPatTbl) {
+
+    mTexPatTbl = texPatTbl;
+}
+
+u16 Emitter::texPatFreq() const {
+
+    return mTexPatFreq;
+}
+
+void Emitter::setTexPatFreq(const u16 texPatFreq) {
+
+    mTexPatFreq = texPatFreq;
+}
+
+u16 Emitter::texPatTblUse() const {
+
+    return mTexPatTblUse;
+}
+
+void Emitter::setTexPatTblUse(const u16 texPatTblUse) {
+
+    mTexPatTblUse = texPatTblUse;
 }
 
 void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
@@ -446,12 +739,19 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mVolumeRadius = QVector3D(emitterData.volumeRadius.x, emitterData.volumeRadius.y, emitterData.volumeRadius.z);
     m_44 = emitterData._44;
     m_48 = emitterData._48;
-    m_4C = emitterData._4C;
-    std::ranges::copy(emitterData._50, m_50.begin());
+    mFigureVel = emitterData.figureVel;
+    mEmitterVelDir = QVector3D(emitterData.emitterVelDir.x, emitterData.emitterVelDir.y, emitterData.emitterVelDir.z);
+    m_5C = emitterData._5C;
+    mInitVelRnd = emitterData.initVelRnd;
+    mSpreadVec = QVector3D(emitterData.spreadVec.x, emitterData.spreadVec.y, emitterData.spreadVec.z);
+    std::ranges::copy(emitterData._70, m_70.begin());
+    m_80 = emitterData._80;
     mPtclLife = emitterData.ptclLife;
-    m_88 = emitterData._88;
+    mPtclLifeRnd = emitterData.ptclLifeRnd;
     m_8C = emitterData._8C;
-    std::ranges::copy(emitterData._90, m_90.begin());
+    m_90 = emitterData._90;
+    mBillboardType = emitterData.billboardType;
+    m_98 = emitterData._98;
     m_9C = emitterData._9C;
     m_A0 = emitterData._A0;
     m_A4 = emitterData._A4;
@@ -460,7 +760,7 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         auto& color = mColors[idx];
         auto& binColor = emitterData.color[idx];
 
-        // qDebug() << "BinColor {" << binColor.r << "," << binColor.r << "," << binColor.b << "," << binColor.a << "}";
+        qDebug() << "BinColor {" << binColor.r << "," << binColor.r << "," << binColor.b << "," << binColor.a << "}";
 
         color.fromRgbF(binColor.r, binColor.g, binColor.b, binColor.a);
     }
@@ -472,17 +772,34 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mColorSection3 = emitterData.colorSection3;
     mColorNumRepeat = emitterData.colorNumRepeat;
     mInitAlpha = emitterData.initAlpha;
-
-    std::ranges::copy(emitterData._F8, m_F8.begin());
-
+    mDiffAlpha21 = emitterData.diffAlpha21;
+    mDiffAlpha32 = emitterData.diffAlpha32;
+    mAlphaSection1 = emitterData.alphaSection1;
+    mAlphaSection2 = emitterData.alphaSection2;
     mInitScale = QVector2D(emitterData.initScale.x, emitterData.initScale.y);
-
-    std::ranges::copy(emitterData._110, m_110.begin());
-
-    m_170 = QMatrix3x4(emitterData._170.cells.data());
-    m_1A0 = QMatrix3x4(emitterData._1A0.cells.data());
-
-    std::ranges::copy(emitterData._1D0, m_1D0.begin());
+    mDiffScale21 = QVector2D(emitterData.diffScale21.x, emitterData.diffScale21.y);
+    mDiffScale32 = QVector2D(emitterData.diffScale32.x, emitterData.diffScale32.y);
+    mScaleSection1 = emitterData.scaleSection1;
+    mScaleSection2 = emitterData.scaleSection2;
+    mScaleRand = emitterData.scaleRand;
+    m_12C = emitterData._12C;
+    m_130 = emitterData._130;
+    m_134 = emitterData._134;
+    mInitRot = QVector3D(emitterData.initRot.x, emitterData.initRot.y, emitterData.initRot.z);
+    mInitRotRand = QVector3D(emitterData.initRotRand.x, emitterData.initRotRand.y, emitterData.initRotRand.z);
+    mRotVel = QVector3D(emitterData.rotVel.x, emitterData.rotVel.y, emitterData.rotVel.z);
+    mRotVelRand = QVector3D(emitterData.rotVelRand.x, emitterData.rotVelRand.y, emitterData.rotVelRand.z);
+    std::ranges::copy(emitterData._168, m_168.begin());
+    mTransformSRT = QMatrix3x4(emitterData.transformSRT.cells.data());
+    mTransformRT = QMatrix3x4(emitterData.transformRT.cells.data());
+    mAlphaAddInFade = emitterData.alphaAddInFade;
+    mNumTexPat = emitterData.numTexPat;
+    mNumTexDivX = emitterData.numTexDivX;
+    mNumTexDivY = emitterData.numTexDivY;
+    mTexUVScale = QVector2D(emitterData.texUVScale.x, emitterData.texUVScale.y);
+    std::ranges::copy(emitterData.texPatTbl, mTexPatTbl.begin());
+    mTexPatFreq = emitterData.texPatFreq;
+    mTexPatTblUse = emitterData.texPatTblUse;
 }
 
 // TODO: This is temporary, replace with better solution
