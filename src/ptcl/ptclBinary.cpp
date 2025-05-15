@@ -301,12 +301,19 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     volumeRadius = emitter.volumeRadius();
     _44 = emitter._44();
     _48 = emitter._48();
-    _4C = emitter._4C();
-    std::copy(emitter._50().begin(), emitter._50().end(), _50);
+    figureVel = emitter.figureVel();
+    emitterVelDir = emitter.emitterVelDir();
+    _5C = emitter._5C();
+    initVelRnd = emitter.initVelRnd();
+    spreadVec = emitter.spreadVec();
+    std::copy(emitter._70().begin(), emitter._70().end(), _70.data());
+    _80 = emitter._80();
     ptclLife = emitter.ptclLife();
-    _88 = emitter._88();
+    ptclLifeRnd = emitter.ptclLifeRnd();
     _8C = emitter._8C();
-    std::copy(emitter._90().begin(), emitter._90().end(), _90);
+    _90 = emitter._90();
+    billboardType = emitter.billboardType();
+    _98 = emitter._98();
     _9C = emitter._9C();
     _A0 = emitter._A0();
     _A4 = emitter._A4();
@@ -317,19 +324,42 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
         ++idx;
     }
 
-    std::copy(emitter._D8().begin(), emitter._D8().end(), _D8);
+    std::copy(emitter._D8().begin(), emitter._D8().end(), _D8.data());
 
     colorSection1 = emitter.colorSection1();
     colorSection2 = emitter.colorSection2();
     colorSection3 = emitter.colorSection3();
     colorNumRepeat = emitter.colorNumRepeat();
     initAlpha = emitter.initAlpha();
-    std::copy(emitter._F8().begin(), emitter._F8().end(), _F8);
+    diffAlpha21 = emitter.diffAlpha21();
+    diffAlpha32 = emitter.diffAlpha32();
+    alphaSection1 = emitter.alphaSection1();
+    alphaSection2 = emitter.alphaSection2();
     initScale = emitter.initScale();
-    std::copy(emitter._110().begin(), emitter._110().end(), _110);
-    _170 = emitter._170();
-    _1A0 = emitter._1A0();
-    std::copy(emitter._1D0().begin(), emitter._1D0().end(), _1D0);
+    diffScale21 = emitter.diffScale21();
+    diffScale32 = emitter.diffScale32();
+    scaleSection1 = emitter.scaleSection1();
+    scaleSection2 = emitter.scaleSection2();
+    scaleRand = emitter.scaleRand();
+    _12C = emitter._12C();
+    _130 = emitter._130();
+    _134 = emitter._134();
+    initRot = emitter.initRot();
+    initRotRand = emitter.initRotRand();
+    rotVel = emitter.rotVel();
+    rotVelRand = emitter.rotVelRand();
+    std::copy(emitter._168().begin(), emitter._168().end(), _168.data());
+    transformSRT = emitter.transformSRT();
+    transformRT = emitter.transformRT();
+    alphaAddInFade = emitter.alphaAddInFade();
+    numTexPat = emitter.numTexPat();
+    numTexDivX = emitter.numTexDivX();
+    numTexDivY = emitter.numTexDivY();
+    texUVScale = emitter.texUVScale();
+    // texPatTbl = emitter.texPatTbl();
+    std::copy(emitter.texPatTbl().begin(), emitter.texPatTbl().end(), texPatTbl.data());
+    texPatFreq = emitter.texPatFreq();
+    texPatTblUse = emitter.texPatTblUse();
 }
 
 QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
@@ -348,36 +378,65 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item._2E
         >> item._2F
         >> item._30
-        >> item._31
-        >> item._32
-        >> item.volumeType
+        >> item._31;
+    in.readRawData(reinterpret_cast<char*>(item._32.data()), sizeof(item._32));
+    in >> item.volumeType
         >> item.volumeRadius
         >> item._44
         >> item._48
-        >> item._4C;
-    in.readRawData(reinterpret_cast<char*>(item._50), sizeof(item._50));
-    in >> item.ptclLife
-        >> item._88
-        >> item._8C;
-    in.readRawData(reinterpret_cast<char*>(item._90), sizeof(item._90));
-    in >> item._9C
+        >> item.figureVel
+        >> item.emitterVelDir
+        >> item._5C
+        >> item.initVelRnd
+        >> item.spreadVec;
+    in.readRawData(reinterpret_cast<char*>(item._70.data()), sizeof(item._70));
+    in >> item._80
+        >> item.ptclLife
+        >> item.ptclLifeRnd
+        >> item._8C
+        >> item._90
+        >> item.billboardType
+        >> item._98
+        >> item._9C
         >> item._A0
         >> item._A4
         >> item.color[0]
         >> item.color[1]
         >> item.color[2];
-    in.readRawData(reinterpret_cast<char*>(item._D8), sizeof(item._D8));
+    in.readRawData(reinterpret_cast<char*>(item._D8.data()), sizeof(item._D8));
     in >> item.colorSection1
         >> item.colorSection2
         >> item.colorSection3
         >> item.colorNumRepeat
-        >> item.initAlpha;
-    in.readRawData(reinterpret_cast<char*>(item._F8), sizeof(item._F8));
-    in >> item.initScale;
-    in.readRawData(reinterpret_cast<char*>(item._110), sizeof(item._110));
-    in >> item._170
-        >> item._1A0;
-    in.readRawData(reinterpret_cast<char*>(item._1D0), sizeof(item._1D0));
+        >> item.initAlpha
+        >> item.diffAlpha21
+        >> item.diffAlpha32
+        >> item.alphaSection1
+        >> item.alphaSection2
+        >> item.initScale
+        >> item.diffScale21
+        >> item.diffScale32
+        >> item.scaleSection1
+        >> item.scaleSection2
+        >> item.scaleRand
+        >> item._12C
+        >> item._130
+        >> item._134
+        >> item.initRot
+        >> item.initRotRand
+        >> item.rotVel
+        >> item.rotVelRand;
+    in.readRawData(reinterpret_cast<char*>(item._168.data()), sizeof(item._168));
+    in >> item.transformSRT
+        >> item.transformRT
+        >> item.alphaAddInFade
+        >> item.numTexPat
+        >> item.numTexDivX
+        >> item.numTexDivY
+        >> item.texUVScale;
+    in.readRawData(reinterpret_cast<char*>(item.texPatTbl.data()), sizeof(item.texPatTbl));
+    in >> item.texPatFreq
+        >> item.texPatTblUse;
 
     return in;
 }
@@ -398,36 +457,65 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item._2E
         << item._2F
         << item._30
-        << item._31
-        << item._32
-        << item.volumeType
+        << item._31;
+    out.writeRawData(reinterpret_cast<const char*>(item._32.data()), sizeof(item._32));
+    out << item.volumeType
         << item.volumeRadius
         << item._44
         << item._48
-        << item._4C;
-    out.writeRawData(reinterpret_cast<const char*>(item._50), sizeof(item._50));
-    out << item.ptclLife
-        << item._88
-        << item._8C;
-    out.writeRawData(reinterpret_cast<const char*>(item._90), sizeof(item._90));
-    out << item._9C
+        << item.figureVel
+        << item.emitterVelDir
+        << item._5C
+        << item.initVelRnd
+        << item.spreadVec;
+    out.writeRawData(reinterpret_cast<const char*>(item._70.data()), sizeof(item._70));
+    out << item._80
+        << item.ptclLife
+        << item.ptclLifeRnd
+        << item._8C
+        << item._90
+        << item.billboardType
+        << item._98
+        << item._9C
         << item._A0
         << item._A4
         << item.color[0]
         << item.color[1]
         << item.color[2];
-    out.writeRawData(reinterpret_cast<const char*>(item._D8), sizeof(item._D8));
+    out.writeRawData(reinterpret_cast<const char*>(item._D8.data()), sizeof(item._D8));
     out << item.colorSection1
         << item.colorSection2
         << item.colorSection3
         << item.colorNumRepeat
-        << item.initAlpha;
-    out.writeRawData(reinterpret_cast<const char*>(item._F8), sizeof(item._F8));
-    out << item.initScale;
-    out.writeRawData(reinterpret_cast<const char*>(item._110), sizeof(item._110));
-    out << item._170
-        << item._1A0;
-    out.writeRawData(reinterpret_cast<const char*>(item._1D0), sizeof(item._1D0));
+        << item.initAlpha
+        << item.diffAlpha21
+        << item.diffAlpha32
+        << item.alphaSection1
+        << item.alphaSection2
+        << item.initScale
+        << item.diffScale21
+        << item.diffScale32
+        << item.scaleSection1
+        << item.scaleSection2
+        << item.scaleRand
+        << item._12C
+        << item._130
+        << item._134
+        << item.initRot
+        << item.initRotRand
+        << item.rotVel
+        << item.rotVelRand;
+    out.writeRawData(reinterpret_cast<const char*>(item._168.data()), sizeof(item._168));
+    out << item.transformSRT
+        << item.transformRT
+        << item.alphaAddInFade
+        << item.numTexPat
+        << item.numTexDivX
+        << item.numTexDivY
+        << item.texUVScale;
+    out.writeRawData(reinterpret_cast<const char*>(item.texPatTbl.data()), sizeof(item.texPatTbl));
+    out << item.texPatFreq
+        << item.texPatTblUse;
 
     return out;
 }
@@ -452,33 +540,62 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- _2F:              " << _2F;
     qDebug() << indentation << "- _30:              " << _30;
     qDebug() << indentation << "- _31:              " << _31;
-    qDebug() << indentation << "- _32:              " << _32;
+    qDebug() << indentation << "- _32:              " << _32.data();
     qDebug() << indentation << "- volumeType:       " << volumeType;
     qDebug() << indentation << "- volumeRadius:     " << volumeRadius;
     qDebug() << indentation << "- _44:              " << _44;
     qDebug() << indentation << "- _48:              " << _48;
-    qDebug() << indentation << "- _4C:              " << _4C;
-    qDebug() << indentation << "- _50:              " << _50;
+    qDebug() << indentation << "- figureVel:        " << figureVel;
+    qDebug() << indentation << "- emitterVelDir:    " << emitterVelDir;
+    qDebug() << indentation << "- _5C:              " << _5C;
+    qDebug() << indentation << "- initVelRnd:       " << initVelRnd;
+    qDebug() << indentation << "- spreadVec:        " << spreadVec;
+    qDebug() << indentation << "- _70:              " << _70.data();
+    qDebug() << indentation << "- _80:              " << _80;
     qDebug() << indentation << "- ptclLife:         " << ptclLife;
-    qDebug() << indentation << "- _88:              " << _88;
+    qDebug() << indentation << "- ptclLifeRnd:      " << ptclLifeRnd;
     qDebug() << indentation << "- _8C:              " << _8C;
     qDebug() << indentation << "- _90:              " << _90;
+    qDebug() << indentation << "- billboardType:    " << billboardType;
+    qDebug() << indentation << "- _98:              " << _98;
     qDebug() << indentation << "- _9C:              " << _9C;
     qDebug() << indentation << "- _A0:              " << _A0;
     qDebug() << indentation << "- _A4:              " << _A4;
-    qDebug() << indentation << "- color:            " << color;
-    qDebug() << indentation << "- _D8:              " << _D8;
+    qDebug() << indentation << "- color:            " << color.data();
+    qDebug() << indentation << "- _D8:              " << _D8.data();
     qDebug() << indentation << "- colorSection1:    " << colorSection1;
     qDebug() << indentation << "- colorSection2:    " << colorSection2;
     qDebug() << indentation << "- colorSection3:    " << colorSection3;
     qDebug() << indentation << "- colorNumRepeat:   " << colorNumRepeat;
     qDebug() << indentation << "- initAlpha:        " << initAlpha;
-    qDebug() << indentation << "- _F8:              " << _F8;
+    qDebug() << indentation << "- diffAlpha21:      " << diffAlpha21;
+    qDebug() << indentation << "- diffAlpha32:      " << diffAlpha32;
+    qDebug() << indentation << "- alphaSection1:    " << alphaSection1;
+    qDebug() << indentation << "- alphaSection2:    " << alphaSection2;
     qDebug() << indentation << "- initScale:        " << initScale;
-    qDebug() << indentation << "- _110:             " << _110;
-    qDebug() << indentation << "- _170:             " << _170;
-    qDebug() << indentation << "- _1A0:             " << _1A0;
-    qDebug() << indentation << "- _1D0:             " << _1D0;
+    qDebug() << indentation << "- diffScale21:      " << diffScale21;
+    qDebug() << indentation << "- diffScale32:      " << diffScale32;
+    qDebug() << indentation << "- scaleSection1:    " << scaleSection1;
+    qDebug() << indentation << "- scaleSection2:    " << scaleSection2;
+    qDebug() << indentation << "- scaleRand:        " << scaleRand;
+    qDebug() << indentation << "- _12C:             " << _12C;
+    qDebug() << indentation << "- _130:             " << _130;
+    qDebug() << indentation << "- _134:             " << _134;
+    qDebug() << indentation << "- initRot:          " << initRot;
+    qDebug() << indentation << "- initRotRand:      " << initRotRand;
+    qDebug() << indentation << "- rotVel:           " << rotVel;
+    qDebug() << indentation << "- rotVelRand:       " << rotVelRand;
+    qDebug() << indentation << "- _168:             " << _168.data();
+    qDebug() << indentation << "- transformSRT:     " << transformSRT;
+    qDebug() << indentation << "- transformRT:      " << transformRT;
+    qDebug() << indentation << "- alphaAddInFade:   " << alphaAddInFade;
+    qDebug() << indentation << "- numTexPat:        " << numTexPat;
+    qDebug() << indentation << "- numTexDivX:       " << numTexDivX;
+    qDebug() << indentation << "- numTexDivY:       " << numTexDivY;
+    qDebug() << indentation << "- texUVScale:       " << texUVScale;
+    qDebug() << indentation << "- texPatTbl:        " << texPatTbl.data();
+    qDebug() << indentation << "- texPatFreq:       " << texPatFreq;
+    qDebug() << indentation << "- texPatTblUse:     " << texPatTblUse;
 }
 
 

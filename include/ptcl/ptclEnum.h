@@ -7,6 +7,28 @@
 
 namespace Ptcl {
 
+// ========================================================================== //
+
+
+enum class BillboardType : u32 {
+
+    Billboard       = 0x0,
+    PolygonXY       = 0x1,
+    PolygonXZ       = 0x2,
+    VelLook         = 0x3,
+    VelLookPolygon  = 0x4,
+    Stripe          = 0x5,
+    ComplexStripe   = 0x6,
+    Primitive       = 0x7,
+    BillboardY      = 0x8,
+
+    BILLBOARD_TYPE_MAX
+};
+
+QDebug operator<<(QDebug dbg, const BillboardType& type);
+
+const QString toString(const BillboardType& type);
+
 
 // ========================================================================== //
 

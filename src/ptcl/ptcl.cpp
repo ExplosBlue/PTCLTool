@@ -373,11 +373,11 @@ EmitterSetList& PtclRes::getEmitterSets() {
 }
 
 void PtclRes::addTexture(const Texture& texture) {
-
+    static_assert("Not implemented: PtclRes::addTexture");
 }
 
 void PtclRes::removeTexture(u32 textureIndex) {
-
+    static_assert("Not implemented: PtclRes::removeTexture");
 }
 
 const TextureList& PtclRes::textures() const {

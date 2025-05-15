@@ -113,16 +113,17 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_2FSpinBox.setValue(mEmitterPtr->_2F());
     m_30SpinBox.setValue(mEmitterPtr->_30());
     m_31SpinBox.setValue(mEmitterPtr->_31());
-    m_32SpinBox.setValue(mEmitterPtr->_32());
+    // m_32SpinBox.setValue(mEmitterPtr->_32());
     mVolumeTypeLabel.setText("VolumeType: " + Ptcl::toString(mEmitterPtr->volumeType()));
     mVolumeRadiusLabel.setText(QString("VolumeRadius: {%1, %2, %3}").arg(mEmitterPtr->volumeRadius().x()).arg(mEmitterPtr->volumeRadius().y()).arg(mEmitterPtr->volumeRadius().z()));
 
     m_44SpinBox.setValue(mEmitterPtr->_44());
     m_48SpinBox.setValue(mEmitterPtr->_48());
-    m_4CSpinBox.setValue(mEmitterPtr->_4C());
+    // m_4CSpinBox.setValue(mEmitterPtr->_4C());
 
+    qDebug() << "ptclLife: " << mEmitterPtr->ptclLife();
     mPtclLifeSpinBox.setValue(mEmitterPtr->ptclLife());
-    m_88SpinBox.setValue(mEmitterPtr->_88());
+    // m_88SpinBox.setValue(mEmitterPtr->_88());
     m_8CSpinBox.setValue(mEmitterPtr->_8C());
 }
 

@@ -80,8 +80,8 @@ public:
     u8 _31() const;
     void set_31(const u8 _31);
 
-    u16 _32() const;
-    void set_32(const u16 _32);
+    const std::array<u8, 2>& _32() const;
+    void set_32(const std::array<u8, 2>& _32);
 
     VolumeType volumeType() const;
     void setVolumeType(const VolumeType volumeType);
@@ -95,23 +95,44 @@ public:
     f32 _48() const;
     void set_48(const f32 _48);
 
-    f32 _4C() const;
-    void set_4C(const f32 _4C);
+    f32 figureVel() const;
+    void setFigureVel(const f32 figureVel);
 
-    const std::array<u32, 13>& _50() const;
-    void set_50(const std::array<u32, 13>& _50);
+    const QVector3D& emitterVelDir() const;
+    void setEmitterVelDir(const QVector3D& emitterVelDir);
+
+    f32 _5C() const;
+    void set_5C(const f32 _5C);
+
+    f32 initVelRnd() const;
+    void setInitVelRnd(const f32 initVelRnd);
+
+    const QVector3D& spreadVec() const;
+    void setSpreadVec(const QVector3D& spreadVec);
+
+    const std::array<u32, 4>& _70() const;
+    void set_70(const std::array<u32, 4>& _70);
+
+    u32 _80() const;
+    void set_80(const u32 _80);
 
     s32 ptclLife() const;
     void setPtclLife(const s32 ptclLife);
 
-    u32 _88() const;
-    void set_88(const u32 _88);
+    s32 ptclLifeRnd() const;
+    void setPtclLifeRnd(const s32 ptclLifeRnd);
 
     f32 _8C() const;
     void set_8C(const f32 _8C);
 
-    const std::array<u32, 3>& _90() const;
-    void set_90(const std::array<u32, 3>& _90);
+    u32 _90() const;
+    void set_90(u32 _90);
+
+    BillboardType billboardType() const;
+    void setBillboardType(const BillboardType billboardType);
+
+    u32 _98() const;
+    void set_98(const u32 _98);
 
     f32 _9C() const;
     void set_9C(const f32 _9C);
@@ -143,23 +164,89 @@ public:
     f32 initAlpha() const;
     void setInitAlpha(const f32 initAlpha);
 
-    const std::array<u32, 4>& _F8() const;
-    void set_F8(const std::array<u32, 4>& _F8);
+    f32 diffAlpha21() const;
+    void setDiffAlpha21(const f32 diffAlpha21);
+
+    f32 diffAlpha32() const;
+    void setDiffAlpha32(const f32 diffAlpha32);
+
+    s32 alphaSection1() const;
+    void setAlphaSection1(const s32 alphaSection1);
+
+    s32 alphaSection2() const;
+    void setAlphaSection2(const s32 alphaSection2);
 
     const QVector2D& initScale() const;
     void setInitScale(const QVector2D& initScale);
 
-    const std::array<u32, 24>& _110() const;
-    void set_110(const std::array<u32, 24>& _110);
+    const QVector2D& diffScale21() const;
+    void setDiffScale21(const QVector2D& diffScale21);
 
-    const QMatrix3x4& _170() const;
-    void set_170(const QMatrix3x4& _170);
+    const QVector2D& diffScale32() const;
+    void setDiffScale32(const QVector2D& diffScale32);
 
-    const QMatrix3x4& _1A0() const;
-    void set_1A0(const QMatrix3x4& _1A0);
+    s32 scaleSection1() const;
+    void setScaleSection1(const s32 scaleSection1);
 
-    const std::array<u32, 9>& _1D0() const;
-    void set_1D0(const std::array<u32, 9>& _1D0);
+    s32 scaleSection2() const;
+    void setScaleSection2(const s32 scaleSection2);
+
+    f32 scaleRand() const;
+    void setScaleRand(const f32 scaleRand);
+
+    u32 _12C() const;
+    void set_12C(const u32 _12C);
+
+    u32 _130() const;
+    void set_130(const u32 _130);
+
+    u32 _134() const;
+    void set_134(const u32 _134);
+
+    const QVector3D& initRot() const;
+    void setInitRot(const QVector3D& initRot);
+
+    const QVector3D& initRotRand() const;
+    void setInitRotRand(const QVector3D& initRotRand);
+
+    const QVector3D& rotVel() const;
+    void setRotVel(const QVector3D& rotVel);
+
+    const QVector3D& rotVelRand() const;
+    void setRotVelRand(const QVector3D& rotVelRand);
+
+    const std::array<u32, 2>& _168() const;
+    void set_168(const std::array<u32, 2>& _168);
+
+    const QMatrix3x4& transformSRT() const;
+    void setTransformSRT(const QMatrix3x4& transformSRT);
+
+    const QMatrix3x4& transformRT() const;
+    void setTransformRT(const QMatrix3x4& transformRT);
+
+    f32 alphaAddInFade() const;
+    void setAlphaAddInFade(const f32 alphaAddInFade);
+
+    u16 numTexPat() const;
+    void setNumTexPat(const u16 numTexPat);
+
+    u8 numTexDivX() const;
+    void setNumTexDivX(const u8 numTexDivX);
+
+    u8 numTexDivY() const;
+    void setNumTexDivY(const u8 numTexDivY);
+
+    const QVector2D& texUVScale() const;
+    void setTexUVScale(const QVector2D& texUVScale);
+
+    const std::array<u8, 16>& texPatTbl() const;
+    void setTexPatTbl(const std::array<u8, 16>& texPatTbl);
+
+    u16 texPatFreq() const;
+    void setTexPatFreq(const u16 texPatFreq);
+
+    u16 texPatTblUse() const;
+    void setTexPatTblUse(const u16 texPatTblUse);
 
     void initFromBinary(const BinCommonEmitterData& emitterData);
 
@@ -193,17 +280,24 @@ private:
     u8 m_2F;
     u8 m_30;
     u8 m_31;
-    u16 m_32; // probably padding...
+    std::array<u8, 2> m_32; // probably padding...
     VolumeType mVolumeType;
     QVector3D mVolumeRadius;
     f32 m_44;
     f32 m_48;
-    f32 m_4C;
-    std::array<u32, 13> m_50;
+    f32 mFigureVel;
+    QVector3D mEmitterVelDir;
+    f32 m_5C;
+    f32 mInitVelRnd;
+    QVector3D mSpreadVec;
+    std::array<u32, 4> m_70;
+    u32 m_80;
     s32 mPtclLife;
-    u32 m_88;
+    u32 mPtclLifeRnd;
     f32 m_8C;
-    std::array<u32, 3> m_90;
+    u32 m_90;
+    BillboardType mBillboardType;
+    u32 m_98;
     f32 m_9C;
     f32 m_A0;
     f32 m_A4;
@@ -214,12 +308,34 @@ private:
     s32 mColorSection3; // Should these be QColor?
     s32 mColorNumRepeat;
     f32 mInitAlpha;
-    std::array<u32, 4> m_F8;
+    f32 mDiffAlpha21;
+    f32 mDiffAlpha32;
+    s32 mAlphaSection1;
+    s32 mAlphaSection2;
     QVector2D mInitScale;
-    std::array<u32, 24> m_110;
-    QMatrix3x4 m_170; // SRT related
-    QMatrix3x4 m_1A0; // RT related
-    std::array<u32, 9> m_1D0;
+    QVector2D mDiffScale21;
+    QVector2D mDiffScale32;
+    s32 mScaleSection1;
+    s32 mScaleSection2;
+    f32 mScaleRand;
+    u32 m_12C;
+    u32 m_130;
+    u32 m_134;
+    QVector3D mInitRot;
+    QVector3D mInitRotRand;
+    QVector3D mRotVel;
+    QVector3D mRotVelRand;
+    std::array<u32, 2> m_168;
+    QMatrix3x4 mTransformSRT;
+    QMatrix3x4 mTransformRT;
+    f32 mAlphaAddInFade;
+    u16 mNumTexPat;
+    u8 mNumTexDivX;
+    u8 mNumTexDivY;
+    QVector2D mTexUVScale;
+    std::array<u8, 16> mTexPatTbl;
+    u16 mTexPatFreq;
+    u16 mTexPatTblUse;
 
     // TODO: This is temporary, replace with better solution
     BinComplexEmitterData mComplexEmitterData;

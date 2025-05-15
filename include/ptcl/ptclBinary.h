@@ -202,33 +202,62 @@ struct alignas(4) BinCommonEmitterData {
     u8 _2F;                              // 0x2F
     u8 _30;                              // 0x30
     u8 _31;                              // 0x31
-    u16 _32;                             // 0x32 - this is probably padding
+    std::array<u8, 2> _32;               // 0x32 - this is probably padding
     VolumeType volumeType;               // 0x34
     binVec3f volumeRadius;               // 0x38
     f32 _44;                             // 0x44 - volumeSweepParam? rotWidth?
     f32 _48;                             // 0x48 - volumeSweepStart? rotStart?
-    f32 _4C;                             // 0x4C - maybe emitAnimValue? (is f32* in nw4c ptcl) related to figureVelocity
-    u32 _50[13];                         // 0x50
+    f32 figureVel;                       // 0x4C
+    binVec3f emitterVelDir;              // 0x50
+    f32 _5C;                             // 0x5C
+    f32 initVelRnd;                      // 0x60
+    binVec3f spreadVec;                  // 0x64
+    std::array<u32, 4> _70;              // 0x70
+    u32 _80;                             // 0x80
     s32 ptclLife;                        // 0x84
-    u32 _88;                             // 0x88
+    s32 ptclLifeRnd;                     // 0x88
     f32 _8C;                             // 0x8C
-    u32 _90[3];                          // 0x90
+    u32 _90;                             // 0x90
+    BillboardType billboardType;         // 0x94
+    u32 _98;                             // 0x98
     f32 _9C;                             // 0x9C - this is probably vec3
     f32 _A0;                             // 0xA0 - ^
     f32 _A4;                             // 0xA4 - ^
-    binColor4f color[3];                 // 0xA8
-    u32 _D8[3];                          // 0xD8
+    std::array<binColor4f, 3> color;     // 0xA8
+    std::array<u32, 3> _D8;              // 0xD8
     s32 colorSection1;                   // 0xE4
     s32 colorSection2;                   // 0xE8
     s32 colorSection3;                   // 0xEC
     s32 colorNumRepeat;                  // 0xF0
     f32 initAlpha;                       // 0xF4
-    u32 _F8[4];                          // 0xF8
+    f32 diffAlpha21;                     // 0xF8
+    f32 diffAlpha32;                     // 0xFC
+    s32 alphaSection1;                   // 0x100
+    s32 alphaSection2;                   // 0x104
     binVec2f initScale;                  // 0x108
-    u32 _110[24];                        // 0x110
-    binMtx34f _170;                      // 0x170 - SRT related
-    binMtx34f _1A0;                      // 0x1A0 - RT related
-    u32 _1D0[9];                         // 0x1D0
+    binVec2f diffScale21;                // 0x110
+    binVec2f diffScale32;                // 0x118
+    s32 scaleSection1;                   // 0x120
+    s32 scaleSection2;                   // 0x124
+    f32 scaleRand;                       // 0x128
+    u32 _12C;                            // 0x12C - indexes rot calc function table @ 0x00602C90
+    u32 _130;                            // 0x130 - indexes complex follow preCalc function table @ 0x00602CEC
+    u32 _134;                            // 0x134
+    binVec3f initRot;                    // 0x138 - these may be wrong
+    binVec3f initRotRand;                // 0x144 - ^
+    binVec3f rotVel;                     // 0x150 - ^
+    binVec3f rotVelRand;                 // 0x15C - ^
+    std::array<u32, 2> _168;             // 0x168
+    binMtx34f transformSRT;              // 0x170
+    binMtx34f transformRT;               // 0x1A0
+    f32 alphaAddInFade;                  // 0x1D0
+    u16 numTexPat;                       // 0x1D4
+    u8 numTexDivX;                       // 0x1D6
+    u8 numTexDivY;                       // 0x1D7
+    binVec2f texUVScale;                 // 0x1D8
+    std::array<u8, 16> texPatTbl;        // 0x1E0
+    u16 texPatFreq;                      // 0x1F0
+    u16 texPatTblUse;                    // 0x1F2
 
     BinCommonEmitterData() = default;
     BinCommonEmitterData(const Ptcl::Emitter& emitter);
