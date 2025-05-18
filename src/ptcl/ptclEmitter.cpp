@@ -438,7 +438,6 @@ void Emitter::setInitAlpha(const f32 initAlpha) {
     mInitAlpha = initAlpha;
 }
 
-///////////////
 
 f32 Emitter::diffAlpha21() const {
 
@@ -720,6 +719,82 @@ void Emitter::setTexPatTblUse(const u16 texPatTblUse) {
     mTexPatTblUse = texPatTblUse;
 }
 
+BitFlag<ChildFlag>& Emitter::childFlags() {
+    return mChildFlags;
+}
+
+BitFlag<FieldFlag>& Emitter::fieldFlags() {
+    return mFieldFlags;
+}
+
+BitFlag<FluctuationFlag>& Emitter::fluctuatonFlags() {
+    return mFluctuationFlags;
+}
+
+BitFlag<StripeFlag>& Emitter::stripeFlags() {
+    return mStripeFlags;
+}
+
+const BitFlag<ChildFlag>& Emitter::childFlags() const {
+    return mChildFlags;
+}
+
+const BitFlag<FieldFlag>& Emitter::fieldFlags() const {
+    return mFieldFlags;
+}
+
+const BitFlag<FluctuationFlag>& Emitter::fluctuatonFlags() const {
+    return mFluctuationFlags;
+}
+
+const BitFlag<StripeFlag>& Emitter::stripeFlags() const {
+    return mStripeFlags;
+}
+
+bool Emitter::hasStripeData() const {
+    return mHasStripeData;
+}
+
+void Emitter::setHasStripeData(const bool hasStripeData) {
+    mHasStripeData = hasStripeData;
+}
+
+ChildData& Emitter::childData() {
+    return mChildData;
+}
+
+FieldRandomData& Emitter::fieldRandomData() {
+    return mFieldRandomData;
+}
+
+FieldMagnetData& Emitter::fieldMagnetData() {
+    return mFieldMagnetData;
+}
+
+FieldSpinData& Emitter::fieldSpinData() {
+    return mFieldSpinData;
+}
+
+FieldCollisionData& Emitter::fieldCollisionData() {
+    return mFieldCollisionData;
+}
+
+FieldConvergenceData& Emitter::fieldConvergenceData() {
+    return mFieldConvergenceData;
+}
+
+FieldPosAddData& Emitter::fieldPosAddData() {
+    return mFieldPosAddData;
+}
+
+FluctuationData& Emitter::fluctuationData() {
+    return mFluctuationData;
+}
+
+StripeData& Emitter::stripeData() {
+    return mStripeData;
+}
+
 void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 
     mType = emitterData.type;
@@ -760,8 +835,9 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         auto& color = mColors[idx];
         auto& binColor = emitterData.color[idx];
 
-        qDebug() << "BinColor {" << binColor.r << "," << binColor.r << "," << binColor.b << "," << binColor.a << "}";
+        // qDebug() << "BinColor {" << binColor.r << "," << binColor.r << "," << binColor.b << "," << binColor.a << "}";
 
+        // TODO: Figure out why this complains about alpha being out of range...
         color.fromRgbF(binColor.r, binColor.g, binColor.b, binColor.a);
     }
 
@@ -802,34 +878,5 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mTexPatTblUse = emitterData.texPatTblUse;
 }
 
-// TODO: This is temporary, replace with better solution
-void Emitter::setComplexEmitterData(const BinComplexEmitterData& emitterData) {
-
-    mComplexEmitterData = emitterData;
-}
-
-const BinComplexEmitterData& Emitter::complexEmitterData() const {
-
-    return mComplexEmitterData;
-}
-
-const std::vector<char>& Emitter::complexData() const {
-
-    return mComplexData;
-}
-
-void Emitter::setComplexData(const std::vector<char>& complexData) {
-
-    mComplexData = complexData;
-}
-
-void Emitter::setEmitterDataType2(const BinEmitterDataType2& emitterData) {
-    mEmitterDataType2 = emitterData;
-}
-
-const BinEmitterDataType2& Emitter::emitterDataType2() const {
-
-    return mEmitterDataType2;
-}
 
 } // namespace Ptcl

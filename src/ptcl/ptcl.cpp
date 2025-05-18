@@ -82,9 +82,6 @@ void PtclRes::load(const QString& filePath) {
                     emitter->setName(name);
 
                     // Read texture data
-
-                    qDebug() << binCommonEmitterData.texturePos;
-
                     u32 textureOffset = textureTblPos + binCommonEmitterData.texturePos;
 
                     if (textureOffsetMap.find(textureOffset) == textureOffsetMap.end()) {
@@ -110,30 +107,97 @@ void PtclRes::load(const QString& filePath) {
 
                     emitter->setTexture(mTextures[textureOffsetMap[textureOffset]]);
 
-                    if (binCommonEmitterData.type == EmitterType::Complex) {
+                    if (binCommonEmitterData.type == EmitterType::Complex || binCommonEmitterData.type == EmitterType::UnkType2) {
                         file.seek(binEmitterTblData.emitterPos + sizeof(BinCommonEmitterData));
                         BinComplexEmitterData binComplexEmitterData;
                         stream >> binComplexEmitterData;
 
-                        std::vector<char> complexData;
-                        stream.readRawData(complexData.data(), binComplexEmitterData.mDataSize);
-                        emitter->setComplexData(complexData);
-                        emitter->setComplexEmitterData(binComplexEmitterData);
+                        // Store ComplexData flags
+                        emitter->childFlags() = binComplexEmitterData.childFlag;
+                        emitter->fieldFlags() = binComplexEmitterData.fieldFlag;
+                        emitter->fluctuatonFlags() = binComplexEmitterData.fluctuationFlag;
+                        emitter->stripeFlags() = binComplexEmitterData.stripeFlag;
+                        emitter->setHasStripeData(binComplexEmitterData.stripeDataOffset != 0);
 
-                        // TODO: handle complex emitter data
-                        // if ((type = complex) && (_1F4 & 1) != 0) => textureHandle2 = textureTbl + unkTexturePos
-                    }
+                        // ChildData
+                        if (binComplexEmitterData.childFlag.isSet(ChildFlag::Enabled)) {
+                            BinChildData binChildData;
+                            stream >> binChildData;
+                            emitter->childData().initFromBinary(binChildData);
 
+                            // Read texture data
+                            u32 textureOffset = textureTblPos + binChildData.texturePos;
 
-                    if (binCommonEmitterData.type == EmitterType::UnkType2) {
-                        file.seek(binEmitterTblData.emitterPos + sizeof(BinCommonEmitterData));
-                        BinEmitterDataType2 binEmitterDataType2;
-                        stream >> binEmitterDataType2;
-                        // TODO: Do something with this data...
-                        std::vector<char> complexData;
-                        stream.readRawData(complexData.data(), binEmitterDataType2.mDataSize);
-                        emitter->setComplexData(complexData);
-                        emitter->setEmitterDataType2(binEmitterDataType2);
+                            if (textureOffsetMap.find(textureOffset) == textureOffsetMap.end()) {
+
+                                auto height = binChildData.textureRes.height;
+                                auto width = binChildData.textureRes.width;
+                                auto format = binChildData.textureRes.format;
+                                auto size = binChildData.textureSize;
+
+                                file.seek(textureOffset);
+                                std::vector<u8> textureData(size);
+                                auto bytesRead = stream.readRawData(reinterpret_cast<char*>(textureData.data()), size);
+                                if (bytesRead != size) {
+                                    qWarning() << "Warning: Expected to read" << size << "bytes but only read" << bytesRead;
+                                }
+
+                                auto texture = std::make_shared<Texture>(Texture(&textureData, width, height, format));
+                                mTextures.push_back(texture);
+
+                                u32 textureIdx = mTextures.size() - 1;
+                                textureOffsetMap[textureOffset] = textureIdx;
+                            }
+
+                            emitter->childData().setTexture(mTextures[textureOffsetMap[textureOffset]]);
+                        }
+
+                        // FieldData
+                        if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::Random)) {
+                            BinFieldRandomData binRandomData;
+                            stream >> binRandomData;
+                            emitter->fieldRandomData().initFromBinary(binRandomData);
+                        }
+                        if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::Magnet)) {
+                            BinFieldMagnetData binMagnetData;
+                            stream >> binMagnetData;
+                            emitter->fieldMagnetData().initFromBinary(binMagnetData);
+                        }
+                        if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::Spin)) {
+                            BinFieldSpinData binSpinData;
+                            stream >> binSpinData;
+                            emitter->fieldSpinData().initFromBinary(binSpinData);
+                        }
+                        if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::Collision)) {
+                            BinFieldCollisionData binCollisionData;
+                            stream >> binCollisionData;
+                            emitter->fieldCollisionData().initFromBinary(binCollisionData);
+                        }
+                        if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::Convergence)) {
+                            BinFieldConvergenceData binConvergenceData;
+                            stream >> binConvergenceData;
+                            emitter->fieldConvergenceData().initFromBinary(binConvergenceData);
+                        }
+                        if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::PosAdd)) {
+                            BinFieldPosAddData binPosAddData;
+                            stream >> binPosAddData;
+                            emitter->fieldPosAddData().initFromBinary(binPosAddData);
+                        }
+
+                        // FluctuationData
+                        if (binComplexEmitterData.fluctuationFlag.isSet(FluctuationFlag::Enabled)) {
+                            BinFluctuationData binFluctuationData;
+                            stream >> binFluctuationData;
+                            emitter->fluctuationData().initFromBinary(binFluctuationData);
+                        }
+
+                        // StripeData
+                        // TODO: Should this be checking billboard type?
+                        if (binComplexEmitterData.stripeDataOffset != 0) {
+                            BinStripeData binStripeData;
+                            stream >> binStripeData;
+                            emitter->stripeData().initFromBinary(binStripeData);
+                        }
                     }
                 }
 
@@ -274,7 +338,7 @@ void PtclRes::save(const QString& filePath) {
                 emitterDataCurOffset += sizeof(BinCommonEmitterData);
                 binEmitterDataList.push_back(std::make_unique<BinCommonEmitterData>(emitterData));
 
-            } else if (emitter->type() == Ptcl::EmitterType::Complex) {
+            } else if (emitter->type() == Ptcl::EmitterType::Complex || emitter->type() == Ptcl::EmitterType::UnkType2) {
 
                 qDebug() << "Creating Complex Emitter Data";
 
@@ -287,18 +351,7 @@ void PtclRes::save(const QString& filePath) {
                 emitterDataCurOffset += emitterData.mDataSize; // This is dumb
                 binEmitterDataList.push_back(std::make_unique<BinCommonEmitterData>(emitterData));
 
-            } else if (emitter->type() == Ptcl::EmitterType::UnkType2) {
-
-                qDebug() << "Creating Unk Emitter Data";
-
-                // Create UnkType2 EmitterData
-                BinEmitterDataType2 emitterData(*emitter.get());
-
-                emitterData.namePos = nameTblCurOffset;
-                appendToNameTbl(emitter->name());
-
-                emitterDataCurOffset += emitterData.mDataSize;
-                binEmitterDataList.push_back(std::make_unique<BinEmitterDataType2>(emitterData));
+                // TODO: Do this properly
             }
         }
 
@@ -333,7 +386,7 @@ void PtclRes::save(const QString& filePath) {
             stream << static_cast<BinComplexEmitterData&>(*emtData.get());
             break;
         case Ptcl::EmitterType::UnkType2:
-            stream << static_cast<BinEmitterDataType2&>(*emtData.get());
+            stream << static_cast<BinComplexEmitterData&>(*emtData.get());
             break;
         default:
             break;

@@ -22,9 +22,13 @@ set(PROJECT_SOURCES
     src/editor/ptclListWidget.cpp
     src/ptcl/ptcl.cpp
     src/ptcl/ptclBinary.cpp
+    src/ptcl/ptclChildData.cpp
     src/ptcl/ptclEmitter.cpp
     src/ptcl/ptclEmitterSet.cpp
     src/ptcl/ptclEnum.cpp
+    src/ptcl/ptclFieldData.cpp
+    src/ptcl/ptclFluctuationData.cpp
+    src/ptcl/ptclStripeData.cpp
     src/ptcl/ptclTexture.cpp
     src/etc1/rg_etc1.cpp
 )
@@ -33,6 +37,7 @@ set(PROJECT_HEADERS
     include/printUtil.h
     include/typedefs.h
     include/imageUtil.h
+    include/bitflagUtil.h
     include/editor/mainWindow.h
     include/editor/emitterWidget.h
     include/editor/emitterSetWidget.h
@@ -41,9 +46,13 @@ set(PROJECT_HEADERS
     include/editor/sizedSpinBox.h
     include/ptcl/ptcl.h
     include/ptcl/ptclBinary.h
+    include/ptcl/ptclChildData.h
     include/ptcl/ptclEmitter.h
     include/ptcl/ptclEmitterSet.h
     include/ptcl/ptclEnum.h
+    include/ptcl/ptclFieldData.h
+    include/ptcl/ptclFluctuationData.h
+    include/ptcl/ptclStripeData.h
     include/ptcl/ptclTexture.h
     include/etc1/rg_etc1.h
 )
