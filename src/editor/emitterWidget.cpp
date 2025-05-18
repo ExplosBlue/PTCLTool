@@ -94,7 +94,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
         QImage texture = mEmitterPtr->textureHandle().get()->textureData();
         auto format = mEmitterPtr->textureHandle().get()->textureFormat();
 
-        qDebug() << "Texture User Count: " << mEmitterPtr->textureHandle()->userCount();
+        // qDebug() << "Texture User Count: " << mEmitterPtr->textureHandle()->userCount();
 
         auto width = texture.width();
         auto height = texture.height();
@@ -121,7 +121,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_48SpinBox.setValue(mEmitterPtr->_48());
     // m_4CSpinBox.setValue(mEmitterPtr->_4C());
 
-    qDebug() << "ptclLife: " << mEmitterPtr->ptclLife();
+    // qDebug() << "ptclLife: " << mEmitterPtr->ptclLife();
     mPtclLifeSpinBox.setValue(mEmitterPtr->ptclLife());
     // m_88SpinBox.setValue(mEmitterPtr->_88());
     m_8CSpinBox.setValue(mEmitterPtr->_8C());

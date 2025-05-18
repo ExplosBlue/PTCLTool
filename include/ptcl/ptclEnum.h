@@ -166,6 +166,77 @@ const QString toString(const TextureMinFilter& type);
 // ========================================================================== //
 
 
+enum class ChildFlag : u16 {
+
+    Enabled     = 1 << 0,
+    Unk2        = 1 << 1,
+    Unk4        = 1 << 2,
+    Unk8        = 1 << 3,
+    Unk10       = 1 << 4,
+    Unk20       = 1 << 5,
+    Unk40       = 1 << 6,
+    Unk80       = 1 << 7,
+    Unk100      = 1 << 8,
+    Unk200      = 1 << 9,
+    Unk400      = 1 << 10,
+    ParentField = 1 << 11,
+    Unk1000     = 1 << 12,
+};
+
+
+// ========================================================================== //
+
+
+enum class FieldFlag : u16 {
+
+    Random      = 1 << 0,
+    Magnet      = 1 << 1,
+    Spin        = 1 << 2,
+    Collision   = 1 << 3,
+    Convergence = 1 << 4,
+    PosAdd      = 1 << 5,
+};
+
+
+// ========================================================================== //
+
+
+enum class FluctuationFlag : u16 {
+
+    Enabled     = 1 << 0,
+    ApplyAlpha  = 1 << 1,
+    ApplyScale  = 1 << 2,
+};
+
+
+// ========================================================================== //
+
+
+enum class StripeFlag : u16 {
+
+    Unknown     = 1 << 0, // This is a placeholder
+};
+
+
+// ========================================================================== //
+
+
+enum class FieldConvergenceType : u32 {
+
+    AssignedPos = 0x1,
+    EmitterPos  = 0x2
+};
+
+FieldConvergenceType& assignFromInt(FieldConvergenceType& e, int value);
+
+QDebug operator<<(QDebug dbg, const FieldConvergenceType& type);
+
+const QString toString(const FieldConvergenceType& type);
+
+
+// ========================================================================== //
+
+
 } // namespace Ptcl
 
 #endif // PTCLENUM_H

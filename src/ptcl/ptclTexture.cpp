@@ -14,11 +14,11 @@ Texture::Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFor
     mEncodedData{std::move(*encodedData)}, mTextureFormat{format} {
 
     // Debugging the size and contents of mEncodedData
-    qDebug() << "mEncodedData size:" << mEncodedData.size();
-    if (!mEncodedData.empty()) {
-        qDebug() << "First few bytes:" << QByteArray(reinterpret_cast<const char*>(mEncodedData.data()),
-                                                     std::min(static_cast<size_t>(10), mEncodedData.size())).toHex();
-    }
+    // qDebug() << "mEncodedData size:" << mEncodedData.size();
+    // if (!mEncodedData.empty()) {
+    //     qDebug() << "First few bytes:" << QByteArray(reinterpret_cast<const char*>(mEncodedData.data()),
+    //                                                  std::min(static_cast<size_t>(10), mEncodedData.size())).toHex();
+    // }
 
     mDecodedTexture = ImageUtil::picaTextureToQImage(mEncodedData, width, height, format);
 

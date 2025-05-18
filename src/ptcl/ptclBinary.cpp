@@ -605,19 +605,28 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
 BinComplexEmitterData::BinComplexEmitterData(const Ptcl::Emitter& emitter) :
     BinCommonEmitterData{emitter} {
 
-    _1F4 = emitter.complexEmitterData()._1F4;
-    _1F8 = emitter.complexEmitterData()._1F8;
-    _1FC = emitter.complexEmitterData()._1FC;
-    _200 = emitter.complexEmitterData()._200;
-    mDataSize = emitter.complexEmitterData().mDataSize;
+    childFlag = emitter.childFlags();
+    fieldFlag = emitter.fieldFlags();
+    fluctuationFlag = emitter.fluctuatonFlags();
+    stripeFlag = emitter.stripeFlags();
+
+    childDataOffset = 0;
+    fieldDataOffset = 0;
+    fluctuationDataOffset = 0;
+    stripeDataOffset = 0;
+    mDataSize = 0;
 }
 
 QDataStream& operator>>(QDataStream& in, BinComplexEmitterData& item) {
 
-    in >> item._1F4
-        >> item._1F8
-        >> item._1FC
-        >> item._200
+    in >> item.childFlag
+        >> item.fieldFlag
+        >> item.fluctuationFlag
+        >> item.stripeFlag
+        >> item.childDataOffset
+        >> item.fieldDataOffset
+        >> item.fluctuationDataOffset
+        >> item.stripeDataOffset
         >> item.mDataSize;
     return in;
 }
@@ -626,12 +635,15 @@ QDataStream& operator<<(QDataStream& out, const BinComplexEmitterData& item) {
 
     out << static_cast<const BinCommonEmitterData&>(item);
 
-    out << item._1F4
-        << item._1F8
-        << item._1FC
-        << item._200
+    out << item.childFlag
+        << item.fieldFlag
+        << item.fluctuationFlag
+        << item.stripeFlag
+        << item.childDataOffset
+        << item.fieldDataOffset
+        << item.fluctuationDataOffset
+        << item.stripeDataOffset
         << item.mDataSize;
-
     return out;
 }
 
@@ -639,58 +651,244 @@ void BinComplexEmitterData::printData(u32 indentationLevel) {
 
     const char* indentation = PrintUtil::createIndentation(indentationLevel);
 
-    qDebug() << indentation << "- _1F4:      " << _1F4;
-    qDebug() << indentation << "- _1F8:      " << _1F8;
-    qDebug() << indentation << "- _1FC:      " << _1FC;
-    qDebug() << indentation << "- _200:      " << _200;
-    qDebug() << indentation << "- mDataSize: " << mDataSize;
+    qDebug() << indentation << "- childFlag:             " << childFlag;
+    qDebug() << indentation << "- fieldFlag:             " << fieldFlag;
+    qDebug() << indentation << "- fluctuationFlag:       " << fluctuationFlag;
+    qDebug() << indentation << "- stripeFlag:            " << stripeFlag;
+    qDebug() << indentation << "- childDataOffset:       " << childDataOffset;
+    qDebug() << indentation << "- fieldDataOffset:       " << fieldDataOffset;
+    qDebug() << indentation << "- fluctuationDataOffset: " << fluctuationDataOffset;
+    qDebug() << indentation << "- stripeDataOffset:      " << stripeDataOffset;
+    qDebug() << indentation << "- mDataSize:             " << mDataSize;
 }
 
 
 // ========================================================================== //
 
 
-BinEmitterDataType2::BinEmitterDataType2(const Ptcl::Emitter& emitter) :
-    BinCommonEmitterData{emitter} {
+QDataStream& operator>>(QDataStream& in, BinChildData& item) {
 
-    _0 = emitter.emitterDataType2()._0;
-    _4 = emitter.emitterDataType2()._4;
-    _8 = emitter.emitterDataType2()._8;
-    _C = emitter.emitterDataType2()._C;
-    mDataSize = emitter.emitterDataType2().mDataSize;
-}
-
-QDataStream& operator>>(QDataStream& in, BinEmitterDataType2& item) {
-
-    in >> item._0
-        >> item._4
-        >> item._8
-        >> item._C
-        >> item.mDataSize;
+    in.readRawData(reinterpret_cast<char*>(item._0.data()), sizeof(item._0));
+    in >> item._2C;
+    in.readRawData(reinterpret_cast<char*>(item._30.data()), sizeof(item._30));
+    in >> item.textureRes
+        >> item.textureSize
+        >> item.texturePos
+        >> item.textureHandlePtr;
+    in.readRawData(reinterpret_cast<char*>(item._4C.data()), sizeof(item._4C));
+    in >> item._5C
+        >> item._60
+        >> item._64;
+    in.readRawData(reinterpret_cast<char*>(item._68.data()), sizeof(item._68));
+    in >> item._BC;
+    in.readRawData(reinterpret_cast<char*>(item._C8.data()), sizeof(item._C8));
+    in >> item._E8;
     return in;
 }
 
-QDataStream& operator<<(QDataStream& out, const BinEmitterDataType2& item) {
+QDataStream& operator<<(QDataStream& out, const BinChildData& item) {
 
-    out << static_cast<const BinCommonEmitterData&>(item);
-
-    out << item._0
-        << item._4
-        << item._8
-        << item._C
-        << item.mDataSize;
+    out.writeRawData(reinterpret_cast<const char*>(item._0.data()), sizeof(item._0));
+    out << item._2C;
+    out.writeRawData(reinterpret_cast<const char*>(item._30.data()), sizeof(item._30));
+    out << item.textureRes
+        << item.textureSize
+        << item.texturePos
+        << item.textureHandlePtr;
+    out.writeRawData(reinterpret_cast<const char*>(item._4C.data()), sizeof(item._4C));
+    out << item._5C
+        << item._60
+        << item._64;
+    out.writeRawData(reinterpret_cast<const char*>(item._68.data()), sizeof(item._68));
+    out << item._BC;
+    out.writeRawData(reinterpret_cast<const char*>(item._C8.data()), sizeof(item._C8));
+    out << item._E8;
     return out;
 }
 
-void BinEmitterDataType2::printData(u32 indentationLevel) {
+void BinChildData::printData(u32 indentationLevel) {
 
     const char* indentation = PrintUtil::createIndentation(indentationLevel);
 
-    qDebug() << indentation << "- _0:        " << _0;
-    qDebug() << indentation << "- _4:        " << _4;
-    qDebug() << indentation << "- _8:        " << _8;
-    qDebug() << indentation << "- _C:        " << _C;
-    qDebug() << indentation << "- mDataSize: " << mDataSize;
+    qDebug() << indentation << "- _0:             " << _0.data();
+    qDebug() << indentation << "- _2C:             " << _2C;
+    qDebug() << indentation << "- _30:       " << _30.data();
+    textureRes.printData(indentationLevel + 1);
+    qDebug() << indentation << "- textureSize:       " << textureSize;
+    qDebug() << indentation << "- texturePos:       " << texturePos;
+    qDebug() << indentation << "- textureHandlePtr: " << textureHandlePtr;
+    qDebug() << indentation << "- _4C:      " << _4C.data();
+    qDebug() << indentation << "- _5C:             " << _5C;
+    qDebug() << indentation << "- _60:             " << _60;
+    qDebug() << indentation << "- _64:             " << _64;
+    qDebug() << indentation << "- _68:             " << _68.data();
+    qDebug() << indentation << "- _BC:             " << _BC;
+    qDebug() << indentation << "- _C8:             " << _C8.data();
+    qDebug() << indentation << "- _E8:             " << _E8;
+}
+
+
+// ========================================================================== //
+
+
+QDataStream& operator>>(QDataStream& in, BinFieldRandomData& item) {
+
+    in >> item.fieldRandomBlank
+        >> item.fieldRandomVelAdd;
+
+    return in;
+}
+
+QDataStream& operator<<(QDataStream& out, const BinFieldRandomData& item) {
+
+    out << item.fieldRandomBlank
+        << item.fieldRandomVelAdd;
+
+    return out;
+}
+
+
+// ========================================================================== //
+
+
+QDataStream& operator>>(QDataStream& in, BinFieldMagnetData& item) {
+
+    in >> item.fieldMagnetPower
+        >> item.fieldMagnetPos
+        >> item.fieldMagnetFlag;
+
+    return in;
+}
+
+QDataStream& operator<<(QDataStream& out, const BinFieldMagnetData& item) {
+
+    out << item.fieldMagnetPower
+        << item.fieldMagnetPos
+        << item.fieldMagnetFlag;
+
+    return out;
+}
+
+
+// ========================================================================== //
+
+
+QDataStream& operator>>(QDataStream& in, BinFieldSpinData& item) {
+
+    in >> item.fieldSpinRotate
+        >> item.fieldSpinAxis;
+
+    return in;
+}
+
+QDataStream& operator<<(QDataStream& out, const BinFieldSpinData& item) {
+
+    out << item.fieldSpinRotate
+        << item.fieldSpinAxis;
+
+    return out;
+}
+
+
+// ========================================================================== //
+
+
+QDataStream& operator>>(QDataStream& in, BinFieldCollisionData& item) {
+
+    in >> item.fieldCollisionType
+        >> item.fieldCollisionIsWorld
+        >> item.fieldCollisionCoord
+        >> item.fieldCollisionCoef;
+
+    return in;
+}
+
+QDataStream& operator<<(QDataStream& out, const BinFieldCollisionData& item) {
+
+    out << item.fieldCollisionType
+        << item.fieldCollisionIsWorld
+        << item.fieldCollisionCoord
+        << item.fieldCollisionCoef;
+
+    return out;
+}
+
+
+// ========================================================================== //
+
+
+QDataStream& operator>>(QDataStream& in, BinFieldConvergenceData& item) {
+
+    in >> item.fieldConvergenceType
+        >> item.fieldConvergencePos;
+
+    return in;
+}
+
+QDataStream& operator<<(QDataStream& out, const BinFieldConvergenceData& item) {
+
+    out << item.fieldConvergenceType
+        << item.fieldConvergencePos;
+
+    return out;
+}
+
+
+// ========================================================================== //
+
+
+QDataStream& operator>>(QDataStream& in, BinFieldPosAddData& item) {
+
+    in >> item.fieldPosAdd;
+
+    return in;
+}
+
+QDataStream& operator<<(QDataStream& out, const BinFieldPosAddData& item) {
+
+    out << item.fieldPosAdd;
+
+    return out;
+}
+
+
+// ========================================================================== //
+
+
+QDataStream& operator>>(QDataStream& in, BinFluctuationData& item) {
+
+    in >> item.fluctuationScale
+        >> item.fluctuationFreq
+        >> item.fluctuationPhaseRnd;
+
+    return in;
+}
+
+QDataStream& operator<<(QDataStream& out, const BinFluctuationData& item) {
+
+    out << item.fluctuationScale
+        << item.fluctuationFreq
+        << item.fluctuationPhaseRnd;
+
+    return out;
+}
+
+
+// ========================================================================== //
+
+
+QDataStream& operator>>(QDataStream& in, BinStripeData& item) {
+
+    in.readRawData(reinterpret_cast<char*>(item._0.data()), sizeof(item._0));
+
+    return in;
+}
+
+QDataStream& operator<<(QDataStream& out, const BinStripeData& item) {
+
+    out.writeRawData(reinterpret_cast<const char*>(item._0.data()), sizeof(item._0));
+
+    return out;
 }
 
 

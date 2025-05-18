@@ -8,11 +8,16 @@
 #include <QVector3D>
 #include <QMatrix3x4>
 
+#include "bitflagUtil.h"
 #include "typedefs.h"
+#include "ptclChildData.h"
 #include "ptclEnum.h"
+#include "ptclFieldData.h"
+#include "ptclFluctuationData.h"
+#include "ptclStripeData.h"
 #include "ptclTexture.h"
 
-// TODO: This is temporary, replace with better solution
+// // TODO: This is temporary, replace with better solution
 #include "ptclBinary.h"
 
 
@@ -248,17 +253,33 @@ public:
     u16 texPatTblUse() const;
     void setTexPatTblUse(const u16 texPatTblUse);
 
+    BitFlag<ChildFlag>& childFlags();
+    BitFlag<FieldFlag>& fieldFlags();
+    BitFlag<FluctuationFlag>& fluctuatonFlags();
+    BitFlag<StripeFlag>& stripeFlags();
+
+    const BitFlag<ChildFlag>& childFlags() const;
+    const BitFlag<FieldFlag>& fieldFlags() const;
+    const BitFlag<FluctuationFlag>& fluctuatonFlags() const;
+    const BitFlag<StripeFlag>& stripeFlags() const;
+
+    bool hasStripeData() const;
+    void setHasStripeData(const bool hasStripeData);
+
+    ChildData& childData();
+
+    FieldRandomData& fieldRandomData();
+    FieldMagnetData& fieldMagnetData();
+    FieldSpinData& fieldSpinData();
+    FieldCollisionData& fieldCollisionData();
+    FieldConvergenceData& fieldConvergenceData();
+    FieldPosAddData& fieldPosAddData();
+
+    FluctuationData& fluctuationData();
+
+    StripeData& stripeData();
+
     void initFromBinary(const BinCommonEmitterData& emitterData);
-
-    // TODO: This is temporary, replace with better solution
-    const BinComplexEmitterData& complexEmitterData() const;
-    void setComplexEmitterData(const BinComplexEmitterData& emitterData);
-
-    const std::vector<char>& complexData() const;
-    void setComplexData(const std::vector<char>& complexData);
-
-    const BinEmitterDataType2& emitterDataType2() const;
-    void setEmitterDataType2(const BinEmitterDataType2& emitterData);
 
 private:
     EmitterType mType;
@@ -268,7 +289,6 @@ private:
     QString mName; // namePos, name
 
     TextureHandle mTextureHande;
-    // Texture Wrap etc should go here...
     TextureWrap mTextureWrapT;
     TextureWrap mTextureWrapS;
     TextureMagFilter mTextureMagFilter;
@@ -337,11 +357,26 @@ private:
     u16 mTexPatFreq;
     u16 mTexPatTblUse;
 
-    // TODO: This is temporary, replace with better solution
-    BinComplexEmitterData mComplexEmitterData;
-    std::vector<char> mComplexData;  // idk what this is
+    // Complex / UnkType fields
+    BitFlag<ChildFlag> mChildFlags;
+    BitFlag<FieldFlag> mFieldFlags;
+    BitFlag<FluctuationFlag> mFluctuationFlags;
+    BitFlag<StripeFlag> mStripeFlags; // I think this is unused
 
-    BinEmitterDataType2 mEmitterDataType2;
+    bool mHasStripeData;
+
+    ChildData mChildData;
+
+    FieldRandomData mFieldRandomData;
+    FieldMagnetData mFieldMagnetData;
+    FieldSpinData mFieldSpinData;
+    FieldCollisionData mFieldCollisionData;
+    FieldConvergenceData mFieldConvergenceData;
+    FieldPosAddData mFieldPosAddData;
+
+    FluctuationData mFluctuationData;
+
+    StripeData mStripeData;
 };
 
 

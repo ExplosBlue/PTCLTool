@@ -415,4 +415,40 @@ const QString toString(const TextureMinFilter& type) {
 // ========================================================================== //
 
 
+FieldConvergenceType& assignFromInt(FieldConvergenceType& e, int value) {
+    e = static_cast<FieldConvergenceType>(value);
+    return e;
+}
+
+QDebug operator<<(QDebug dbg, const FieldConvergenceType& type) {
+    QDebugStateSaver stateSaver(dbg);
+
+    switch (type) {
+    case FieldConvergenceType::AssignedPos:
+        dbg.nospace() << "AssignedPos";
+        break;
+    case FieldConvergenceType::EmitterPos:
+        dbg.nospace() << "EmitterPos";
+        break;
+    default:
+        dbg.nospace() << "Unknown";
+        break;
+    }
+
+    return dbg;
+}
+
+const QString toString(const FieldConvergenceType& type) {
+
+    switch (type) {
+    case FieldConvergenceType::AssignedPos: return "AssignedPos";
+    case FieldConvergenceType::EmitterPos:  return "EmitterPos";
+    default: return "Unknown";
+    }
+}
+
+
+// ========================================================================== //
+
+
 } // namespace Ptcl
