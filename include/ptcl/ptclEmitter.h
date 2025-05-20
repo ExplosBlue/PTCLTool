@@ -148,8 +148,8 @@ public:
     f32 _A4() const;
     void set_A4(const f32 _A4);
 
-    const std::array<QColor, 3>& colors() const;
-    void setColors(const std::array<QColor, 3>& colors);
+    const std::array<binColor4f, 3>& colors() const;
+    void setColors(const std::array<binColor4f, 3>& colors);
 
     const std::array<u32, 3>& _D8() const;
     void set_D8(const std::array<u32, 3>& _D8);
@@ -255,12 +255,12 @@ public:
 
     BitFlag<ChildFlag>& childFlags();
     BitFlag<FieldFlag>& fieldFlags();
-    BitFlag<FluctuationFlag>& fluctuatonFlags();
+    BitFlag<FluctuationFlag>& fluctuationFlags();
     BitFlag<StripeFlag>& stripeFlags();
 
     const BitFlag<ChildFlag>& childFlags() const;
     const BitFlag<FieldFlag>& fieldFlags() const;
-    const BitFlag<FluctuationFlag>& fluctuatonFlags() const;
+    const BitFlag<FluctuationFlag>& fluctuationFlags() const;
     const BitFlag<StripeFlag>& stripeFlags() const;
 
     bool hasStripeData() const;
@@ -321,7 +321,7 @@ private:
     f32 m_9C;
     f32 m_A0;
     f32 m_A4;
-    std::array<QColor, 3> mColors;
+    std::array<binColor4f, 3> mColors;
     std::array<u32, 3> m_D8;
     s32 mColorSection1; // Should these be QColor?
     s32 mColorSection2; // Should these be QColor?

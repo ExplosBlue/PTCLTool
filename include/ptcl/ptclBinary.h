@@ -14,8 +14,16 @@
 
 namespace Ptcl {
     class Emitter;
+    class ChildData;
+    class FieldRandomData;
+    class FieldMagnetData;
+    class FieldSpinData;
+    class FieldCollisionData;
+    class FieldConvergenceData;
+    class FieldPosAddData;
+    class FluctuationData;
+    class StripeData;
 }
-
 
 // ========================================================================== //
 
@@ -70,11 +78,13 @@ static_assert(sizeof(binVec3f) == 0x0C, "binVec3f is incorrect size.");
 // Size 0x30
 union alignas(4) binMtx34f {
 
-    std::array<std::array<f32, 3>, 4> rows;   // 0x00 - 0x30
+    std::array<std::array<f32, 4>, 3> rows;   // 0x00 - 0x30
     std::array<f32, 12> cells;                // 0x00 - 0x30
 
     binMtx34f();
     binMtx34f(const QMatrix3x4& mtx);
+
+    QMatrix3x4 toQMatrix3x4() const;
 
     friend QDataStream& operator>>(QDataStream& in, binMtx34f& item);
     friend QDataStream& operator<<(QDataStream& out, const binMtx34f& item);
@@ -322,8 +332,8 @@ struct alignas(4) BinChildData {
     std::array<u8, 32> _C8;     // 0xC8
     f32 _E8;                    // 0xE8
 
-    // BinChildData() = default;
-    // BinChildData(const Ptcl::Emitter& emitter);
+    BinChildData() = default;
+    BinChildData(const Ptcl::ChildData& childData);
 
     friend QDataStream& operator>>(QDataStream& in, BinChildData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinChildData& item);
@@ -343,6 +353,9 @@ struct alignas(4) BinFieldRandomData {
     s32 fieldRandomBlank;       // 0x00
     binVec3f fieldRandomVelAdd; // 0x04
 
+    BinFieldRandomData() = default;
+    BinFieldRandomData(const Ptcl::FieldRandomData& fieldRandomData);
+
     friend QDataStream& operator>>(QDataStream& in, BinFieldRandomData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinFieldRandomData& item);
 };
@@ -359,6 +372,9 @@ struct alignas(4) BinFieldMagnetData {
     binVec3f fieldMagnetPos;    // 0x04
     u32 fieldMagnetFlag;        // 0x10
 
+    BinFieldMagnetData() = default;
+    BinFieldMagnetData(const Ptcl::FieldMagnetData& fieldMagnetData);
+
     friend QDataStream& operator>>(QDataStream& in, BinFieldMagnetData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinFieldMagnetData& item);
 };
@@ -373,6 +389,9 @@ struct alignas(4) BinFieldSpinData {
 
     s32 fieldSpinRotate;    // 0x00
     s32 fieldSpinAxis;      // 0x04
+
+    BinFieldSpinData() = default;
+    BinFieldSpinData(const Ptcl::FieldSpinData& fieldSpinData);
 
     friend QDataStream& operator>>(QDataStream& in, BinFieldSpinData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinFieldSpinData& item);
@@ -392,6 +411,9 @@ struct alignas(4) BinFieldCollisionData {
     f32 fieldCollisionCoord;    // 0x04
     f32 fieldCollisionCoef;     // 0x08
 
+    BinFieldCollisionData() = default;
+    BinFieldCollisionData(const Ptcl::FieldCollisionData& fieldCollsionData);
+
     friend QDataStream& operator>>(QDataStream& in, BinFieldCollisionData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinFieldCollisionData& item);
 };
@@ -408,6 +430,9 @@ struct alignas(4) BinFieldConvergenceData {
     FieldConvergenceType fieldConvergenceType;  // 0x00
     binVec3f fieldConvergencePos;               // 0x04
 
+    BinFieldConvergenceData() = default;
+    BinFieldConvergenceData(const Ptcl::FieldConvergenceData& fieldConvergenceData);
+
     friend QDataStream& operator>>(QDataStream& in, BinFieldConvergenceData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinFieldConvergenceData& item);
 };
@@ -422,6 +447,9 @@ static_assert(sizeof(BinFieldConvergenceData) == 0x10, "BinFieldConvergenceData 
 struct alignas(4) BinFieldPosAddData {
 
     binVec3f fieldPosAdd;   // 0x00
+
+    BinFieldPosAddData() = default;
+    BinFieldPosAddData(const Ptcl::FieldPosAddData& fieldPosAddData);
 
     friend QDataStream& operator>>(QDataStream& in, BinFieldPosAddData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinFieldPosAddData& item);
@@ -438,7 +466,10 @@ struct alignas(4) BinFluctuationData {
 
     f32 fluctuationScale;       // 0x00
     f32 fluctuationFreq;        // 0x04
-    f32 fluctuationPhaseRnd;    // 0x08
+    u32 fluctuationPhaseRnd;    // 0x08
+
+    BinFluctuationData() = default;
+    BinFluctuationData(const Ptcl::FluctuationData& fluctuationData);
 
     friend QDataStream& operator>>(QDataStream& in, BinFluctuationData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinFluctuationData& item);
@@ -454,6 +485,9 @@ static_assert(sizeof(BinFluctuationData) == 0xC, "BinFluctuationData is incorrec
 struct alignas(4) BinStripeData {
 
     std::array<u8, 32> _0;       // 0x00
+
+    BinStripeData() = default;
+    BinStripeData(const Ptcl::StripeData& stripeData);
 
     friend QDataStream& operator>>(QDataStream& in, BinStripeData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinStripeData& item);

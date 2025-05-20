@@ -368,12 +368,12 @@ void Emitter::set_A4(const f32 _A4) {
     m_A4 = _A4;
 }
 
-const std::array<QColor, 3>& Emitter::colors() const {
+const std::array<binColor4f, 3>& Emitter::colors() const {
 
     return mColors;
 }
 
-void Emitter::setColors(const std::array<QColor, 3>& colors) {
+void Emitter::setColors(const std::array<binColor4f, 3>& colors) {
 
     mColors = colors;
 }
@@ -471,7 +471,7 @@ void Emitter::setAlphaSection1(const s32 alphaSection1) {
 
 s32 Emitter::alphaSection2() const {
 
-    return mAlphaSection1;
+    return mAlphaSection2;
 }
 
 void Emitter::setAlphaSection2(const s32 alphaSection2) {
@@ -521,7 +521,7 @@ void Emitter::setScaleSection1(const s32 scaleSection1) {
 
 s32 Emitter::scaleSection2() const {
 
-    return mScaleSection1;
+    return mScaleSection2;
 }
 
 void Emitter::setScaleSection2(const s32 scaleSection2) {
@@ -727,7 +727,7 @@ BitFlag<FieldFlag>& Emitter::fieldFlags() {
     return mFieldFlags;
 }
 
-BitFlag<FluctuationFlag>& Emitter::fluctuatonFlags() {
+BitFlag<FluctuationFlag>& Emitter::fluctuationFlags() {
     return mFluctuationFlags;
 }
 
@@ -743,7 +743,7 @@ const BitFlag<FieldFlag>& Emitter::fieldFlags() const {
     return mFieldFlags;
 }
 
-const BitFlag<FluctuationFlag>& Emitter::fluctuatonFlags() const {
+const BitFlag<FluctuationFlag>& Emitter::fluctuationFlags() const {
     return mFluctuationFlags;
 }
 
@@ -803,6 +803,11 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     // mName
     // mTexture
     // mTextureFormat
+    mTextureWrapT = emitterData.textureRes.wrapT;
+    mTextureWrapS = emitterData.textureRes.wrapS;
+    mTextureMagFilter = emitterData.textureRes.magFilter;
+    mTextureMinFilter = emitterData.textureRes.minFilter;
+
     m_2C = emitterData._2C;
     m_2D = emitterData._2D;
     m_2E = emitterData._2E;
@@ -831,15 +836,12 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_A0 = emitterData._A0;
     m_A4 = emitterData._A4;
 
-    for (size_t idx = 0; idx < mColors.size(); ++idx) {
-        auto& color = mColors[idx];
-        auto& binColor = emitterData.color[idx];
+    mColors = emitterData.color;
 
-        // qDebug() << "BinColor {" << binColor.r << "," << binColor.r << "," << binColor.b << "," << binColor.a << "}";
-
-        // TODO: Figure out why this complains about alpha being out of range...
-        color.fromRgbF(binColor.r, binColor.g, binColor.b, binColor.a);
-    }
+    // for (size_t idx = 0; idx < mColors.size(); ++idx) {
+    //     auto& binColor = emitterData.color[idx];
+    //     mColors[idx] = QColor::fromRgbF(binColor.r, binColor.g, binColor.b, binColor.a);
+    // }
 
     std::ranges::copy(emitterData._D8, m_D8.begin());
 
@@ -866,8 +868,9 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mRotVel = QVector3D(emitterData.rotVel.x, emitterData.rotVel.y, emitterData.rotVel.z);
     mRotVelRand = QVector3D(emitterData.rotVelRand.x, emitterData.rotVelRand.y, emitterData.rotVelRand.z);
     std::ranges::copy(emitterData._168, m_168.begin());
-    mTransformSRT = QMatrix3x4(emitterData.transformSRT.cells.data());
-    mTransformRT = QMatrix3x4(emitterData.transformRT.cells.data());
+
+    mTransformSRT = emitterData.transformSRT.toQMatrix3x4();
+    mTransformRT = emitterData.transformRT.toQMatrix3x4();
     mAlphaAddInFade = emitterData.alphaAddInFade;
     mNumTexPat = emitterData.numTexPat;
     mNumTexDivX = emitterData.numTexDivX;

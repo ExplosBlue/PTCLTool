@@ -1,5 +1,7 @@
 #include "ptcl/ptcl.h"
 
+#include <variant>
+
 #include <QDataStream>
 #include <QFile>
 
@@ -22,6 +24,7 @@ void PtclRes::load(const QString& filePath) {
 
     QDataStream stream(&file);
     stream.setByteOrder(QDataStream::LittleEndian);
+    stream.setFloatingPointPrecision(QDataStream::SinglePrecision);
 
     // Read Binary Header
     BinHeaderData binHeader;
@@ -73,6 +76,7 @@ void PtclRes::load(const QString& filePath) {
                 if (binEmitterTblData.emitterPos > 0) {
 
                     file.seek(binEmitterTblData.emitterPos);
+
                     BinCommonEmitterData binCommonEmitterData{};
                     stream >> binCommonEmitterData;
 
@@ -115,7 +119,7 @@ void PtclRes::load(const QString& filePath) {
                         // Store ComplexData flags
                         emitter->childFlags() = binComplexEmitterData.childFlag;
                         emitter->fieldFlags() = binComplexEmitterData.fieldFlag;
-                        emitter->fluctuatonFlags() = binComplexEmitterData.fluctuationFlag;
+                        emitter->fluctuationFlags() = binComplexEmitterData.fluctuationFlag;
                         emitter->stripeFlags() = binComplexEmitterData.stripeFlag;
                         emitter->setHasStripeData(binComplexEmitterData.stripeDataOffset != 0);
 
@@ -256,10 +260,27 @@ void PtclRes::save(const QString& filePath) {
         return;
     }
 
+    using DataBlockVariant = std::variant<
+        BinCommonEmitterData,
+        BinComplexEmitterData,
+        BinChildData,
+        BinFieldRandomData,
+        BinFieldMagnetData,
+        BinFieldSpinData,
+        BinFieldCollisionData,
+        BinFieldConvergenceData,
+        BinFieldPosAddData,
+        BinFluctuationData,
+        BinStripeData
+    >;
+
     std::vector<BinEmitterSetData> binEmitterSetsList;
     std::vector<BinEmitterTblData> binEmitterTblsList;
-    std::vector<std::unique_ptr<BinCommonEmitterData>> binEmitterDataList;
+    std::vector<DataBlockVariant> binEmitterDataList;
     std::vector<char> nameTbl;
+    std::vector<char> textureTbl;
+
+    std::unordered_map<u32, u32> textureOffsetMap;
 
     constexpr u32 headerBasePos = 0;
     constexpr u32 emitterSetsBasePos = headerBasePos + sizeof(BinHeaderData);
@@ -270,6 +291,7 @@ void PtclRes::save(const QString& filePath) {
     u32 emitterTblDataCurOffset = emitterTblDataBasePos;
     u32 emitterDataCurOffset = emitterDataBasePos;
     u32 nameTblCurOffset = 0;
+    u32 textureTblCurOffset = 0;
 
     auto appendToNameTbl = [&nameTbl, &nameTblCurOffset](const QString& name) {
         QByteArray byteArray = name.toUtf8();
@@ -279,6 +301,10 @@ void PtclRes::save(const QString& filePath) {
         nameTbl.push_back('\0');
 
         nameTblCurOffset += byteArray.size() + 1;
+    };
+
+    auto appendToTextureTbl = [&textureTbl, &textureTblCurOffset](const std::vector<u8>& textureData) {
+        textureTbl.insert(textureTbl.end(), textureData.begin(), textureData.end());
     };
 
     // Create binary header
@@ -325,22 +351,36 @@ void PtclRes::save(const QString& filePath) {
             // Create emitterData
             if (emitter->type() == Ptcl::EmitterType::Simple) {
 
-                qDebug() << "Creating Simple Emitter Data";
-
                 // Create Simple EmitterData
                 BinCommonEmitterData emitterData(*emitter.get());
 
                 emitterData.namePos = nameTblCurOffset;
                 appendToNameTbl(emitter->name());
 
-                // TODO: set emitterData texture pos...
+                // Store texture data
+                if (textureOffsetMap.contains(emitter->textureHandle()->Id())) {
+                    emitterData.texturePos = textureOffsetMap[emitter->textureHandle()->Id()];
+                    emitterData.textureSize = emitter->textureHandle()->textureDataRaw().size();
+                } else {
+                    qint64 paddingNeeded = (128 - (emitter->textureHandle()->textureDataRaw().size() % 128)) % 128;
+
+                    emitterData.texturePos = textureTblCurOffset;
+                    textureOffsetMap.try_emplace(emitter->textureHandle()->Id(), textureTblCurOffset);
+                    appendToTextureTbl(emitter->textureHandle()->textureDataRaw());
+
+                    if (paddingNeeded > 0) {
+                        QByteArray padding(paddingNeeded, '\0');
+                        textureTbl.insert(textureTbl.end(), padding.begin(), padding.end());
+                    }
+
+                    emitterData.textureSize = emitter->textureHandle()->textureDataRaw().size();
+                    textureTblCurOffset += emitterData.textureSize + paddingNeeded;
+                }
 
                 emitterDataCurOffset += sizeof(BinCommonEmitterData);
-                binEmitterDataList.push_back(std::make_unique<BinCommonEmitterData>(emitterData));
+                binEmitterDataList.emplace_back(emitterData);
 
             } else if (emitter->type() == Ptcl::EmitterType::Complex || emitter->type() == Ptcl::EmitterType::UnkType2) {
-
-                qDebug() << "Creating Complex Emitter Data";
 
                 // Create Complex EmitterData
                 BinComplexEmitterData emitterData(*emitter.get());
@@ -348,16 +388,145 @@ void PtclRes::save(const QString& filePath) {
                 emitterData.namePos = nameTblCurOffset;
                 appendToNameTbl(emitter->name());
 
-                emitterDataCurOffset += emitterData.mDataSize; // This is dumb
-                binEmitterDataList.push_back(std::make_unique<BinCommonEmitterData>(emitterData));
+                // Store texture data
+                if (textureOffsetMap.contains(emitter->textureHandle()->Id())) {
+                    emitterData.texturePos = textureOffsetMap[emitter->textureHandle()->Id()];
+                    emitterData.textureSize = emitter->textureHandle()->textureDataRaw().size();
+                } else {
+                    qint64 paddingNeeded = (128 - (emitter->textureHandle()->textureDataRaw().size() % 128)) % 128;
 
-                // TODO: Do this properly
+                    emitterData.texturePos = textureTblCurOffset;
+                    textureOffsetMap.try_emplace(emitter->textureHandle()->Id(), textureTblCurOffset);
+                    appendToTextureTbl(emitter->textureHandle()->textureDataRaw());
+
+                    if (paddingNeeded > 0) {
+                        QByteArray padding(paddingNeeded, '\0');
+                        textureTbl.insert(textureTbl.end(), padding.begin(), padding.end());
+                    }
+
+                    emitterData.textureSize = emitter->textureHandle()->textureDataRaw().size();
+                    textureTblCurOffset += emitterData.textureSize + paddingNeeded;
+                }
+
+                u32 emitterDataSize = sizeof(BinComplexEmitterData);
+
+                BinChildData binChildData(emitter->childData());
+
+                BinFieldRandomData binRandomData(emitter->fieldRandomData());
+                BinFieldMagnetData binMagnetData(emitter->fieldMagnetData());
+                BinFieldSpinData binSpinData(emitter->fieldSpinData());
+                BinFieldCollisionData binCollisionData(emitter->fieldCollisionData());
+                BinFieldConvergenceData binConvergenceData(emitter->fieldConvergenceData());
+                BinFieldPosAddData binPosAddData(emitter->fieldPosAddData());
+
+                BinFluctuationData binFluctuationData(emitter->fluctuationData());
+
+                BinStripeData binStripeData(emitter->stripeData());
+
+                emitterData.childDataOffset = emitterDataSize;
+
+                // ChildData
+                if (emitterData.childFlag.isSet(ChildFlag::Enabled)) {
+                    emitterDataSize += sizeof(BinChildData);
+
+                    // Store texture data
+                    if (textureOffsetMap.contains(emitter->childData().textureHandle()->Id())) {
+                        binChildData.texturePos = textureOffsetMap[emitter->childData().textureHandle()->Id()];
+                        binChildData.textureSize = emitter->childData().textureHandle()->textureDataRaw().size();
+                    } else {
+                        qint64 paddingNeeded = (128 - (emitter->childData().textureHandle()->textureDataRaw().size() % 128)) % 128;
+
+                        binChildData.texturePos = textureTblCurOffset;
+                        textureOffsetMap.try_emplace(emitter->childData().textureHandle()->Id(), textureTblCurOffset);
+                        appendToTextureTbl(emitter->childData().textureHandle()->textureDataRaw());
+
+                        if (paddingNeeded > 0) {
+                            QByteArray padding(paddingNeeded, '\0');
+                            textureTbl.insert(textureTbl.end(), padding.begin(), padding.end());
+                        }
+
+                        binChildData.textureSize = emitter->childData().textureHandle()->textureDataRaw().size();
+                        textureTblCurOffset += binChildData.textureSize + paddingNeeded;
+                    }
+                }
+
+                emitterData.fieldDataOffset = emitterDataSize;
+
+                // FieldData
+                if (emitter->fieldFlags().isSet(FieldFlag::Random)) {
+                    emitterDataSize += sizeof(BinFieldRandomData);
+                }
+                if (emitter->fieldFlags().isSet(FieldFlag::Magnet)) {
+                    emitterDataSize += sizeof(BinFieldMagnetData);
+                }
+                if (emitter->fieldFlags().isSet(FieldFlag::Spin)) {
+                    emitterDataSize += sizeof(BinFieldSpinData);
+                }
+                if (emitter->fieldFlags().isSet(FieldFlag::Collision)) {
+                    emitterDataSize += sizeof(BinFieldCollisionData);
+                }
+                if (emitter->fieldFlags().isSet(FieldFlag::Convergence)) {
+                    emitterDataSize += sizeof(BinFieldConvergenceData);
+                }
+                if (emitter->fieldFlags().isSet(FieldFlag::PosAdd)) {
+                    emitterDataSize += sizeof(BinFieldPosAddData);
+                }
+
+                // FluctuationData
+                if (emitter->fluctuationFlags().isSet(FluctuationFlag::Enabled)) {
+                    emitterData.fluctuationDataOffset = emitterDataSize;
+                    emitterDataSize += sizeof(BinFluctuationData);
+                }
+
+                // StripeData
+                // TODO: Should this be checking billboard type?
+                if (emitter->hasStripeData()) {
+                    emitterData.stripeDataOffset = emitterDataSize;
+                    emitterDataSize += sizeof(BinStripeData);
+                }
+
+                // Append to list
+                emitterData.mDataSize = emitterDataSize;
+
+                emitterDataCurOffset += emitterDataSize;
+                binEmitterDataList.emplace_back(emitterData);
+
+                if (emitterData.childFlag.isSet(ChildFlag::Enabled)) {
+                    binEmitterDataList.emplace_back(binChildData);
+                }
+
+                if (emitter->fieldFlags().isSet(FieldFlag::Random)) {
+                    binEmitterDataList.emplace_back(binRandomData);
+                }
+                if (emitter->fieldFlags().isSet(FieldFlag::Magnet)) {
+                    binEmitterDataList.emplace_back(binMagnetData);
+                }
+                if (emitter->fieldFlags().isSet(FieldFlag::Spin)) {
+                    binEmitterDataList.emplace_back(binSpinData);
+                }
+                if (emitter->fieldFlags().isSet(FieldFlag::Collision)) {
+                    binEmitterDataList.emplace_back(binCollisionData);
+                }
+                if (emitter->fieldFlags().isSet(FieldFlag::Convergence)) {
+                    binEmitterDataList.emplace_back(binConvergenceData);
+                }
+                if (emitter->fieldFlags().isSet(FieldFlag::PosAdd)) {
+                    binEmitterDataList.emplace_back(binPosAddData);
+                }
+
+                if (emitter->fluctuationFlags().isSet(FluctuationFlag::Enabled)) {
+                    binEmitterDataList.emplace_back(binFluctuationData);
+                }
+
+                if (emitter->hasStripeData()) {
+                    binEmitterDataList.emplace_back(binStripeData);
+                }
             }
         }
 
         // Increment current offset
         emitterSetsCurOffset += sizeof(BinEmitterSetData);
-        binEmitterSetsList.push_back(binEmitterSet);
+        binEmitterSetsList.emplace_back(binEmitterSet);
     }
 
     // TODO: Build texture table
@@ -365,6 +534,7 @@ void PtclRes::save(const QString& filePath) {
     // Write to the file
     QDataStream stream(&file);
     stream.setByteOrder(QDataStream::LittleEndian);
+    stream.setFloatingPointPrecision(QDataStream::SinglePrecision);
 
     stream << headerData;
 
@@ -377,28 +547,29 @@ void PtclRes::save(const QString& filePath) {
     }
 
     for (auto& emtData : binEmitterDataList) {
-
-        switch (emtData->type) {
-        case Ptcl::EmitterType::Simple:
-            stream << *emtData.get();
-            break;
-        case Ptcl::EmitterType::Complex:
-            stream << static_cast<BinComplexEmitterData&>(*emtData.get());
-            break;
-        case Ptcl::EmitterType::UnkType2:
-            stream << static_cast<BinComplexEmitterData&>(*emtData.get());
-            break;
-        default:
-            break;
-        }
+        std::visit([&stream](auto& dataBlock) {
+            stream << dataBlock;
+        }, emtData);
     }
 
-    // TODO: Write texture table
+    // Align texture data to 128 bytes
+    qint64 paddingNeeded = (128 - (file.pos() % 128)) % 128;
 
-    s32 nameTblPos = file.pos();
+    if (paddingNeeded > 0) {
+        QByteArray padding(paddingNeeded, '\0');
+        stream.writeRawData(padding.constData(), padding.size());
+    }
+
+    qint64 textureTblPos = file.pos();
+    stream.writeRawData(textureTbl.data(), textureTbl.size());
+    qint64 textureTblSize = file.pos() - textureTblPos;
+
+    qint64 nameTblPos = file.pos();
     stream.writeRawData(nameTbl.data(), nameTbl.size());
 
     // Update header with nameTbl/textureTbl pos & size
+    headerData.textureTblPos = textureTblPos;
+    headerData.textureTblSize = textureTblSize;
     headerData.nameTblPos = nameTblPos;
 
     file.seek(0);

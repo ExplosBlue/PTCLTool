@@ -83,6 +83,20 @@ binMtx34f::binMtx34f(const QMatrix3x4& mtx) {
     }
 }
 
+QMatrix3x4 binMtx34f::toQMatrix3x4() const {
+
+    const f32* srcData = cells.data();
+    std::array<f32, 12> transposed;
+
+    for (int r = 0; r < 3; ++r) {
+        for (int c = 0; c < 4; ++c) {
+            transposed[c * 3 + r] = srcData[r * 4 + c];
+        }
+    }
+
+    return QMatrix3x4(transposed.data());
+}
+
 QDataStream& operator>>(QDataStream& in, binMtx34f& item) {
 
     in.readRawData(reinterpret_cast<char*>(item.cells.data()), sizeof(binMtx34f));
@@ -245,10 +259,8 @@ QDataStream& operator<<(QDataStream& out, const BinTextureRes& item) {
         << item.wrapS
         << item.magFilter
         << item.minFilter;
-
     static const std::array<char, 3> padding = {0, 0, 0};
     out.writeRawData(padding.data(), 3);
-
     return out;
 }
 
@@ -318,11 +330,13 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     _A0 = emitter._A0();
     _A4 = emitter._A4();
 
-    u32 idx = 0;
-    for (auto& eColor : emitter.colors()) {
-        color[idx] = eColor;
-        ++idx;
-    }
+    color = emitter.colors();
+
+    // u32 idx = 0;
+    // for (auto& eColor : emitter.colors()) {
+    //     color[idx] = eColor;
+    //     ++idx;
+    // }
 
     std::copy(emitter._D8().begin(), emitter._D8().end(), _D8.data());
 
@@ -607,7 +621,7 @@ BinComplexEmitterData::BinComplexEmitterData(const Ptcl::Emitter& emitter) :
 
     childFlag = emitter.childFlags();
     fieldFlag = emitter.fieldFlags();
-    fluctuationFlag = emitter.fluctuatonFlags();
+    fluctuationFlag = emitter.fluctuationFlags();
     stripeFlag = emitter.stripeFlags();
 
     childDataOffset = 0;
@@ -664,6 +678,40 @@ void BinComplexEmitterData::printData(u32 indentationLevel) {
 
 
 // ========================================================================== //
+
+
+BinChildData::BinChildData(const Ptcl::ChildData& childData) {
+
+    _0 = childData._0();
+    _2C = childData._2C();
+    _30 = childData._30();
+
+    if (childData.textureHandle().isValid()) {
+        textureRes = {
+            .width = static_cast<u16>(childData.textureHandle()->textureData().width()),
+            .height = static_cast<u16>(childData.textureHandle()->textureData().height()),
+            .format = childData.textureHandle()->textureFormat(),
+            .wrapT = childData.textureWrapT(),
+            .wrapS = childData.textureWrapS(),
+            .magFilter = childData.textureMagFilter(),
+            .minFilter = childData.textureMinFilter(),
+        };
+    } else {
+        textureRes = {};
+    }
+
+    textureSize = 0; // To be assigned after construction...
+    texturePos = 0; // To be assigned after construction...
+    textureHandlePtr = 0;
+    _4C = childData._4C();
+    _5C = childData._5C();
+    _60 = childData._60();
+    _64 = childData._64();
+    _68 = childData._68();
+    _BC = childData._BC();
+    _C8 = childData._C8();
+    _E8 = childData._E8();
+}
 
 
 QDataStream& operator>>(QDataStream& in, BinChildData& item) {
@@ -731,6 +779,11 @@ void BinChildData::printData(u32 indentationLevel) {
 // ========================================================================== //
 
 
+BinFieldRandomData::BinFieldRandomData(const Ptcl::FieldRandomData& fieldRandomData) {
+    fieldRandomBlank = fieldRandomData.randomBlank();
+    fieldRandomVelAdd = fieldRandomData.randomVelAdd();
+}
+
 QDataStream& operator>>(QDataStream& in, BinFieldRandomData& item) {
 
     in >> item.fieldRandomBlank
@@ -750,6 +803,12 @@ QDataStream& operator<<(QDataStream& out, const BinFieldRandomData& item) {
 
 // ========================================================================== //
 
+
+BinFieldMagnetData::BinFieldMagnetData(const Ptcl::FieldMagnetData& fieldMagnetData) {
+    fieldMagnetPower = fieldMagnetData.magnetPower();
+    fieldMagnetPos = fieldMagnetData.magnetPos();
+    fieldMagnetFlag = fieldMagnetData.magnetFlag();
+}
 
 QDataStream& operator>>(QDataStream& in, BinFieldMagnetData& item) {
 
@@ -773,6 +832,11 @@ QDataStream& operator<<(QDataStream& out, const BinFieldMagnetData& item) {
 // ========================================================================== //
 
 
+BinFieldSpinData::BinFieldSpinData(const Ptcl::FieldSpinData& fieldSpinData) {
+    fieldSpinRotate = fieldSpinData.spinRotate();
+    fieldSpinAxis = fieldSpinData.spinAxis();
+}
+
 QDataStream& operator>>(QDataStream& in, BinFieldSpinData& item) {
 
     in >> item.fieldSpinRotate
@@ -792,6 +856,13 @@ QDataStream& operator<<(QDataStream& out, const BinFieldSpinData& item) {
 
 // ========================================================================== //
 
+
+BinFieldCollisionData::BinFieldCollisionData(const Ptcl::FieldCollisionData& fieldCollisionData) {
+    fieldCollisionType = fieldCollisionData.collisionType();
+    fieldCollisionIsWorld = fieldCollisionData.collisionIsWorld();
+    fieldCollisionCoord = fieldCollisionData.collisionCoord();
+    fieldCollisionCoef = fieldCollisionData.collisionCoef();
+}
 
 QDataStream& operator>>(QDataStream& in, BinFieldCollisionData& item) {
 
@@ -817,6 +888,11 @@ QDataStream& operator<<(QDataStream& out, const BinFieldCollisionData& item) {
 // ========================================================================== //
 
 
+BinFieldConvergenceData::BinFieldConvergenceData(const Ptcl::FieldConvergenceData& fieldConvergenceData) {
+    fieldConvergenceType = fieldConvergenceData.convergenceType();
+    fieldConvergencePos = fieldConvergenceData.convergencePos();
+}
+
 QDataStream& operator>>(QDataStream& in, BinFieldConvergenceData& item) {
 
     in >> item.fieldConvergenceType
@@ -837,6 +913,10 @@ QDataStream& operator<<(QDataStream& out, const BinFieldConvergenceData& item) {
 // ========================================================================== //
 
 
+BinFieldPosAddData::BinFieldPosAddData(const Ptcl::FieldPosAddData& fieldPosAddData) {
+    fieldPosAdd = fieldPosAddData.posAdd();
+}
+
 QDataStream& operator>>(QDataStream& in, BinFieldPosAddData& item) {
 
     in >> item.fieldPosAdd;
@@ -854,6 +934,12 @@ QDataStream& operator<<(QDataStream& out, const BinFieldPosAddData& item) {
 
 // ========================================================================== //
 
+
+BinFluctuationData::BinFluctuationData(const Ptcl::FluctuationData& fluctuationData) {
+    fluctuationScale = fluctuationData.scale();
+    fluctuationFreq = fluctuationData.freq();
+    fluctuationPhaseRnd = fluctuationData.phaseRnd();
+}
 
 QDataStream& operator>>(QDataStream& in, BinFluctuationData& item) {
 
@@ -876,6 +962,10 @@ QDataStream& operator<<(QDataStream& out, const BinFluctuationData& item) {
 
 // ========================================================================== //
 
+
+BinStripeData::BinStripeData(const Ptcl::StripeData& stripeData) {
+    _0 = stripeData._0();
+}
 
 QDataStream& operator>>(QDataStream& in, BinStripeData& item) {
 
