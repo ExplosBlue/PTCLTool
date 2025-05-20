@@ -173,6 +173,11 @@ void ChildData::initFromBinary(const BinChildData& childData) {
     m_30 = childData._30;
     // mTexture
     // mTextureFormat
+    mTextureWrapT = childData.textureRes.wrapT;
+    mTextureWrapS = childData.textureRes.wrapS;
+    mTextureMagFilter = childData.textureRes.magFilter;
+    mTextureMinFilter = childData.textureRes.minFilter;
+
     m_4C = childData._4C;
     m_5C = childData._5C;
     m_60 = childData._60;

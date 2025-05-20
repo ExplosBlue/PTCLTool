@@ -22,10 +22,13 @@ public:
 
     // TODO: getters/setters/whatever
     const QImage& textureData() const;
+    const std::vector<u8>& textureDataRaw() const;
 
     const TextureFormat textureFormat() const;
 
     u32 userCount() const;
+
+    u32 Id() const;
 
 private:
     std::vector<u8> mEncodedData;
@@ -33,6 +36,9 @@ private:
     QImage mDecodedTexture;
 
     // TODO: maybe other stuff here?
+
+    inline static u32 sNextId = 0;
+    u32 mId;
 
 protected:
     u32 mUserCount = 0;

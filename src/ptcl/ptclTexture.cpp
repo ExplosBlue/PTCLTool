@@ -11,7 +11,7 @@ namespace Ptcl {
 
 
 Texture::Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format) :
-    mEncodedData{std::move(*encodedData)}, mTextureFormat{format} {
+    mEncodedData{std::move(*encodedData)}, mTextureFormat{format}, mId{sNextId++} {
 
     // Debugging the size and contents of mEncodedData
     // qDebug() << "mEncodedData size:" << mEncodedData.size();
@@ -33,6 +33,11 @@ const QImage& Texture::textureData() const {
     return mDecodedTexture;
 }
 
+const std::vector<u8>& Texture::textureDataRaw() const {
+
+    return mEncodedData;
+}
+
 const TextureFormat Texture::textureFormat() const {
 
     return mTextureFormat;
@@ -43,6 +48,11 @@ u32 Texture::userCount() const {
     return mUserCount;
 }
 
+
+u32 Texture::Id() const {
+
+    return mId;
+}
 
 // ========================================================================== //
 
