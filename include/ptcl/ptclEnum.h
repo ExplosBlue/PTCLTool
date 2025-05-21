@@ -7,11 +7,16 @@
 
 namespace Ptcl {
 
+template<typename EnumType>
+const QString toString(const EnumType&) {
+    static_assert(sizeof(EnumType) == 0, "toString not implemented for this enum type");
+    return {};
+}
+
 // ========================================================================== //
 
 
 enum class BillboardType : u32 {
-
     Billboard       = 0x0,
     PolygonXY       = 0x1,
     PolygonXZ       = 0x2,
@@ -22,36 +27,66 @@ enum class BillboardType : u32 {
     Primitive       = 0x7,
     BillboardY      = 0x8,
 
-    BILLBOARD_TYPE_MAX
+    MAX
 };
 
-QDebug operator<<(QDebug dbg, const BillboardType& type);
+template<>
+inline const QString toString<BillboardType>(const BillboardType& type) {
+    switch (type) {
+    case BillboardType::Billboard:          return "Billboard";
+    case BillboardType::PolygonXY:          return "PolygonXY";
+    case BillboardType::PolygonXZ:          return "PolygonXZ";
+    case BillboardType::VelLook:            return "VelLook";
+    case BillboardType::VelLookPolygon:     return "VelLookPolygon";
+    case BillboardType::Stripe:             return "Stripe";
+    case BillboardType::ComplexStripe:      return "ComplexStripe";
+    case BillboardType::Primitive:          return "Primitive";
+    case BillboardType::BillboardY:         return "BillboardY";
+    case BillboardType::MAX:                return "BILLBOARD_TYPE_MAX";
+    default: return "UNKNOWN";
+    }
+}
 
-const QString toString(const BillboardType& type);
+inline QDebug operator<<(QDebug dbg, const BillboardType& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
 
 
 // ========================================================================== //
 
 
 enum class EmitterType : u32 {
-
     Simple     = 0x0,
     Complex    = 0x1,
     UnkType2   = 0x2,
 
-    EMITTER_TYPE_MAX
+    MAX
 };
 
-QDebug operator<<(QDebug dbg, const EmitterType& type);
+template<>
+inline const QString toString<EmitterType>(const EmitterType& type) {
+    switch (type) {
+    case EmitterType::Simple:           return "Simple";
+    case EmitterType::Complex:          return "Complex";
+    case EmitterType::UnkType2:         return "UnkType2";
+    case EmitterType::MAX:              return "EMITTER_TYPE_MAX";
+    default: return "UNKNOWN";
+    }
+}
 
-const QString toString(const EmitterType& type);
+inline QDebug operator<<(QDebug dbg, const EmitterType& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
 
 
 // ========================================================================== //
 
 
 enum class VolumeType : u32 {
-
     Point          = 0x0,
 
     Circle         = 0x1,
@@ -73,19 +108,42 @@ enum class VolumeType : u32 {
 
     Rectangle      = 0xD,
 
-    VOLUME_TYPE_MAX
+    MAX
 };
 
-QDebug operator<<(QDebug dbg, const VolumeType& type);
+template<>
+inline const QString toString<VolumeType>(const VolumeType& type) {
+    switch (type) {
+    case VolumeType::Point:           return "Point";
+    case VolumeType::Circle:          return "Circle";
+    case VolumeType::CircleSameDiv:   return "CircleSameDiv";
+    case VolumeType::CircleFill:      return "CircleFill";
+    case VolumeType::Sphere:          return "Sphere";
+    case VolumeType::SphereSameDiv:   return "SphereSameDiv";
+    case VolumeType::SphereFill:      return "SphereFill";
+    case VolumeType::Cylinder:        return "Cylinder";
+    case VolumeType::CylinderFill:    return "CylinderFill";
+    case VolumeType::Box:             return "Box";
+    case VolumeType::BoxFill:         return "BoxFill";
+    case VolumeType::Line:            return "Line";
+    case VolumeType::LineSameDiv:     return "LineSameDiv";
+    case VolumeType::Rectangle:       return "Rectangle";
+    case VolumeType::MAX:             return "VOLUME_TYPE_MAX";
+    default: return "UNKNOWN";
+    }
+}
 
-QString toString(const VolumeType& type);
+inline QDebug operator<<(QDebug dbg, const VolumeType& type) {
+    QDebugStateSaver stateSaver(dbg);
+    // dbg.nospace() << toString(type);
+    return dbg;
+}
 
 
 // ========================================================================== //
 
 
 enum class TextureFormat : u8 {
-
     RGBA8888   = 0x0,
     RGB888     = 0x1,
     RGBA5551   = 0x2,
@@ -102,11 +160,37 @@ enum class TextureFormat : u8 {
     ETC1_A4    = 0xD,
 };
 
-TextureFormat& assignFromInt(TextureFormat& e, int value);
+template<>
+inline const QString toString<TextureFormat>(const TextureFormat& type) {
+    switch (type) {
+    case TextureFormat::RGBA8888: return "RGBA8888";
+    case TextureFormat::RGB888:   return "RGB888";
+    case TextureFormat::RGBA5551: return "RGBA5551";
+    case TextureFormat::RGB565:   return "RGB565";
+    case TextureFormat::RGBA4444: return "RGBA4444";
+    case TextureFormat::LA88:     return "LA88";
+    case TextureFormat::HL8:      return "HL8";
+    case TextureFormat::L8:       return "L8";
+    case TextureFormat::A8:       return "A8";
+    case TextureFormat::LA44:     return "LA44";
+    case TextureFormat::L4:       return "L4";
+    case TextureFormat::A4:       return "A4";
+    case TextureFormat::ETC1:     return "ETC1";
+    case TextureFormat::ETC1_A4:  return "ETC1_A4";
+    default: return "Unknown";
+    }
+}
 
-QDebug operator<<(QDebug dbg, const TextureFormat& type);
+inline TextureFormat& assignFromInt(TextureFormat& type, int value) {
+    type = static_cast<TextureFormat>(value);
+    return type;
+}
 
-QString toQString(TextureFormat type);
+inline QDebug operator<<(QDebug dbg, const TextureFormat& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
 
 
 // ========================================================================== //
@@ -120,34 +204,62 @@ enum class TextureWrap : u8 {
     MirroredRepeat   = 0x3,
 };
 
-TextureWrap& assignFromInt(TextureWrap& e, int value);
+template<>
+inline const QString toString<TextureWrap>(const TextureWrap& type) {
+    switch (type) {
+    case TextureWrap::ClampToEdge:    return "ClampToEdge";
+    case TextureWrap::ClampToBorder:  return "ClampToBorder";
+    case TextureWrap::Repeat:         return "Repeat";
+    case TextureWrap::MirroredRepeat: return "MirroredRepeat";
+    default: return "Unknown";
+    }
+}
 
-QDebug operator<<(QDebug dbg, const TextureWrap& type);
+inline TextureWrap& assignFromInt(TextureWrap& type, int value) {
+    type = static_cast<TextureWrap>(value);
+    return type;
+}
 
-const QString toString(const TextureWrap& type);
+inline QDebug operator<<(QDebug dbg, const TextureWrap& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
 
 
 // ========================================================================== //
 
 
 enum class TextureMagFilter : u8 {
-
     Nearest   = 0x0,
     Linear    = 0x1,
 };
 
-TextureMagFilter& assignFromInt(TextureMagFilter& e, int value);
+template<>
+inline const QString toString<TextureMagFilter>(const TextureMagFilter& type) {
+    switch (type) {
+    case TextureMagFilter::Nearest: return "Nearest";
+    case TextureMagFilter::Linear:  return "Linear";
+    default: return "Unknown";
+    }
+}
 
-QDebug operator<<(QDebug dbg, const TextureMagFilter& type);
+inline TextureMagFilter& assignFromInt(TextureMagFilter& type, int value) {
+    type = static_cast<TextureMagFilter>(value);
+    return type;
+}
 
-const QString toString(const TextureMagFilter& type);
+inline QDebug operator<<(QDebug dbg, const TextureMagFilter& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
 
 
 // ========================================================================== //
 
 
 enum class TextureMinFilter : u8 {
-
     Nearest                 = 0x0,
     NearestMipmapNearest    = 0x1,
     NearestMipmapLinear     = 0x2,
@@ -156,18 +268,35 @@ enum class TextureMinFilter : u8 {
     LinearMipmapLinear      = 0x5,
 };
 
-TextureMinFilter& assignFromInt(TextureMinFilter& e, int value);
+template<>
+inline const QString toString<TextureMinFilter>(const TextureMinFilter& type) {
+    switch (type) {
+    case TextureMinFilter::Nearest:              return "Nearest";
+    case TextureMinFilter::NearestMipmapNearest: return "NearestMipmapNearest";
+    case TextureMinFilter::NearestMipmapLinear:  return "NearestMipmapLinear";
+    case TextureMinFilter::Linear:               return "Linear";
+    case TextureMinFilter::LinearMipmapNearest:  return "LinearMipmapNearest";
+    case TextureMinFilter::LinearMipmapLinear:   return "LinearMipmapLinear";
+    default: return "Unknown";
+    }
+}
 
-QDebug operator<<(QDebug dbg, const TextureMinFilter& type);
+inline TextureMinFilter& assignFromInt(TextureMinFilter& type, int value) {
+    type = static_cast<TextureMinFilter>(value);
+    return type;
+}
 
-const QString toString(const TextureMinFilter& type);
+inline QDebug operator<<(QDebug dbg, const TextureMinFilter& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
 
 
 // ========================================================================== //
 
 
 enum class ChildFlag : u16 {
-
     Enabled     = 1 << 0,
     Unk2        = 1 << 1,
     Unk4        = 1 << 2,
@@ -188,7 +317,6 @@ enum class ChildFlag : u16 {
 
 
 enum class FieldFlag : u16 {
-
     Random      = 1 << 0,
     Magnet      = 1 << 1,
     Spin        = 1 << 2,
@@ -202,7 +330,6 @@ enum class FieldFlag : u16 {
 
 
 enum class FluctuationFlag : u16 {
-
     Enabled     = 1 << 0,
     ApplyAlpha  = 1 << 1,
     ApplyScale  = 1 << 2,
@@ -213,7 +340,6 @@ enum class FluctuationFlag : u16 {
 
 
 enum class StripeFlag : u16 {
-
     Unknown     = 1 << 0, // This is a placeholder
 };
 
@@ -222,16 +348,29 @@ enum class StripeFlag : u16 {
 
 
 enum class FieldConvergenceType : u32 {
-
     AssignedPos = 0x1,
     EmitterPos  = 0x2
 };
 
-FieldConvergenceType& assignFromInt(FieldConvergenceType& e, int value);
+template<>
+inline const QString toString<FieldConvergenceType>(const FieldConvergenceType& type) {
+    switch (type) {
+    case FieldConvergenceType::AssignedPos: return "AssignedPos";
+    case FieldConvergenceType::EmitterPos:  return "EmitterPos";
+    default: return "Unknown";
+    }
+}
 
-QDebug operator<<(QDebug dbg, const FieldConvergenceType& type);
+inline FieldConvergenceType& assignFromInt(FieldConvergenceType& type, int value) {
+    type = static_cast<FieldConvergenceType>(value);
+    return type;
+}
 
-const QString toString(const FieldConvergenceType& type);
+inline QDebug operator<<(QDebug dbg, const FieldConvergenceType& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
 
 
 // ========================================================================== //

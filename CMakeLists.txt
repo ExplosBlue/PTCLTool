@@ -25,7 +25,6 @@ set(PROJECT_SOURCES
     src/ptcl/ptclChildData.cpp
     src/ptcl/ptclEmitter.cpp
     src/ptcl/ptclEmitterSet.cpp
-    src/ptcl/ptclEnum.cpp
     src/ptcl/ptclFieldData.cpp
     src/ptcl/ptclFluctuationData.cpp
     src/ptcl/ptclStripeData.cpp
@@ -41,6 +40,7 @@ set(PROJECT_HEADERS
     include/editor/mainWindow.h
     include/editor/emitterWidget.h
     include/editor/emitterSetWidget.h
+    include/editor/enumComboBox.h
     include/editor/textureWidget.h
     include/editor/ptclListWidget.h
     include/editor/sizedSpinBox.h
