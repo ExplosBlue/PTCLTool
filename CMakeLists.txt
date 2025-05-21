@@ -18,6 +18,7 @@ set(PROJECT_SOURCES
     src/editor/mainWindow.cpp
     src/editor/emitterWidget.cpp
     src/editor/emitterSetWidget.cpp
+    src/editor/gradientSlider.cpp
     src/editor/textureWidget.cpp
     src/editor/ptclListWidget.cpp
     src/ptcl/ptcl.cpp
@@ -41,6 +42,7 @@ set(PROJECT_HEADERS
     include/editor/emitterWidget.h
     include/editor/emitterSetWidget.h
     include/editor/enumComboBox.h
+    include/editor/gradientSlider.h
     include/editor/textureWidget.h
     include/editor/ptclListWidget.h
     include/editor/sizedSpinBox.h
