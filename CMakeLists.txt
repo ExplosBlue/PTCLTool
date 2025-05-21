@@ -44,6 +44,7 @@ set(PROJECT_HEADERS
     include/editor/textureWidget.h
     include/editor/ptclListWidget.h
     include/editor/sizedSpinBox.h
+    include/editor/vectorSpinBox.h
     include/ptcl/ptcl.h
     include/ptcl/ptclBinary.h
     include/ptcl/ptclChildData.h
