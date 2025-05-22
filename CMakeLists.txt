@@ -17,6 +17,7 @@ set(PROJECT_SOURCES
     src/imageUtil.cpp
     src/editor/mainWindow.cpp
     src/editor/alphaSlider.cpp
+    src/editor/clickableLabel.cpp
     src/editor/emitterWidget.cpp
     src/editor/emitterSetWidget.cpp
     src/editor/gradientSlider.cpp
@@ -41,6 +42,7 @@ set(PROJECT_HEADERS
     include/bitflagUtil.h
     include/editor/mainWindow.h
     include/editor/alphaSlider.h
+    include/editor/clickableLabel.h
     include/editor/emitterWidget.h
     include/editor/emitterSetWidget.h
     include/editor/enumComboBox.h
