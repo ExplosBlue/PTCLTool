@@ -25,6 +25,8 @@ RGBAColorWidget::RGBAColorWidget(QWidget* parent) :
         row->addWidget(new QLabel(name));
         row->addWidget(spinbox);
         spinbox->setDecimals(3);
+        spinbox->setRange(0.0, 1.0);
+        spinbox->setSingleStep(0.01);
         spinbox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
         connect(spinbox, &QDoubleSpinBox::valueChanged, this, &RGBAColorWidget::updateColorFromSpinBoxes);
 
@@ -99,6 +101,12 @@ QColor RGBAColorWidget::toQColor() const {
 }
 
 void RGBAColorWidget::updateColorFromSliders() {
+    blockSignals(true);
+    mSpinBoxR.blockSignals(true);
+    mSpinBoxG.blockSignals(true);
+    mSpinBoxB.blockSignals(true);
+    mSpinBoxA.blockSignals(true);
+
     int r = mSliderR.value();
     int g = mSliderG.value();
     int b = mSliderB.value();
@@ -119,11 +127,23 @@ void RGBAColorWidget::updateColorFromSliders() {
     mSpinBoxB.setValue(bFloat);
     mSpinBoxA.setValue(aFloat);
 
+    mSpinBoxR.blockSignals(false);
+    mSpinBoxG.blockSignals(false);
+    mSpinBoxB.blockSignals(false);
+    mSpinBoxA.blockSignals(false);
+    blockSignals(false);
+
     updatePreview();
     emit colorChanged();
 }
 
 void RGBAColorWidget::updateColorFromSpinBoxes() {
+    blockSignals(true);
+    mSliderR.blockSignals(true);
+    mSliderG.blockSignals(true);
+    mSliderB.blockSignals(true);
+    mSliderA.blockSignals(true);
+
     double rFloat = mSpinBoxR.value();
     double gFloat = mSpinBoxG.value();
     double bFloat = mSpinBoxB.value();
@@ -132,16 +152,23 @@ void RGBAColorWidget::updateColorFromSpinBoxes() {
     int r = static_cast<int>(std::round(rFloat * 255.0f));
     int g = static_cast<int>(std::round(gFloat * 255.0f));
     int b = static_cast<int>(std::round(bFloat * 255.0f));
+    int a = static_cast<int>(std::round(aFloat * 255.0f));
 
     mSliderR.setRgbValues(0, g, b);
     mSliderG.setRgbValues(r, 0, b);
     mSliderB.setRgbValues(r, g, 0);
     mSliderA.setColor(r, g, b);
 
-    mSpinBoxR.setValue(rFloat);
-    mSpinBoxG.setValue(gFloat);
-    mSpinBoxB.setValue(bFloat);
-    mSpinBoxA.setValue(aFloat);
+    mSliderR.setValue(r);
+    mSliderG.setValue(g);
+    mSliderB.setValue(b);
+    mSliderA.setValue(a);
+
+    mSliderR.blockSignals(false);
+    mSliderG.blockSignals(false);
+    mSliderA.blockSignals(false);
+    mSliderB.blockSignals(false);
+    blockSignals(false);
 
     updatePreview();
     emit colorChanged();
