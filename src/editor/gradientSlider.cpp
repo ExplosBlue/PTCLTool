@@ -19,6 +19,7 @@ void GradientSlider::setRgbValues(int r, int g, int b) {
     mR = r;
     mG = g;
     mB = b;
+
     update();
 }
 

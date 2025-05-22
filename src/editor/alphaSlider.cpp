@@ -26,6 +26,7 @@ void AlphaSlider::setColor(int r, int g, int b) {
     mR = r;
     mG = g;
     mB = b;
+
     update();
 }
 
