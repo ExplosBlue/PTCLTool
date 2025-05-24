@@ -58,7 +58,7 @@ void TextureWidget::populateList() {
         QListWidgetItem* item = new QListWidgetItem(&mListWidget);
 
         TextureListItem* textureItem = new TextureListItem(
-            QString("Format: %1 \nDimentions: %2x%3\n\nUsers: %4").arg(toQString(format)).arg(width).arg(height).arg(userCount),
+            QString("Format: %1 \nDimentions: %2x%3\n\nUsers: %4").arg(toString(format)).arg(width).arg(height).arg(userCount),
             QIcon(pixmap.scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation))
             );
 
