@@ -108,19 +108,19 @@
   <customwidget>
    <class>PtclEditor::TextureWidget</class>
    <extends>QWidget</extends>
-   <header>editor\textureWidget.h</header>
+   <header>editor/textureWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>PtclEditor::EmitterSetWidget</class>
    <extends>QWidget</extends>
-   <header>editor\emitterSetWidget.h</header>
+   <header>editor/emitterSetWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>PtclEditor::PtclList</class>
    <extends>QWidget</extends>
-   <header>editor\ptclListWidget.h</header>
+   <header>editor/ptclListWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
