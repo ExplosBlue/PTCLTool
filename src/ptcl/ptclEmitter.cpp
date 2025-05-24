@@ -378,6 +378,15 @@ void Emitter::setColors(const std::array<binColor4f, 3>& colors) {
     mColors = colors;
 }
 
+void Emitter::setColor(int index, const binColor4f& color) {
+    if (index >= 3) {
+        qWarning() << "invalid color index";
+        return;
+    }
+
+    mColors[index] = color;
+}
+
 const std::array<u32, 3>& Emitter::_D8() const {
 
     return m_D8;
