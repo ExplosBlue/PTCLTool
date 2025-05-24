@@ -20,11 +20,24 @@ MainWindow::MainWindow(QWidget* parent) :
 }
 
 void MainWindow::openFile() {
+    QFileDialog openFileDialog(this, "Open File", basePath, "*.ptcl");
 
-    QString filename = QFileDialog::getOpenFileName(this, "Select File", basePath);
+    if (openFileDialog.exec() == QFileDialog::DialogCode::Rejected) {
+        return;
+    }
 
+    const auto& files = openFileDialog.selectedFiles();
+
+    if (files.isEmpty()) {
+        return;
+    }
+
+    auto filePath = files.first();
     mPtclRes = std::make_unique<Ptcl::PtclRes>();
-    mPtclRes->load(filename);
+    if (!mPtclRes->load(filePath)) {
+        mPtclRes.reset();
+        return;
+    }
 
     mPtclRes->getEmitterSets();
 
@@ -33,13 +46,29 @@ void MainWindow::openFile() {
 }
 
 void MainWindow::saveFile() {
-
     if (!mPtclRes) {
         return;
     }
 
-    QString filename = QFileDialog::getSaveFileName(this, "Save As", basePath);
-    mPtclRes->save(filename);
+    QFileDialog saveFileDialog(this, "Save As", basePath, "*.ptcl");
+
+    if(saveFileDialog.exec() == QFileDialog::DialogCode::Rejected) {
+        return;
+    }
+
+    const auto& files = saveFileDialog.selectedFiles();
+
+    if (files.isEmpty()) {
+        return;
+    }
+
+    auto filePath = files.first();
+
+    if (!filePath.endsWith(".ptcl")) {
+        filePath.append(".ptcl");
+    }
+
+    mPtclRes->save(filePath);
 }
 
 void MainWindow::selectedEmitterSetChanged(u32 index) {

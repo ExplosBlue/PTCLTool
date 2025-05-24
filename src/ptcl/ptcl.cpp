@@ -12,14 +12,14 @@
 
 namespace Ptcl {
 
-void PtclRes::load(const QString& filePath) {
+bool PtclRes::load(const QString& filePath) {
 
     std::unordered_map<u32, u32> textureOffsetMap;
 
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
         throw("PtclRes::load - Failed to open file.");
-        return;
+        return false;
     }
 
     file.seek(0);
@@ -217,6 +217,8 @@ void PtclRes::load(const QString& filePath) {
         }
         mEmitterSets.push_back(std::move(emitterSet));
     }
+
+    return true;
 }
 
 u32 PtclRes::emitterSetCount() const {
@@ -236,7 +238,7 @@ u32 PtclRes::emitterCount() const {
     return count;
 }
 
-void PtclRes::save(const QString& filePath) {
+bool PtclRes::save(const QString& filePath) {
 
     // Structure Overview
     // ╔═════════════════════════════════════╗
@@ -262,7 +264,7 @@ void PtclRes::save(const QString& filePath) {
     QFile file(filePath);
     if (!file.open(QIODevice::WriteOnly)) {
         throw("PtclRes::save - Failed to open file.");
-        return;
+        return false;
     }
 
     using DataBlockVariant = std::variant<
@@ -582,6 +584,8 @@ void PtclRes::save(const QString& filePath) {
 
     file.flush();
     file.close();
+
+    return true;
 }
 
 
