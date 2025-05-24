@@ -135,7 +135,7 @@ inline const QString toString<VolumeType>(const VolumeType& type) {
 
 inline QDebug operator<<(QDebug dbg, const VolumeType& type) {
     QDebugStateSaver stateSaver(dbg);
-    // dbg.nospace() << toString(type);
+    dbg.nospace() << toString(type);
     return dbg;
 }
 
@@ -202,6 +202,8 @@ enum class TextureWrap : u8 {
     ClampToBorder    = 0x1,
     Repeat           = 0x2,
     MirroredRepeat   = 0x3,
+
+    MAX
 };
 
 template<>
@@ -233,6 +235,8 @@ inline QDebug operator<<(QDebug dbg, const TextureWrap& type) {
 enum class TextureMagFilter : u8 {
     Nearest   = 0x0,
     Linear    = 0x1,
+
+    MAX
 };
 
 template<>
@@ -266,6 +270,8 @@ enum class TextureMinFilter : u8 {
     Linear                  = 0x3,
     LinearMipmapNearest     = 0x4,
     LinearMipmapLinear      = 0x5,
+
+    MAX
 };
 
 template<>
