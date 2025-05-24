@@ -150,6 +150,7 @@ public:
 
     const std::array<binColor4f, 3>& colors() const;
     void setColors(const std::array<binColor4f, 3>& colors);
+    void setColor(int index, const binColor4f& color);
 
     const std::array<u32, 3>& _D8() const;
     void set_D8(const std::array<u32, 3>& _D8);
