@@ -4,9 +4,11 @@
 
 #include <QDataStream>
 #include <QFile>
+#include <QStringDecoder>
 
 #include "ptcl/ptclBinary.h"
 #include "imageUtil.h"
+#include "stringUtil.h"
 
 namespace Ptcl {
 
@@ -55,7 +57,9 @@ void PtclRes::load(const QString& filePath) {
         stream >> binEmitterSetData;
 
         const char* name = nameTbl.data() + binEmitterSetData.namePos;
-        emitterSet->setName(name);
+        QString decodedName = StringUtil::shiftJISToQString(name);
+        emitterSet->setName(decodedName);
+
         emitterSet->setUserData(binEmitterSetData.userData);
         emitterSet->setLastUpdateDate(binEmitterSetData.lastUpdateDate);
 
@@ -83,7 +87,8 @@ void PtclRes::load(const QString& filePath) {
                     emitter->initFromBinary(binCommonEmitterData);
 
                     const char* name = nameTbl.data() + binCommonEmitterData.namePos;
-                    emitter->setName(name);
+                    QString decodedName = StringUtil::shiftJISToQString(name);
+                    emitter->setName(decodedName);
 
                     // Read texture data
                     u32 textureOffset = textureTblPos + binCommonEmitterData.texturePos;
@@ -294,7 +299,7 @@ void PtclRes::save(const QString& filePath) {
     u32 textureTblCurOffset = 0;
 
     auto appendToNameTbl = [&nameTbl, &nameTblCurOffset](const QString& name) {
-        QByteArray byteArray = name.toUtf8();
+        QByteArray byteArray = StringUtil::qStringToShiftJIS(name);
         const char* cStr = byteArray.constData();
 
         nameTbl.insert(nameTbl.end(), cStr, cStr + byteArray.size());
