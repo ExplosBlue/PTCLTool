@@ -23,8 +23,8 @@ public:
     PtclRes(const PtclRes&) = delete;
     PtclRes& operator=(const PtclRes&) = delete;
 
-    void load(const QString& filePath);
-    void save(const QString& filePath);
+    bool load(const QString& filePath);
+    bool save(const QString& filePath);
 
     const QString& name() const;
     void setName(const QString& name);
