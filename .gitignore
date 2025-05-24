@@ -34,6 +34,7 @@ Thumbs.db
 *.rc
 /.qmake.cache
 /.qmake.stash
+/.qt/
 
 # qtcreator generated files
 *.pro.user*
@@ -67,8 +68,18 @@ CMakeLists.txt.user*
 # Python byte code
 *.pyc
 
+# CMake generated files
+/CMakeFiles/
+/EffectTool_autogen/
+*.cmake
+CMakeCache.txt
+
+
 # Binaries
 # --------
 *.dll
 *.exe
+*.so
+EffectTool
 
+/Build*/
