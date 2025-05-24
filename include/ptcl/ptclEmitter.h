@@ -8,7 +8,7 @@
 #include <QVector3D>
 #include <QMatrix3x4>
 
-#include "bitflagUtil.h"
+#include "util/bitflagUtil.h"
 #include "typedefs.h"
 #include "ptclChildData.h"
 #include "ptclEnum.h"

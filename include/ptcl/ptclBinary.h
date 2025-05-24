@@ -10,7 +10,7 @@
 
 #include "typedefs.h"
 #include "ptclEnum.h"
-#include "bitflagUtil.h"
+#include "util/bitflagUtil.h"
 
 namespace Ptcl {
     class Emitter;

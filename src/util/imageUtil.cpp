@@ -1,4 +1,4 @@
-#include "imageUtil.h"
+#include "util/imageUtil.h"
 
 #include "ptcl/ptclTexture.h"
 

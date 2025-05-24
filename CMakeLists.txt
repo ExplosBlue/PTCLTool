@@ -20,7 +20,6 @@ endif()
 
 set(PROJECT_SOURCES
     src/main.cpp
-    src/imageUtil.cpp
     src/editor/mainWindow.cpp
     src/editor/alphaSlider.cpp
     src/editor/clickableLabel.cpp
@@ -30,6 +29,7 @@ set(PROJECT_SOURCES
     src/editor/rgbaColorWidget.cpp
     src/editor/textureWidget.cpp
     src/editor/ptclListWidget.cpp
+    src/etc1/rg_etc1.cpp
     src/ptcl/ptcl.cpp
     src/ptcl/ptclBinary.cpp
     src/ptcl/ptclChildData.cpp
@@ -39,15 +39,11 @@ set(PROJECT_SOURCES
     src/ptcl/ptclFluctuationData.cpp
     src/ptcl/ptclStripeData.cpp
     src/ptcl/ptclTexture.cpp
-    src/etc1/rg_etc1.cpp
+    src/util/imageUtil.cpp
 )
 
 set(PROJECT_HEADERS
-    include/printUtil.h
     include/typedefs.h
-    include/imageUtil.h
-    include/bitflagUtil.h
-    include/stringUtil.h
     include/editor/mainWindow.h
     include/editor/alphaSlider.h
     include/editor/clickableLabel.h
@@ -60,6 +56,7 @@ set(PROJECT_HEADERS
     include/editor/ptclListWidget.h
     include/editor/sizedSpinBox.h
     include/editor/vectorSpinBox.h
+    include/etc1/rg_etc1.h
     include/ptcl/ptcl.h
     include/ptcl/ptclBinary.h
     include/ptcl/ptclChildData.h
@@ -70,7 +67,10 @@ set(PROJECT_HEADERS
     include/ptcl/ptclFluctuationData.h
     include/ptcl/ptclStripeData.h
     include/ptcl/ptclTexture.h
-    include/etc1/rg_etc1.h
+    include/util/printUtil.h
+    include/util/imageUtil.h
+    include/util/bitflagUtil.h
+    include/util/stringUtil.h
 )
 
 set(PROJECT_FORMS

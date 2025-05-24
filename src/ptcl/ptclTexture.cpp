@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "imageUtil.h"
+#include "util/imageUtil.h"
 
 namespace Ptcl {
 
