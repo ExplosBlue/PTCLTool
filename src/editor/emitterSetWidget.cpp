@@ -10,61 +10,72 @@ EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
     mEmitterCountLabel.setText("Emitter Count:");
 
     // Add widgets to layout
-
-    // Qt is cringe...
     QHBoxLayout* nameLayout = new QHBoxLayout();
     nameLayout->addWidget(new QLabel("EmitterSet Name:"));
     nameLayout->addWidget(&mNameLineEdit);
     mMainLayout.addLayout(nameLayout);
 
     mMainLayout.addWidget(&mEmitterCountLabel);
-    mMainLayout.addWidget(&mEmitterPicker);
-    mMainLayout.addWidget(&mEmitterWidget);
-
-    mMainLayout.addSpacerItem(new QSpacerItem(0, 1000, QSizePolicy::Expanding, QSizePolicy::Expanding));
+    mMainLayout.addWidget(&mEmitterTabs, 1);
 
     setLayout(&mMainLayout);
 
     // Setup signals
-    connect(&mEmitterPicker, &QComboBox::currentIndexChanged, this, &EmitterSetWidget::selectedEmitterChanged);
-    // TODO: Connect other signals...
+    connect(&mEmitterTabs, &QTabWidget::currentChanged, this, &EmitterSetWidget::selectedEmitterChanged);
 }
 
 void EmitterSetWidget::setEmitterSet(Ptcl::EmitterSet* emitterSet) {
-
     mEmitterSetPtr = emitterSet;
-
-    // Update Emitter Picker
     populateEmitterPicker();
-
-    // Update Properties
     populateProperties();
 }
 
 void EmitterSetWidget::selectedEmitterChanged(u32 index) {
-
-    if (index < mEmitterSetPtr->emitters().size()) {
-        mEmitterWidget.setEmitter(mEmitterSetPtr->emitters()[index].get());
+    if (index >= mEmitterTabPlaceholders.size() || index >= mEmitterSetPtr->emitters().size()) {
+        return;
     }
+
+    // Remove from old parent
+    mEmitterWidget.setParent(nullptr);
+
+    // Reparent to new placeholder and update layout
+    QWidget* tabPlaceholder = mEmitterTabPlaceholders[index];
+    mEmitterWidget.setParent(tabPlaceholder);
+    if (tabPlaceholder->layout()) {
+        tabPlaceholder->layout()->addWidget(&mEmitterWidget);
+    }
+
+    // Update emitter content
+    mEmitterWidget.setEmitter(mEmitterSetPtr->emitters()[index].get());
 }
 
 void EmitterSetWidget::populateEmitterPicker() {
+    mEmitterTabs.blockSignals(true);
+    mEmitterTabs.clear();
+    mEmitterTabPlaceholders.clear();
 
-    mEmitterPicker.blockSignals(true);
-    mEmitterPicker.clear();
-
-    u32 idx = 0;
     for (auto& emitter : mEmitterSetPtr->emitters()) {
-        mEmitterPicker.addItem(emitter->name(), idx);
-        ++idx;
+        QWidget* placeholder = new QWidget();
+        QVBoxLayout* layout = new QVBoxLayout(placeholder);
+        layout->setContentsMargins(0, 0, 0, 0);
+        placeholder->setLayout(layout);
+
+        mEmitterTabs.addTab(placeholder, emitter->name());
+        mEmitterTabPlaceholders.push_back(placeholder);
     }
 
-    mEmitterPicker.blockSignals(false);
-    mEmitterWidget.setEmitter(mEmitterSetPtr->emitters()[0].get());
+    // Add emitter widget to the initial tab's placeholder
+    int currentIndex = mEmitterTabs.currentIndex();
+    if (currentIndex >= 0 && currentIndex < mEmitterTabPlaceholders.size()) {
+        mEmitterWidget.setParent(mEmitterTabPlaceholders[currentIndex]);
+        mEmitterTabPlaceholders[currentIndex]->layout()->addWidget(&mEmitterWidget);
+        mEmitterWidget.setEmitter(mEmitterSetPtr->emitters()[currentIndex].get());
+    }
+
+    mEmitterTabs.blockSignals(false);
 }
 
 void EmitterSetWidget::populateProperties() {
-
     mNameLineEdit.setText(mEmitterSetPtr->name());
     mEmitterCountLabel.setText("Emitter Count: " + QString::number(mEmitterSetPtr->emitterCount()));
 }
