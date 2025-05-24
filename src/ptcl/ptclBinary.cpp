@@ -1,6 +1,6 @@
 #include "ptcl/ptclBinary.h"
 
-#include "printUtil.h"
+#include "util/printUtil.h"
 #include "ptcl/ptclEmitter.h"
 
 

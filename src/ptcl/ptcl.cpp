@@ -7,8 +7,8 @@
 #include <QStringDecoder>
 
 #include "ptcl/ptclBinary.h"
-#include "imageUtil.h"
-#include "stringUtil.h"
+#include "util/imageUtil.h"
+#include "util/stringUtil.h"
 
 namespace Ptcl {
 
