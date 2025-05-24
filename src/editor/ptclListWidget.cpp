@@ -37,7 +37,7 @@ void PtclList::populateList() {
     u32 index = 0;
     for (auto& emitterSet : mResPtr->getEmitterSets()) {
         QStandardItem* item = new QStandardItem();
-        item->setText(emitterSet->name());
+        item->setText(QString::number(index) + ": " + emitterSet->name());
         item->setEditable(false);
         item->setData(index);
         mListModel.appendRow(item);
