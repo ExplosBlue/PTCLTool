@@ -8,14 +8,14 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QLineEdit>
+#include <QTabWidget>
 
 #include "emitterWidget.h"
 #include "ptcl/ptclEmitterSet.h"
 
 namespace PtclEditor {
 
-class EmitterSetWidget : public QWidget
-{
+class EmitterSetWidget : public QWidget {
     Q_OBJECT
 public:
     explicit EmitterSetWidget(QWidget* parent = nullptr);
@@ -38,9 +38,11 @@ private:
     QLineEdit mNameLineEdit;
     QLabel mEmitterCountLabel;
 
-    QComboBox mEmitterPicker;
+    QTabWidget mEmitterTabs;
 
     EmitterWidget mEmitterWidget;
+
+    std::vector<QWidget*> mEmitterTabPlaceholders;
 };
 
 } // namespace PtclEditor
