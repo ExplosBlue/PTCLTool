@@ -26,10 +26,24 @@
       <widget class="QWidget" name="layoutWidget">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="PtclEditor::PtclList" name="ptclList" native="true"/>
+         <widget class="PtclEditor::PtclList" name="ptclList" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
         <item>
-         <widget class="PtclEditor::EmitterSetWidget" name="emitterSetWidget" native="true"/>
+         <widget class="PtclEditor::EmitterSetWidget" name="emitterSetWidget" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -119,8 +133,8 @@
    <slot>openFile()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>399</x>
-     <y>299</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>

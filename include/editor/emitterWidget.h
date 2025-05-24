@@ -11,7 +11,13 @@
 
 #include "ptcl/ptclEmitter.h"
 
+#include "enumComboBox.h"
 #include "sizedSpinBox.h"
+#include "vectorSpinBox.h"
+
+// #include "gradientSlider.h"
+// #include "alphaSlider.h"
+#include "rgbaColorWidget.h"
 
 namespace PtclEditor {
 
@@ -25,13 +31,15 @@ public:
 
 signals:
 
+private slots:
+    void handleColorChanged();
+
 private:
     Ptcl::Emitter* mEmitterPtr;
 
     QGridLayout mMainLayout;
 
-    QComboBox mTypeComboBox;
-    // QSpinBox mFlagSpinBox;
+    EnumComboBox<Ptcl::EmitterType> mTypeComboBox;
     SizedSpinBox<u32> mFlagSpinBox;
 
     SizedSpinBox<u32> mRandomSeedSpinBox;
@@ -40,8 +48,10 @@ private:
     // TODO: Texture Info (move to dedicated widget?)
     QLabel mImageLabel;
     QLabel mImageInfoLabel;
-
-    // TODO: More
+    EnumComboBox<Ptcl::TextureWrap> mTexWrapTComboBox;
+    EnumComboBox<Ptcl::TextureWrap> mTexWrapSComboBox;
+    EnumComboBox<Ptcl::TextureMagFilter> mTexMagFilterComboBox;
+    EnumComboBox<Ptcl::TextureMinFilter> mTexMinFilterComboBox;
 
     SizedSpinBox<u8> m_2CSpinBox;
     SizedSpinBox<u8> m_2DSpinBox;
@@ -51,36 +61,65 @@ private:
     SizedSpinBox<u8> m_31SpinBox;
     SizedSpinBox<u16> m_32SpinBox; // probably padding...
 
-    QLabel mVolumeTypeLabel;
-    QLabel mVolumeRadiusLabel;
+    EnumComboBox<Ptcl::VolumeType> mVolumeTypeComboBox;
+    VectorSpinBox<QVector3D> mVolumeRadiusSpinBox;
 
     QDoubleSpinBox m_44SpinBox;
     QDoubleSpinBox m_48SpinBox;
-    QDoubleSpinBox m_4CSpinBox;
+    QDoubleSpinBox mFigureVelSpinBox;
+    VectorSpinBox<QVector3D> mEmitterVelDirSpinBox;
+    QDoubleSpinBox m_5CSpinBox;
+    QDoubleSpinBox mInitVelRndSpinBox;
+    VectorSpinBox<QVector3D> mSpreadVecSpinBox;
 
-    // std::array<u32, 13> m_50;
+    // _70
 
+    SizedSpinBox<u32> m_80SpinBox;
     SizedSpinBox<s32> mPtclLifeSpinBox;
-    SizedSpinBox<u32> m_88SpinBox;
+    SizedSpinBox<u32> mPtclLifeRandSpinBox;
     QDoubleSpinBox m_8CSpinBox;
+    SizedSpinBox<u32> m_90SpinBox;
+    EnumComboBox<Ptcl::BillboardType> mBillboardComboBox;
+    SizedSpinBox<u32> m_98SpinBox;
+    QDoubleSpinBox m_9CSpinBox;
+    QDoubleSpinBox m_A0SpinBox;
+    QDoubleSpinBox m_A4SpinBox;
 
-    // std::array<u32, 3> m_90;
-    // f32 m_9C;
-    // f32 m_A0;
-    // f32 m_A4;
-    // std::array<QColor, 3> mColors;
-    // std::array<u32, 3> m_D8;
-    // s32 mColorSection1; // Should these be QColor?
-    // s32 mColorSection2; // Should these be QColor?
-    // s32 mColorSection3; // Should these be QColor?
-    // s32 mColorNumRepeat;
-    // f32 mInitAlpha;
-    // std::array<u32, 4> m_F8;
-    // QVector2D mInitScale;
-    // std::array<u32, 24> m_110;
-    // QMatrix3x4 m_170; // SRT related
-    // QMatrix3x4 m_1A0; // RT related
-    // std::array<u32, 9> m_1D0;
+    std::array<RGBAColorWidget, 3> mColorWidgets;
+
+    // _D8
+
+    SizedSpinBox<s32> mColorSection1SpinBox;
+    SizedSpinBox<s32> mColorSection2SpinBox;
+    SizedSpinBox<s32> mColorSection3SpinBox;
+    SizedSpinBox<s32> mColorNumRepeatSpinBox;
+    QDoubleSpinBox mInitAlphaSpinBox;
+    QDoubleSpinBox mDiffAlpha21SpinBox;
+    QDoubleSpinBox mDiffAlpha32SpinBox;
+    SizedSpinBox<s32> mAlphaSection1SpinBox;
+    SizedSpinBox<s32> mAlphaSection2SpinBox;
+
+    VectorSpinBox<QVector2D> mInitScaleSpinBox;
+    VectorSpinBox<QVector2D> mDiffScale21SpinBox;
+    VectorSpinBox<QVector2D> mDiffScale32SpinBox;
+    SizedSpinBox<s32> mScaleSection1SpinBox;
+    SizedSpinBox<s32> mScaleSection2SpinBox;
+    QDoubleSpinBox mScaleRandSpinBox;
+
+    SizedSpinBox<u32> m_12CSpinBox;
+    SizedSpinBox<u32> m_130SpinBox;
+    SizedSpinBox<u32> m_134SpinBox;
+
+    VectorSpinBox<QVector3D> mInitRotSpinBox;
+    VectorSpinBox<QVector3D> mInitRotRandSpinBox;
+    VectorSpinBox<QVector3D> mRotVelSpinBox;
+    VectorSpinBox<QVector3D> mRotVelRandSpinBox;
+
+    // _168
+    // transformSRT
+    // transformRT
+
+
 
 };
 
