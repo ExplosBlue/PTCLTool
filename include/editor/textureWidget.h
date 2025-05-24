@@ -6,7 +6,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 
-#include <Qlabel>
+#include <QLabel>
 #include <QStyledItemDelegate>
 #include <QPainter>
 
