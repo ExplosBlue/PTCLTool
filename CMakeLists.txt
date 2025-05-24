@@ -12,6 +12,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
+find_package(Iconv QUIET)
+if(NOT Iconv_FOUND)
+    list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/third_party/iconv/lib/cmake")
+    find_package(Iconv REQUIRED CONFIG)
+endif()
+
 set(PROJECT_SOURCES
     src/main.cpp
     src/imageUtil.cpp
@@ -41,6 +47,7 @@ set(PROJECT_HEADERS
     include/typedefs.h
     include/imageUtil.h
     include/bitflagUtil.h
+    include/stringUtil.h
     include/editor/mainWindow.h
     include/editor/alphaSlider.h
     include/editor/clickableLabel.h
@@ -85,7 +92,7 @@ add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
 add_link_options(-fsanitize=address)
 add_definitions(-DADDRESS_SANITIZER)
 
-target_link_libraries(EffectTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(EffectTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Iconv::Iconv)
 
 target_include_directories(EffectTool PRIVATE include)
 
@@ -109,6 +116,13 @@ install(TARGETS EffectTool
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+if(WIN32)
+    add_custom_command(TARGET EffectTool POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/third_party/iconv/bin/iconv.dll"
+            $<TARGET_FILE_DIR:EffectTool>)
+endif()
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(EffectTool)
