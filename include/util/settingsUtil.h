@@ -27,6 +27,9 @@ public:
     QString lastSavePath() const;
     void setLastSavePath(const QString& path);
 
+    QString lastExportPath() const;
+    void setLastExportPath(const QString& path);
+
 private:
     SettingsMgr() = default;
 
