@@ -43,7 +43,6 @@ void MainWindow::setupUi() {
     setupMenus();
 }
 
-
 void MainWindow::setupMenus() {
     // Open File Action
     mOpenAction.setText("Open File");
@@ -51,7 +50,7 @@ void MainWindow::setupMenus() {
     mOpenAction.setShortcut(QKeySequence::Open);
     connect(&mOpenAction, &QAction::triggered, this, &MainWindow::openFile);
 
-    // Open File Action
+    // Save File Action
     mSaveAction.setText("Save As");
     mSaveAction.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSaveAs));
     mSaveAction.setShortcut(QKeySequence::SaveAs);

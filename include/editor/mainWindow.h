@@ -17,7 +17,7 @@
 
 #include "editor/ptclListWidget.h"
 #include "editor/emitterSetWidget.h"
-#include "editor/textureWidget.h"
+#include "editor/textureListWidget.h"
 
 namespace PtclEditor {
 
@@ -59,7 +59,7 @@ private:
 
     PtclEditor::PtclList mPtclList;
     PtclEditor::EmitterSetWidget mEmitterSetWidget;
-    PtclEditor::TextureWidget mTextureWidget;
+    PtclEditor::TextureListWidget mTextureWidget;
 };
 
 } // namespace PtclEditor

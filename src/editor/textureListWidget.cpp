@@ -1,4 +1,4 @@
-#include "editor/textureWidget.h"
+#include "editor/textureListWidget.h"
 
 #include <QStandardItemModel>
 
@@ -6,7 +6,7 @@
 
 namespace PtclEditor {
 
-TextureWidget::TextureWidget(QWidget *parent) :
+TextureListWidget::TextureListWidget(QWidget *parent) :
     mTexturesPtr{nullptr}, QWidget{parent} {
 
     setLayout(&mMainLayout);
@@ -23,7 +23,7 @@ TextureWidget::TextureWidget(QWidget *parent) :
     mMainLayout.addWidget(&mListWidget);
 }
 
-void TextureWidget::setTextures(Ptcl::TextureList* textures) {
+void TextureListWidget::setTextures(Ptcl::TextureList* textures) {
 
     if (mTexturesPtr == textures) {
         return;
@@ -36,7 +36,7 @@ void TextureWidget::setTextures(Ptcl::TextureList* textures) {
     populateList();
 }
 
-void TextureWidget::populateList() {
+void TextureListWidget::populateList() {
 
     if (!mTexturesPtr) {
         return;

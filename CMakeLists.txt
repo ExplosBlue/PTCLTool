@@ -27,7 +27,7 @@ set(PROJECT_SOURCES
     src/editor/emitterSetWidget.cpp
     src/editor/gradientSlider.cpp
     src/editor/rgbaColorWidget.cpp
-    src/editor/textureWidget.cpp
+    src/editor/textureListWidget.cpp
     src/editor/ptclListWidget.cpp
     src/etc1/rg_etc1.cpp
     src/ptcl/ptcl.cpp
@@ -53,7 +53,7 @@ set(PROJECT_HEADERS
     include/editor/enumComboBox.h
     include/editor/gradientSlider.h
     include/editor/rgbaColorWidget.h
-    include/editor/textureWidget.h
+    include/editor/textureListWidget.h
     include/editor/ptclListWidget.h
     include/editor/sizedSpinBox.h
     include/editor/vectorSpinBox.h
