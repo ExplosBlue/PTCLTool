@@ -1,23 +1,67 @@
 #include "editor/mainWindow.h"
-#include "ui/ui_mainwindow.h"
 
 #include "util/settingsUtil.h"
 
 #include <QFileDialog>
 #include <QFile>
 #include <QDataStream>
-#include <QHBoxLayout>
 #include <QStandardPaths>
 
 namespace PtclEditor {
 
 MainWindow::MainWindow(QWidget* parent) :
-    QMainWindow(parent), mUi{new Ui::MainWindow} {
-    mUi->setupUi(this);
+    QMainWindow(parent),
+    mPtclList(this),
+    mEmitterSetWidget(this),
+    mTextureWidget(this) {
+    setupUi();
+    updateRecentFileList();
+}
 
+void MainWindow::setupUi() {
+    // Top Splitter
+    mTopSplitter = std::make_unique<QSplitter>(Qt::Horizontal, this);
+    mTopSplitter->addWidget(&mPtclList);
+    mTopSplitter->addWidget(&mEmitterSetWidget);
+
+    // Bottom Splitter
+    mBottomSplitter = std::make_unique<QSplitter>(Qt::Vertical, this);
+    mBottomSplitter->addWidget(mTopSplitter.get());
+    mBottomSplitter->addWidget(&mTextureWidget);
+
+    // Ptcl List
+    mPtclList.setEnabled(false);
+    connect(&mPtclList, &PtclList::selectedIndexChanged, this, &MainWindow::selectedEmitterSetChanged);
+
+    // EmitterSet Widget
+    mEmitterSetWidget.setEnabled(false);
+
+    // Texture Widget
+    mTextureWidget.setEnabled(false);
+
+    setCentralWidget(mBottomSplitter.get());
+    setupMenus();
+}
+
+
+void MainWindow::setupMenus() {
+    // Open File Action
+    mOpenAction.setText("Open File");
+    mOpenAction.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpen));
+    mOpenAction.setShortcut(QKeySequence::Open);
+    connect(&mOpenAction, &QAction::triggered, this, &MainWindow::openFile);
+
+    // Open File Action
+    mSaveAction.setText("Save As");
+    mSaveAction.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSaveAs));
+    mSaveAction.setShortcut(QKeySequence::SaveAs);
+    connect(&mSaveAction, &QAction::triggered, this, &MainWindow::saveFile);
+
+    // Recent Files Menu
     mRecentFilesMenu.setTitle("Recent Files");
-    mUi->menuFile->addMenu(&mRecentFilesMenu);
+    mRecentFilesMenu.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpenRecent));
 
+    // Recent Files Actions
     int maxRecentFiles = SettingsUtil::SettingsMgr::instance().maxRecentFiles();
     for (int i = 0; i < maxRecentFiles; ++i) {
         QAction* recentFileAction = mRecentFilesMenu.addAction("");
@@ -26,9 +70,15 @@ MainWindow::MainWindow(QWidget* parent) :
         mRecentFileActions.push_back(recentFileAction);
     }
 
-    updateRecentFileList();
+    // File Menu
+    mFileMenu.setTitle("File");
+    mFileMenu.addAction(&mOpenAction);
+    mFileMenu.addAction(&mSaveAction);
+    mFileMenu.addSeparator();
+    mFileMenu.addMenu(&mRecentFilesMenu);
 
-    connect(mUi->ptclList, &PtclList::selectedIndexChanged, this, &MainWindow::selectedEmitterSetChanged);
+    // Menu Bar
+    menuBar()->addMenu(&mFileMenu);
 }
 
 void MainWindow::openFile() {
@@ -141,19 +191,22 @@ void MainWindow::loadPtclRes(const QString& path) {
 
     mPtclRes->getEmitterSets();
 
-    mUi->ptclList->setPtclRes(mPtclRes.get());
-    mUi->textureWidget->setTextures(&mPtclRes->textures());
+    mPtclList.setPtclRes(mPtclRes.get());
+    mTextureWidget.setTextures(&mPtclRes->textures());
 
-    mUi->ptclList->setEnabled(true);
-    mUi->emitterSetWidget->setEnabled(true);
-    mUi->textureWidget->setEnabled(true);
+    mPtclList.setEnabled(true);
+    mTextureWidget.setEnabled(true);
 }
 
 void MainWindow::selectedEmitterSetChanged(u32 index) {
     mCurEmitterSetIdx = index;
     auto &emitterSet = mPtclRes->getEmitterSets()[index];
 
-    mUi->emitterSetWidget->setEmitterSet(emitterSet.get());
+    mEmitterSetWidget.setEmitterSet(emitterSet.get());
+
+    if (!mEmitterSetWidget.isEnabled()) {
+        mEmitterSetWidget.setEnabled(true);
+    }
 }
 
 
