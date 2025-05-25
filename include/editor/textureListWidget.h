@@ -1,5 +1,5 @@
-#ifndef TEXTUREWIDGET_H
-#define TEXTUREWIDGET_H
+#ifndef TEXTURELISTWIDGET_H
+#define TEXTURELISTWIDGET_H
 
 #include <QWidget>
 #include <QListWidget>
@@ -81,11 +81,11 @@ private:
 };
 
 
-class TextureWidget : public QWidget
+class TextureListWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TextureWidget(QWidget* parent = nullptr);
+    explicit TextureListWidget(QWidget* parent = nullptr);
 
     void setTextures(Ptcl::TextureList* textures);
 
@@ -108,4 +108,4 @@ private:
 
 } // namespace PtclEditor
 
-#endif // TEXTUREWIDGET_H
+#endif // TEXTURELISTWIDGET_H
