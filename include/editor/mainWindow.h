@@ -33,6 +33,7 @@ public slots:
 
 private:
     void updateRecentFileList();
+    void loadPtclRes(const QString& path);
 
 private:
     Ui::MainWindow* mUi;

@@ -51,20 +51,7 @@ void MainWindow::openFile() {
     }
 
     auto filePath = files.first();
-    mPtclRes = std::make_unique<Ptcl::PtclRes>();
-    if (!mPtclRes->load(filePath)) {
-        mPtclRes.reset();
-        return;
-    }
-
-    SettingsUtil::SettingsMgr::instance().addRecentFile(filePath);
-    SettingsUtil::SettingsMgr::instance().setLastOpenPath(QFileInfo(filePath).absolutePath());
-    updateRecentFileList();
-
-    mPtclRes->getEmitterSets();
-
-    mUi->ptclList->setPtclRes(mPtclRes.get());
-    mUi->textureWidget->setTextures(&mPtclRes->textures());
+    loadPtclRes(filePath);
 }
 
 void MainWindow::saveFile() {
@@ -115,20 +102,7 @@ void MainWindow::openRecentFile() {
     }
 
     QString filePath = action->data().toString();
-    mPtclRes = std::make_unique<Ptcl::PtclRes>();
-    if (!mPtclRes->load(filePath)) {
-        mPtclRes.reset();
-        return;
-    }
-
-    SettingsUtil::SettingsMgr::instance().addRecentFile(filePath);
-    SettingsUtil::SettingsMgr::instance().setLastOpenPath(QFileInfo(filePath).absolutePath());
-    updateRecentFileList();
-
-    mPtclRes->getEmitterSets();
-
-    mUi->ptclList->setPtclRes(mPtclRes.get());
-    mUi->textureWidget->setTextures(&mPtclRes->textures());
+    loadPtclRes(filePath);
 }
 
 void MainWindow::updateRecentFileList() {
@@ -152,6 +126,27 @@ void MainWindow::updateRecentFileList() {
     }
 
     mRecentFilesMenu.setEnabled(numRecentFiles > 0);
+}
+
+void MainWindow::loadPtclRes(const QString& path) {
+    mPtclRes = std::make_unique<Ptcl::PtclRes>();
+    if (!mPtclRes->load(path)) {
+        mPtclRes.reset();
+        return;
+    }
+
+    SettingsUtil::SettingsMgr::instance().addRecentFile(path);
+    SettingsUtil::SettingsMgr::instance().setLastOpenPath(QFileInfo(path).absolutePath());
+    updateRecentFileList();
+
+    mPtclRes->getEmitterSets();
+
+    mUi->ptclList->setPtclRes(mPtclRes.get());
+    mUi->textureWidget->setTextures(&mPtclRes->textures());
+
+    mUi->ptclList->setEnabled(true);
+    mUi->emitterSetWidget->setEnabled(true);
+    mUi->textureWidget->setEnabled(true);
 }
 
 void MainWindow::selectedEmitterSetChanged(u32 index) {
