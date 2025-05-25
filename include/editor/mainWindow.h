@@ -6,14 +6,18 @@
 #include <QLabel>
 #include <QScrollArea>
 #include <QMenu>
+#include <QSplitter>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QMenuBar>
 
 #include "typedefs.h"
 
 #include "ptcl/ptcl.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
+#include "editor/ptclListWidget.h"
+#include "editor/emitterSetWidget.h"
+#include "editor/textureWidget.h"
 
 namespace PtclEditor {
 
@@ -23,7 +27,7 @@ class MainWindow final : public QMainWindow {
 public:
     MainWindow(QWidget* parent = nullptr);
 
-public slots:
+private slots:
     void selectedEmitterSetChanged(u32 index);
 
     void openFile();
@@ -35,16 +39,27 @@ private:
     void updateRecentFileList();
     void loadPtclRes(const QString& path);
 
-private:
-    Ui::MainWindow* mUi;
-    // std::unique_ptr<Ui::MainWindow> mUi;
-    std::unique_ptr<Ptcl::PtclRes> mPtclRes;
+    void setupUi();
+    void setupMenus();
 
-    std::vector<QAction*> mRecentFileActions;
+private:
+    std::unique_ptr<Ptcl::PtclRes> mPtclRes;
 
     u32 mCurEmitterSetIdx;
 
+    QAction mOpenAction;
+    QAction mSaveAction;
+    std::vector<QAction*> mRecentFileActions;
+
+    QMenu mFileMenu;
     QMenu mRecentFilesMenu;
+
+    std::unique_ptr<QSplitter> mTopSplitter;
+    std::unique_ptr<QSplitter> mBottomSplitter;
+
+    PtclEditor::PtclList mPtclList;
+    PtclEditor::EmitterSetWidget mEmitterSetWidget;
+    PtclEditor::TextureWidget mTextureWidget;
 };
 
 } // namespace PtclEditor

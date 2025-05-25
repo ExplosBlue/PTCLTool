@@ -75,13 +75,9 @@ set(PROJECT_HEADERS
     include/util/stringUtil.h
 )
 
-set(PROJECT_FORMS
-    src/editor/ui/mainwindow.ui
-)
-
 qt_add_executable(EffectTool
     MANUAL_FINALIZATION
-    ${PROJECT_SOURCES} ${PROJECT_HEADERS} ${PROJECT_FORMS}
+    ${PROJECT_SOURCES} ${PROJECT_HEADERS}
 )
 
 qt_add_resources(EffectTool "icons"
