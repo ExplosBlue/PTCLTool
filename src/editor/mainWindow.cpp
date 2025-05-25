@@ -20,13 +20,13 @@ MainWindow::MainWindow(QWidget* parent) :
 
 void MainWindow::setupUi() {
     // Top Splitter
-    mTopSplitter = std::make_unique<QSplitter>(Qt::Horizontal, this);
+    mTopSplitter = new QSplitter(Qt::Horizontal, this);
     mTopSplitter->addWidget(&mPtclList);
     mTopSplitter->addWidget(&mEmitterSetWidget);
 
     // Bottom Splitter
-    mBottomSplitter = std::make_unique<QSplitter>(Qt::Vertical, this);
-    mBottomSplitter->addWidget(mTopSplitter.get());
+    mBottomSplitter = new QSplitter(Qt::Vertical, this);
+    mBottomSplitter->addWidget(mTopSplitter);
     mBottomSplitter->addWidget(&mTextureWidget);
 
     // Ptcl List
@@ -39,7 +39,7 @@ void MainWindow::setupUi() {
     // Texture Widget
     mTextureWidget.setEnabled(false);
 
-    setCentralWidget(mBottomSplitter.get());
+    setCentralWidget(mBottomSplitter);
     setupMenus();
 }
 
