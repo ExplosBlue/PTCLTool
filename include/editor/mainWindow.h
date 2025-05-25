@@ -54,8 +54,8 @@ private:
     QMenu mFileMenu;
     QMenu mRecentFilesMenu;
 
-    std::unique_ptr<QSplitter> mTopSplitter;
-    std::unique_ptr<QSplitter> mBottomSplitter;
+    QSplitter* mTopSplitter;
+    QSplitter* mBottomSplitter;
 
     PtclEditor::PtclList mPtclList;
     PtclEditor::EmitterSetWidget mEmitterSetWidget;
