@@ -1,10 +1,13 @@
 #include "editor/textureListWidget.h"
 
 #include <QStandardItemModel>
+#include <QFileDialog>
+#include <QStandardPaths>
 
 #include "ptcl/ptcl.h"
 
 #include "editor/thumbnailWidget.h"
+#include "util/settingsUtil.h"
 
 namespace PtclEditor {
 
@@ -68,6 +71,15 @@ TextureListWidget::TextureListWidget(QWidget *parent) :
     mGridLayout.setContentsMargins(10, 10, 10, 10);
     mGridContainer.setLayout(&mGridLayout);
 
+    // Export All
+    mActionExportAll.setText("Export All");
+    mActionExportAll.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::NThemeIcons)); // TODO: Add a better icon for this
+    connect(&mActionExportAll, &QAction::triggered, this, &TextureListWidget::exportAll);
+
+    // Toolbar
+    mToolbar.addAction(&mActionExportAll);
+    mainLayout->addWidget(&mToolbar);
+
     // Scroll Area
     mScrollArea.setWidgetResizable(true);
     mScrollArea.setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -85,6 +97,36 @@ void TextureListWidget::setTextures(Ptcl::TextureList* textures) {
 
     mTexturesPtr = textures;
     populateList();
+}
+
+void TextureListWidget::exportAll() {
+    if (!mTexturesPtr) {
+        return;
+    }
+
+    QString basePath = SettingsUtil::SettingsMgr::instance().lastExportPath();
+    if (basePath.isEmpty()) {
+        QString lastOpenPath = SettingsUtil::SettingsMgr::instance().lastOpenPath();
+        if (!lastOpenPath.isEmpty()) {
+            basePath = lastOpenPath;
+        } else {
+            basePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+        }
+    }
+
+    QString dirPath = QFileDialog::getExistingDirectory(this, "Export textures", basePath, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+    if (dirPath.isEmpty()) {
+        return;
+    }
+
+    for (int index = 0; index < mTexturesPtr->size(); ++index) {
+        const auto& texture = (*mTexturesPtr)[index];
+        QString filePath = QString("%1/tex_%2.png").arg(dirPath).arg(index);
+        texture->textureData().save(filePath);
+    }
+
+    SettingsUtil::SettingsMgr::instance().setLastExportPath(QFileInfo(dirPath).absolutePath());
 }
 
 void TextureListWidget::populateList() {

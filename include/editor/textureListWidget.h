@@ -10,6 +10,7 @@
 #include <QStyledItemDelegate>
 #include <QPainter>
 #include <QScrollArea>
+#include <QToolBar>
 
 #include <QtMinMax>
 
@@ -49,6 +50,9 @@ public:
 protected:
     void resizeEvent(QResizeEvent* event) override;
 
+private slots:
+    void exportAll();
+
 private:
     void populateList();
     void relayoutGrid();
@@ -60,6 +64,9 @@ private:
     QScrollArea mScrollArea;
     QWidget mGridContainer;
     QGridLayout mGridLayout;
+
+    QToolBar mToolbar;
+    QAction mActionExportAll;
 
     std::vector<TextureListItem*> mItemWidgets;
 };
