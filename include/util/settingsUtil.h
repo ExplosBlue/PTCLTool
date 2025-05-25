@@ -19,6 +19,8 @@ public:
     QStringList recentFiles() const;
     void addRecentFile(const QString& path);
 
+    inline constexpr int maxRecentFiles() { return sMaxRecentFiles; }
+
     QString lastOpenPath() const;
     void setLastOpenPath(const QString& path);
 

@@ -14,6 +14,20 @@ namespace PtclEditor {
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), mUi{new Ui::MainWindow} {
     mUi->setupUi(this);
+
+    mRecentFilesMenu.setTitle("Recent Files");
+    mUi->menuFile->addMenu(&mRecentFilesMenu);
+
+    int maxRecentFiles = SettingsUtil::SettingsMgr::instance().maxRecentFiles();
+    for (int i = 0; i < maxRecentFiles; ++i) {
+        QAction* recentFileAction = mRecentFilesMenu.addAction("");
+        recentFileAction->setVisible(false);
+        connect(recentFileAction, &QAction::triggered, this, &MainWindow::openRecentFile);
+        mRecentFileActions.push_back(recentFileAction);
+    }
+
+    updateRecentFileList();
+
     connect(mUi->ptclList, &PtclList::selectedIndexChanged, this, &MainWindow::selectedEmitterSetChanged);
 }
 
@@ -45,6 +59,7 @@ void MainWindow::openFile() {
 
     SettingsUtil::SettingsMgr::instance().addRecentFile(filePath);
     SettingsUtil::SettingsMgr::instance().setLastOpenPath(QFileInfo(filePath).absolutePath());
+    updateRecentFileList();
 
     mPtclRes->getEmitterSets();
 
@@ -89,6 +104,54 @@ void MainWindow::saveFile() {
 
     SettingsUtil::SettingsMgr::instance().addRecentFile(filePath);
     SettingsUtil::SettingsMgr::instance().setLastSavePath(QFileInfo(filePath).absolutePath());
+    updateRecentFileList();
+}
+
+void MainWindow::openRecentFile() {
+    QAction* action = qobject_cast<QAction*>(sender());
+
+    if (!action) {
+        return;
+    }
+
+    QString filePath = action->data().toString();
+    mPtclRes = std::make_unique<Ptcl::PtclRes>();
+    if (!mPtclRes->load(filePath)) {
+        mPtclRes.reset();
+        return;
+    }
+
+    SettingsUtil::SettingsMgr::instance().addRecentFile(filePath);
+    SettingsUtil::SettingsMgr::instance().setLastOpenPath(QFileInfo(filePath).absolutePath());
+    updateRecentFileList();
+
+    mPtclRes->getEmitterSets();
+
+    mUi->ptclList->setPtclRes(mPtclRes.get());
+    mUi->textureWidget->setTextures(&mPtclRes->textures());
+}
+
+void MainWindow::updateRecentFileList() {
+    const auto recentFiles = SettingsUtil::SettingsMgr::instance().recentFiles();
+
+    int maxRecentFiles = SettingsUtil::SettingsMgr::instance().maxRecentFiles();
+    qsizetype numRecentFiles = qMin(recentFiles.size(), maxRecentFiles);
+
+    for (int i = 0; i < numRecentFiles; ++i) {
+        auto& file = recentFiles[i];
+        auto& action = mRecentFileActions[i];
+
+        QString text = QString("&%1").arg(QFileInfo(file).fileName());
+        action->setText(text);
+        action->setData(file);
+        action->setVisible(true);
+    }
+
+    for (qsizetype i = numRecentFiles; i < maxRecentFiles; ++i) {
+        mRecentFileActions[i]->setVisible(false);
+    }
+
+    mRecentFilesMenu.setEnabled(numRecentFiles > 0);
 }
 
 void MainWindow::selectedEmitterSetChanged(u32 index) {

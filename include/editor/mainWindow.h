@@ -5,6 +5,7 @@
 
 #include <QLabel>
 #include <QScrollArea>
+#include <QMenu>
 
 #include "typedefs.h"
 
@@ -28,12 +29,21 @@ public slots:
     void openFile();
     void saveFile();
 
+    void openRecentFile();
+
+private:
+    void updateRecentFileList();
+
 private:
     Ui::MainWindow* mUi;
     // std::unique_ptr<Ui::MainWindow> mUi;
     std::unique_ptr<Ptcl::PtclRes> mPtclRes;
 
+    std::vector<QAction*> mRecentFileActions;
+
     u32 mCurEmitterSetIdx;
+
+    QMenu mRecentFilesMenu;
 };
 
 } // namespace PtclEditor

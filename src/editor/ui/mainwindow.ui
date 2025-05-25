@@ -68,14 +68,15 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFIle">
+   <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
     <addaction name="actionOpen"/>
     <addaction name="actionSaveAs"/>
+    <addaction name="separator"/>
    </widget>
-   <addaction name="menuFIle"/>
+   <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">
@@ -108,19 +109,19 @@
   <customwidget>
    <class>PtclEditor::TextureWidget</class>
    <extends>QWidget</extends>
-   <header>editor/textureWidget.h</header>
+   <header>editor\textureWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>PtclEditor::EmitterSetWidget</class>
    <extends>QWidget</extends>
-   <header>editor/emitterSetWidget.h</header>
+   <header>editor\emitterSetWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>PtclEditor::PtclList</class>
    <extends>QWidget</extends>
-   <header>editor/ptclListWidget.h</header>
+   <header>editor\ptclListWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
