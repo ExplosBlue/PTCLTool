@@ -1,25 +1,29 @@
 #include "editor/mainWindow.h"
 #include "ui/ui_mainwindow.h"
 
+#include "util/settingsUtil.h"
+
 #include <QFileDialog>
 #include <QFile>
 #include <QDataStream>
 #include <QHBoxLayout>
+#include <QStandardPaths>
 
 namespace PtclEditor {
 
-// TODO: REMOVE THIS
-static const QString basePath = "D://Explos//Home//Modding//3DS//Games//NSMB2//Rom//Gold Edition - USA//ExtractedRomFS//Effect";
-
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), mUi{new Ui::MainWindow} {
-
     mUi->setupUi(this);
-
     connect(mUi->ptclList, &PtclList::selectedIndexChanged, this, &MainWindow::selectedEmitterSetChanged);
 }
 
 void MainWindow::openFile() {
+    QString basePath = SettingsUtil::SettingsMgr::instance().lastOpenPath();
+
+    if (basePath.isEmpty()) {
+        basePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+    }
+
     QFileDialog openFileDialog(this, "Open File", basePath, "*.ptcl");
 
     if (openFileDialog.exec() == QFileDialog::DialogCode::Rejected) {
@@ -39,6 +43,9 @@ void MainWindow::openFile() {
         return;
     }
 
+    SettingsUtil::SettingsMgr::instance().addRecentFile(filePath);
+    SettingsUtil::SettingsMgr::instance().setLastOpenPath(QFileInfo(filePath).absolutePath());
+
     mPtclRes->getEmitterSets();
 
     mUi->ptclList->setPtclRes(mPtclRes.get());
@@ -48,6 +55,16 @@ void MainWindow::openFile() {
 void MainWindow::saveFile() {
     if (!mPtclRes) {
         return;
+    }
+
+    QString basePath = SettingsUtil::SettingsMgr::instance().lastSavePath();
+    if (basePath.isEmpty()) {
+        QString lastOpenPath = SettingsUtil::SettingsMgr::instance().lastOpenPath();
+        if (!lastOpenPath.isEmpty()) {
+            basePath = lastOpenPath;
+        } else {
+            basePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+        }
     }
 
     QFileDialog saveFileDialog(this, "Save As", basePath, "*.ptcl");
@@ -69,14 +86,17 @@ void MainWindow::saveFile() {
     }
 
     mPtclRes->save(filePath);
+
+    SettingsUtil::SettingsMgr::instance().addRecentFile(filePath);
+    SettingsUtil::SettingsMgr::instance().setLastSavePath(QFileInfo(filePath).absolutePath());
 }
 
 void MainWindow::selectedEmitterSetChanged(u32 index) {
-
     mCurEmitterSetIdx = index;
     auto &emitterSet = mPtclRes->getEmitterSets()[index];
 
     mUi->emitterSetWidget->setEmitterSet(emitterSet.get());
 }
+
 
 } // namespace PtclEditor
