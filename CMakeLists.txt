@@ -11,8 +11,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Concurrent)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Concurrent)
 
 find_package(Iconv QUIET)
 if(NOT Iconv_FOUND)
@@ -30,6 +30,7 @@ set(PROJECT_SOURCES
     src/editor/gradientSlider.cpp
     src/editor/loadingSpinner.cpp
     src/editor/rgbaColorWidget.cpp
+    src/editor/textureImportDialog.cpp
     src/editor/textureListWidget.cpp
     src/editor/thumbnailWidget.cpp
     src/editor/ptclListWidget.cpp
@@ -58,6 +59,7 @@ set(PROJECT_HEADERS
     include/editor/gradientSlider.h
     include/editor/loadingSpinner.h
     include/editor/rgbaColorWidget.h
+    include/editor/textureImportDialog.h
     include/editor/textureListWidget.h
     include/editor/thumbnailWidget.h
     include/editor/ptclListWidget.h
@@ -103,7 +105,7 @@ if(ENABLE_ASAN AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DADDRESS_SANITIZER)
 endif()
 
-target_link_libraries(EffectTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Iconv::Iconv)
+target_link_libraries(EffectTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Iconv::Iconv Qt${QT_VERSION_MAJOR}::Concurrent)
 
 target_include_directories(EffectTool PRIVATE include)
 
