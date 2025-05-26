@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 
 project(EffectTool VERSION 0.1 LANGUAGES CXX)
 
+option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
+
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -88,9 +90,16 @@ qt_add_resources(EffectTool "icons"
         res/icons/remove.png
 )
 
-add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
-add_link_options(-fsanitize=address)
-add_definitions(-DADDRESS_SANITIZER)
+if(ENABLE_ASAN AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if(MSVC)
+        add_compile_options(/fsanitize=address /Zi)
+        add_link_options(/fsanitize=address /INCREMENTAL:NO)
+    else()
+        add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
+        add_link_options(-fsanitize=address)
+    endif()
+    add_definitions(-DADDRESS_SANITIZER)
+endif()
 
 target_link_libraries(EffectTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Iconv::Iconv)
 
