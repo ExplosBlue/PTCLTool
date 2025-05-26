@@ -158,6 +158,8 @@ enum class TextureFormat : u8 {
     A4         = 0xB,
     ETC1       = 0xC,
     ETC1_A4    = 0xD,
+
+    MAX
 };
 
 template<>
