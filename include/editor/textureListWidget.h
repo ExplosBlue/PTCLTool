@@ -26,14 +26,21 @@ public:
     explicit TextureListItem(const QString& text, QIcon thumbnail, QWidget* parent = nullptr);
 
     // TODO: Enter/Leave events => hide/show buttons
+
+signals:
+    void exportImage();
+
 protected:
     void enterEvent(QEnterEvent* event) final;
     void leaveEvent(QEvent* event) final;
+    void contextMenuEvent(QContextMenuEvent* event) final;
 
 private:
     QIcon mThumbnail;
     QPushButton* mReplaceButton;
     QPushButton* mRemoveButton;
+
+    QAction mExportAction;
 };
 
 
@@ -49,6 +56,9 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent* event) override;
+
+public slots:
+    void exportImage();
 
 private slots:
     void exportAll();

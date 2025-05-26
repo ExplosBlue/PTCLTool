@@ -3,11 +3,14 @@
 #include <QStandardItemModel>
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <QContextMenuEvent>
 
 #include "ptcl/ptcl.h"
 
 #include "editor/thumbnailWidget.h"
 #include "util/settingsUtil.h"
+
+#include <QMenu>
 
 namespace PtclEditor {
 
@@ -42,6 +45,11 @@ TextureListItem::TextureListItem(const QString& text, QIcon thumbnail, QWidget* 
     mReplaceButton->setVisible(false);  // Hidden by default
     mRemoveButton->setVisible(false);   // Hidden by default
 
+    // Export Action
+    mExportAction.setText("Export");
+    mExportAction.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSave)); // TODO: Better icon
+    connect(&mExportAction, &QAction::triggered, this, [this](){ emit exportImage(); });
+
     setLayout(layout);
 }
 
@@ -55,6 +63,11 @@ void TextureListItem::leaveEvent(QEvent* event) {
     QWidget::leaveEvent(event);
 }
 
+void TextureListItem::contextMenuEvent(QContextMenuEvent* event) {
+    QMenu menu(this);
+    menu.addAction(&mExportAction);
+    menu.exec(event->globalPos());
+}
 
 // ========================================================================== //
 
@@ -73,7 +86,7 @@ TextureListWidget::TextureListWidget(QWidget *parent) :
 
     // Export All
     mActionExportAll.setText("Export All");
-    mActionExportAll.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::NThemeIcons)); // TODO: Add a better icon for this
+    // mActionExportAll.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::NThemeIcons)); // TODO: Add a better icon for this
     connect(&mActionExportAll, &QAction::triggered, this, &TextureListWidget::exportAll);
 
     // Toolbar
@@ -129,6 +142,50 @@ void TextureListWidget::exportAll() {
     SettingsUtil::SettingsMgr::instance().setLastExportPath(QFileInfo(dirPath).absolutePath());
 }
 
+void TextureListWidget::exportImage() {
+    if (!mTexturesPtr) {
+        return;
+    }
+
+    TextureListItem* item = qobject_cast<TextureListItem*>(sender());
+    if (!item) {
+        return;
+    }
+
+    QString basePath = SettingsUtil::SettingsMgr::instance().lastExportPath();
+    if (basePath.isEmpty()) {
+        QString lastOpenPath = SettingsUtil::SettingsMgr::instance().lastOpenPath();
+        if (!lastOpenPath.isEmpty()) {
+            basePath = lastOpenPath;
+        } else {
+            basePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+        }
+    }
+
+    QString filePath = QFileDialog::getSaveFileName(this, "Export texture", basePath, ".png");
+
+    if (filePath.isEmpty()) {
+        return;
+    }
+
+    if (!filePath.endsWith(".png")) {
+        filePath.append(".png");
+    }
+
+    bool ok = false;
+    int index = item->property("textureIndex").toInt(&ok);
+
+    if (!ok) {
+        qWarning() << "textureIndex propery missing or invalid";
+        return;
+    }
+
+    const auto& texture = (*mTexturesPtr)[index];
+    texture->textureData().save(filePath);
+
+    SettingsUtil::SettingsMgr::instance().setLastExportPath(QFileInfo(filePath).absolutePath());
+}
+
 void TextureListWidget::populateList() {
     qDeleteAll(mItemWidgets);
     mItemWidgets.clear();
@@ -137,7 +194,9 @@ void TextureListWidget::populateList() {
         return;
     }
 
-    for (auto& texture : *mTexturesPtr) {
+    for (int index = 0; index < mTexturesPtr->size(); ++index) {
+        const auto& texture = (*mTexturesPtr)[index];
+
         QPixmap pixmap = QPixmap::fromImage(texture->textureData());
         auto format = texture->textureFormat();
 
@@ -153,6 +212,8 @@ void TextureListWidget::populateList() {
 
         auto* textureItem = new TextureListItem(text, QIcon(pixmap), &mGridContainer);
         textureItem->setFixedSize(200, 120);
+        textureItem->setProperty("textureIndex", index);
+        connect(textureItem, &TextureListItem::exportImage, this, &TextureListWidget::exportImage);
         mItemWidgets.push_back(textureItem);
     }
     relayoutGrid();
