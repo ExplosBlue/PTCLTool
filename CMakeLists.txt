@@ -28,6 +28,7 @@ set(PROJECT_SOURCES
     src/editor/emitterWidget.cpp
     src/editor/emitterSetWidget.cpp
     src/editor/gradientSlider.cpp
+    src/editor/loadingSpinner.cpp
     src/editor/rgbaColorWidget.cpp
     src/editor/textureListWidget.cpp
     src/editor/thumbnailWidget.cpp
@@ -55,6 +56,7 @@ set(PROJECT_HEADERS
     include/editor/emitterSetWidget.h
     include/editor/enumComboBox.h
     include/editor/gradientSlider.h
+    include/editor/loadingSpinner.h
     include/editor/rgbaColorWidget.h
     include/editor/textureListWidget.h
     include/editor/thumbnailWidget.h
