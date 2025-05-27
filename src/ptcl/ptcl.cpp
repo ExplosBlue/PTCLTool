@@ -395,26 +395,6 @@ bool PtclRes::save(const QString& filePath) {
                 emitterData.namePos = nameTblCurOffset;
                 appendToNameTbl(emitter->name());
 
-                // Store texture data
-                if (textureOffsetMap.contains(emitter->textureHandle()->Id())) {
-                    emitterData.texturePos = textureOffsetMap[emitter->textureHandle()->Id()];
-                    emitterData.textureSize = emitter->textureHandle()->textureDataRaw().size();
-                } else {
-                    qint64 paddingNeeded = (128 - (emitter->textureHandle()->textureDataRaw().size() % 128)) % 128;
-
-                    emitterData.texturePos = textureTblCurOffset;
-                    textureOffsetMap.try_emplace(emitter->textureHandle()->Id(), textureTblCurOffset);
-                    appendToTextureTbl(emitter->textureHandle()->textureDataRaw());
-
-                    if (paddingNeeded > 0) {
-                        QByteArray padding(paddingNeeded, '\0');
-                        textureTbl.insert(textureTbl.end(), padding.begin(), padding.end());
-                    }
-
-                    emitterData.textureSize = emitter->textureHandle()->textureDataRaw().size();
-                    textureTblCurOffset += emitterData.textureSize + paddingNeeded;
-                }
-
                 u32 emitterDataSize = sizeof(BinComplexEmitterData);
 
                 BinChildData binChildData(emitter->childData());
@@ -455,6 +435,26 @@ bool PtclRes::save(const QString& filePath) {
                         binChildData.textureSize = emitter->childData().textureHandle()->textureDataRaw().size();
                         textureTblCurOffset += binChildData.textureSize + paddingNeeded;
                     }
+                }
+
+                // Store texture data
+                if (textureOffsetMap.contains(emitter->textureHandle()->Id())) {
+                    emitterData.texturePos = textureOffsetMap[emitter->textureHandle()->Id()];
+                    emitterData.textureSize = emitter->textureHandle()->textureDataRaw().size();
+                } else {
+                    qint64 paddingNeeded = (128 - (emitter->textureHandle()->textureDataRaw().size() % 128)) % 128;
+
+                    emitterData.texturePos = textureTblCurOffset;
+                    textureOffsetMap.try_emplace(emitter->textureHandle()->Id(), textureTblCurOffset);
+                    appendToTextureTbl(emitter->textureHandle()->textureDataRaw());
+
+                    if (paddingNeeded > 0) {
+                        QByteArray padding(paddingNeeded, '\0');
+                        textureTbl.insert(textureTbl.end(), padding.begin(), padding.end());
+                    }
+
+                    emitterData.textureSize = emitter->textureHandle()->textureDataRaw().size();
+                    textureTblCurOffset += emitterData.textureSize + paddingNeeded;
                 }
 
                 emitterData.fieldDataOffset = emitterDataSize;
