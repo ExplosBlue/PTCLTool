@@ -36,6 +36,14 @@ void SettingsMgr::setLastSavePath(const QString& path) {
     mSettings.setValue("savePath", path);
 }
 
+QString SettingsMgr::lastImportPath() const {
+    return mSettings.value("importPath").toString();
+}
+
+void SettingsMgr::setLastImportPath(const QString& path) {
+    mSettings.setValue("importPath", path);
+}
+
 QString SettingsMgr::lastExportPath() const {
     return mSettings.value("exportPath").toString();
 }

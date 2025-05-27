@@ -11,6 +11,8 @@
 #include "util/settingsUtil.h"
 
 #include <QMenu>
+#include "editor/textureImportDialog.h"
+
 
 namespace PtclEditor {
 
@@ -89,8 +91,14 @@ TextureListWidget::TextureListWidget(QWidget *parent) :
     // mActionExportAll.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::NThemeIcons)); // TODO: Add a better icon for this
     connect(&mActionExportAll, &QAction::triggered, this, &TextureListWidget::exportAll);
 
+    // Import Texture
+    mActionImportTexture.setText("Import Texture");
+    // mActionImportTexture.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::NThemeIcons)); // TODO: Add a better icon for this
+    connect(&mActionImportTexture, &QAction::triggered, this, &TextureListWidget::importTexture);
+
     // Toolbar
     mToolbar.addAction(&mActionExportAll);
+    mToolbar.addAction(&mActionImportTexture);
     mainLayout->addWidget(&mToolbar);
 
     // Scroll Area
@@ -162,7 +170,7 @@ void TextureListWidget::exportImage() {
         }
     }
 
-    QString filePath = QFileDialog::getSaveFileName(this, "Export texture", basePath, ".png");
+    QString filePath = QFileDialog::getSaveFileName(this, "Export texture", basePath, "*.png");
 
     if (filePath.isEmpty()) {
         return;
@@ -184,6 +192,39 @@ void TextureListWidget::exportImage() {
     texture->textureData().save(filePath);
 
     SettingsUtil::SettingsMgr::instance().setLastExportPath(QFileInfo(filePath).absolutePath());
+}
+
+void TextureListWidget::importTexture() {
+    if (!mTexturesPtr) {
+        return;
+    }
+
+    QString basePath = SettingsUtil::SettingsMgr::instance().lastImportPath();
+    if (basePath.isEmpty()) {
+        QString lastOpenPath = SettingsUtil::SettingsMgr::instance().lastOpenPath();
+        if (!lastOpenPath.isEmpty()) {
+            basePath = lastOpenPath;
+        } else {
+            basePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+        }
+    }
+
+    QString filePath = QFileDialog::getOpenFileName(this, "Import texture", basePath, "*.png");
+
+    if (filePath.isEmpty()) {
+        return;
+    }
+
+    TextureImportDialog importDialog(this);
+    importDialog.setFilePath(filePath);
+
+    if (importDialog.exec() == QDialog::Accepted) {
+        mTexturesPtr->push_back(std::move(importDialog.getTexture()));
+        populateList();
+    }
+
+    SettingsUtil::SettingsMgr::instance().setLastImportPath(QFileInfo(filePath).absolutePath());
+
 }
 
 void TextureListWidget::populateList() {
