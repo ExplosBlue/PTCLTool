@@ -16,7 +16,6 @@
 
 #include "ptcl/ptcl.h"
 
-
 namespace PtclEditor {
 
 
@@ -62,6 +61,7 @@ public slots:
 
 private slots:
     void exportAll();
+    void importTexture();
 
 private:
     void populateList();
@@ -77,6 +77,7 @@ private:
 
     QToolBar mToolbar;
     QAction mActionExportAll;
+    QAction mActionImportTexture;
 
     std::vector<TextureListItem*> mItemWidgets;
 };
