@@ -2,9 +2,13 @@
 
 **PTCLTool** is a tool for editing the `.ptcl` particle effect format used in various Nintendo 3DS games, including:
 
-- *New Super Mario Bros. 2*  
-- *Super Mario 3D Land*  
+- *Animal Crossing: New Leaf*
 - *Mario Kart 7*
+- *New Super Mario Bros. 2*
+- *Photos with Mario*
+- *Photos with Animal Crossing*
+- *Super Mario 3D Land*
+- *いっしょにフォト ピクミン*
 
 **Note**: This editor is for the **sead PTCL format** it is **not compatible** with the later **NintendoWare EFT PTCL** format found in later 3DS titles.
 
