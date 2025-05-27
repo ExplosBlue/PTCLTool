@@ -243,12 +243,22 @@ void TextureListWidget::populateList() {
 
         auto width = pixmap.width();
         auto height = pixmap.height();
+        auto sizeBytes = texture->textureDataRaw().size();
         auto userCount = texture->userCount();
 
-        auto text = QString("Format: %1 \nDimentions: %2x%3\n\nUsers: %4")
+        QString sizeString;
+        if (sizeBytes < 1024) {
+            sizeString = QString("%1 Bytes").arg(sizeBytes);
+        } else {
+            sizeString = QString("%1 KB").arg(sizeBytes / 1024);
+        }
+
+
+        auto text = QString("Format: %1 \nDimentions: %2x%3\nSize: %4\nUsers: %5")
             .arg(toString(format))
             .arg(width)
             .arg(height)
+            .arg(sizeString)
             .arg(userCount);
 
         auto* textureItem = new TextureListItem(text, QIcon(pixmap), &mGridContainer);
