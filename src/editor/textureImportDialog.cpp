@@ -147,10 +147,21 @@ void TextureImportDialog::updateFormatPreview() {
 }
 
 void TextureImportDialog::updateTextureInfo() {
-    auto text = QString("Dimentions: %1x%2\nSize: %3KB")
-        .arg(mTexture->textureData().width())
-        .arg(mTexture->textureData().height())
-        .arg(mTexture->textureDataRaw().size() / 1024);
+    auto width = mTexture->textureData().width();
+    auto height = mTexture->textureData().height();
+    auto sizeBytes = mTexture->textureDataRaw().size();
+
+    QString sizeString;
+    if (sizeBytes < 1024) {
+        sizeString = QString("%1 Bytes").arg(sizeBytes);
+    } else {
+        sizeString = QString("%1 KB").arg(sizeBytes / 1024);
+    }
+
+    auto text = QString("Dimentions: %1x%2\nSize: %3")
+        .arg(width)
+        .arg(height)
+        .arg(sizeString);
 
     mInfoLabel.setText(text);
 }
