@@ -27,6 +27,10 @@ class MainWindow final : public QMainWindow {
 public:
     MainWindow(QWidget* parent = nullptr);
 
+protected:
+    void dragEnterEvent(QDragEnterEvent* event) final;
+    void dropEvent(QDropEvent* event) final;
+
 private slots:
     void selectedEmitterSetChanged(u32 index);
 

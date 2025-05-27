@@ -6,6 +6,10 @@
 #include <QFile>
 #include <QDataStream>
 #include <QStandardPaths>
+#include <QMimeData>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QFileInfo>
 
 namespace PtclEditor {
 
@@ -19,6 +23,9 @@ MainWindow::MainWindow(QWidget* parent) :
 }
 
 void MainWindow::setupUi() {
+    // MainWindow
+    setAcceptDrops(true);
+
     // Top Splitter
     mTopSplitter = new QSplitter(Qt::Horizontal, this);
     mTopSplitter->addWidget(&mPtclList);
@@ -78,6 +85,26 @@ void MainWindow::setupMenus() {
 
     // Menu Bar
     menuBar()->addMenu(&mFileMenu);
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent* event) {
+    if (event->mimeData()->hasUrls()) {
+        event->acceptProposedAction();
+    }
+
+    QMainWindow::dragEnterEvent(event);
+}
+
+void MainWindow::dropEvent(QDropEvent* event) {
+    const QList<QUrl> urls = event->mimeData()->urls();
+    for (const auto& url : urls) {
+        auto localPath = url.toLocalFile();
+
+        QFileInfo fileInfo(localPath);
+        if (fileInfo.exists()) {
+            loadPtclRes(localPath);
+        }
+    }
 }
 
 void MainWindow::openFile() {
