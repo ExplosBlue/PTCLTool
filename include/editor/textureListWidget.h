@@ -24,10 +24,9 @@ class TextureListItem final : public QWidget {
 public:
     explicit TextureListItem(const QString& text, QIcon thumbnail, QWidget* parent = nullptr);
 
-    // TODO: Enter/Leave events => hide/show buttons
-
 signals:
     void exportImage();
+    void replaceTexture();
 
 protected:
     void enterEvent(QEnterEvent* event) final;
@@ -36,18 +35,16 @@ protected:
 
 private:
     QIcon mThumbnail;
-    QPushButton* mReplaceButton;
-    QPushButton* mRemoveButton;
 
     QAction mExportAction;
+    QAction mReplaceAction;
 };
 
 
 // ========================================================================== //
 
 
-class TextureListWidget : public QWidget
-{
+class TextureListWidget : public QWidget {
     Q_OBJECT
 public:
     explicit TextureListWidget(QWidget* parent = nullptr);
@@ -56,14 +53,15 @@ public:
 protected:
     void resizeEvent(QResizeEvent* event) override;
 
-public slots:
-    void exportImage();
-
 private slots:
     void exportAll();
+    void exportImage();
     void importTexture();
+    void replaceTexture();
 
 private:
+    void setupListItem(TextureListItem* item, int index);
+    void updateItemAt(int index);
     void populateList();
     void relayoutGrid();
 
@@ -82,6 +80,7 @@ private:
     std::vector<TextureListItem*> mItemWidgets;
 
     s32 mLastColumnCount;
+    size_t mLastWidgetCount;
 };
 
 
