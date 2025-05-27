@@ -11,6 +11,7 @@
 #include <QPainter>
 #include <QScrollArea>
 #include <QToolBar>
+#include <QPaintEvent>
 
 #include <QtMinMax>
 
@@ -31,6 +32,7 @@ signals:
 protected:
     void enterEvent(QEnterEvent* event) final;
     void leaveEvent(QEvent* event) final;
+    void paintEvent(QPaintEvent* event) final;
     void contextMenuEvent(QContextMenuEvent* event) final;
 
 private:
@@ -38,6 +40,7 @@ private:
 
     QAction mExportAction;
     QAction mReplaceAction;
+    bool mHovered;
 };
 
 

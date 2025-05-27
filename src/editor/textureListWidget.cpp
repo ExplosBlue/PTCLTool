@@ -18,7 +18,11 @@ namespace PtclEditor {
 
 TextureListItem::TextureListItem(const QString& text, QIcon thumbnail, QWidget* parent) :
     QWidget{parent},
-    mThumbnail{std::move(thumbnail)} {
+    mThumbnail{std::move(thumbnail)},
+    mHovered{false} {
+    setMouseTracking(true);
+    setAttribute(Qt::WA_Hover);
+
     // Create a layout for the custom item
     auto* layout = new QHBoxLayout(this);
     layout->setAlignment(Qt::AlignTop);
@@ -49,11 +53,26 @@ TextureListItem::TextureListItem(const QString& text, QIcon thumbnail, QWidget* 
 }
 
 void TextureListItem::enterEvent(QEnterEvent* event) {
+    mHovered = true;
+    update();
     QWidget::enterEvent(event);
 }
 
 void TextureListItem::leaveEvent(QEvent* event) {
+    mHovered = false;
+    update();
     QWidget::leaveEvent(event);
+}
+
+void TextureListItem::paintEvent(QPaintEvent* event) {
+    QPainter painter(this);
+
+    if (mHovered) {
+        QStyleOption opt;
+        painter.fillRect(rect(), opt.palette.color(QPalette::Highlight));
+    }
+
+    QWidget::paintEvent(event);
 }
 
 void TextureListItem::contextMenuEvent(QContextMenuEvent* event) {
@@ -307,7 +326,7 @@ void TextureListWidget::setupListItem(TextureListItem* item, int index) {
     } else {
         // Create a new item
         TextureListItem* newItem = new TextureListItem(text, QIcon(pixmap), &mGridContainer);
-        newItem->setFixedSize(200, 120);
+        newItem->setFixedSize(200, 74);// TODO: Size dynamically
         newItem->setProperty("textureIndex", index);
         connect(newItem, &TextureListItem::exportImage, this, &TextureListWidget::exportImage);
         connect(newItem, &TextureListItem::replaceTexture, this, &TextureListWidget::replaceTexture);
