@@ -80,6 +80,8 @@ private:
     QAction mActionImportTexture;
 
     std::vector<TextureListItem*> mItemWidgets;
+
+    s32 mLastColumnCount;
 };
 
 

@@ -19,7 +19,6 @@ namespace PtclEditor {
 TextureListItem::TextureListItem(const QString& text, QIcon thumbnail, QWidget* parent) :
     QWidget{parent},
     mThumbnail{std::move(thumbnail)} {
-
     // Create a layout for the custom item
     auto* layout = new QHBoxLayout(this);
     layout->setAlignment(Qt::AlignTop);
@@ -77,7 +76,8 @@ void TextureListItem::contextMenuEvent(QContextMenuEvent* event) {
 TextureListWidget::TextureListWidget(QWidget *parent) :
     QWidget{parent},
     mTexturesPtr{nullptr},
-    mScrollArea{this} {
+    mScrollArea{this},
+    mLastColumnCount{-1} {
 
     QVBoxLayout* mainLayout = new QVBoxLayout;
 
@@ -276,11 +276,14 @@ void TextureListWidget::relayoutGrid() {
     const int availableWidth = mScrollArea.viewport()->width();
     const int columns = std::max(1, availableWidth / (cardWidth + spacing));
 
-    QLayoutItem* child;
-    while ((child = mGridLayout.takeAt(0)) != nullptr) {
-        if (QWidget* widget = child->widget()) {
-            mGridLayout.removeWidget(widget);
-        }
+    if (columns == mLastColumnCount) {
+        return;
+    }
+
+    mLastColumnCount = columns;
+
+    while (QLayoutItem* child = mGridLayout.takeAt(0)) {
+        mGridLayout.removeItem(child);
         delete child;
     }
 
