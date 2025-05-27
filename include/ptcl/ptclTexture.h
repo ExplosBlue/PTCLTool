@@ -11,16 +11,13 @@ namespace Ptcl {
 // ========================================================================== //
 
 
-class Texture
-{
+class Texture {
 public:
     Texture() = delete;
     Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format);
 
-    // Texture(const Texture&) = delete;
     Texture& operator=(const Texture&) = delete;
 
-    // TODO: getters/setters/whatever
     const QImage& textureData() const;
     const std::vector<u8>& textureDataRaw() const;
 
@@ -29,6 +26,9 @@ public:
     u32 userCount() const;
 
     u32 Id() const;
+
+    void replaceTexture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format);
+    void replaceTexture(const Texture& other);
 
 private:
     std::vector<u8> mEncodedData;
@@ -50,8 +50,7 @@ protected:
 // ========================================================================== //
 
 
-class TextureHandle
-{
+class TextureHandle {
 public:
     TextureHandle(std::shared_ptr<Texture> texture = nullptr);
 
