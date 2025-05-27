@@ -13,19 +13,11 @@ namespace Ptcl {
 Texture::Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format) :
     mEncodedData{std::move(*encodedData)}, mTextureFormat{format}, mId{sNextId++} {
 
-    // Debugging the size and contents of mEncodedData
-    // qDebug() << "mEncodedData size:" << mEncodedData.size();
-    // if (!mEncodedData.empty()) {
-    //     qDebug() << "First few bytes:" << QByteArray(reinterpret_cast<const char*>(mEncodedData.data()),
-    //                                                  std::min(static_cast<size_t>(10), mEncodedData.size())).toHex();
-    // }
-
     mDecodedTexture = ImageUtil::picaTextureToQImage(mEncodedData, width, height, format);
 
     if (mDecodedTexture.isNull()) {
         throw std::runtime_error("Failed to decode texture from encoded data.");
     }
-
 }
 
 const QImage& Texture::textureData() const {
@@ -52,6 +44,21 @@ u32 Texture::userCount() const {
 u32 Texture::Id() const {
 
     return mId;
+}
+
+void Texture::replaceTexture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format) {
+    mTextureFormat = format;
+    mDecodedTexture = ImageUtil::picaTextureToQImage(mEncodedData, width, height, format);
+
+    if (mDecodedTexture.isNull()) {
+        throw std::runtime_error("Failed to decode texture from encoded data.");
+    }
+}
+
+void Texture::replaceTexture(const Texture& other) {
+    mTextureFormat = other.mTextureFormat;
+    mEncodedData = other.mEncodedData;
+    mDecodedTexture = other.mDecodedTexture;
 }
 
 // ========================================================================== //
