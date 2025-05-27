@@ -31,7 +31,7 @@ void ThumbnailWidget::paintEvent(QPaintEvent* event) {
     drawCheckerBackground(painter, bounds);
 
     if (!mPixmap.isNull()) {
-        QPixmap scaled = mPixmap.scaled(mThumbnailSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        QPixmap scaled = mPixmap.scaled(mThumbnailSize, Qt::KeepAspectRatio, Qt::FastTransformation);
 
         int x = (bounds.width() - scaled.width()) / 2;
         int y = (bounds.height() - scaled.height()) / 2;
@@ -41,7 +41,7 @@ void ThumbnailWidget::paintEvent(QPaintEvent* event) {
 }
 
 void ThumbnailWidget::drawCheckerBackground(QPainter& painter, const QRect& rect) {
-    const int checkerSize = 6;
+    const int checkerSize = 8;
     QColor light = QColor(220, 220, 220);
     QColor dark = QColor(180, 180, 180);
 
