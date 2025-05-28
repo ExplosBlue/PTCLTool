@@ -179,8 +179,8 @@ struct alignas(4) BinTextureRes {
     TextureFormat format;                 // 0x04
     TextureWrap wrapT;                    // 0x05
     TextureWrap wrapS;                    // 0x06
-    TextureMagFilter magFilter;           // 0x07
-    TextureMinFilter minFilter;           // 0x08
+    TextureFilter magFilter;              // 0x07
+    u8 minMipFilter;                      // 0x08
 
     friend QDataStream& operator>>(QDataStream& in, BinTextureRes& item);
     friend QDataStream& operator<<(QDataStream& out, const BinTextureRes& item);

@@ -234,7 +234,7 @@ inline QDebug operator<<(QDebug dbg, const TextureWrap& type) {
 // ========================================================================== //
 
 
-enum class TextureMagFilter : u8 {
+enum class TextureFilter : u8 {
     Nearest   = 0x0,
     Linear    = 0x1,
 
@@ -242,20 +242,20 @@ enum class TextureMagFilter : u8 {
 };
 
 template<>
-inline const QString toString<TextureMagFilter>(const TextureMagFilter& type) {
+inline const QString toString<TextureFilter>(const TextureFilter& type) {
     switch (type) {
-    case TextureMagFilter::Nearest: return "Nearest";
-    case TextureMagFilter::Linear:  return "Linear";
+    case TextureFilter::Nearest: return "Nearest";
+    case TextureFilter::Linear:  return "Linear";
     default: return "Unknown";
     }
 }
 
-inline TextureMagFilter& assignFromInt(TextureMagFilter& type, int value) {
-    type = static_cast<TextureMagFilter>(value);
+inline TextureFilter& assignFromInt(TextureFilter& type, int value) {
+    type = static_cast<TextureFilter>(value);
     return type;
 }
 
-inline QDebug operator<<(QDebug dbg, const TextureMagFilter& type) {
+inline QDebug operator<<(QDebug dbg, const TextureFilter& type) {
     QDebugStateSaver stateSaver(dbg);
     dbg.nospace() << toString(type);
     return dbg;
@@ -265,36 +265,30 @@ inline QDebug operator<<(QDebug dbg, const TextureMagFilter& type) {
 // ========================================================================== //
 
 
-enum class TextureMinFilter : u8 {
-    Nearest                 = 0x0,
-    NearestMipmapNearest    = 0x1,
-    NearestMipmapLinear     = 0x2,
-    Linear                  = 0x3,
-    LinearMipmapNearest     = 0x4,
-    LinearMipmapLinear      = 0x5,
+enum class TextureMipFilter : u8 {
+    None    = 0x0,
+    Nearest = 0x1,
+    Linear  = 0x2,
 
     MAX
 };
 
 template<>
-inline const QString toString<TextureMinFilter>(const TextureMinFilter& type) {
+inline const QString toString<TextureMipFilter>(const TextureMipFilter& type) {
     switch (type) {
-    case TextureMinFilter::Nearest:              return "Nearest";
-    case TextureMinFilter::NearestMipmapNearest: return "NearestMipmapNearest";
-    case TextureMinFilter::NearestMipmapLinear:  return "NearestMipmapLinear";
-    case TextureMinFilter::Linear:               return "Linear";
-    case TextureMinFilter::LinearMipmapNearest:  return "LinearMipmapNearest";
-    case TextureMinFilter::LinearMipmapLinear:   return "LinearMipmapLinear";
+    case TextureMipFilter::None:    return "None";
+    case TextureMipFilter::Nearest: return "Nearest";
+    case TextureMipFilter::Linear:  return "Linear";
     default: return "Unknown";
     }
 }
 
-inline TextureMinFilter& assignFromInt(TextureMinFilter& type, int value) {
-    type = static_cast<TextureMinFilter>(value);
+inline TextureMipFilter& assignFromInt(TextureMipFilter& type, int value) {
+    type = static_cast<TextureMipFilter>(value);
     return type;
 }
 
-inline QDebug operator<<(QDebug dbg, const TextureMinFilter& type) {
+inline QDebug operator<<(QDebug dbg, const TextureMipFilter& type) {
     QDebugStateSaver stateSaver(dbg);
     dbg.nospace() << toString(type);
     return dbg;

@@ -39,11 +39,14 @@ public:
     TextureWrap textureWrapS() const;
     void setTextureWrapS(TextureWrap wrap);
 
-    TextureMagFilter textureMagFilter() const;
-    void setTextureMagFilter(TextureMagFilter filter);
+    TextureFilter textureMagFilter() const;
+    void setTextureMagFilter(TextureFilter filter);
 
-    TextureMinFilter textureMinFilter() const;
-    void setTextureMinFilter(TextureMinFilter filter);
+    TextureFilter textureMinFilter() const;
+    void setTextureMinFilter(TextureFilter filter);
+
+    TextureMipFilter textureMipFilter() const;
+    void setTextureMipFilter(TextureMipFilter filter);
 
     const std::array<u8, 16>& _4C() const;
     void set_4C(const std::array<u8, 16>& _4C);
@@ -79,8 +82,9 @@ private:
     TextureHandle mTextureHande;
     TextureWrap mTextureWrapT;
     TextureWrap mTextureWrapS;
-    TextureMagFilter mTextureMagFilter;
-    TextureMinFilter mTextureMinFilter;
+    TextureFilter mTextureMagFilter;
+    TextureFilter mTextureMinFilter;
+    TextureMipFilter mTextureMipFilter;
 
     std::array<u8, 16> m_4C;
     f32 m_5C;
