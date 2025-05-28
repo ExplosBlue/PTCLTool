@@ -15,14 +15,12 @@
 #include "sizedSpinBox.h"
 #include "vectorSpinBox.h"
 
-// #include "gradientSlider.h"
-// #include "alphaSlider.h"
 #include "rgbaColorWidget.h"
+#include "texturePropertiesWidget.h"
 
 namespace PtclEditor {
 
-class EmitterWidget : public QWidget
-{
+class EmitterWidget : public QWidget {
     Q_OBJECT
 public:
     explicit EmitterWidget(QWidget* parent = nullptr);
@@ -45,13 +43,7 @@ private:
     SizedSpinBox<u32> mRandomSeedSpinBox;
     QLineEdit mNameLineEdit;
 
-    // TODO: Texture Info (move to dedicated widget?)
-    QLabel mImageLabel;
-    QLabel mImageInfoLabel;
-    EnumComboBox<Ptcl::TextureWrap> mTexWrapTComboBox;
-    EnumComboBox<Ptcl::TextureWrap> mTexWrapSComboBox;
-    EnumComboBox<Ptcl::TextureMagFilter> mTexMagFilterComboBox;
-    EnumComboBox<Ptcl::TextureMinFilter> mTexMinFilterComboBox;
+    TexturePropertiesWidget mTextureProperties;
 
     SizedSpinBox<u8> m_2CSpinBox;
     SizedSpinBox<u8> m_2DSpinBox;
