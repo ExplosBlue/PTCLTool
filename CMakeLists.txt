@@ -33,6 +33,7 @@ set(PROJECT_SOURCES
     src/editor/textureImportDialog.cpp
     src/editor/textureListWidget.cpp
     src/editor/texturePropertiesWidget.cpp
+    src/editor/textureSelectDialog.cpp
     src/editor/thumbnailWidget.cpp
     src/editor/ptclListWidget.cpp
     src/etc1/rg_etc1.cpp
@@ -63,6 +64,7 @@ set(PROJECT_HEADERS
     include/editor/textureImportDialog.h
     include/editor/textureListWidget.h
     include/editor/texturePropertiesWidget.h
+    include/editor/textureSelectDialog.h
     include/editor/thumbnailWidget.h
     include/editor/ptclListWidget.h
     include/editor/sizedSpinBox.h
