@@ -2,6 +2,7 @@
 
 #include <QPainter>
 #include <QStyleOption>
+#include <QMouseEvent>
 
 ThumbnailWidget::ThumbnailWidget(QWidget* parent) :
     QWidget(parent), mThumbnailSize(64, 64) {
@@ -38,6 +39,14 @@ void ThumbnailWidget::paintEvent(QPaintEvent* event) {
 
         painter.drawPixmap(x, y, scaled);
     }
+}
+
+void ThumbnailWidget::mousePressEvent(QMouseEvent* event) {
+    if (event->button() == Qt::LeftButton) {
+        emit clicked();
+    }
+
+    QWidget::mousePressEvent(event);
 }
 
 void ThumbnailWidget::drawCheckerBackground(QPainter& painter, const QRect& rect) {
