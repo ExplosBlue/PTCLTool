@@ -53,6 +53,7 @@ public:
     void setName(const QString& name);
 
     const TextureHandle& textureHandle() const;
+    TextureHandle& textureHandle();
     void setTexture(std::shared_ptr<Texture> texture);
 
     TextureWrap textureWrapT() const;

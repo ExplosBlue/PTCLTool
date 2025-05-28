@@ -45,6 +45,9 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&mNameLineEdit, "Name:", 3, 0, 3);
 
     mMainLayout.addWidget(&mTextureProperties, 4, 0, 1, 3);
+    connect(&mTextureProperties, &TexturePropertiesWidget::textureUpdated, this, [=, this](int oldIndex, int index) {
+        emit textureUpdated(oldIndex, index);
+    });
 
     addLabledWidget(&m_2CSpinBox, "_2C:",  5, 0, 3);
     addLabledWidget(&m_2DSpinBox, "_2D:",  6, 0, 3);
@@ -197,7 +200,10 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mInitRotRandSpinBox.setVector(mEmitterPtr->initRotRand());
     mRotVelSpinBox.setVector(mEmitterPtr->rotVel());
     mRotVelRandSpinBox.setVector(mEmitterPtr->rotVelRand());
+}
 
+TexturePropertiesWidget& EmitterWidget::getTextureProperties() {
+    return mTextureProperties;
 }
 
 void EmitterWidget::handleColorChanged() {

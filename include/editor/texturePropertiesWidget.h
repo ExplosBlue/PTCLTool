@@ -5,6 +5,7 @@
 #include <QComboBox>
 
 #include "ptcl/ptclEmitter.h"
+#include "ptcl/ptcl.h"
 
 #include "editor/thumbnailWidget.h"
 #include "editor/enumComboBox.h"
@@ -18,15 +19,26 @@ public:
 
     void populateWidgets();
 
+    void setTextureList(const Ptcl::TextureList* textureList);
+
+signals:
+    void textureUpdated(int oldIndex, int index);
+
 private slots:
     void updateWrapT();
     void updateWrapS();
     void updateMinFilter();
     void updateMagFilter();
     void updateMipFilter();
+    void changeTexture();
+
+private:
+    void updateTextureDetails();
 
 private:
     Ptcl::Emitter* mEmitterPtr;
+    const Ptcl::TextureList* mTextureList;
+
     ThumbnailWidget mTexturePreview;
 
     EnumComboBox<Ptcl::TextureWrap> mWrapTComboBox;

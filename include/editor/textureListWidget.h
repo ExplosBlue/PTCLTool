@@ -53,6 +53,8 @@ public:
     explicit TextureListWidget(QWidget* parent = nullptr);
     void setTextures(Ptcl::TextureList* textures);
 
+    void updateItemAt(int index);
+
 protected:
     void resizeEvent(QResizeEvent* event) override;
 
@@ -64,7 +66,6 @@ private slots:
 
 private:
     void setupListItem(TextureListItem* item, int index);
-    void updateItemAt(int index);
     void populateList();
     void relayoutGrid();
 

@@ -42,6 +42,10 @@ void MainWindow::setupUi() {
 
     // EmitterSet Widget
     mEmitterSetWidget.setEnabled(false);
+    connect(&mEmitterSetWidget, &EmitterSetWidget::textureUpdated, this, [=, this](int oldIndex, int index) {
+        mTextureWidget.updateItemAt(oldIndex);
+        mTextureWidget.updateItemAt(index);
+    });
 
     // Texture Widget
     mTextureWidget.setEnabled(false);
@@ -219,6 +223,7 @@ void MainWindow::loadPtclRes(const QString& path) {
 
     mPtclList.setPtclRes(mPtclRes.get());
     mTextureWidget.setTextures(&mPtclRes->textures());
+    mEmitterSetWidget.getEmitterWidget().getTextureProperties().setTextureList(&mPtclRes->textures());
 
     mPtclList.setEnabled(true);
     mTextureWidget.setEnabled(true);
@@ -234,6 +239,5 @@ void MainWindow::selectedEmitterSetChanged(u32 index) {
         mEmitterSetWidget.setEnabled(true);
     }
 }
-
 
 } // namespace PtclEditor
