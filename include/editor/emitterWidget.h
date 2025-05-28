@@ -27,7 +27,10 @@ public:
 
     void setEmitter(Ptcl::Emitter* emitter);
 
+    TexturePropertiesWidget& getTextureProperties();
+
 signals:
+    void textureUpdated(int oldIndex, int index);
 
 private slots:
     void handleColorChanged();

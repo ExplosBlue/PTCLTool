@@ -52,6 +52,12 @@ const TextureHandle& Emitter::textureHandle() const {
     return mTextureHande;
 }
 
+
+TextureHandle& Emitter::textureHandle() {
+
+    return mTextureHande;
+}
+
 void Emitter::setTexture(std::shared_ptr<Texture> texture) {
 
     mTextureHande.set(texture);

@@ -5,6 +5,8 @@
 #include <QGridLayout>
 #include <QLabel>
 
+#include "editor/textureSelectDialog.h"
+
 TexturePropertiesWidget::TexturePropertiesWidget(QWidget* parent) :
     QWidget{parent},
     mEmitterPtr{nullptr} {
@@ -25,6 +27,7 @@ TexturePropertiesWidget::TexturePropertiesWidget(QWidget* parent) :
     connect(&mMipFilterComboBox, &QComboBox::currentIndexChanged, this, &TexturePropertiesWidget::updateMipFilter);
 
     // Texture Preview
+    connect(&mTexturePreview, &ThumbnailWidget::clicked, this, &TexturePropertiesWidget::changeTexture);
     mTexturePreview.setThumbnailSize(QSize(64, 64));
 
     // Texture Settings Layout
@@ -69,6 +72,10 @@ void TexturePropertiesWidget::populateWidgets() {
     mMipFilterComboBox.setCurrentEnum(mEmitterPtr->textureMipFilter());
 }
 
+void TexturePropertiesWidget::setTextureList(const Ptcl::TextureList* textureList) {
+    mTextureList = textureList;
+}
+
 void TexturePropertiesWidget::updateWrapT() {
     if (!mEmitterPtr) {
         return;
@@ -107,4 +114,34 @@ void TexturePropertiesWidget::updateMipFilter() {
     }
 
     mEmitterPtr->setTextureMipFilter(mMipFilterComboBox.currentEnum());
+}
+
+void TexturePropertiesWidget::updateTextureDetails() {
+    mTexturePreview.setPixmap(QPixmap::fromImage(mEmitterPtr->textureHandle()->textureData()));
+}
+
+void TexturePropertiesWidget::changeTexture() {
+    if (!mEmitterPtr || !mTextureList) {
+        return;
+    }
+
+    auto oldTexture = mEmitterPtr->textureHandle().get();
+    int oldIndex = -1;
+
+    for (size_t i = 0; i < mTextureList->size(); ++i) {
+        if (mTextureList->at(i) == oldTexture) {
+            oldIndex = static_cast<int>(i);
+            break;
+        }
+    }
+
+    TextureSelectDialog dialog(*mTextureList, this);
+    if (dialog.exec() == QDialog::Accepted) {
+        int index = dialog.selectedIndex();
+        if (index >= 0 && static_cast<size_t>(index) < mTextureList->size()) {
+            mEmitterPtr->textureHandle().set(mTextureList->at(index));
+            updateTextureDetails();
+            emit textureUpdated(oldIndex, index);
+        }
+    }
 }

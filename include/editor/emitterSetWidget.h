@@ -22,6 +22,11 @@ public:
 
     void setEmitterSet(Ptcl::EmitterSet* emitterSet);
 
+    EmitterWidget& getEmitterWidget();
+
+signals:
+    void textureUpdated(int oldIndex, int index);
+
 private:
     void populateEmitterPicker();
     void populateProperties();

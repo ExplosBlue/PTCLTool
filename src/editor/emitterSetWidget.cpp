@@ -5,6 +5,11 @@ namespace PtclEditor {
 EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
     QWidget(parent) {
 
+    // Emitter Widget
+    connect(&mEmitterWidget, &EmitterWidget::textureUpdated, this, [=, this](int oldIndex, int index) {
+        emit textureUpdated(oldIndex, index);
+    });
+
     // Setup widgets
     mNameLineEdit.setPlaceholderText("EmitterSetName");
     mEmitterCountLabel.setText("Emitter Count:");
@@ -28,6 +33,10 @@ void EmitterSetWidget::setEmitterSet(Ptcl::EmitterSet* emitterSet) {
     mEmitterSetPtr = emitterSet;
     populateEmitterPicker();
     populateProperties();
+}
+
+EmitterWidget& EmitterSetWidget::getEmitterWidget() {
+    return mEmitterWidget;
 }
 
 void EmitterSetWidget::selectedEmitterChanged(u32 index) {
