@@ -66,25 +66,34 @@ void ChildData::setTextureWrapS(TextureWrap wrap) {
     mTextureWrapS = wrap;
 }
 
-TextureMagFilter ChildData::textureMagFilter() const {
+TextureFilter ChildData::textureMagFilter() const {
 
     return mTextureMagFilter;
 }
 
-void ChildData::setTextureMagFilter(TextureMagFilter filter) {
+void ChildData::setTextureMagFilter(TextureFilter filter) {
 
     mTextureMagFilter = filter;
 }
 
-TextureMinFilter ChildData::textureMinFilter() const {
+TextureFilter ChildData::textureMinFilter() const {
 
     return mTextureMinFilter;
 }
 
-
-void ChildData::setTextureMinFilter(TextureMinFilter filter) {
+void ChildData::setTextureMinFilter(TextureFilter filter) {
 
     mTextureMinFilter = filter;
+}
+
+TextureMipFilter ChildData::textureMipFilter() const {
+
+    return mTextureMipFilter;
+}
+
+void ChildData::setTextureMipFilter(TextureMipFilter filter) {
+
+    mTextureMipFilter = filter;
 }
 
 const std::array<u8, 16>& ChildData::_4C() const {
@@ -176,7 +185,8 @@ void ChildData::initFromBinary(const BinChildData& childData) {
     mTextureWrapT = childData.textureRes.wrapT;
     mTextureWrapS = childData.textureRes.wrapS;
     mTextureMagFilter = childData.textureRes.magFilter;
-    mTextureMinFilter = childData.textureRes.minFilter;
+    mTextureMinFilter = static_cast<TextureFilter>(childData.textureRes.minMipFilter & 0x1);
+    mTextureMipFilter = static_cast<TextureMipFilter>((childData.textureRes.minMipFilter >> 1) & 0x3);
 
     m_4C = childData._4C;
     m_5C = childData._5C;

@@ -245,7 +245,7 @@ QDataStream& operator>>(QDataStream& in, BinTextureRes& item) {
         >> item.wrapT
         >> item.wrapS
         >> item.magFilter
-        >> item.minFilter;
+        >> item.minMipFilter;
     in.readRawData(nullptr, 3);
     return in;
 }
@@ -258,7 +258,7 @@ QDataStream& operator<<(QDataStream& out, const BinTextureRes& item) {
         << item.wrapT
         << item.wrapS
         << item.magFilter
-        << item.minFilter;
+        << item.minMipFilter;
     static const std::array<char, 3> padding = {0, 0, 0};
     out.writeRawData(padding.data(), 3);
     return out;
@@ -268,13 +268,13 @@ void BinTextureRes::printData(u32 indentationLevel) {
 
     const char* indentation = PrintUtil::createIndentation(indentationLevel);
 
-    qDebug() << indentation << "- width:     " << width;
-    qDebug() << indentation << "- height:    " << height;
-    qDebug() << indentation << "- format:    " << format;
-    qDebug() << indentation << "- wrapT:     " << wrapT;
-    qDebug() << indentation << "- wrapS:     " << wrapS;
-    qDebug() << indentation << "- magFilter: " << magFilter;
-    qDebug() << indentation << "- minFilter: " << minFilter;
+    qDebug() << indentation << "- width:        " << width;
+    qDebug() << indentation << "- height:       " << height;
+    qDebug() << indentation << "- format:       " << format;
+    qDebug() << indentation << "- wrapT:        " << wrapT;
+    qDebug() << indentation << "- wrapS:        " << wrapS;
+    qDebug() << indentation << "- magFilter:    " << magFilter;
+    qDebug() << indentation << "- minMipFilter: " << minMipFilter;
 }
 
 
@@ -296,7 +296,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
         .wrapT = emitter.textureWrapT(),
         .wrapS = emitter.textureWrapS(),
         .magFilter = emitter.textureMagFilter(),
-        .minFilter = emitter.textureMinFilter(),
+        .minMipFilter = static_cast<u8>((static_cast<u8>(emitter.textureMinFilter()) & 0x1) | ((static_cast<u8>(emitter.textureMipFilter()) & 0x3) << 1)),
     };
 
     textureSize = 0; // To be assigned after construction...
@@ -694,7 +694,7 @@ BinChildData::BinChildData(const Ptcl::ChildData& childData) {
             .wrapT = childData.textureWrapT(),
             .wrapS = childData.textureWrapS(),
             .magFilter = childData.textureMagFilter(),
-            .minFilter = childData.textureMinFilter(),
+            .minMipFilter = static_cast<u8>((static_cast<u8>(childData.textureMinFilter()) & 0x1) | ((static_cast<u8>(childData.textureMipFilter()) & 0x3) << 1)),
         };
     } else {
         textureRes = {};

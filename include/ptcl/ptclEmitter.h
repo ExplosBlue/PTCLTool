@@ -61,11 +61,14 @@ public:
     TextureWrap textureWrapS() const;
     void setTextureWrapS(TextureWrap wrap);
 
-    TextureMagFilter textureMagFilter() const;
-    void setTextureMagFilter(TextureMagFilter filter);
+    TextureFilter textureMagFilter() const;
+    void setTextureMagFilter(TextureFilter filter);
 
-    TextureMinFilter textureMinFilter() const;
-    void setTextureMinFilter(TextureMinFilter filter);
+    TextureFilter textureMinFilter() const;
+    void setTextureMinFilter(TextureFilter filter);
+
+    TextureMipFilter textureMipFilter() const;
+    void setTextureMipFilter(TextureMipFilter filter);
 
     u8 _2C() const;
     void set_2C(const u8 _2C);
@@ -292,8 +295,9 @@ private:
     TextureHandle mTextureHande;
     TextureWrap mTextureWrapT;
     TextureWrap mTextureWrapS;
-    TextureMagFilter mTextureMagFilter;
-    TextureMinFilter mTextureMinFilter;
+    TextureFilter mTextureMagFilter;
+    TextureFilter mTextureMinFilter;
+    TextureMipFilter mTextureMipFilter;
 
     u8 m_2C;
     u8 m_2D;
@@ -350,6 +354,7 @@ private:
     QMatrix3x4 mTransformSRT;
     QMatrix3x4 mTransformRT;
     f32 mAlphaAddInFade;
+
     u16 mNumTexPat;
     u8 mNumTexDivX;
     u8 mNumTexDivY;

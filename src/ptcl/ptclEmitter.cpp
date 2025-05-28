@@ -77,25 +77,34 @@ void Emitter::setTextureWrapS(TextureWrap wrap) {
     mTextureWrapS = wrap;
 }
 
-TextureMagFilter Emitter::textureMagFilter() const {
+TextureFilter Emitter::textureMagFilter() const {
 
     return mTextureMagFilter;
 }
 
-void Emitter::setTextureMagFilter(TextureMagFilter filter) {
+void Emitter::setTextureMagFilter(TextureFilter filter) {
 
     mTextureMagFilter = filter;
 }
 
-TextureMinFilter Emitter::textureMinFilter() const {
+TextureFilter Emitter::textureMinFilter() const {
 
     return mTextureMinFilter;
 }
 
-
-void Emitter::setTextureMinFilter(TextureMinFilter filter) {
+void Emitter::setTextureMinFilter(TextureFilter filter) {
 
     mTextureMinFilter = filter;
+}
+
+TextureMipFilter Emitter::textureMipFilter() const {
+
+    return mTextureMipFilter;
+}
+
+void Emitter::setTextureMipFilter(TextureMipFilter filter) {
+
+    mTextureMipFilter = filter;
 }
 
 u8 Emitter::_2C() const {
@@ -815,7 +824,8 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mTextureWrapT = emitterData.textureRes.wrapT;
     mTextureWrapS = emitterData.textureRes.wrapS;
     mTextureMagFilter = emitterData.textureRes.magFilter;
-    mTextureMinFilter = emitterData.textureRes.minFilter;
+    mTextureMinFilter = static_cast<TextureFilter>(emitterData.textureRes.minMipFilter & 0x1);
+    mTextureMipFilter = static_cast<TextureMipFilter>((emitterData.textureRes.minMipFilter >> 1) & 0x3);
 
     m_2C = emitterData._2C;
     m_2D = emitterData._2D;
