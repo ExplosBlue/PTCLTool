@@ -5,16 +5,22 @@ namespace PtclEditor {
 PtclList::PtclList(QWidget* parent) :
     QWidget(parent), mResPtr(nullptr) {
 
+    // Search Box
+    mSearchBox.setPlaceholderText("Search");
+    connect(&mSearchBox, &QLineEdit::textChanged, this, &PtclList::filterList);
+
+    // List View
     mListView.setModel(&mListModel);
-
-    mMainLayout.addWidget(&mListView);
-    setLayout(&mMainLayout);
-
     connect(mListView.selectionModel(), &QItemSelectionModel::selectionChanged, this, &PtclList::selectionChanged);
+
+    // Main layout
+    mMainLayout.addWidget(&mListView);
+    mMainLayout.addWidget(&mSearchBox);
+
+    setLayout(&mMainLayout);
 }
 
 void PtclList::setPtclRes(Ptcl::PtclRes* ptclRes) {
-
     if (mResPtr == ptclRes) {
         return;
     }
@@ -27,28 +33,56 @@ void PtclList::setPtclRes(Ptcl::PtclRes* ptclRes) {
 }
 
 void PtclList::populateList() {
-
     if (!mResPtr) {
         return;
     }
 
-    mListModel.clear();
+    mEmitterNames.clear();
 
     u32 index = 0;
     for (auto& emitterSet : mResPtr->getEmitterSets()) {
-        QStandardItem* item = new QStandardItem();
-        item->setText(QString::number(index) + ": " + emitterSet->name());
-        item->setEditable(false);
-        item->setData(index);
-        mListModel.appendRow(item);
+        QString name = QString::number(index) + ": " + emitterSet->name();
+        mEmitterNames.emplace_back(index, name);
         ++index;
+    }
+
+    filterList(mSearchBox.text());
+}
+
+void PtclList::filterList(const QString& text) {
+    mListModel.clear();
+
+    int rowToSelect = -1;
+    int row = 0;
+
+    for (const auto& [index, name] : mEmitterNames) {
+        if (text.isEmpty() || name.contains(text, Qt::CaseInsensitive)) {
+            QStandardItem* item = new QStandardItem(name);
+            item->setEditable(false);
+            item->setData(index, Qt::UserRole);
+            mListModel.appendRow(item);
+
+            if (index == mSelectedEmitterIndex) {
+                rowToSelect = row;
+            }
+            ++row;
+        }
+    }
+
+    if (rowToSelect >= 0) {
+        QModelIndex indexToSelect = mListModel.index(rowToSelect, 0);
+        mListView.setCurrentIndex(indexToSelect);
+        mListView.selectionModel()->select(indexToSelect, QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
 }
 
 void PtclList::selectionChanged(const QItemSelection& selection) {
+    if (selection.indexes().isEmpty())
+        return;
 
-    u32 emitterSetIdx = selection.indexes().front().row();
-    emit selectedIndexChanged(emitterSetIdx);
+    QModelIndex index = selection.indexes().front();
+    mSelectedEmitterIndex = index.data(Qt::UserRole).toInt();
+    emit selectedIndexChanged(mSelectedEmitterIndex);
 }
 
 } // namespace PtclEditor
