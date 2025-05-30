@@ -2,6 +2,8 @@
 
 #include <QScrollArea>
 
+#include "editor/collapsibleWidget.h"
+
 namespace PtclEditor {
 
 EmitterWidget::EmitterWidget(QWidget* parent) :
@@ -44,7 +46,10 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&mRandomSeedSpinBox, "Random Seed:", 2, 0, 3);
     addLabledWidget(&mNameLineEdit, "Name:", 3, 0, 3);
 
-    mMainLayout.addWidget(&mTextureProperties, 4, 0, 1, 3);
+    auto texPropertiesSection = new CollapsibleWidget("Texture properties", this);
+    texPropertiesSection->setContent(&mTextureProperties);
+
+    mMainLayout.addWidget(texPropertiesSection, 4, 0, 1, 3);
     connect(&mTextureProperties, &TexturePropertiesWidget::textureUpdated, this, [=, this](int oldIndex, int index) {
         emit textureUpdated(oldIndex, index);
     });
