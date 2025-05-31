@@ -4,6 +4,86 @@ namespace Ptcl {
 
 
 Emitter::Emitter() {
+
+    mType = EmitterType::Simple;
+    mFlag = 0;
+    mRandomSeed = 0;
+    mName = "";
+
+    // TODO: Texture Handle
+    mTextureWrapT = TextureWrap::ClampToEdge;
+    mTextureWrapS = TextureWrap::ClampToEdge;
+    mTextureMagFilter = TextureFilter::Nearest;
+    mTextureMinFilter = TextureFilter::Nearest;
+    mTextureMipFilter = TextureMipFilter::None;
+
+    m_2C = 0;
+    m_2D = 0;
+    m_2E = 0;
+    m_2F = 0;
+    m_30 = 0;
+    m_31 = 0;
+    m_32 = {0, 0};
+    mVolumeType = VolumeType::Point;
+    mVolumeRadius = {1.0f, 1.0f, 1.0f};
+    m_44 = 0.0f;
+    m_48 = 0.0f;
+    mFigureVel = 0.0f;
+    mEmitterVelDir = {0.0f, 0.0f, 0.0f};
+    m_5C = 0.0f;
+    mInitVelRnd = 0.0f;
+    mSpreadVec = {0.0f, 0.0f, 0.0f};
+    m_70 = {0, 0, 0, 0};
+    m_80 = 0;
+    mPtclLife = 0;
+    mPtclLifeRnd = 0;
+    m_8C = 0.0f;
+    m_90 = 0;
+    mBillboardType = BillboardType::Billboard;
+    m_98 = 0;
+    m_9C = 0.0f;
+    m_A0 = 0.0f;
+    m_A4 = 0.0f;
+    mColors = {
+        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+    };
+    m_D8 = {0, 0, 0};
+    mColorSection1 = 0;
+    mColorSection2 = 0;
+    mColorSection3 = 0;
+    mColorNumRepeat = 0;
+    mInitAlpha = 0.0f;
+    mDiffAlpha21 = 0.0f;
+    mDiffAlpha32 = 0.0f;
+    mAlphaSection1 = 0;
+    mAlphaSection2 = 0;
+    mInitScale = {1.0f, 1.0f};
+    mDiffScale21 = {0.0f, 0.0f};
+    mDiffScale32 = {0.0f, 0.0f};
+    mScaleSection1 = 0;
+    mScaleSection2 = 0;
+    mScaleRand = 0.0f;
+    m_12C = 0;
+    m_130 = 0;
+    m_134 = 0;
+    mInitRot = {0.0f, 0.0f, 0.0f};
+    mInitRotRand = {0.0f, 0.0f, 0.0f};
+    mRotVel = {0.0f, 0.0f, 0.0f};
+    mRotVelRand = {0.0f, 0.0f, 0.0f};
+    m_168 = {0, 0};
+    mTransformSRT = {};
+    mTransformRT = {};
+    mAlphaAddInFade = 0.0f;
+
+    mNumTexPat = 0;
+    mNumTexDivX = 1;
+    mNumTexDivY = 1;
+    mTexUVScale = {1.0f, 1.0f};
+    mTexPatTbl = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    mTexPatFreq = 0;
+    mTexPatTblUse = 0;
 }
 
 EmitterType Emitter::type() const {

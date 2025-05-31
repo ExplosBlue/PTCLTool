@@ -35,7 +35,6 @@ private slots:
     void selectedEmitterChanged(u32 index);
 
 private:
-    // TODO: this should not be a raw pointer...
     Ptcl::EmitterSet* mEmitterSetPtr;
 
     QVBoxLayout mMainLayout;

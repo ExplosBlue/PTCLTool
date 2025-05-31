@@ -126,6 +126,10 @@ binColor4f::binColor4f() :
     r(0.0f), g(0.0f), b(0.0f), a(0.0f) {
 }
 
+binColor4f::binColor4f(f32 r, f32 g, f32 b, f32 a) :
+    r(r), g(g), b(b), a(a) {
+}
+
 binColor4f::binColor4f(const QColor& color) :
     r(color.redF()), g(color.greenF()), b(color.blueF()), a(color.alphaF()) {
 }
