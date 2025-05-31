@@ -251,6 +251,7 @@ public:
 
     const std::array<u8, 16>& texPatTbl() const;
     void setTexPatTbl(const std::array<u8, 16>& texPatTbl);
+    void setTexPatTblData(int index, u8 value);
 
     u16 texPatFreq() const;
     void setTexPatFreq(const u16 texPatFreq);

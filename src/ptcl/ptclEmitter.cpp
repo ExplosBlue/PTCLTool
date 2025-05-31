@@ -4,7 +4,6 @@ namespace Ptcl {
 
 
 Emitter::Emitter() {
-
 }
 
 EmitterType Emitter::type() const {
@@ -714,13 +713,19 @@ void Emitter::setTexUVScale(const QVector2D& texUVScale) {
 }
 
 const std::array<u8, 16>& Emitter::texPatTbl() const {
-
     return mTexPatTbl;
 }
 
 void Emitter::setTexPatTbl(const std::array<u8, 16>& texPatTbl) {
-
     mTexPatTbl = texPatTbl;
+}
+
+void Emitter::setTexPatTblData(int index, u8 value) {
+    if (index > mTexPatTbl.size()) {
+        return;
+    }
+
+    mTexPatTbl.at(index) = value;
 }
 
 u16 Emitter::texPatFreq() const {

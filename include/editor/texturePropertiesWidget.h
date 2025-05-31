@@ -3,12 +3,16 @@
 
 #include <QWidget>
 #include <QComboBox>
+#include <QVector2D>
+#include <QTableWidget>
 
 #include "ptcl/ptclEmitter.h"
 #include "ptcl/ptcl.h"
 
 #include "editor/thumbnailWidget.h"
 #include "editor/enumComboBox.h"
+#include "editor/vectorSpinBox.h"
+#include "editor/sizedSpinBox.h"
 
 class TexturePropertiesWidget : public QWidget {
     Q_OBJECT
@@ -30,10 +34,23 @@ private slots:
     void updateMinFilter();
     void updateMagFilter();
     void updateMipFilter();
+
+    void updateNumTexPat();
+    void updateTexDivX();
+    void updateTexDivY();
+    void updateTexPatFreq();
+    void updateTexPatTblUse();
+
+    void updateTexPatTbl(QTableWidgetItem* item);
+
+    void updateUVScale();
+
     void changeTexture();
 
 private:
     void updateTextureDetails();
+
+    void updateTexPatTblColumns();
 
 private:
     Ptcl::Emitter* mEmitterPtr;
@@ -46,6 +63,18 @@ private:
     EnumComboBox<Ptcl::TextureFilter> mMagFilterComboBox;
     EnumComboBox<Ptcl::TextureFilter> mMinFilterComboBox;
     EnumComboBox<Ptcl::TextureMipFilter> mMipFilterComboBox;
+
+    SizedSpinBox<u16> mNumTexPat;
+    SizedSpinBox<u8> mTexDivX;
+    SizedSpinBox<u8> mTexDivY;
+    SizedSpinBox<u16> mTexPatFreq;
+    SizedSpinBox<u16> mTexPatTblUse;
+
+    QTableWidget mTexPatTbl;
+
+    VectorSpinBox<QVector2D> mUVScaleSpinBox;
+
+    bool mIsPopulating;
 };
 
 #endif // TEXTUREPROPERTIESWIDGET_H
