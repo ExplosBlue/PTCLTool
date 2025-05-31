@@ -107,6 +107,7 @@ struct alignas(4) binColor4f {
     f32 a;   // 0x0C
 
     binColor4f();
+    binColor4f(f32 r, f32 g, f32 b, f32 a);
     binColor4f(const QColor& color);
 
     friend QDataStream& operator>>(QDataStream& in, binColor4f& item);

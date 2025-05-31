@@ -40,6 +40,27 @@ EmitterWidget& EmitterSetWidget::getEmitterWidget() {
 }
 
 void EmitterSetWidget::selectedEmitterChanged(u32 index) {
+    if (!mEmitterSetPtr) {
+        return;
+    }
+
+    const int lastIndex = mEmitterTabs.count() - 1;
+
+    // Create new emitter if "+" tab selected
+    if (index == lastIndex) {
+        auto newEmitter = std::make_unique<Ptcl::Emitter>();
+        newEmitter->setName("New_Emitter_" + QString::number(mEmitterSetPtr->emitterCount() + 1));
+
+        mEmitterSetPtr->emitters().push_back(std::move(newEmitter));
+
+        mEmitterCountLabel.setText("Emitter Count: " + QString::number(mEmitterSetPtr->emitterCount()));
+        populateEmitterPicker();
+
+        mEmitterTabs.setCurrentIndex(lastIndex - 1);
+
+        return;
+    }
+
     if (index >= mEmitterTabPlaceholders.size() || index >= mEmitterSetPtr->emitters().size()) {
         return;
     }
@@ -72,6 +93,10 @@ void EmitterSetWidget::populateEmitterPicker() {
         mEmitterTabs.addTab(placeholder, emitter->name());
         mEmitterTabPlaceholders.push_back(placeholder);
     }
+
+    // Add a tab to add new emitters
+    QWidget* addTabPlaceholder = new QWidget();
+    mEmitterTabs.addTab(addTabPlaceholder, "+");
 
     // Add emitter widget to the initial tab's placeholder
     int currentIndex = mEmitterTabs.currentIndex();
