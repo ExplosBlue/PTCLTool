@@ -33,6 +33,7 @@ private:
 
 private slots:
     void selectedEmitterChanged(u32 index);
+    void emitterTabClosed(int index);
 
 private:
     Ptcl::EmitterSet* mEmitterSetPtr;
