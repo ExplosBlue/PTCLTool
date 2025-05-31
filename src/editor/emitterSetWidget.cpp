@@ -1,5 +1,7 @@
 #include "editor/emitterSetWidget.h"
 
+#include <QMessageBox>
+
 namespace PtclEditor {
 
 EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
@@ -10,23 +12,28 @@ EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
         emit textureUpdated(oldIndex, index);
     });
 
-    // Setup widgets
+    // Name Edit
     mNameLineEdit.setPlaceholderText("EmitterSetName");
-    mEmitterCountLabel.setText("Emitter Count:");
 
-    // Add widgets to layout
+    // Name layout
     QHBoxLayout* nameLayout = new QHBoxLayout();
     nameLayout->addWidget(new QLabel("EmitterSet Name:"));
     nameLayout->addWidget(&mNameLineEdit);
-    mMainLayout.addLayout(nameLayout);
 
+    // Count Label
+    mEmitterCountLabel.setText("Emitter Count:");
+
+    // Emitter Tabs
+    mEmitterTabs.setTabsClosable(true);
+    connect(&mEmitterTabs, &QTabWidget::currentChanged, this, &EmitterSetWidget::selectedEmitterChanged);
+    connect(&mEmitterTabs, &QTabWidget::tabCloseRequested, this, &EmitterSetWidget::emitterTabClosed);
+
+    // Main Layout
+    mMainLayout.addLayout(nameLayout);
     mMainLayout.addWidget(&mEmitterCountLabel);
     mMainLayout.addWidget(&mEmitterTabs, 1);
 
     setLayout(&mMainLayout);
-
-    // Setup signals
-    connect(&mEmitterTabs, &QTabWidget::currentChanged, this, &EmitterSetWidget::selectedEmitterChanged);
 }
 
 void EmitterSetWidget::setEmitterSet(Ptcl::EmitterSet* emitterSet) {
@@ -79,6 +86,26 @@ void EmitterSetWidget::selectedEmitterChanged(u32 index) {
     mEmitterWidget.setEmitter(mEmitterSetPtr->emitters()[index].get());
 }
 
+void EmitterSetWidget::emitterTabClosed(int index) {
+    if (index < 0 || index > static_cast<int>(mEmitterSetPtr->emitters().size())) {
+        return;
+    }
+
+    if (mEmitterTabs.tabText(index) == "+") {
+        return;
+    }
+
+    auto& name = mEmitterSetPtr->emitters()[index]->name();
+    auto confirmationMessage = QString("Are you sure you want to remove the emitter '%1'?").arg(name);
+    if (QMessageBox::question(this, "Remove Emitter", confirmationMessage) != QMessageBox::Yes) {
+        return;
+    }
+
+    mEmitterSetPtr->emitters().erase(mEmitterSetPtr->emitters().begin() + index);
+    populateEmitterPicker();
+    populateProperties();
+}
+
 void EmitterSetWidget::populateEmitterPicker() {
     mEmitterTabs.blockSignals(true);
     mEmitterTabs.clear();
@@ -96,7 +123,10 @@ void EmitterSetWidget::populateEmitterPicker() {
 
     // Add a tab to add new emitters
     QWidget* addTabPlaceholder = new QWidget();
-    mEmitterTabs.addTab(addTabPlaceholder, "+");
+    int plusTabIndex = mEmitterTabs.addTab(addTabPlaceholder, "+");
+
+    QTabBar* tabBar = mEmitterTabs.tabBar();
+    tabBar->setTabButton(plusTabIndex, QTabBar::RightSide, nullptr);
 
     // Add emitter widget to the initial tab's placeholder
     int currentIndex = mEmitterTabs.currentIndex();
