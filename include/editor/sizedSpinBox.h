@@ -104,6 +104,13 @@ public:
         QAbstractSpinBox::focusOutEvent(event);
     }
 
+    void keyPressEvent(QKeyEvent* event) final {
+            if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+            interpretText();
+        }
+        QAbstractSpinBox::keyPressEvent(event);
+    }
+
 protected:
     void updateDisplay()  {
 
