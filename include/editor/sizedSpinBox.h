@@ -3,6 +3,8 @@
 
 #include <QAbstractSpinBox>
 #include <QLineEdit>
+#include <QKeyEvent>
+
 
 #include "typedefs.h"
 
@@ -74,6 +76,32 @@ public:
             return QValidator::Acceptable;
         }
         return QValidator::Invalid;
+    }
+
+    void interpretText() {
+            bool ok = false;
+        T value;
+
+        QString text = lineEdit()->text();
+
+        if constexpr (std::is_unsigned<T>::value) {
+            value = static_cast<T>(text.toULongLong(&ok));
+        } else {
+            value = static_cast<T>(text.toLongLong(&ok));
+        }
+
+        if (ok && value >= mMin && value <= mMax) {
+            if (value != mCurrentValue) {
+                setValue(value);
+            }
+        } else {
+            updateDisplay();
+        }
+    }
+
+    void focusOutEvent(QFocusEvent* event) final {
+        interpretText();
+        QAbstractSpinBox::focusOutEvent(event);
     }
 
 protected:
