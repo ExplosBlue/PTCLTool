@@ -26,6 +26,7 @@ set(PROJECT_SOURCES
     src/editor/alphaSlider.cpp
     src/editor/clickableLabel.cpp
     src/editor/collapsibleWidget.cpp
+    src/editor/colorGradientEditor.cpp
     src/editor/emitterWidget.cpp
     src/editor/emitterSetWidget.cpp
     src/editor/gradientSlider.cpp
@@ -57,6 +58,7 @@ set(PROJECT_HEADERS
     include/editor/alphaSlider.h
     include/editor/clickableLabel.h
     include/editor/collapsibleWidget.h
+    include/editor/colorGradientEditor.h
     include/editor/emitterWidget.h
     include/editor/emitterSetWidget.h
     include/editor/enumComboBox.h
