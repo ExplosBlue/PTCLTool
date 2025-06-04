@@ -7,7 +7,8 @@
 namespace PtclEditor {
 
 EmitterWidget::EmitterWidget(QWidget* parent) :
-    QWidget(parent) {
+    QWidget{parent},
+    mIsPopulating{false} {
 
     QWidget* containerWidget = new QWidget;
     containerWidget->setLayout(&mMainLayout);
@@ -107,10 +108,18 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
 
     // _D8
 
-    addLabledWidget(&mColorSection1SpinBox,  "Color Section 1:",   34, 0, 3);
-    addLabledWidget(&mColorSection2SpinBox,  "Color Section 2:",   35, 0, 3);
-    addLabledWidget(&mColorSection3SpinBox,  "Color Section 3:",   36, 0, 3);
+    // Color Sections
+    connect(&mColorSections, &ColorGradientEditor::handleMoved, this, &EmitterWidget::updateColorSection);
+    addLabledWidget(&mColorSections, "Color Sections:", 34, 0, 3);
+
     addLabledWidget(&mColorNumRepeatSpinBox, "Color Num Reapeat:", 37, 0, 3);
+    connect(&mColorNumRepeatSpinBox, &SizedSpinBoxBase::valueChanged, this, [=, this](int value) {
+        mColorSections.setRepetitionCount(value);
+        if (!mEmitterPtr) {
+            return;
+        }
+        mEmitterPtr->setColorNumRepeat(value);
+    });
 
     addLabledWidget(&mInitAlphaSpinBox, "Initial Alpha:", 38, 0, 3);
     addLabledWidget(&mDiffAlpha21SpinBox, "Diff Alpha21:", 39, 0, 3);
@@ -136,6 +145,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
 }
 
 void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
+    mIsPopulating = true;
 
     mEmitterPtr = emitter;
     // TODO: Update stuff...
@@ -179,9 +189,20 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
         mColorWidgets[i].setColor(mEmitterPtr->colors()[i]);
     }
 
-    mColorSection1SpinBox.setValue(mEmitterPtr->colorSection1());
-    mColorSection2SpinBox.setValue(mEmitterPtr->colorSection2());
-    mColorSection3SpinBox.setValue(mEmitterPtr->colorSection3());
+    mColorSections.setTimings(
+        mEmitterPtr->colorSection1(),
+        mEmitterPtr->colorSection2(),
+        mEmitterPtr->colorSection3()
+    );
+
+    mColorSections.setColors(
+        QColor::fromRgbF(mEmitterPtr->colors()[0].r, mEmitterPtr->colors()[0].g, mEmitterPtr->colors()[0].b),
+        QColor::fromRgbF(mEmitterPtr->colors()[1].r, mEmitterPtr->colors()[1].g, mEmitterPtr->colors()[1].b),
+        QColor::fromRgbF(mEmitterPtr->colors()[2].r, mEmitterPtr->colors()[2].g, mEmitterPtr->colors()[2].b)
+    );
+
+    mColorSections.setRepetitionCount(mEmitterPtr->colorNumRepeat());
+
     mColorNumRepeatSpinBox.setValue(mEmitterPtr->colorNumRepeat());
 
     mInitAlphaSpinBox.setValue(mEmitterPtr->initAlpha());
@@ -205,6 +226,8 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mInitRotRandSpinBox.setVector(mEmitterPtr->initRotRand());
     mRotVelSpinBox.setVector(mEmitterPtr->rotVel());
     mRotVelRandSpinBox.setVector(mEmitterPtr->rotVelRand());
+
+    mIsPopulating = false;
 }
 
 TexturePropertiesWidget& EmitterWidget::getTextureProperties() {
@@ -212,6 +235,10 @@ TexturePropertiesWidget& EmitterWidget::getTextureProperties() {
 }
 
 void EmitterWidget::handleColorChanged() {
+    if (mIsPopulating) {
+        return;
+    }
+
     auto* colorWidget = qobject_cast<RGBAColorWidget*>(sender());
 
     if (!colorWidget) {
@@ -227,6 +254,30 @@ void EmitterWidget::handleColorChanged() {
     }
 
     mEmitterPtr->setColor(index, colorWidget->color());
+
+    auto color = QColor::fromRgbF(colorWidget->color().r, colorWidget->color().g, colorWidget->color().b);
+    if (index == 0) {
+        mColorSections.setInitialColor(color);
+    } else if (index == 1) {
+        mColorSections.setPeakColor(color);
+    } else if (index == 2) {
+        mColorSections.setEndColor(color);
+    }
+}
+
+void EmitterWidget::updateColorSection(ColorGradientEditor::HandleType handleType) {
+
+    switch (handleType) {
+    case ColorGradientEditor::HandleType::InCompletedHandle:
+        mEmitterPtr->setColorSection1(mColorSections.inCompletedTiming());
+        break;
+    case ColorGradientEditor::HandleType::PeakHandle:
+        mEmitterPtr->setColorSection2(mColorSections.peakTiming());
+        break;
+    case ColorGradientEditor::HandleType::OutStartHandle:
+        mEmitterPtr->setColorSection3(mColorSections.outStartTiming());
+        break;
+    }
 }
 
 } // namespace PtclEditor

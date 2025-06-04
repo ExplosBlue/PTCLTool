@@ -18,6 +18,8 @@
 #include "rgbaColorWidget.h"
 #include "texturePropertiesWidget.h"
 
+#include "colorGradientEditor.h"
+
 namespace PtclEditor {
 
 class EmitterWidget : public QWidget {
@@ -34,6 +36,8 @@ signals:
 
 private slots:
     void handleColorChanged();
+
+    void updateColorSection(ColorGradientEditor::HandleType handleType);
 
 private:
     Ptcl::Emitter* mEmitterPtr;
@@ -84,9 +88,9 @@ private:
 
     // _D8
 
-    SizedSpinBox<s32> mColorSection1SpinBox;
-    SizedSpinBox<s32> mColorSection2SpinBox;
-    SizedSpinBox<s32> mColorSection3SpinBox;
+    // ColorSection1, 2, 3
+    ColorGradientEditor mColorSections;
+
     SizedSpinBox<s32> mColorNumRepeatSpinBox;
     QDoubleSpinBox mInitAlphaSpinBox;
     QDoubleSpinBox mDiffAlpha21SpinBox;
@@ -114,8 +118,7 @@ private:
     // transformSRT
     // transformRT
 
-
-
+    bool mIsPopulating;
 };
 
 } // namespace PtclEditor
