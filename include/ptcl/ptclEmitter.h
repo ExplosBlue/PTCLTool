@@ -89,8 +89,11 @@ public:
     u8 _31() const;
     void set_31(const u8 _31);
 
-    const std::array<u8, 2>& _32() const;
-    void set_32(const std::array<u8, 2>& _32);
+    u8 volumeTblIndex() const;
+    void setVolumeTblIndex(const u8 volumeTblIndex);
+
+    u8 _33() const;
+    void set_33(const u8 _33);
 
     VolumeType volumeType() const;
     void setVolumeType(const VolumeType volumeType);
@@ -307,7 +310,8 @@ private:
     u8 m_2F;
     u8 m_30;
     u8 m_31;
-    std::array<u8, 2> m_32; // probably padding...
+    u8 mVolumeTblIndex;
+    u8 m_33; // probably padding...
     VolumeType mVolumeType;
     QVector3D mVolumeRadius;
     f32 m_44;

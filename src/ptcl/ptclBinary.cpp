@@ -312,7 +312,8 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     _2F = emitter._2F();
     _30 = emitter._30();
     _31 = emitter._31();
-    _32 = emitter._32();
+    volumeTblIndex = emitter.volumeTblIndex();
+    _33 = emitter._33();
     volumeType = emitter.volumeType();
     volumeRadius = emitter.volumeRadius();
     _44 = emitter._44();
@@ -396,9 +397,10 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item._2E
         >> item._2F
         >> item._30
-        >> item._31;
-    in.readRawData(reinterpret_cast<char*>(item._32.data()), sizeof(item._32));
-    in >> item.volumeType
+        >> item._31
+        >> item.volumeTblIndex
+        >> item._33
+        >> item.volumeType
         >> item.volumeRadius
         >> item._44
         >> item._48
@@ -475,9 +477,10 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item._2E
         << item._2F
         << item._30
-        << item._31;
-    out.writeRawData(reinterpret_cast<const char*>(item._32.data()), sizeof(item._32));
-    out << item.volumeType
+        << item._31
+        << item.volumeTblIndex
+        << item._33
+        << item.volumeType
         << item.volumeRadius
         << item._44
         << item._48
@@ -558,7 +561,8 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- _2F:              " << _2F;
     qDebug() << indentation << "- _30:              " << _30;
     qDebug() << indentation << "- _31:              " << _31;
-    qDebug() << indentation << "- _32:              " << _32.data();
+    qDebug() << indentation << "- volumeTblIndex:   " << volumeTblIndex;
+    qDebug() << indentation << "- _33:              " << _33;
     qDebug() << indentation << "- volumeType:       " << volumeType;
     qDebug() << indentation << "- volumeRadius:     " << volumeRadius;
     qDebug() << indentation << "- _44:              " << _44;

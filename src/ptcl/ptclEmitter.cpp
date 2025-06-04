@@ -23,7 +23,8 @@ Emitter::Emitter() {
     m_2F = 0;
     m_30 = 0;
     m_31 = 0;
-    m_32 = {0, 0};
+    mVolumeTblIndex = 0;
+    m_33 = 0;
     mVolumeType = VolumeType::Point;
     mVolumeRadius = {1.0f, 1.0f, 1.0f};
     m_44 = 0.0f;
@@ -50,10 +51,10 @@ Emitter::Emitter() {
         binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
     };
     m_D8 = {0, 0, 0};
-    mColorSection1 = 0;
-    mColorSection2 = 0;
-    mColorSection3 = 0;
-    mColorNumRepeat = 0;
+    mColorSection1 = 20;
+    mColorSection2 = 60;
+    mColorSection3 = 80;
+    mColorNumRepeat = 1;
     mInitAlpha = 0.0f;
     mDiffAlpha21 = 0.0f;
     mDiffAlpha32 = 0.0f;
@@ -252,14 +253,24 @@ void Emitter::set_31(const u8 _31) {
     m_31 = _31;
 }
 
-const std::array<u8, 2>& Emitter::_32() const {
+u8 Emitter::volumeTblIndex() const {
 
-    return m_32;
+    return mVolumeTblIndex;
 }
 
-void Emitter::set_32(const std::array<u8, 2>& _32) {
+void Emitter::setVolumeTblIndex(const u8 volumeTblIndex) {
 
-    m_32 = _32;
+    mVolumeTblIndex = volumeTblIndex;
+}
+
+u8 Emitter::_33() const {
+
+    return m_33;
+}
+
+void Emitter::set_33(const u8 _33) {
+
+    m_33 = _33;
 }
 
 VolumeType Emitter::volumeType() const {
@@ -924,7 +935,8 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_2F = emitterData._2F;
     m_30 = emitterData._30;
     m_31 = emitterData._31;
-    m_32 = emitterData._32;
+    mVolumeTblIndex = emitterData.volumeTblIndex;
+    m_33 = emitterData._33;
     mVolumeType = emitterData.volumeType;
     mVolumeRadius = QVector3D(emitterData.volumeRadius.x, emitterData.volumeRadius.y, emitterData.volumeRadius.z);
     m_44 = emitterData._44;
