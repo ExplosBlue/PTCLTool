@@ -213,7 +213,8 @@ struct alignas(4) BinCommonEmitterData {
     u8 _2F;                              // 0x2F
     u8 _30;                              // 0x30
     u8 _31;                              // 0x31
-    std::array<u8, 2> _32;               // 0x32 - this is probably padding
+    u8 volumeTblIndex;                   // 0x32
+    u8 _33;                              // 0x33
     VolumeType volumeType;               // 0x34
     binVec3f volumeRadius;               // 0x38
     f32 _44;                             // 0x44 - volumeSweepParam? rotWidth?

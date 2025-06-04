@@ -58,7 +58,8 @@ private:
     SizedSpinBox<u8> m_2FSpinBox;
     SizedSpinBox<u8> m_30SpinBox;
     SizedSpinBox<u8> m_31SpinBox;
-    SizedSpinBox<u16> m_32SpinBox; // probably padding...
+    SizedSpinBox<u8> mVolumeTblIndexSpinBox;
+    SizedSpinBox<u8> m_33SpinBox;
 
     EnumComboBox<Ptcl::VolumeType> mVolumeTypeComboBox;
     VectorSpinBox<QVector3D> mVolumeRadiusSpinBox;
