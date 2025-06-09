@@ -1,5 +1,8 @@
-#ifndef TYPEDEFS_H
-#define TYPEDEFS_H
+#pragma once
+
+
+// ========================================================================== //
+
 
 using u8  = unsigned char;
 using u16 = unsigned short;
@@ -19,4 +22,5 @@ using f64 = double;
 
 using uptr32 = unsigned int;
 
-#endif // TYPEDEFS_H
+
+// ========================================================================== //

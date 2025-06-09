@@ -1,13 +1,17 @@
-#ifndef STRINGUTIL_H
-#define STRINGUTIL_H
+#pragma once
+
+#include <iconv.h>
 
 #include <QString>
 
-#include <iconv.h>
 #include <stdexcept>
 
 
 namespace StringUtil {
+
+
+// ========================================================================== //
+
 
 inline bool iconv_failed(iconv_t cd) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -113,7 +117,7 @@ inline QByteArray qStringToShiftJIS(const QString& input) {
 }
 
 
+// ========================================================================== //
+
+
 } // namespace StringUtil
-
-
-#endif // STRINGUTIL_H

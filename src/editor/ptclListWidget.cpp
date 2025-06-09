@@ -1,10 +1,14 @@
 #include "editor/ptclListWidget.h"
 
+
 namespace PtclEditor {
+
+
+// ========================================================================== //
+
 
 PtclList::PtclList(QWidget* parent) :
     QWidget(parent), mResPtr(nullptr) {
-
     // Search Box
     mSearchBox.setPlaceholderText("Search");
     connect(&mSearchBox, &QLineEdit::textChanged, this, &PtclList::filterList);
@@ -84,5 +88,9 @@ void PtclList::selectionChanged(const QItemSelection& selection) {
     mSelectedEmitterIndex = index.data(Qt::UserRole).toInt();
     emit selectedIndexChanged(mSelectedEmitterIndex);
 }
+
+
+// ========================================================================== //
+
 
 } // namespace PtclEditor

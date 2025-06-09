@@ -1,7 +1,6 @@
 #include "ptcl/ptclBinary.h"
-
-#include "util/printUtil.h"
 #include "ptcl/ptclEmitter.h"
+#include "util/printUtil.h"
 
 
 namespace Ptcl {
@@ -19,19 +18,16 @@ binVec2f::binVec2f(const QVector2D& vec) :
 }
 
 QDataStream& operator>>(QDataStream& in, binVec2f& item) {
-
     in >> item.x >> item.y;
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const binVec2f& item) {
-
     out << item.x << item.y;
     return out;
 }
 
 QDebug operator<<(QDebug dbg, const binVec2f& item) {
-
     QDebugStateSaver stateSaver(dbg);
     dbg.nospace() << "{" << item.x << "," << item.y << "}";
     return dbg;
@@ -50,19 +46,16 @@ binVec3f::binVec3f(const QVector3D& vec) :
 }
 
 QDataStream& operator>>(QDataStream& in, binVec3f& item) {
-
     in >> item.x >> item.y >> item.z;
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const binVec3f& item) {
-
     out << item.x << item.y << item.z;
     return out;
 }
 
 QDebug operator<<(QDebug dbg, const binVec3f& item) {
-
     QDebugStateSaver stateSaver(dbg);
     dbg.nospace() << "{" << item.x << "," << item.y << "," << item.z << "}";
     return dbg;
@@ -72,11 +65,9 @@ QDebug operator<<(QDebug dbg, const binVec3f& item) {
 // ========================================================================== //
 
 
-binMtx34f::binMtx34f() {
-}
+binMtx34f::binMtx34f() {}
 
 binMtx34f::binMtx34f(const QMatrix3x4& mtx) {
-
     const f32* mtxData = mtx.data();
     for (int i = 0; i < 12; i++) {
         cells[i] = mtxData[i];
@@ -84,7 +75,6 @@ binMtx34f::binMtx34f(const QMatrix3x4& mtx) {
 }
 
 QMatrix3x4 binMtx34f::toQMatrix3x4() const {
-
     const f32* srcData = cells.data();
     std::array<f32, 12> transposed;
 
@@ -98,19 +88,16 @@ QMatrix3x4 binMtx34f::toQMatrix3x4() const {
 }
 
 QDataStream& operator>>(QDataStream& in, binMtx34f& item) {
-
     in.readRawData(reinterpret_cast<char*>(item.cells.data()), sizeof(binMtx34f));
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const binMtx34f& item) {
-
     out.writeRawData(reinterpret_cast<const char*>(item.cells.data()), sizeof(binMtx34f));
     return out;
 }
 
 QDebug operator<<(QDebug dbg, const binMtx34f& item) {
-
     QDebugStateSaver stateSaver(dbg);
     dbg.nospace() << "{{" << item.rows[0][0] << "," << item.rows[0][1] << "," << item.rows[0][2] << "," << item.rows[0][3] << "} \n"
                   << " {" << item.rows[1][0] << "," << item.rows[1][1] << "," << item.rows[1][2] << "," << item.rows[1][3] << "} \n"
@@ -135,19 +122,16 @@ binColor4f::binColor4f(const QColor& color) :
 }
 
 QDataStream& operator>>(QDataStream& in, binColor4f& item) {
-
     in >> item.r >> item.g >> item.b >> item.a;
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const binColor4f& item) {
-
     out << item.r << item.g << item.b << item.a;
     return out;
 }
 
 QDebug operator<<(QDebug dbg, const binColor4f& item) {
-
     QDebugStateSaver stateSaver(dbg);
     dbg.nospace() << "{" << item.r << "," << item.g << "," << item.b << "," << item.a << "}";
     return dbg;
@@ -157,10 +141,7 @@ QDebug operator<<(QDebug dbg, const binColor4f& item) {
 // ========================================================================== //
 
 
-// BinHeaderData::BinHeaderData() {}
-
 QDataStream& operator>>(QDataStream& in, BinHeaderData& item) {
-
     in.readRawData(item.magic.data(), 4);
     in >> item.version
         >> item.numEmitterSet
@@ -172,7 +153,6 @@ QDataStream& operator>>(QDataStream& in, BinHeaderData& item) {
 }
 
 QDataStream& operator<<(QDataStream& out, const BinHeaderData& item) {
-
     out.writeRawData(item.magic.data(), 4);
     out << item.version
         << item.numEmitterSet
@@ -184,7 +164,6 @@ QDataStream& operator<<(QDataStream& out, const BinHeaderData& item) {
 }
 
 void BinHeaderData::printData(u32 indentationLevel) {
-
     const char* indentation = PrintUtil::createIndentation(indentationLevel);
 
     qDebug() << indentation << "- magic:"          << QString::fromUtf8(magic);
@@ -201,7 +180,6 @@ void BinHeaderData::printData(u32 indentationLevel) {
 
 
 QDataStream &operator>>(QDataStream& in, BinEmitterSetData& item) {
-
     in >> item.userData
         >> item.lastUpdateDate
         >> item.namePos
@@ -213,7 +191,6 @@ QDataStream &operator>>(QDataStream& in, BinEmitterSetData& item) {
 }
 
 QDataStream &operator<<(QDataStream& out, const BinEmitterSetData& item) {
-
     out << item.userData
         << item.lastUpdateDate
         << item.namePos
@@ -225,7 +202,6 @@ QDataStream &operator<<(QDataStream& out, const BinEmitterSetData& item) {
 }
 
 void BinEmitterSetData::printData(u32 indentationLevel) {
-
     const char* indentation = PrintUtil::createIndentation(indentationLevel);
 
     qDebug() << indentation << "- userData:       " << Qt::hex << Qt::showbase << userData;
@@ -242,7 +218,6 @@ void BinEmitterSetData::printData(u32 indentationLevel) {
 
 
 QDataStream& operator>>(QDataStream& in, BinTextureRes& item) {
-
     in >> item.width
         >> item.height
         >> item.format
@@ -255,7 +230,6 @@ QDataStream& operator>>(QDataStream& in, BinTextureRes& item) {
 }
 
 QDataStream& operator<<(QDataStream& out, const BinTextureRes& item) {
-
     out << item.width
         << item.height
         << item.format
@@ -269,7 +243,6 @@ QDataStream& operator<<(QDataStream& out, const BinTextureRes& item) {
 }
 
 void BinTextureRes::printData(u32 indentationLevel) {
-
     const char* indentation = PrintUtil::createIndentation(indentationLevel);
 
     qDebug() << indentation << "- width:        " << width;
@@ -286,7 +259,6 @@ void BinTextureRes::printData(u32 indentationLevel) {
 
 
 BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
-
     type = emitter.type();
     flag = emitter.flag();
     randomSeed = emitter.randomSeed();
@@ -334,17 +306,8 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     _9C = emitter._9C();
     _A0 = emitter._A0();
     _A4 = emitter._A4();
-
     color = emitter.colors();
-
-    // u32 idx = 0;
-    // for (auto& eColor : emitter.colors()) {
-    //     color[idx] = eColor;
-    //     ++idx;
-    // }
-
     std::copy(emitter._D8().begin(), emitter._D8().end(), _D8.data());
-
     colorSection1 = emitter.colorSection1();
     colorSection2 = emitter.colorSection2();
     colorSection3 = emitter.colorSection3();
@@ -375,14 +338,12 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     numTexDivX = emitter.numTexDivX();
     numTexDivY = emitter.numTexDivY();
     texUVScale = emitter.texUVScale();
-    // texPatTbl = emitter.texPatTbl();
     std::copy(emitter.texPatTbl().begin(), emitter.texPatTbl().end(), texPatTbl.data());
     texPatFreq = emitter.texPatFreq();
     texPatTblUse = emitter.texPatTblUse();
 }
 
 QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
-
     in >> item.type
         >> item.flag
         >> item.randomSeed
@@ -457,12 +418,10 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
     in.readRawData(reinterpret_cast<char*>(item.texPatTbl.data()), sizeof(item.texPatTbl));
     in >> item.texPatFreq
         >> item.texPatTblUse;
-
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
-
     out << item.type
         << item.flag
         << item.randomSeed
@@ -537,12 +496,10 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
     out.writeRawData(reinterpret_cast<const char*>(item.texPatTbl.data()), sizeof(item.texPatTbl));
     out << item.texPatFreq
         << item.texPatTblUse;
-
     return out;
 }
 
 void BinCommonEmitterData::printData(u32 indentationLevel) {
-
     const char* indentation = PrintUtil::createIndentation(indentationLevel);
 
     qDebug() << indentation << "- type:          " << type;
@@ -626,7 +583,6 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
 
 BinComplexEmitterData::BinComplexEmitterData(const Ptcl::Emitter& emitter) :
     BinCommonEmitterData{emitter} {
-
     childFlag = emitter.childFlags();
     fieldFlag = emitter.fieldFlags();
     fluctuationFlag = emitter.fluctuationFlags();
@@ -640,7 +596,6 @@ BinComplexEmitterData::BinComplexEmitterData(const Ptcl::Emitter& emitter) :
 }
 
 QDataStream& operator>>(QDataStream& in, BinComplexEmitterData& item) {
-
     in >> item.childFlag
         >> item.fieldFlag
         >> item.fluctuationFlag
@@ -654,9 +609,7 @@ QDataStream& operator>>(QDataStream& in, BinComplexEmitterData& item) {
 }
 
 QDataStream& operator<<(QDataStream& out, const BinComplexEmitterData& item) {
-
     out << static_cast<const BinCommonEmitterData&>(item);
-
     out << item.childFlag
         << item.fieldFlag
         << item.fluctuationFlag
@@ -670,7 +623,6 @@ QDataStream& operator<<(QDataStream& out, const BinComplexEmitterData& item) {
 }
 
 void BinComplexEmitterData::printData(u32 indentationLevel) {
-
     const char* indentation = PrintUtil::createIndentation(indentationLevel);
 
     qDebug() << indentation << "- childFlag:             " << childFlag;
@@ -689,7 +641,6 @@ void BinComplexEmitterData::printData(u32 indentationLevel) {
 
 
 BinChildData::BinChildData(const Ptcl::ChildData& childData) {
-
     _0 = childData._0();
     _2C = childData._2C();
     _30 = childData._30();
@@ -723,7 +674,6 @@ BinChildData::BinChildData(const Ptcl::ChildData& childData) {
 
 
 QDataStream& operator>>(QDataStream& in, BinChildData& item) {
-
     in.readRawData(reinterpret_cast<char*>(item._0.data()), sizeof(item._0));
     in >> item._2C;
     in.readRawData(reinterpret_cast<char*>(item._30.data()), sizeof(item._30));
@@ -743,7 +693,6 @@ QDataStream& operator>>(QDataStream& in, BinChildData& item) {
 }
 
 QDataStream& operator<<(QDataStream& out, const BinChildData& item) {
-
     out.writeRawData(reinterpret_cast<const char*>(item._0.data()), sizeof(item._0));
     out << item._2C;
     out.writeRawData(reinterpret_cast<const char*>(item._30.data()), sizeof(item._30));
@@ -763,7 +712,6 @@ QDataStream& operator<<(QDataStream& out, const BinChildData& item) {
 }
 
 void BinChildData::printData(u32 indentationLevel) {
-
     const char* indentation = PrintUtil::createIndentation(indentationLevel);
 
     qDebug() << indentation << "- _0:             " << _0.data();
@@ -793,18 +741,14 @@ BinFieldRandomData::BinFieldRandomData(const Ptcl::FieldRandomData& fieldRandomD
 }
 
 QDataStream& operator>>(QDataStream& in, BinFieldRandomData& item) {
-
     in >> item.fieldRandomBlank
         >> item.fieldRandomVelAdd;
-
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinFieldRandomData& item) {
-
     out << item.fieldRandomBlank
         << item.fieldRandomVelAdd;
-
     return out;
 }
 
@@ -819,20 +763,16 @@ BinFieldMagnetData::BinFieldMagnetData(const Ptcl::FieldMagnetData& fieldMagnetD
 }
 
 QDataStream& operator>>(QDataStream& in, BinFieldMagnetData& item) {
-
     in >> item.fieldMagnetPower
         >> item.fieldMagnetPos
         >> item.fieldMagnetFlag;
-
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinFieldMagnetData& item) {
-
     out << item.fieldMagnetPower
         << item.fieldMagnetPos
         << item.fieldMagnetFlag;
-
     return out;
 }
 
@@ -846,18 +786,14 @@ BinFieldSpinData::BinFieldSpinData(const Ptcl::FieldSpinData& fieldSpinData) {
 }
 
 QDataStream& operator>>(QDataStream& in, BinFieldSpinData& item) {
-
     in >> item.fieldSpinRotate
         >> item.fieldSpinAxis;
-
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinFieldSpinData& item) {
-
     out << item.fieldSpinRotate
         << item.fieldSpinAxis;
-
     return out;
 }
 
@@ -873,22 +809,18 @@ BinFieldCollisionData::BinFieldCollisionData(const Ptcl::FieldCollisionData& fie
 }
 
 QDataStream& operator>>(QDataStream& in, BinFieldCollisionData& item) {
-
     in >> item.fieldCollisionType
         >> item.fieldCollisionIsWorld
         >> item.fieldCollisionCoord
         >> item.fieldCollisionCoef;
-
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinFieldCollisionData& item) {
-
     out << item.fieldCollisionType
         << item.fieldCollisionIsWorld
         << item.fieldCollisionCoord
         << item.fieldCollisionCoef;
-
     return out;
 }
 
@@ -902,18 +834,14 @@ BinFieldConvergenceData::BinFieldConvergenceData(const Ptcl::FieldConvergenceDat
 }
 
 QDataStream& operator>>(QDataStream& in, BinFieldConvergenceData& item) {
-
     in >> item.fieldConvergenceType
         >> item.fieldConvergencePos;
-
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinFieldConvergenceData& item) {
-
     out << item.fieldConvergenceType
         << item.fieldConvergencePos;
-
     return out;
 }
 
@@ -926,16 +854,12 @@ BinFieldPosAddData::BinFieldPosAddData(const Ptcl::FieldPosAddData& fieldPosAddD
 }
 
 QDataStream& operator>>(QDataStream& in, BinFieldPosAddData& item) {
-
     in >> item.fieldPosAdd;
-
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinFieldPosAddData& item) {
-
     out << item.fieldPosAdd;
-
     return out;
 }
 
@@ -950,20 +874,16 @@ BinFluctuationData::BinFluctuationData(const Ptcl::FluctuationData& fluctuationD
 }
 
 QDataStream& operator>>(QDataStream& in, BinFluctuationData& item) {
-
     in >> item.fluctuationScale
         >> item.fluctuationFreq
         >> item.fluctuationPhaseRnd;
-
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinFluctuationData& item) {
-
     out << item.fluctuationScale
         << item.fluctuationFreq
         << item.fluctuationPhaseRnd;
-
     return out;
 }
 
@@ -976,16 +896,12 @@ BinStripeData::BinStripeData(const Ptcl::StripeData& stripeData) {
 }
 
 QDataStream& operator>>(QDataStream& in, BinStripeData& item) {
-
     in.readRawData(reinterpret_cast<char*>(item._0.data()), sizeof(item._0));
-
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinStripeData& item) {
-
     out.writeRawData(reinterpret_cast<const char*>(item._0.data()), sizeof(item._0));
-
     return out;
 }
 
@@ -994,23 +910,18 @@ QDataStream& operator<<(QDataStream& out, const BinStripeData& item) {
 
 
 QDataStream& operator>>(QDataStream& in, BinEmitterTblData& item) {
-
     in >> item.emitterPos
         >> item.emitterPtr;
-
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinEmitterTblData& item) {
-
     out << item.emitterPos
         << item.emitterPtr;
-
     return out;
 }
 
 void BinEmitterTblData::printData(u32 indentationLevel) {
-
     const char* indentation = PrintUtil::createIndentation(indentationLevel);
 
     qDebug() << indentation << "- emitterPos: " << emitterPos;

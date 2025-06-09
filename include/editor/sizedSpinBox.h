@@ -1,12 +1,14 @@
 #ifndef SIZEDSPINBOX_H
 #define SIZEDSPINBOX_H
 
-#include <QAbstractSpinBox>
-#include <QLineEdit>
-#include <QKeyEvent>
-
-
 #include "typedefs.h"
+
+#include <QAbstractSpinBox>
+#include <QKeyEvent>
+#include <QLineEdit>
+
+
+// ========================================================================== //
 
 
 class SizedSpinBoxBase : public QAbstractSpinBox {
@@ -20,15 +22,16 @@ signals:
 };
 
 
+// ========================================================================== //
+
+
 template<typename T>
 class SizedSpinBox final : public SizedSpinBoxBase {
     static_assert(std::is_integral<T>::value, "SizedSpinBox only supports integral types");
 
 public:
-
     explicit SizedSpinBox(QWidget* parent = nullptr) :
         SizedSpinBoxBase{parent} {
-
         setRange(std::numeric_limits<T>::min(), std::numeric_limits<T>::max());
         setValue(0);
     }
@@ -38,14 +41,12 @@ public:
     }
 
     void setValue(T value) {
-
         mCurrentValue = std::clamp(value, mMin, mMax);
         updateDisplay();
         emit valueChanged(mCurrentValue);
     }
 
     void stepBy(int steps) final {
-
         setValue(mCurrentValue + steps);
     }
 
@@ -62,7 +63,6 @@ public:
     }
 
     QValidator::State validate(QString& input, int& pos) const final {
-
         bool ok = false;
         T value;
 
@@ -79,7 +79,7 @@ public:
     }
 
     void interpretText() {
-            bool ok = false;
+        bool ok = false;
         T value;
 
         QString text = lineEdit()->text();
@@ -105,7 +105,7 @@ public:
     }
 
     void keyPressEvent(QKeyEvent* event) final {
-            if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+        if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
             interpretText();
         }
         QAbstractSpinBox::keyPressEvent(event);
@@ -113,13 +113,11 @@ public:
 
 protected:
     void updateDisplay()  {
-
         lineEdit()->setText(QString::number(mCurrentValue));
     }
 
 private:
     void setRange(T minValue, T maxValue) {
-
         mMin = minValue;
         mMax = maxValue;
     }
@@ -129,6 +127,9 @@ private:
     T mMin;
     T mMax;
 };
+
+
+// ========================================================================== //
 
 
 #endif // SIZEDSPINBOX_H

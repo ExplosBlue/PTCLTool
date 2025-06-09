@@ -1,8 +1,12 @@
 #include "editor/thumbnailWidget.h"
 
+#include <QMouseEvent>
 #include <QPainter>
 #include <QStyleOption>
-#include <QMouseEvent>
+
+
+// ========================================================================== //
+
 
 ThumbnailWidget::ThumbnailWidget(QWidget* parent) :
     QWidget(parent), mThumbnailSize(64, 64) {
@@ -62,3 +66,6 @@ void ThumbnailWidget::drawCheckerBackground(QPainter& painter, const QRect& rect
         }
     }
 }
+
+
+// ========================================================================== //

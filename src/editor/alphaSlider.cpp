@@ -1,9 +1,13 @@
 #include "editor/alphaSlider.h"
 
-#include <QStyleOptionSlider>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
-#include <QMouseEvent>
+#include <QStyleOptionSlider>
+
+
+// ========================================================================== //
+
 
 AlphaSlider::AlphaSlider(Qt::Orientation orientation, QWidget* parent) :
     QSlider(orientation, parent), mR{0}, mG{0}, mB{0}, mIsHovered{false} {
@@ -109,3 +113,6 @@ void AlphaSlider::leaveEvent(QEvent* event) {
 
     QSlider::leaveEvent(event);
 }
+
+
+// ========================================================================== //

@@ -4,6 +4,10 @@
 #include <QPainter>
 #include <QMouseEvent>
 
+
+// ========================================================================== //
+
+
 GradientSlider::GradientSlider(Qt::Orientation orientation, QWidget* parent) :
     QSlider(orientation, parent), mChannel{ChannelType::Red}, mR{0}, mG{0}, mB{0}, mIsHovered{false} {
     setMouseTracking(true);
@@ -104,3 +108,6 @@ void GradientSlider::leaveEvent(QEvent* event) {
 
     QSlider::leaveEvent(event);
 }
+
+
+// ========================================================================== //

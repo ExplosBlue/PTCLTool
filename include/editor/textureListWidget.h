@@ -1,23 +1,17 @@
-#ifndef TEXTURELISTWIDGET_H
-#define TEXTURELISTWIDGET_H
-
-#include <QWidget>
-#include <QListWidget>
-#include <QHBoxLayout>
-#include <QPushButton>
-
-#include <QLabel>
-#include <QStyledItemDelegate>
-#include <QPainter>
-#include <QScrollArea>
-#include <QToolBar>
-#include <QPaintEvent>
-
-#include <QtMinMax>
+#pragma once
 
 #include "ptcl/ptcl.h"
 
+#include <QGridLayout>
+#include <QScrollArea>
+#include <QToolBar>
+#include <QWidget>
+
+
 namespace PtclEditor {
+
+
+// ========================================================================== //
 
 
 class TextureListItem final : public QWidget {
@@ -70,7 +64,6 @@ private:
     void relayoutGrid();
 
 private:
-    // This should probably be a weak ptr?
     Ptcl::TextureList* mTexturesPtr;
 
     QScrollArea mScrollArea;
@@ -92,6 +85,3 @@ private:
 
 
 } // namespace PtclEditor
-
-
-#endif // TEXTURELISTWIDGET_H

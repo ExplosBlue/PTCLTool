@@ -2,11 +2,15 @@
 
 #include <QMessageBox>
 
+
 namespace PtclEditor {
+
+
+// ========================================================================== //
+
 
 EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
     QWidget(parent) {
-
     // Emitter Widget
     connect(&mEmitterWidget, &EmitterWidget::textureUpdated, this, [=, this](int oldIndex, int index) {
         emit textureUpdated(oldIndex, index);
@@ -143,5 +147,9 @@ void EmitterSetWidget::populateProperties() {
     mNameLineEdit.setText(mEmitterSetPtr->name());
     mEmitterCountLabel.setText("Emitter Count: " + QString::number(mEmitterSetPtr->emitterCount()));
 }
+
+
+// ========================================================================== //
+
 
 } // namespace PtclEditor

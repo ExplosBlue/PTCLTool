@@ -1,15 +1,17 @@
+#include "editor/collapsibleWidget.h"
 #include "editor/emitterWidget.h"
 
 #include <QScrollArea>
 
-#include "editor/collapsibleWidget.h"
 
 namespace PtclEditor {
 
-EmitterWidget::EmitterWidget(QWidget* parent) :
-    QWidget{parent},
-    mIsPopulating{false} {
 
+// ========================================================================== //
+
+
+EmitterWidget::EmitterWidget(QWidget* parent) :
+    QWidget{parent}, mIsPopulating{false} {
     QWidget* containerWidget = new QWidget;
     containerWidget->setLayout(&mMainLayout);
 
@@ -271,7 +273,6 @@ void EmitterWidget::handleColorChanged() {
 }
 
 void EmitterWidget::updateColorSection(ColorGradientEditor::HandleType handleType) {
-
     switch (handleType) {
     case ColorGradientEditor::HandleType::InCompletedHandle:
         mEmitterPtr->setColorSection1(mColorSections.inCompletedTiming());
@@ -284,5 +285,9 @@ void EmitterWidget::updateColorSection(ColorGradientEditor::HandleType handleTyp
         break;
     }
 }
+
+
+// ========================================================================== //
+
 
 } // namespace PtclEditor

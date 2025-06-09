@@ -1,10 +1,13 @@
-#ifndef TEXTURESELECTDIALOG_H
-#define TEXTURESELECTDIALOG_H
+#pragma once
+
+#include "ptcl/ptcl.h"
 
 #include <QDialog>
 #include <QListWidget>
 
-#include "ptcl/ptcl.h"
+
+// ========================================================================== //
+
 
 class TextureSelectDialog : public QDialog {
     Q_OBJECT
@@ -17,4 +20,5 @@ private:
     int mSelectedIndex;
 };
 
-#endif // TEXTURESELECTDIALOG_H
+
+// ========================================================================== //

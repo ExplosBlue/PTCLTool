@@ -1,5 +1,6 @@
-#ifndef VECTORSPINBOX_H
-#define VECTORSPINBOX_H
+#pragma once
+
+#include "typedefs.h"
 
 #include <QDoubleSpinBox>
 #include <QHBoxLayout>
@@ -9,7 +10,9 @@
 #include <QVector4D>
 #include <QWidget>
 
-#include "typedefs.h"
+
+// ========================================================================== //
+
 
 class VectorSpinBoxBase : public QWidget
 {
@@ -79,6 +82,9 @@ protected:
 };
 
 
+// ========================================================================== //
+
+
 template<typename T>
 class VectorSpinBox final : public VectorSpinBoxBase
 {
@@ -120,4 +126,5 @@ private:
 };
 
 
-#endif // VECTORSPINBOX_H
+// ========================================================================== //
+

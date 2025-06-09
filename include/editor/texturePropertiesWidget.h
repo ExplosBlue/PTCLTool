@@ -1,18 +1,19 @@
-#ifndef TEXTUREPROPERTIESWIDGET_H
-#define TEXTUREPROPERTIESWIDGET_H
+#pragma once
 
-#include <QWidget>
-#include <QComboBox>
-#include <QVector2D>
-#include <QTableWidget>
-
-#include "ptcl/ptclEmitter.h"
-#include "ptcl/ptcl.h"
-
-#include "editor/thumbnailWidget.h"
 #include "editor/enumComboBox.h"
-#include "editor/vectorSpinBox.h"
 #include "editor/sizedSpinBox.h"
+#include "editor/thumbnailWidget.h"
+#include "editor/vectorSpinBox.h"
+#include "ptcl/ptcl.h"
+#include "ptcl/ptclEmitter.h"
+
+#include <QTableWidget>
+#include <QVector2D>
+#include <QWidget>
+
+
+// ========================================================================== //
+
 
 class TexturePropertiesWidget : public QWidget {
     Q_OBJECT
@@ -20,9 +21,7 @@ public:
     explicit TexturePropertiesWidget(QWidget* parent = nullptr);
 
     void setEmitter(Ptcl::Emitter* emitter);
-
     void populateWidgets();
-
     void setTextureList(const Ptcl::TextureList* textureList);
 
 signals:
@@ -42,14 +41,11 @@ private slots:
     void updateTexPatTblUse();
 
     void updateTexPatTbl(QTableWidgetItem* item);
-
     void updateUVScale();
-
     void changeTexture();
 
 private:
     void updateTextureDetails();
-
     void updateTexPatTblColumns();
 
 private:
@@ -77,4 +73,5 @@ private:
     bool mIsPopulating;
 };
 
-#endif // TEXTUREPROPERTIESWIDGET_H
+
+// ========================================================================== //

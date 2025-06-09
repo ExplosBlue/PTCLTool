@@ -1,19 +1,20 @@
 #include "editor/rgbaColorWidget.h"
 
-#include <QPainter>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QPainterPath>
 #include <QColorDialog>
+#include <QHBoxLayout>
+#include <QPainter>
+#include <QPainterPath>
+#include <QVBoxLayout>
 
 #include <variant>
 
+
+// ========================================================================== //
+
+
 RGBAColorWidget::RGBAColorWidget(QWidget* parent) :
-    QWidget(parent),
-    mSliderR{Qt::Horizontal, this},
-    mSliderG{Qt::Horizontal, this},
-    mSliderB{Qt::Horizontal, this},
-    mSliderA{Qt::Horizontal, this} {
+    QWidget(parent), mSliderR{Qt::Horizontal, this}, mSliderG{Qt::Horizontal, this},
+    mSliderB{Qt::Horizontal, this}, mSliderA{Qt::Horizontal, this} {
 
     auto* mainLayout = new QHBoxLayout(this);
     auto* sliderLayout = new QVBoxLayout();
@@ -228,3 +229,6 @@ void RGBAColorWidget::updatePreview() {
 
     mPreview.setPixmap(pixmap);
 }
+
+
+// ========================================================================== //

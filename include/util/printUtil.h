@@ -1,10 +1,13 @@
-#ifndef PRINTUTIL_H
-#define PRINTUTIL_H
+#pragma once
+
 
 namespace PrintUtil {
 
-inline const char* createIndentation(size_t indentLevel) {
 
+// ========================================================================== //
+
+
+inline const char* createIndentation(size_t indentLevel) {
     size_t totalSpaces = indentLevel * 2;
 
     char* tabs = new char[totalSpaces + 1];
@@ -18,6 +21,8 @@ inline const char* createIndentation(size_t indentLevel) {
     return tabs;
 }
 
-}
 
-#endif // PRINTUTIL_H
+// ========================================================================== //
+
+
+} // namespace PrintUtil

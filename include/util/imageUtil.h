@@ -1,16 +1,16 @@
-#ifndef IMAGEUTIL_H
-#define IMAGEUTIL_H
+#pragma once
 
 #include "typedefs.h"
 #include "ptcl/ptclEnum.h"
 
-namespace Ptcl {
-    class Texture;
-}
-
 #include <QColor>
 
+
 namespace ImageUtil {
+
+
+// ========================================================================== //
+
 
 enum class ETC1Quality {
     LowQuality,
@@ -37,9 +37,15 @@ inline const QString toString<ETC1Quality>(const ETC1Quality& type) {
     }
 }
 
+
+// ========================================================================== //
+
+
 QImage picaTextureToQImage(const std::vector<u8>& textureData, s32 width, s32 height, Ptcl::TextureFormat format);
 std::vector<u8> QImageToPicaTexture(const QImage& image, Ptcl::TextureFormat format, ETC1Quality etcQuality = ETC1Quality::HighQuality, bool etcDither = false);
 
-} // namespace ImageUitl
 
-#endif // IMAGEUTIL_H
+// ========================================================================== //
+
+
+} // namespace ImageUitl

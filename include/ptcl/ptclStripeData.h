@@ -1,12 +1,15 @@
-#ifndef PTCLSTRIPEDATA_H
-#define PTCLSTRIPEDATA_H
+#pragma once
+
+#include "ptcl/ptclBinary.h"
+#include "typedefs.h"
 
 #include <array>
 
-#include "typedefs.h"
-#include "ptclBinary.h"
 
 namespace Ptcl {
+
+
+// ========================================================================== //
 
 
 class StripeData
@@ -27,6 +30,7 @@ private:
 };
 
 
-} // namespace Ptcl
+// ========================================================================== //
 
-#endif // PTCLSTRIPEDATA_H
+
+} // namespace Ptcl

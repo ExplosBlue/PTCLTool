@@ -1,8 +1,8 @@
 #include "ptcl/ptclTexture.h"
+#include "util/imageUtil.h"
 
 #include <utility>
 
-#include "util/imageUtil.h"
 
 namespace Ptcl {
 
@@ -12,7 +12,6 @@ namespace Ptcl {
 
 Texture::Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format) :
     mEncodedData{std::move(*encodedData)}, mTextureFormat{format}, mId{sNextId++} {
-
     mDecodedTexture = ImageUtil::picaTextureToQImage(mEncodedData, width, height, format);
 
     if (mDecodedTexture.isNull()) {
@@ -21,28 +20,22 @@ Texture::Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFor
 }
 
 const QImage& Texture::textureData() const {
-
     return mDecodedTexture;
 }
 
 const std::vector<u8>& Texture::textureDataRaw() const {
-
     return mEncodedData;
 }
 
 const TextureFormat Texture::textureFormat() const {
-
     return mTextureFormat;
 }
 
 u32 Texture::userCount() const {
-
     return mUserCount;
 }
 
-
 u32 Texture::Id() const {
-
     return mId;
 }
 
@@ -66,34 +59,27 @@ void Texture::replaceTexture(const Texture& other) {
 
 TextureHandle::TextureHandle(std::shared_ptr<Texture> texture) :
     mTexturePtr(std::move(texture)) {
-
     incrementCount();
 }
 
 TextureHandle::~TextureHandle() {
-
     decrementCount();
 }
 
 void TextureHandle::invalidate() {
-
     mTexturePtr = nullptr;
 }
 
 
 bool TextureHandle::isValid() const {
-
     return mTexturePtr != nullptr;
 }
 
 std::shared_ptr<Texture> TextureHandle::get() const {
-
     return mTexturePtr;
 }
 
-
 void TextureHandle::set(std::shared_ptr<Texture> texture) {
-
     if (mTexturePtr != texture) {
         decrementCount();
         mTexturePtr = texture;
@@ -102,30 +88,29 @@ void TextureHandle::set(std::shared_ptr<Texture> texture) {
 }
 
 TextureHandle& TextureHandle::operator=(std::shared_ptr<Texture> texture) {
-
     set(texture);
     return *this;
 }
 
 
 std::shared_ptr<Texture> TextureHandle::operator->() const {
-
     return mTexturePtr;
 }
 
 void TextureHandle::incrementCount() {
-
     if (mTexturePtr) {
         mTexturePtr->mUserCount++;
     }
 }
 
 void TextureHandle::decrementCount() {
-
     if (mTexturePtr) {
         mTexturePtr->mUserCount--;
     }
 }
+
+
+// ========================================================================== //
 
 
 } // namespace Ptcl

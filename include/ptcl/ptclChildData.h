@@ -1,20 +1,22 @@
-#ifndef PTCLCHILDDATA_H
-#define PTCLCHILDDATA_H
+#pragma once
 
-#include <array>
+#include "typedefs.h"
+#include "ptcl/ptclBinary.h"
+#include "ptcl/ptclEnum.h"
+#include "ptcl/ptclTexture.h"
 
 #include <QVector3D>
 
-#include "typedefs.h"
-#include "ptclEnum.h"
-#include "ptclTexture.h"
+#include <array>
 
-#include"ptclBinary.h"
 
 namespace Ptcl {
 
-class ChildData
-{
+
+// ========================================================================== //
+
+
+class ChildData {
 public:
     ChildData();
 
@@ -97,6 +99,7 @@ private:
 };
 
 
-} // namespace Ptcl
+// ========================================================================== //
 
-#endif // PTCLCHILDDATA_H
+
+} // namespace Ptcl

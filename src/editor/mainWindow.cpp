@@ -1,23 +1,24 @@
 #include "editor/mainWindow.h"
-
 #include "util/settingsUtil.h"
 
-#include <QFileDialog>
-#include <QFile>
 #include <QDataStream>
-#include <QStandardPaths>
-#include <QMimeData>
 #include <QDragEnterEvent>
 #include <QDropEvent>
+#include <QFile>
+#include <QFileDialog>
 #include <QFileInfo>
+#include <QMimeData>
+#include <QStandardPaths>
+
 
 namespace PtclEditor {
 
+
+// ========================================================================== //
+
+
 MainWindow::MainWindow(QWidget* parent) :
-    QMainWindow(parent),
-    mPtclList(this),
-    mEmitterSetWidget(this),
-    mTextureWidget(this) {
+    QMainWindow(parent), mPtclList(this), mEmitterSetWidget(this), mTextureWidget(this) {
     setupUi();
     updateRecentFileList();
 }
@@ -239,5 +240,9 @@ void MainWindow::selectedEmitterSetChanged(u32 index) {
         mEmitterSetWidget.setEnabled(true);
     }
 }
+
+
+// ========================================================================== //
+
 
 } // namespace PtclEditor

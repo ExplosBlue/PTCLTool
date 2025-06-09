@@ -1,25 +1,25 @@
 #include "editor/textureListWidget.h"
-
-#include <QStandardItemModel>
-#include <QFileDialog>
-#include <QStandardPaths>
-#include <QContextMenuEvent>
-
-#include "ptcl/ptcl.h"
-
+#include "editor/textureImportDialog.h"
 #include "editor/thumbnailWidget.h"
+#include "ptcl/ptcl.h"
 #include "util/settingsUtil.h"
 
+#include <QContextMenuEvent>
+#include <QFileDialog>
 #include <QMenu>
-#include "editor/textureImportDialog.h"
+#include <Qpainter>
+#include <QStandardItemModel>
+#include <QStandardPaths>
 
 
 namespace PtclEditor {
 
+
+// ========================================================================== //
+
+
 TextureListItem::TextureListItem(const QString& text, QIcon thumbnail, QWidget* parent) :
-    QWidget{parent},
-    mThumbnail{std::move(thumbnail)},
-    mHovered{false} {
+    QWidget{parent}, mThumbnail{std::move(thumbnail)}, mHovered{false} {
     setMouseTracking(true);
     setAttribute(Qt::WA_Hover);
 
@@ -82,16 +82,13 @@ void TextureListItem::contextMenuEvent(QContextMenuEvent* event) {
     menu.exec(event->globalPos());
 }
 
+
 // ========================================================================== //
 
 
 TextureListWidget::TextureListWidget(QWidget *parent) :
-    QWidget{parent},
-    mTexturesPtr{nullptr},
-    mScrollArea{this},
-    mLastColumnCount{-1},
-    mLastWidgetCount{0} {
-
+    QWidget{parent}, mTexturesPtr{nullptr}, mScrollArea{this},
+    mLastColumnCount{-1}, mLastWidgetCount{0} {
     QVBoxLayout* mainLayout = new QVBoxLayout;
 
     // Grid Container
@@ -386,5 +383,9 @@ void TextureListWidget::resizeEvent(QResizeEvent* event) {
     QWidget::resizeEvent(event);
     relayoutGrid();
 }
+
+
+// ========================================================================== //
+
 
 } // namespace PtclEditor

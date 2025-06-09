@@ -1,20 +1,20 @@
 #include "editor/texturePropertiesWidget.h"
-
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QGridLayout>
-#include <QLabel>
-#include <QPainter>
-#include <QHeaderView>
-
 #include "editor/textureSelectDialog.h"
 
-TexturePropertiesWidget::TexturePropertiesWidget(QWidget* parent) :
-    QWidget{parent},
-    mEmitterPtr{nullptr},
-    mTexPatTbl{1, 16, this},
-    mIsPopulating{false} {
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QPainter>
+#include <QVBoxLayout>
 
+
+// ========================================================================== //
+
+
+TexturePropertiesWidget::TexturePropertiesWidget(QWidget* parent) :
+    QWidget{parent}, mEmitterPtr{nullptr}, mTexPatTbl{1, 16, this},
+    mIsPopulating{false} {
     // Wrap T
     connect(&mWrapTComboBox, &QComboBox::currentIndexChanged, this, &TexturePropertiesWidget::updateWrapT);
 
@@ -50,7 +50,7 @@ TexturePropertiesWidget::TexturePropertiesWidget(QWidget* parent) :
     connect(&mTexPatTblUse, &SizedSpinBoxBase::valueChanged, this, &TexturePropertiesWidget::updateTexPatTblUse);
 
     // Texture pattern table
-    mTexPatTbl.setFixedHeight(60); // small height for one row
+    mTexPatTbl.setFixedHeight(60);
     mTexPatTbl.horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     mTexPatTbl.verticalHeader()->setVisible(false);
     mTexPatTbl.horizontalHeader()->setVisible(false);
@@ -96,9 +96,6 @@ TexturePropertiesWidget::TexturePropertiesWidget(QWidget* parent) :
     settingsLayout->addWidget(new QLabel("Texture Pattern Table:"), 7, 0, 1, 2);
     settingsLayout->addWidget(&mTexPatTbl, 8, 0, 1, 4);
 
-
-    // Texture Pattern Layout
-
     // Main Layout
     auto mainLayout = new QHBoxLayout(this);
     mainLayout->addWidget(&mTexturePreview);
@@ -109,7 +106,6 @@ TexturePropertiesWidget::TexturePropertiesWidget(QWidget* parent) :
 
 void TexturePropertiesWidget::setEmitter(Ptcl::Emitter* emitter) {
     mEmitterPtr = emitter;
-
     populateWidgets();
 }
 
@@ -305,3 +301,6 @@ void TexturePropertiesWidget::changeTexture() {
         }
     }
 }
+
+
+// ========================================================================== //

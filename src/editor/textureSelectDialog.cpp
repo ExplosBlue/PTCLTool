@@ -1,12 +1,14 @@
 #include "editor/textureSelectDialog.h"
 
-#include <QVBoxLayout>
 #include <QDialogButtonBox>
+#include <QVBoxLayout>
+
+
+// ========================================================================== //
+
 
 TextureSelectDialog::TextureSelectDialog(const Ptcl::TextureList& textures, QWidget* parent) :
-    QDialog{parent},
-    mSelectedIndex{-1} {
-
+    QDialog{parent}, mSelectedIndex{-1} {
     // List Widget
     mListWidget.setIconSize(QSize(64, 64));
     mListWidget.setUniformItemSizes(true);
@@ -37,3 +39,6 @@ TextureSelectDialog::TextureSelectDialog(const Ptcl::TextureList& textures, QWid
 int TextureSelectDialog::selectedIndex() const  {
     return mSelectedIndex;
 }
+
+
+// ========================================================================== //

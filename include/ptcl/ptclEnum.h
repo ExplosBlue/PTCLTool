@@ -1,11 +1,15 @@
-#ifndef PTCLENUM_H
-#define PTCLENUM_H
-
-#include <QDebug>
+#pragma once
 
 #include "typedefs.h"
 
+#include <QDebug>
+
+
 namespace Ptcl {
+
+
+// ========================================================================== //
+
 
 template<typename EnumType>
 const QString toString(const EnumType&) {
@@ -199,7 +203,6 @@ inline QDebug operator<<(QDebug dbg, const TextureFormat& type) {
 
 
 enum class TextureWrap : u8 {
-
     ClampToEdge      = 0x0,
     ClampToBorder    = 0x1,
     Repeat           = 0x2,
@@ -379,5 +382,3 @@ inline QDebug operator<<(QDebug dbg, const FieldConvergenceType& type) {
 
 
 } // namespace Ptcl
-
-#endif // PTCLENUM_H

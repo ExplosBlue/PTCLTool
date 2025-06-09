@@ -1,24 +1,21 @@
-#ifndef PTCLEMITTERSET_H
-#define PTCLEMITTERSET_H
+#pragma once
+
+#include "ptcl/ptclEmitter.h"
+#include "typedefs.h"
+
+#include <QString>
 
 #include <memory>
 #include <vector>
 
-#include <QString>
-
-#include "typedefs.h"
-#include "ptclEmitter.h"
-
 
 namespace Ptcl {
-    class BinEmitterSet;
-}
 
 
 // ========================================================================== //
 
 
-namespace Ptcl {
+class BinEmitterSet;
 
 using EmitterList = std::vector<std::unique_ptr<Emitter>>;
 
@@ -50,6 +47,7 @@ private:
 };
 
 
-} // namespace Ptcl
+// ========================================================================== //
 
-#endif // PTCLEMITTERSET_H
+
+} // namespace Ptcl

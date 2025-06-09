@@ -1,7 +1,10 @@
-#ifndef ENUMCOMBOBOX_H
-#define ENUMCOMBOBOX_H
+#pragma once
 
 #include <QComboBox>
+
+
+// ========================================================================== //
+
 
 template <typename T>
 class EnumComboBox : public QComboBox {
@@ -32,4 +35,4 @@ private:
 };
 
 
-#endif // ENUMCOMBOBOX_H
+// ========================================================================== //

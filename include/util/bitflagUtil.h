@@ -1,8 +1,12 @@
-#ifndef BITFLAGUTIL_H
-#define BITFLAGUTIL_H
+#pragma once
+
+#include <QDataStream>
 
 #include <type_traits>
-#include <QDataStream>
+
+
+// ========================================================================== //
+
 
 template <typename T>
 concept ScopedEnum = std::is_enum_v<T> && !std::is_convertible_v<T, int>;
@@ -48,4 +52,5 @@ private:
     BaseType mFlag{};
 };
 
-#endif // BITFLAGUTIL_H
+
+// ========================================================================== //

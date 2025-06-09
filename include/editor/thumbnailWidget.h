@@ -1,7 +1,10 @@
-#ifndef THUMBNAILWIDGET_H
-#define THUMBNAILWIDGET_H
+#pragma once
 
 #include <QWidget>
+
+
+// ========================================================================== //
+
 
 class ThumbnailWidget : public QWidget {
     Q_OBJECT
@@ -26,4 +29,5 @@ private:
     void drawCheckerBackground(QPainter& painter, const QRect& rect);
 };
 
-#endif // THUMBNAILWIDGET_H
+
+// ========================================================================== //

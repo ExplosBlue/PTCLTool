@@ -1,13 +1,17 @@
 #ifndef RGBACOLORWIDGET_H
 #define RGBACOLORWIDGET_H
 
-#include <QWidget>
-#include <QDoubleSpinBox>
-
-#include "alphaSlider.h"
-#include "gradientSlider.h"
-#include "clickableLabel.h"
+#include "editor/alphaSlider.h"
+#include "editor/clickableLabel.h"
+#include "editor/gradientSlider.h"
 #include "ptcl/ptclBinary.h"
+
+#include <QDoubleSpinBox>
+#include <QWidget>
+
+
+// ========================================================================== //
+
 
 class RGBAColorWidget : public QWidget {
     Q_OBJECT
@@ -41,5 +45,9 @@ private:
 
     void updatePreview();
 };
+
+
+// ========================================================================== //
+
 
 #endif // RGBACOLORWIDGET_H
