@@ -2,6 +2,10 @@
 
 #include <QMouseEvent>
 
+
+// ========================================================================== //
+
+
 ClickableLabel::ClickableLabel(QWidget* parent) :
     QLabel(parent) {
     setCursor(Qt::PointingHandCursor);
@@ -16,3 +20,6 @@ void ClickableLabel::mousePressEvent(QMouseEvent* event) {
 
     QLabel::mouseMoveEvent(event);
 }
+
+
+// ========================================================================== //

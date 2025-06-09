@@ -1,10 +1,13 @@
-#ifndef LOADINGSPINNER_H
-#define LOADINGSPINNER_H
+#pragma once
 
-#include <QObject>
-#include <QTimer>
 #include <QElapsedTimer>
+#include <QObject>
 #include <QPixmap>
+#include <QTimer>
+
+
+// ========================================================================== //
+
 
 class LoadingSpinner : public QObject {
     Q_OBJECT
@@ -29,4 +32,5 @@ private:
     int mRotationSpeed;
 };
 
-#endif // LOADINGSPINNER_H
+
+// ========================================================================== //

@@ -1,10 +1,12 @@
-#ifndef PTCLFLUCTUATIONDATA_H
-#define PTCLFLUCTUATIONDATA_H
+#pragma once
 
+#include "ptcl/ptclBinary.h"
 #include "typedefs.h"
-#include "ptclBinary.h"
 
 namespace Ptcl {
+
+
+// ========================================================================== //
 
 
 class FluctuationData
@@ -33,6 +35,7 @@ private:
 };
 
 
-} // namespace Ptcl
+// ========================================================================== //
 
-#endif // PTCLFLUCTUATIONDATA_H
+
+} // namespace Ptcl

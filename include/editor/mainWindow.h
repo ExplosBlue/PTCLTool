@@ -1,25 +1,26 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-
-#include <QMainWindow>
-
-#include <QLabel>
-#include <QScrollArea>
-#include <QMenu>
-#include <QSplitter>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QMenuBar>
+#pragma once
 
 #include "typedefs.h"
-
 #include "ptcl/ptcl.h"
-
-#include "editor/ptclListWidget.h"
 #include "editor/emitterSetWidget.h"
+#include "editor/ptclListWidget.h"
 #include "editor/textureListWidget.h"
 
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QMainWindow>
+#include <QMenu>
+#include <QMenuBar>
+#include <QScrollArea>
+#include <QSplitter>
+#include <QVBoxLayout>
+
+
 namespace PtclEditor {
+
+
+// ========================================================================== //
+
 
 class MainWindow final : public QMainWindow {
     Q_OBJECT
@@ -66,6 +67,8 @@ private:
     PtclEditor::TextureListWidget mTextureWidget;
 };
 
-} // namespace PtclEditor
 
-#endif // MAINWINDOW_H
+// ========================================================================== //
+
+
+} // namespace PtclEditor

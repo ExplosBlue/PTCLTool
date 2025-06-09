@@ -1,7 +1,10 @@
-#ifndef ALPHASLIDER_H
-#define ALPHASLIDER_H
+#pragma once
 
 #include <QSlider>
+
+
+// ========================================================================== //
+
 
 class AlphaSlider : public QSlider {
     Q_OBJECT
@@ -33,4 +36,4 @@ private:
 };
 
 
-#endif // ALPHASLIDER_H
+// ========================================================================== //

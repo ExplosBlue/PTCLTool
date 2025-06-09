@@ -1,6 +1,11 @@
 #include "ptcl/ptclFluctuationData.h"
 
+
 namespace Ptcl {
+
+
+// ========================================================================== //
+
 
 f32 FluctuationData::scale() const {
     return mScale;
@@ -31,6 +36,9 @@ void FluctuationData::initFromBinary(const BinFluctuationData& fluctuationData) 
     mFreq = fluctuationData.fluctuationFreq;
     mPhaseRnd = fluctuationData.fluctuationPhaseRnd;
 }
+
+
+// ========================================================================== //
 
 
 } // namespace Ptcl

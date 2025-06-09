@@ -1,9 +1,12 @@
-#ifndef COLORGRADIENTEDITOR_H
-#define COLORGRADIENTEDITOR_H
+#pragma once
+
+#include "typedefs.h"
 
 #include <QWidget>
 
-#include "typedefs.h"
+
+// ========================================================================== //
+
 
 class ColorGradientEditor final : public QWidget {
     Q_OBJECT
@@ -66,4 +69,6 @@ private:
     static constexpr float sMargin = 10.0f;
 };
 
-#endif // COLORGRADIENTEDITOR_H
+
+// ========================================================================== //
+

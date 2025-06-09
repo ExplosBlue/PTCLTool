@@ -1,10 +1,13 @@
-#ifndef COLLAPSIBLEWIDGET_H
-#define COLLAPSIBLEWIDGET_H
+#pragma once
 
-#include <QWidget>
+#include <QLabel>
 #include <QPropertyAnimation>
 #include <QToolButton>
-#include <QLabel>
+#include <QWidget>
+
+
+// ========================================================================== //
+
 
 class CollapsibleWidget : public QWidget {
     Q_OBJECT
@@ -24,4 +27,5 @@ private:
     QPropertyAnimation mAnimation;
 };
 
-#endif // COLLAPSIBLEWIDGET_H
+
+// ========================================================================== //

@@ -1,9 +1,9 @@
-#ifndef PTCLTEXTURE_H
-#define PTCLTEXTURE_H
+#pragma once
+
+#include "ptcl/ptclEnum.h"
 
 #include <QImage>
 
-#include "ptcl/ptclEnum.h"
 
 namespace Ptcl {
 
@@ -76,6 +76,8 @@ private:
     std::shared_ptr<Texture> mTexturePtr;
 };
 
-} // namespace Ptcl
 
-#endif // PTCLTEXTURE_H
+// ========================================================================== //
+
+
+} // namespace Ptcl

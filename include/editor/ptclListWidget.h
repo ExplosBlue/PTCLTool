@@ -1,15 +1,20 @@
 #ifndef PTCLLISTWIDGET_H
 #define PTCLLISTWIDGET_H
 
-#include <QWidget>
+#include "ptcl/ptcl.h"
+
+#include <QLineEdit>
 #include <QListView>
 #include <QStandardItemModel>
 #include <QVBoxLayout>
-#include <QLineEdit>
+#include <QWidget>
 
-#include "ptcl/ptcl.h"
 
 namespace PtclEditor {
+
+
+// ========================================================================== //
+
 
 class PtclList : public QWidget {
     Q_OBJECT
@@ -18,29 +23,33 @@ public:
 
     void setPtclRes(Ptcl::PtclRes *ptclRes);
 
-private:
-    void populateList();
-
-private slots:
-    void selectionChanged(const QItemSelection& selection);
-
-    void filterList(const QString& text);
-
 signals:
     void selectedIndexChanged(u32 index);
 
+private slots:
+    void selectionChanged(const QItemSelection& selection);
+    void filterList(const QString& text);
+
+private:
+    void populateList();
+
 private:
     Ptcl::PtclRes* mResPtr;
+
     QStandardItemModel mListModel;
     QListView mListView;
     QLineEdit mSearchBox;
-
     QVBoxLayout mMainLayout;
 
     int mSelectedEmitterIndex;
     std::vector<std::pair<u32, QString>> mEmitterNames;
 };
 
+
+// ========================================================================== //
+
+
 } //namespace PtclEditor
+
 
 #endif // PTCLLISTWIDGET_H

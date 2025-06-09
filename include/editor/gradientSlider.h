@@ -1,7 +1,10 @@
-#ifndef GRADIENTSLIDER_H
-#define GRADIENTSLIDER_H
+#pragma once
 
 #include <QSlider>
+
+
+// ========================================================================== //
+
 
 class GradientSlider : public QSlider {
     Q_OBJECT
@@ -42,4 +45,4 @@ private:
 };
 
 
-#endif // GRADIENTSLIDER_H
+// ========================================================================== //

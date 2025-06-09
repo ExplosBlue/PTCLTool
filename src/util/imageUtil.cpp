@@ -1,10 +1,14 @@
+#include "etc1/rg_etc1.h"
 #include "util/imageUtil.h"
 
 #include <QImage>
 
-#include "etc1/rg_etc1.h"
 
 namespace ImageUtil {
+
+
+// ========================================================================== //
+
 
 namespace /* Anonymous */ {
 
@@ -505,5 +509,9 @@ std::vector<u8> QImageToPicaTexture(const QImage& image, Ptcl::TextureFormat for
 
     return textureData;
 }
+
+
+// ========================================================================== //
+
 
 } // namespace ImageUtil

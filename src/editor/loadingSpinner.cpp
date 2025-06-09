@@ -2,11 +2,12 @@
 
 #include <QPainter>
 
-LoadingSpinner::LoadingSpinner(QObject* parent) :
-    QObject{parent},
-    mCanvasSize{128, 128},
-    mRotationSpeed{180} {
 
+// ========================================================================== //
+
+
+LoadingSpinner::LoadingSpinner(QObject* parent) :
+    QObject{parent}, mCanvasSize{128, 128}, mRotationSpeed{180} {
     connect(&mTimer, &QTimer::timeout, this, [this]() {
         qint64 ms = mElapsed.elapsed();
         qreal angle = fmod((static_cast<double>(ms) / 1000.0) * mRotationSpeed, 360.0);
@@ -54,3 +55,6 @@ QPixmap LoadingSpinner::renderFrame(qreal angle) {
 
     return canvas;
 }
+
+
+// ========================================================================== //

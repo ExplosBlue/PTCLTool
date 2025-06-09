@@ -1,16 +1,18 @@
 #include "editor/textureImportDialog.h"
-
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QDialogButtonBox>
-#include <QPushButton>
-#include <QLabel>
-
 #include "util/imageUtil.h"
+
+#include <QDialogButtonBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
+
+
+// ========================================================================== //
+
 
 TextureImportDialog::TextureImportDialog(QWidget* parent, Qt::WindowFlags flags) :
     QDialog{parent, flags}, mTexture{nullptr} {
-
     // Format Selector
     connect(&mFormatSelector, &QComboBox::currentIndexChanged, this, &TextureImportDialog::updateTextureFormat);
 
@@ -165,3 +167,6 @@ void TextureImportDialog::updateTextureInfo() {
 
     mInfoLabel.setText(text);
 }
+
+
+// ========================================================================== //

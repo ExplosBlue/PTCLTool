@@ -1,6 +1,10 @@
 #include "util/settingsUtil.h"
 
+
 namespace SettingsUtil {
+
+
+// ========================================================================== //
 
 
 QStringList SettingsMgr::recentFiles() const {
@@ -51,5 +55,9 @@ QString SettingsMgr::lastExportPath() const {
 void SettingsMgr::setLastExportPath(const QString& path) {
     mSettings.setValue("exportPath", path);
 }
+
+
+// ========================================================================== //
+
 
 } // namespace SettingsUtil

@@ -1,36 +1,28 @@
-#ifndef PTCLEMITTER_H
-#define PTCLEMITTER_H
+#pragma once
 
-#include <array>
+#include "ptcl/ptclChildData.h"
+#include "ptcl/ptclEnum.h"
+#include "ptcl/ptclFieldData.h"
+#include "ptcl/ptclFluctuationData.h"
+#include "ptcl/ptclStripeData.h"
+#include "ptcl/ptclBinary.h"
+#include "ptcl/ptclTexture.h"
+#include "typedefs.h"
+#include "util/bitflagUtil.h"
 
+#include <QMatrix3x4>
 #include <QString>
 #include <QVector2D>
 #include <QVector3D>
-#include <QMatrix3x4>
 
-#include "util/bitflagUtil.h"
-#include "typedefs.h"
-#include "ptclChildData.h"
-#include "ptclEnum.h"
-#include "ptclFieldData.h"
-#include "ptclFluctuationData.h"
-#include "ptclStripeData.h"
-#include "ptclTexture.h"
-
-// // TODO: This is temporary, replace with better solution
-#include "ptclBinary.h"
+#include <array>
 
 
 namespace Ptcl {
-    // class TextureHandle;
-    class Texture;
-}
 
 
 // ========================================================================== //
 
-
-namespace Ptcl {
 
 class Emitter
 {
@@ -392,6 +384,7 @@ private:
 };
 
 
-} // namespace Ptcl
+// ========================================================================== //
 
-#endif // PTCLEMITTER_H
+
+} // namespace Ptcl

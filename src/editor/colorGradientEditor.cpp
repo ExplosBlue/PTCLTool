@@ -1,8 +1,12 @@
 #include "editor/colorGradientEditor.h"
 
+#include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
-#include <QMouseEvent>
+
+
+// ========================================================================== //
+
 
 ColorGradientEditor::ColorGradientEditor(QWidget* parent) :
     QWidget{parent} {
@@ -330,3 +334,6 @@ QSize ColorGradientEditor::sizeHint() const {
 QSize ColorGradientEditor::minimumSizeHint() const {
     return {100, sizeHint().height()};
 }
+
+
+// ========================================================================== //

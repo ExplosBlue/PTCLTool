@@ -1,40 +1,39 @@
-#ifndef PTCLBINARY_H
-#define PTCLBINARY_H
+#pragma once
 
-#include <QVector2D>
-#include <QVector3D>
-#include <QDataStream>
-#include <QColor>
-#include <QMatrix3x4>
-#include <QDebug>
-
+#include "ptcl/ptclEnum.h"
 #include "typedefs.h"
-#include "ptclEnum.h"
 #include "util/bitflagUtil.h"
 
+#include <QColor>
+#include <QDataStream>
+#include <QDebug>
+#include <QMatrix3x4>
+#include <QVector2D>
+#include <QVector3D>
+
+
 namespace Ptcl {
-    class Emitter;
-    class ChildData;
-    class FieldRandomData;
-    class FieldMagnetData;
-    class FieldSpinData;
-    class FieldCollisionData;
-    class FieldConvergenceData;
-    class FieldPosAddData;
-    class FluctuationData;
-    class StripeData;
-}
+
+
+class Emitter;
+class ChildData;
+class FieldRandomData;
+class FieldMagnetData;
+class FieldSpinData;
+class FieldCollisionData;
+class FieldConvergenceData;
+class FieldPosAddData;
+class FluctuationData;
+class StripeData;
+
 
 // ========================================================================== //
 
-
-namespace Ptcl {
 
 #pragma pack(push, 4)
 
 // Size 0x08
 struct alignas(4) binVec2f {
-
     f32 x; //   0x00
     f32 y; //   0x04
 
@@ -55,7 +54,6 @@ static_assert(sizeof(binVec2f) == 0x08, "binVec2f is incorrect size.");
 
 // Size 0x0C
 struct alignas(4) binVec3f {
-
     f32 x;   // 0x00
     f32 y;   // 0x04
     f32 z;   // 0x08
@@ -77,7 +75,6 @@ static_assert(sizeof(binVec3f) == 0x0C, "binVec3f is incorrect size.");
 
 // Size 0x30
 union alignas(4) binMtx34f {
-
     std::array<std::array<f32, 4>, 3> rows;   // 0x00 - 0x30
     std::array<f32, 12> cells;                // 0x00 - 0x30
 
@@ -100,7 +97,6 @@ static_assert(sizeof(binMtx34f) == 0x30, "binMtx34f is incorrect size.");
 
 // Size 0x10
 struct alignas(4) binColor4f {
-
     f32 r;   // 0x00
     f32 g;   // 0x04
     f32 b;   // 0x08
@@ -124,7 +120,6 @@ static_assert(sizeof(binColor4f) == 0x10, "binColor4f is incorrect size.");
 
 // Size 0x1C
 struct alignas(4) BinHeaderData {
-
     std::array<char, 4> magic;   // 0x00
     u32 version;                 // 0x04
     u32 numEmitterSet;           // 0x08
@@ -132,8 +127,6 @@ struct alignas(4) BinHeaderData {
     u32 nameTblPos;              // 0x10
     u32 textureTblPos;           // 0x14
     u32 textureTblSize;          // 0x18
-
-    // BinHeaderData();
 
     friend QDataStream& operator>>(QDataStream& in, BinHeaderData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinHeaderData& item);
@@ -149,7 +142,6 @@ static_assert(sizeof(BinHeaderData) == 0x1C, "BinHeaderData is incorrect size.")
 
 // Size 0x1C
 struct alignas(4) BinEmitterSetData {
-
     u32 userData;         // 0x00
     u32 lastUpdateDate;   // 0x04
     u32 namePos;          // 0x08
@@ -157,8 +149,6 @@ struct alignas(4) BinEmitterSetData {
     u32 numEmitter;       // 0x10
     u32 emitterTblPos;    // 0x14
     u32 emitterTbl;       // 0x18
-
-    // BinEmitterSetData();
 
     friend QDataStream &operator>>(QDataStream& in, BinEmitterSetData& item);
     friend QDataStream &operator<<(QDataStream& out, const BinEmitterSetData& item);
@@ -174,7 +164,6 @@ static_assert(sizeof(BinEmitterSetData) == 0x1C, "BinEmitterSetData is incorrect
 
 // Size 0x0C
 struct alignas(4) BinTextureRes {
-
     u16 width;                            // 0x00
     u16 height;                           // 0x02
     TextureFormat format;                 // 0x04
@@ -197,7 +186,6 @@ static_assert(sizeof(BinTextureRes) == 0x0C, "BinTextureRes is incorrect size.")
 
 // Size 0x1F4
 struct alignas(4) BinCommonEmitterData {
-
     EmitterType type;                    // 0x00
     u32 flag;                            // 0x04
     u32 randomSeed;                      // 0x08
@@ -288,7 +276,6 @@ static_assert(sizeof(BinCommonEmitterData) == 0x1F4, "BinCommonEmitterData is in
 
 // Size 0x208
 struct alignas(4) BinComplexEmitterData : BinCommonEmitterData {
-
     BitFlag<ChildFlag> childFlag;               // 0x1F4
     BitFlag<FieldFlag> fieldFlag;               // 0x1F6
     BitFlag<FluctuationFlag> fluctuationFlag;   // 0x1F8
@@ -317,7 +304,6 @@ static_assert(sizeof(BinComplexEmitterData) == 0x208, "BinComplexEmitterData is 
 
 // Size 0xEC
 struct alignas(4) BinChildData {
-
     std::array<u8, 44> _0;      // 0x00
     u32 _2C;                    // 0x2C
     std::array<u8, 4> _30;      // 0x30
@@ -351,7 +337,6 @@ static_assert(sizeof(BinChildData) == 0xEC, "BinChildData is incorrect size.");
 
 // Size 0x10
 struct alignas(4) BinFieldRandomData {
-
     s32 fieldRandomBlank;       // 0x00
     binVec3f fieldRandomVelAdd; // 0x04
 
@@ -369,7 +354,6 @@ static_assert(sizeof(BinFieldRandomData) == 0x10, "BinFieldRandomData is incorre
 
 // Size 0x14
 struct alignas(4) BinFieldMagnetData {
-
     f32 fieldMagnetPower;       // 0x00
     binVec3f fieldMagnetPos;    // 0x04
     u32 fieldMagnetFlag;        // 0x10
@@ -388,7 +372,6 @@ static_assert(sizeof(BinFieldMagnetData) == 0x14, "BinFieldMagnetData is incorre
 
 // Size 0x08
 struct alignas(4) BinFieldSpinData {
-
     s32 fieldSpinRotate;    // 0x00
     s32 fieldSpinAxis;      // 0x04
 
@@ -407,7 +390,6 @@ static_assert(sizeof(BinFieldSpinData) == 0x8, "BinFieldSpinData is incorrect si
 
 // Size 0x0C
 struct alignas(4) BinFieldCollisionData {
-
     u16 fieldCollisionType;     // 0x00
     u16 fieldCollisionIsWorld;  // 0x02
     f32 fieldCollisionCoord;    // 0x04
@@ -428,7 +410,6 @@ static_assert(sizeof(BinFieldCollisionData) == 0xC, "BinFieldCollisionData is in
 
 // Size 0x10
 struct alignas(4) BinFieldConvergenceData {
-
     FieldConvergenceType fieldConvergenceType;  // 0x00
     binVec3f fieldConvergencePos;               // 0x04
 
@@ -447,7 +428,6 @@ static_assert(sizeof(BinFieldConvergenceData) == 0x10, "BinFieldConvergenceData 
 
 // Size 0x0C
 struct alignas(4) BinFieldPosAddData {
-
     binVec3f fieldPosAdd;   // 0x00
 
     BinFieldPosAddData() = default;
@@ -465,7 +445,6 @@ static_assert(sizeof(BinFieldPosAddData) == 0xC, "BinFieldPosAddData is incorrec
 
 // Size 0x0C
 struct alignas(4) BinFluctuationData {
-
     f32 fluctuationScale;       // 0x00
     f32 fluctuationFreq;        // 0x04
     u32 fluctuationPhaseRnd;    // 0x08
@@ -485,7 +464,6 @@ static_assert(sizeof(BinFluctuationData) == 0xC, "BinFluctuationData is incorrec
 
 // Size 0x20
 struct alignas(4) BinStripeData {
-
     std::array<u8, 32> _0;       // 0x00
 
     BinStripeData() = default;
@@ -503,7 +481,6 @@ static_assert(sizeof(BinStripeData) == 0x20, "BinStripeData is incorrect size.")
 
 // Size 0x08
 struct alignas(4) BinEmitterTblData {
-
     u32 emitterPos;      // 0x00
     uptr32 emitterPtr;   // 0x04 - placeholder for a 32 bit Emitter* (should always be 0)
 
@@ -517,6 +494,8 @@ static_assert(sizeof(BinEmitterTblData) == 0x08, "BinEmitterTblData is incorrect
 
 #pragma pack(pop)
 
-}
 
-#endif //PTCLBINARY_H
+// ========================================================================== //
+
+
+} // namespace Ptcl

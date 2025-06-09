@@ -1,13 +1,16 @@
-#ifndef PTCLFIELDDATA_H
-#define PTCLFIELDDATA_H
+#pragma once
+
+#include "typedefs.h"
+#include "ptcl/ptclBinary.h"
+#include "ptcl/ptclEnum.h"
 
 #include <QVector3D>
 
-#include "typedefs.h"
-#include "ptclBinary.h"
-#include "ptclEnum.h"
 
 namespace Ptcl {
+
+
+// ========================================================================== //
 
 
 class FieldRandomData
@@ -168,5 +171,3 @@ private:
 
 
 } // namespace Ptcl
-
-#endif // PTCLFIELDDATA_H

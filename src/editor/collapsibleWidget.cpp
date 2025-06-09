@@ -1,12 +1,15 @@
 #include "editor/collapsibleWidget.h"
 
-#include <QVBoxLayout>
 #include <QFrame>
 #include <QStyleOption>
+#include <QVBoxLayout>
+
+
+// ========================================================================== //
+
 
 CollapsibleWidget::CollapsibleWidget(const QString& title, QWidget* parent) :
-    QWidget{parent},
-    mContentWidget{nullptr} {
+    QWidget{parent}, mContentWidget{nullptr} {
     QStyleOption opt;
     QPalette pal = opt.palette;
     QColor bg = pal.color(QPalette::Button);
@@ -110,3 +113,6 @@ void CollapsibleWidget::toggle(bool expanded) {
     mAnimation.setEndValue(expanded ? fullHeight : 0);
     mAnimation.start();
 }
+
+
+// ========================================================================== //

@@ -1,19 +1,21 @@
 #include "ptcl/ptcl.h"
-
-#include <variant>
-
-#include <QDataStream>
-#include <QFile>
-#include <QStringDecoder>
-
 #include "ptcl/ptclBinary.h"
 #include "util/imageUtil.h"
 #include "util/stringUtil.h"
 
+#include <QDataStream>
+#include <QFile>
+
+#include <variant>
+
+
 namespace Ptcl {
 
-bool PtclRes::load(const QString& filePath) {
 
+// ========================================================================== //
+
+
+bool PtclRes::load(const QString& filePath) {
     std::unordered_map<u32, u32> textureOffsetMap;
 
     QFile file(filePath);
@@ -222,14 +224,10 @@ bool PtclRes::load(const QString& filePath) {
 }
 
 u32 PtclRes::emitterSetCount() const {
-
     return mEmitterSets.size();
 }
 
 u32 PtclRes::emitterCount() const {
-
-    // TODO: this could probably be optimized
-
     s32 count = 0;
 
     for (auto& emitterSet : mEmitterSets) {
@@ -239,7 +237,6 @@ u32 PtclRes::emitterCount() const {
 }
 
 bool PtclRes::save(const QString& filePath) {
-
     // Structure Overview
     // ╔═════════════════════════════════════╗
     // ║    HeaderData                       ║
@@ -590,18 +587,15 @@ bool PtclRes::save(const QString& filePath) {
 
 
 const QString& PtclRes::name() const {
-
     return mName;
 }
 
 
 void PtclRes::setName(const QString& name) {
-
     mName = name;
 }
 
 EmitterSetList& PtclRes::getEmitterSets() {
-
     return mEmitterSets;
 }
 
@@ -614,14 +608,16 @@ void PtclRes::removeTexture(u32 textureIndex) {
 }
 
 const TextureList& PtclRes::textures() const {
-
     return mTextures;
 }
 
 
 TextureList& PtclRes::textures() {
-
     return mTextures;
 }
+
+
+// ========================================================================== //
+
 
 } // namespace Ptcl

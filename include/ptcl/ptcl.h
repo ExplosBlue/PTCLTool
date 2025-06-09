@@ -1,16 +1,19 @@
-#ifndef PTCL_H
-#define PTCL_H
+#pragma once
 
-#include <vector>
+#include "ptcl/ptclEmitterSet.h"
+#include "ptcl/ptclTexture.h"
+#include "typedefs.h"
 
 #include <QString>
 
-#include "typedefs.h"
+#include <vector>
 
-#include "ptclTexture.h"
-#include "ptclEmitterSet.h"
 
 namespace Ptcl {
+
+
+// ========================================================================== //
+
 
 using TextureList = std::vector<std::shared_ptr<Texture>>;
 using EmitterSetList = std::vector<std::unique_ptr<EmitterSet>>;
@@ -46,6 +49,8 @@ private:
     TextureList mTextures;
 };
 
-}
 
-#endif // PTCL_H
+// ========================================================================== //
+
+
+} // namespace Ptcl

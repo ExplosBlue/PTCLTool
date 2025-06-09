@@ -1,26 +1,27 @@
-#ifndef EMITTERWIDGET_H
-#define EMITTERWIDGET_H
+#pragma once
 
-#include <QWidget>
+#include "ptcl/ptclEmitter.h"
+#include "editor/colorGradientEditor.h"
+#include "editor/enumComboBox.h"
+#include "editor/rgbaColorWidget.h"
+#include "editor/sizedSpinBox.h"
+#include "editor/texturePropertiesWidget.h"
+#include "editor/vectorSpinBox.h"
+
 #include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QSpinBox>
-#include <QDoubleSpinBox>
+#include <QWidget>
 
-#include "ptcl/ptclEmitter.h"
-
-#include "enumComboBox.h"
-#include "sizedSpinBox.h"
-#include "vectorSpinBox.h"
-
-#include "rgbaColorWidget.h"
-#include "texturePropertiesWidget.h"
-
-#include "colorGradientEditor.h"
 
 namespace PtclEditor {
+
+
+// ========================================================================== //
+
 
 class EmitterWidget : public QWidget {
     Q_OBJECT
@@ -122,6 +123,8 @@ private:
     bool mIsPopulating;
 };
 
-} // namespace PtclEditor
 
-#endif // EMITTERWIDGET_H
+// ========================================================================== //
+
+
+} // namespace PtclEditor

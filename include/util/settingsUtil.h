@@ -1,10 +1,13 @@
-#ifndef SETTINGSUTIL_H
-#define SETTINGSUTIL_H
+#pragma once
 
 #include <QSettings>
 
 
 namespace SettingsUtil {
+
+
+// ========================================================================== //
+
 
 class SettingsMgr {
 public:
@@ -42,7 +45,8 @@ private:
     QSettings mSettings;
 };
 
+
+// ========================================================================== //
+
+
 } // namespace SettingsUtil
-
-
-#endif // SETTINGSUTIL_H
