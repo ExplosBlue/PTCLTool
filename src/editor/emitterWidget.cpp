@@ -45,75 +45,107 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
 
     addLabledWidget(&mTypeComboBox, "Emitter Type:", 0, 0, 3);
     addLabledWidget(&mFlagSpinBox, "Flag:", 1, 0, 3);
-    addLabledWidget(&mRandomSeedSpinBox, "Random Seed:", 2, 0, 3);
-    addLabledWidget(&mNameLineEdit, "Name:", 3, 0, 3);
 
+    // Random Seed
+    mRandomSeedMode.addItem("Random Per Emitter", static_cast<int>(PtclSeed::Mode::RandomPerEmitter));
+    mRandomSeedMode.addItem("Random Per EmitterSet", static_cast<int>(PtclSeed::Mode::RandomPerSet));
+    mRandomSeedMode.addItem("Constant Seed", static_cast<int>(PtclSeed::Mode::ConstantSeed));
+    connect(&mRandomSeedMode, &QComboBox::currentIndexChanged, this, [=, this]() {
+        if (!mEmitterPtr || mIsPopulating) {
+            return;
+        }
+
+        auto& seed = mEmitterPtr->randomSeed();
+        auto mode = static_cast<PtclSeed::Mode>(mRandomSeedMode.currentData().toUInt());
+
+        seed.setMode(mode);
+        mRandomSeedSpinBox.setVisible(mode == PtclSeed::Mode::ConstantSeed);
+    });
+
+    mRandomSeedSpinBox.setVisible(false);
+    mRandomSeedSpinBox.setRange(1, 0xFFFFFFFE);
+    connect(&mRandomSeedSpinBox, &SizedSpinBoxBase::valueChanged, this, [=, this](int value) {
+        if (!mEmitterPtr || mIsPopulating) {
+            return;
+        }
+
+        auto& seed = mEmitterPtr->randomSeed();
+        if (seed.mode() == PtclSeed::Mode::ConstantSeed) {
+            seed.setConstantSeed(static_cast<u32>(value));
+        }
+    });
+
+    addLabledWidget(&mRandomSeedMode, "RNG Mode:", 2, 0, 3);
+    mMainLayout.addWidget(&mRandomSeedSpinBox, 2, 3, 1, 1);
+
+    // Name
     mNameLineEdit.setValidator(new EmitterNameValidator(&mNameLineEdit));
     connect(&mNameLineEdit, &QLineEdit::textChanged, this, [=, this](const QString& text) {
-        if (!mEmitterPtr) {
+        if (!mEmitterPtr || mIsPopulating) {
             return;
         }
 
         mEmitterPtr->setName(text);
         emit nameUpdated(text);
     });
+    addLabledWidget(&mNameLineEdit, "Name:", 4, 0, 3);
 
     auto texPropertiesSection = new CollapsibleWidget("Texture properties", this);
     texPropertiesSection->setContent(&mTextureProperties);
 
-    mMainLayout.addWidget(texPropertiesSection, 4, 0, 1, 4);
+    mMainLayout.addWidget(texPropertiesSection, 5, 0, 1, 4);
     connect(&mTextureProperties, &TexturePropertiesWidget::textureUpdated, this, [=, this](int oldIndex, int index) {
         emit textureUpdated(oldIndex, index);
     });
 
-    addLabledWidget(&m_2CSpinBox, "_2C:",  5, 0, 3);
-    addLabledWidget(&m_2DSpinBox, "_2D:",  6, 0, 3);
-    addLabledWidget(&m_2ESpinBox, "_2E:",  7, 0, 3);
-    addLabledWidget(&m_2FSpinBox, "_2F:",  8, 0, 3);
-    addLabledWidget(&m_30SpinBox, "_30:",  9, 0, 3);
-    addLabledWidget(&m_31SpinBox, "_31:", 10, 0, 3);
-    addLabledWidget(&mVolumeTblIndexSpinBox, "Volume Table Index:", 11, 0, 3);
-    addLabledWidget(&m_31SpinBox, "_33:", 12, 0, 3);
+    addLabledWidget(&m_2CSpinBox, "_2C:",  6, 0, 3);
+    addLabledWidget(&m_2DSpinBox, "_2D:",  7, 0, 3);
+    addLabledWidget(&m_2ESpinBox, "_2E:",  8, 0, 3);
+    addLabledWidget(&m_2FSpinBox, "_2F:",  9, 0, 3);
+    addLabledWidget(&m_30SpinBox, "_30:",  10, 0, 3);
+    addLabledWidget(&m_31SpinBox, "_31:", 11, 0, 3);
+    addLabledWidget(&mVolumeTblIndexSpinBox, "Volume Table Index:", 12, 0, 3);
+    addLabledWidget(&m_31SpinBox, "_33:", 13, 0, 3);
 
-    addLabledWidget(&mVolumeTypeComboBox,  "Volume Type:",   13, 0, 3);
-    addLabledWidget(&mVolumeRadiusSpinBox, "Volume Radius:", 14, 0, 3);
+    addLabledWidget(&mVolumeTypeComboBox,  "Volume Type:",   14, 0, 3);
+    addLabledWidget(&mVolumeRadiusSpinBox, "Volume Radius:", 15, 0, 3);
 
     m_44SpinBox.setMaximum(std::numeric_limits<f32>::max());
     m_44SpinBox.setMinimum(std::numeric_limits<f32>::min());
-    addLabledWidget(&m_44SpinBox, "_44:", 15, 0, 3);
+    addLabledWidget(&m_44SpinBox, "_44:", 16, 0, 3);
 
     m_48SpinBox.setMaximum(std::numeric_limits<f32>::max());
     m_48SpinBox.setMinimum(std::numeric_limits<f32>::min());
-    addLabledWidget(&m_48SpinBox, "_48:", 16, 0, 3);
+    addLabledWidget(&m_48SpinBox, "_48:", 17, 0, 3);
 
     mFigureVelSpinBox.setMaximum(std::numeric_limits<f32>::max());
     mFigureVelSpinBox.setMinimum(std::numeric_limits<f32>::min());
-    addLabledWidget(&mFigureVelSpinBox, "Figure Velocity:", 17, 0, 3);
+    addLabledWidget(&mFigureVelSpinBox, "Figure Velocity:", 18, 0, 3);
 
-    addLabledWidget(&mEmitterVelDirSpinBox, "Emitter Velocity Direction:", 18, 0, 3);
-    addLabledWidget(&m_5CSpinBox,           "_5C:",                        19, 0, 3);
-    addLabledWidget(&mInitVelRndSpinBox,    "Initial Velocity Random:",    20, 0, 3);
-    addLabledWidget(&mSpreadVecSpinBox,     "Spread Vector:",              21, 0, 3);
+    addLabledWidget(&mEmitterVelDirSpinBox, "Emitter Velocity Direction:", 19, 0, 3);
+    addLabledWidget(&m_5CSpinBox,           "_5C:",                        20, 0, 3);
+    addLabledWidget(&mInitVelRndSpinBox,    "Initial Velocity Random:",    21, 0, 3);
+    addLabledWidget(&mSpreadVecSpinBox,     "Spread Vector:",              22, 0, 3);
 
     // _70
 
-    addLabledWidget(&m_80SpinBox,          "_80:",              22, 0, 3);
-    addLabledWidget(&mPtclLifeSpinBox,     "Ptcl Life:",        23, 0, 3);
-    addLabledWidget(&mPtclLifeRandSpinBox, "Ptcl Life Random:", 24, 0, 3);
+    addLabledWidget(&m_80SpinBox,          "_80:",              23, 0, 3);
+    addLabledWidget(&mPtclLifeSpinBox,     "Ptcl Life:",        24, 0, 3);
+    addLabledWidget(&mPtclLifeRandSpinBox, "Ptcl Life Random:", 25, 0, 3);
 
     m_8CSpinBox.setMaximum(std::numeric_limits<f32>::max());
     m_8CSpinBox.setMinimum(std::numeric_limits<f32>::min());
-    addLabledWidget(&m_8CSpinBox, "_8C:", 25, 0, 3);
+    addLabledWidget(&m_8CSpinBox, "_8C:", 26, 0, 3);
 
-    addLabledWidget(&m_90SpinBox,        "_90:",            26, 0, 3);
-    addLabledWidget(&mBillboardComboBox, "Billboard Type:", 27, 0, 3);
-    addLabledWidget(&m_98SpinBox,        "_98:",            28, 0, 3);
-    addLabledWidget(&m_9CSpinBox,        "_9C:",            29, 0, 3);
-    addLabledWidget(&m_A0SpinBox,        "_A0:",            30, 0, 3);
-    addLabledWidget(&m_A4SpinBox,        "_A4:",            31, 0, 3);
+    addLabledWidget(&m_90SpinBox,        "_90:",            27, 0, 3);
+    addLabledWidget(&mBillboardComboBox, "Billboard Type:", 28, 0, 3);
+    addLabledWidget(&m_98SpinBox,        "_98:",            29, 0, 3);
+    addLabledWidget(&m_9CSpinBox,        "_9C:",            30, 0, 3);
+    addLabledWidget(&m_A0SpinBox,        "_A0:",            31, 0, 3);
+    addLabledWidget(&m_A4SpinBox,        "_A4:",            32, 0, 3);
 
     for (int i = 0; i < mColorWidgets.size(); ++i) {
-        addLabledWidget(&mColorWidgets[i], QString("Color %1:").arg(i), 32 + i, 0, 3);
+        addLabledWidget(&mColorWidgets[i], QString("Color %1:").arg(i), 33 + i, 0, 3);
         mColorWidgets[i].setProperty("colorIndex", i);
         connect(&mColorWidgets[i], &RGBAColorWidget::colorChanged, this, &EmitterWidget::handleColorChanged);
     }
@@ -122,9 +154,9 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
 
     // Color Sections
     connect(&mColorSections, &ColorGradientEditor::handleMoved, this, &EmitterWidget::updateColorSection);
-    addLabledWidget(&mColorSections, "Color Sections:", 35, 0, 3);
+    addLabledWidget(&mColorSections, "Color Sections:", 36, 0, 3);
 
-    addLabledWidget(&mColorNumRepeatSpinBox, "Color Num Reapeat:", 38, 0, 3);
+    addLabledWidget(&mColorNumRepeatSpinBox, "Color Num Reapeat:", 37, 0, 3);
     connect(&mColorNumRepeatSpinBox, &SizedSpinBoxBase::valueChanged, this, [=, this](int value) {
         mColorSections.setRepetitionCount(value);
         if (!mEmitterPtr) {
@@ -133,27 +165,27 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
         mEmitterPtr->setColorNumRepeat(value);
     });
 
-    addLabledWidget(&mInitAlphaSpinBox, "Initial Alpha:", 39, 0, 3);
-    addLabledWidget(&mDiffAlpha21SpinBox, "Diff Alpha21:", 40, 0, 3);
-    addLabledWidget(&mDiffAlpha32SpinBox, "Diff Alpha32:", 41, 0, 3);
-    addLabledWidget(&mAlphaSection1SpinBox, "Alpha Section 1:", 42, 0, 3);
-    addLabledWidget(&mAlphaSection2SpinBox, "Alpha Section 2:", 43, 0, 3);
+    addLabledWidget(&mInitAlphaSpinBox, "Initial Alpha:", 38, 0, 3);
+    addLabledWidget(&mDiffAlpha21SpinBox, "Diff Alpha21:", 39, 0, 3);
+    addLabledWidget(&mDiffAlpha32SpinBox, "Diff Alpha32:", 40, 0, 3);
+    addLabledWidget(&mAlphaSection1SpinBox, "Alpha Section 1:", 41, 0, 3);
+    addLabledWidget(&mAlphaSection2SpinBox, "Alpha Section 2:", 42, 0, 3);
 
-    addLabledWidget(&mInitScaleSpinBox, "Initial Scale:", 44, 0, 3);
-    addLabledWidget(&mDiffScale21SpinBox, "Diff Scale 21:", 45, 0, 3);
-    addLabledWidget(&mDiffScale32SpinBox, "Diff Scale 32:", 46, 0, 3);
-    addLabledWidget(&mScaleSection1SpinBox, "Scale Section 1:", 47, 0, 3);
-    addLabledWidget(&mScaleSection2SpinBox, "Scale Section 2:", 48, 0, 3);
-    addLabledWidget(&mScaleRandSpinBox, "Scale Random:", 49, 0, 3);
+    addLabledWidget(&mInitScaleSpinBox, "Initial Scale:", 43, 0, 3);
+    addLabledWidget(&mDiffScale21SpinBox, "Diff Scale 21:", 44, 0, 3);
+    addLabledWidget(&mDiffScale32SpinBox, "Diff Scale 32:", 45, 0, 3);
+    addLabledWidget(&mScaleSection1SpinBox, "Scale Section 1:", 46, 0, 3);
+    addLabledWidget(&mScaleSection2SpinBox, "Scale Section 2:", 47, 0, 3);
+    addLabledWidget(&mScaleRandSpinBox, "Scale Random:", 48, 0, 3);
 
-    addLabledWidget(&m_12CSpinBox, "_12C:", 50, 0, 3);
-    addLabledWidget(&m_130SpinBox, "_130:", 51, 0, 3);
-    addLabledWidget(&m_134SpinBox, "_134:", 52, 0, 3);
+    addLabledWidget(&m_12CSpinBox, "_12C:", 49, 0, 3);
+    addLabledWidget(&m_130SpinBox, "_130:", 50, 0, 3);
+    addLabledWidget(&m_134SpinBox, "_134:", 51, 0, 3);
 
-    addLabledWidget(&mInitRotSpinBox, "Initial Rotation:", 53, 0, 3);
-    addLabledWidget(&mInitRotRandSpinBox, "Initial Rotation Random:", 54, 0, 3);
-    addLabledWidget(&mRotVelSpinBox, "Rotation Velocity:", 55, 0, 3);
-    addLabledWidget(&mRotVelRandSpinBox, "Rotation Velocity Random:", 56, 0, 3);
+    addLabledWidget(&mInitRotSpinBox, "Initial Rotation:", 52, 0, 3);
+    addLabledWidget(&mInitRotRandSpinBox, "Initial Rotation Random:", 53, 0, 3);
+    addLabledWidget(&mRotVelSpinBox, "Rotation Velocity:", 54, 0, 3);
+    addLabledWidget(&mRotVelRandSpinBox, "Rotation Velocity Random:", 55, 0, 3);
 }
 
 void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
@@ -164,7 +196,16 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
 
     mTypeComboBox.setCurrentEnum(mEmitterPtr->type());
     mFlagSpinBox.setValue(mEmitterPtr->flag());
-    mRandomSeedSpinBox.setValue(mEmitterPtr->randomSeed());
+
+    // Random Seed
+    auto& randomSeed = mEmitterPtr->randomSeed();
+    auto seedMode = randomSeed.mode();
+    int index = mRandomSeedMode.findData(static_cast<int>(seedMode));
+    if (index != -1)
+        mRandomSeedMode.setCurrentIndex(index);
+    mRandomSeedSpinBox.setValue(randomSeed.constantSeed());
+    mRandomSeedSpinBox.setVisible(seedMode == PtclSeed::Mode::ConstantSeed);
+
     mNameLineEdit.setText(mEmitterPtr->name());
 
     mTextureProperties.setEmitter(mEmitterPtr);

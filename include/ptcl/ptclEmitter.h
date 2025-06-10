@@ -1,11 +1,12 @@
 #pragma once
 
+#include "ptcl/ptclBinary.h"
 #include "ptcl/ptclChildData.h"
 #include "ptcl/ptclEnum.h"
 #include "ptcl/ptclFieldData.h"
 #include "ptcl/ptclFluctuationData.h"
 #include "ptcl/ptclStripeData.h"
-#include "ptcl/ptclBinary.h"
+#include "ptcl/ptclSeed.h"
 #include "ptcl/ptclTexture.h"
 #include "typedefs.h"
 #include "util/bitflagUtil.h"
@@ -38,8 +39,8 @@ public:
     u32 flag() const;
     void setFlag(const u32 flag);
 
-    u32 randomSeed() const;
-    void setRandomSeed(const u32 randomSeed);
+    PtclSeed& randomSeed();
+    const PtclSeed& randomSeed() const;
 
     const QString& name() const;
     void setName(const QString& name);
@@ -285,7 +286,8 @@ public:
 private:
     EmitterType mType;
     u32 mFlag;
-    u32 mRandomSeed;
+
+    PtclSeed mRandomSeed;
 
     QString mName; // namePos, name
 

@@ -46,6 +46,7 @@ set(PROJECT_SOURCES
     src/ptcl/ptclEmitterSet.cpp
     src/ptcl/ptclFieldData.cpp
     src/ptcl/ptclFluctuationData.cpp
+    src/ptcl/ptclSeed.cpp
     src/ptcl/ptclStripeData.cpp
     src/ptcl/ptclTexture.cpp
     src/util/imageUtil.cpp
@@ -83,6 +84,7 @@ set(PROJECT_HEADERS
     include/ptcl/ptclEnum.h
     include/ptcl/ptclFieldData.h
     include/ptcl/ptclFluctuationData.h
+    include/ptcl/ptclSeed.h
     include/ptcl/ptclStripeData.h
     include/ptcl/ptclTexture.h
     include/util/bitflagUtil.h
