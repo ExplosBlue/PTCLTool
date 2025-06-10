@@ -16,6 +16,11 @@ EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
         emit textureUpdated(oldIndex, index);
     });
 
+    connect(&mEmitterWidget, &EmitterWidget::nameUpdated, this, [=, this](const QString& name) {
+        int currIndex = mEmitterTabs.currentIndex();
+        mEmitterTabs.setTabText(currIndex, name);
+    });
+
     // Name Edit
     mNameLineEdit.setPlaceholderText("EmitterSetName");
 
