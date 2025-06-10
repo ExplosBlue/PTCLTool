@@ -1,4 +1,5 @@
 #include "editor/emitterSetWidget.h"
+#include "util/nameValidator.h"
 
 #include <QMessageBox>
 
@@ -23,6 +24,14 @@ EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
 
     // Name Edit
     mNameLineEdit.setPlaceholderText("EmitterSetName");
+    mNameLineEdit.setValidator(new EmitterNameValidator(&mNameLineEdit));
+    connect(&mNameLineEdit, &QLineEdit::textEdited, this, [=, this](const QString& text) {
+        if (!mEmitterSetPtr) {
+            return;
+        }
+        mEmitterSetPtr->setName(text);
+        emit nameUpdated(text);
+    });
 
     // Name layout
     QHBoxLayout* nameLayout = new QHBoxLayout();
