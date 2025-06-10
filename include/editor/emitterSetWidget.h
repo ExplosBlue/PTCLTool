@@ -26,6 +26,7 @@ public:
 
 signals:
     void textureUpdated(int oldIndex, int index);
+    void nameUpdated(const QString& name);
 
 private slots:
     void selectedEmitterChanged(u32 index);

@@ -36,6 +36,10 @@ void PtclList::setPtclRes(Ptcl::PtclRes* ptclRes) {
     populateList();
 }
 
+void PtclEditor::PtclList::refreshNames() {
+    populateList();
+}
+
 void PtclList::populateList() {
     if (!mResPtr) {
         return;

@@ -51,6 +51,10 @@ void MainWindow::setupUi() {
         mTextureWidget.updateItemAt(index);
     });
 
+    connect(&mEmitterSetWidget, &EmitterSetWidget::nameUpdated, this, [=, this](const QString& name) {
+        mPtclList.refreshNames();
+    });
+
     // Texture Widget
     mTextureWidget.setEnabled(false);
 

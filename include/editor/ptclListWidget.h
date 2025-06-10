@@ -23,6 +23,8 @@ public:
 
     void setPtclRes(Ptcl::PtclRes *ptclRes);
 
+    void refreshNames();
+
 signals:
     void selectedIndexChanged(u32 index);
 
