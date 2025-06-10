@@ -10,7 +10,7 @@ namespace Ptcl {
 Emitter::Emitter() {
     mType = EmitterType::Simple;
     mFlag = 0;
-    mRandomSeed = 0;
+    mRandomSeed = PtclSeed{};
     mName = "";
 
     // TODO: Texture Handle
@@ -106,12 +106,12 @@ void Emitter::setFlag(const u32 flag) {
     mFlag = flag;
 }
 
-u32 Emitter::randomSeed() const {
+PtclSeed& Emitter::randomSeed() {
     return mRandomSeed;
 }
 
-void Emitter::setRandomSeed(const u32 randomSeed) {
-    mRandomSeed = randomSeed;
+const PtclSeed& Emitter::randomSeed() const {
+    return mRandomSeed;
 }
 
 const QString& Emitter::name() const {
@@ -776,7 +776,7 @@ StripeData& Emitter::stripeData() {
 void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mType = emitterData.type;
     mFlag = emitterData.flag;
-    mRandomSeed = emitterData.randomSeed;
+    mRandomSeed = PtclSeed{emitterData.randomSeed};
     // mName
     // mTexture
     // mTextureFormat

@@ -261,7 +261,7 @@ void BinTextureRes::printData(u32 indentationLevel) {
 BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     type = emitter.type();
     flag = emitter.flag();
-    randomSeed = emitter.randomSeed();
+    randomSeed = emitter.randomSeed().raw();
     namePos = 0; // To be assigned after construction...
     namePtr = 0;
 

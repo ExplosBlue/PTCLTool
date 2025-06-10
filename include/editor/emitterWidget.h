@@ -49,6 +49,7 @@ private:
     EnumComboBox<Ptcl::EmitterType> mTypeComboBox;
     SizedSpinBox<u32> mFlagSpinBox;
 
+    QComboBox mRandomSeedMode;
     SizedSpinBox<u32> mRandomSeedSpinBox;
     QLineEdit mNameLineEdit;
 
