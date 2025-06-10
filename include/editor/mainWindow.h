@@ -29,6 +29,7 @@ public:
     MainWindow(QWidget* parent = nullptr);
 
 protected:
+    void closeEvent(QCloseEvent* event) final;
     void dragEnterEvent(QDragEnterEvent* event) final;
     void dropEvent(QDropEvent* event) final;
 
