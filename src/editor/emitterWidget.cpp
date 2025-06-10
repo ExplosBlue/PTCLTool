@@ -1,5 +1,6 @@
 #include "editor/collapsibleWidget.h"
 #include "editor/emitterWidget.h"
+#include "util/nameValidator.h"
 
 #include <QScrollArea>
 
@@ -25,19 +26,17 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    // Outer layout to hold the scroll area
     QVBoxLayout* outerLayout = new QVBoxLayout(this);
     outerLayout->addWidget(scrollArea);
-    outerLayout->setContentsMargins(0, 0, 0, 0);  // optional
+    outerLayout->setContentsMargins(0, 0, 0, 0);
     setLayout(outerLayout);
 
-    // Optional: make this widget expand within its parent
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    mMainLayout.setColumnStretch(0, 0); // labels
-    mMainLayout.setColumnStretch(1, 1); // widgets
-    mMainLayout.setColumnStretch(2, 0); // optional 2nd label
-    mMainLayout.setColumnStretch(3, 1); // optional 2nd widget
+    mMainLayout.setColumnStretch(0, 0);
+    mMainLayout.setColumnStretch(1, 1);
+    mMainLayout.setColumnStretch(2, 0);
+    mMainLayout.setColumnStretch(3, 1);
 
     auto addLabledWidget = [&](QWidget* widget, const QString& label, int row, int column, int span = 1) {
         mMainLayout.addWidget(new QLabel(label), row, column);
@@ -49,10 +48,20 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&mRandomSeedSpinBox, "Random Seed:", 2, 0, 3);
     addLabledWidget(&mNameLineEdit, "Name:", 3, 0, 3);
 
+    mNameLineEdit.setValidator(new EmitterNameValidator(&mNameLineEdit));
+    connect(&mNameLineEdit, &QLineEdit::textChanged, this, [=, this](const QString& text) {
+        if (!mEmitterPtr) {
+            return;
+        }
+
+        mEmitterPtr->setName(text);
+        emit nameUpdated(text);
+    });
+
     auto texPropertiesSection = new CollapsibleWidget("Texture properties", this);
     texPropertiesSection->setContent(&mTextureProperties);
 
-    mMainLayout.addWidget(texPropertiesSection, 4, 0, 1, 3);
+    mMainLayout.addWidget(texPropertiesSection, 4, 0, 1, 4);
     connect(&mTextureProperties, &TexturePropertiesWidget::textureUpdated, this, [=, this](int oldIndex, int index) {
         emit textureUpdated(oldIndex, index);
     });

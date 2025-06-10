@@ -49,6 +49,7 @@ set(PROJECT_SOURCES
     src/ptcl/ptclStripeData.cpp
     src/ptcl/ptclTexture.cpp
     src/util/imageUtil.cpp
+    src/util/nameValidator.cpp
     src/util/settingsUtil.cpp
 )
 
@@ -86,6 +87,7 @@ set(PROJECT_HEADERS
     include/ptcl/ptclTexture.h
     include/util/bitflagUtil.h
     include/util/imageUtil.h
+    include/util/nameValidator.h
     include/util/printUtil.h
     include/util/settingsUtil.h
     include/util/stringUtil.h
