@@ -36,6 +36,12 @@ public:
     QString lastExportPath() const;
     void setLastExportPath(const QString& path);
 
+    QByteArray windowGeometry() const;
+    void setWindowGeometry(const QByteArray& geometry);
+
+    QByteArray windowState() const;
+    void setWindowState(const QByteArray& state);
+
 private:
     SettingsMgr() = default;
 

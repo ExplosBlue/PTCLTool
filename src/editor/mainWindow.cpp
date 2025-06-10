@@ -56,6 +56,11 @@ void MainWindow::setupUi() {
 
     setCentralWidget(mBottomSplitter);
     setupMenus();
+
+    auto& settings = SettingsUtil::SettingsMgr::instance();
+
+    restoreGeometry(settings.windowGeometry());
+    restoreState(settings.windowState());
 }
 
 void MainWindow::setupMenus() {
@@ -93,6 +98,15 @@ void MainWindow::setupMenus() {
 
     // Menu Bar
     menuBar()->addMenu(&mFileMenu);
+}
+
+void MainWindow::closeEvent(QCloseEvent* event) {
+    auto& settings = SettingsUtil::SettingsMgr::instance();
+
+    settings.setWindowGeometry(saveGeometry());
+    settings.setWindowState(saveState());
+
+    QMainWindow::closeEvent(event);
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent* event) {

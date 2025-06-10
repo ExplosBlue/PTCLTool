@@ -56,6 +56,22 @@ void SettingsMgr::setLastExportPath(const QString& path) {
     mSettings.setValue("exportPath", path);
 }
 
+QByteArray SettingsMgr::windowGeometry() const {
+    return mSettings.value("windowGeometry").toByteArray();
+};
+
+void SettingsMgr::setWindowGeometry(const QByteArray& geometry) {
+    mSettings.setValue("windowGeometry", geometry);
+}
+
+QByteArray SettingsMgr::windowState() const {
+    return mSettings.value("windowState").toByteArray();
+};
+
+void SettingsMgr::setWindowState(const QByteArray& state) {
+    mSettings.setValue("windowState", state);
+}
+
 
 // ========================================================================== //
 
