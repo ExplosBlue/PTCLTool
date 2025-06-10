@@ -46,6 +46,42 @@ public:
         emit valueChanged(mCurrentValue);
     }
 
+    void setRange(T minValue, T maxValue) {
+        constexpr T typeMin = std::numeric_limits<T>::min();
+        constexpr T typeMax = std::numeric_limits<T>::max();
+
+        if (minValue < typeMin) {
+            qWarning() << "setRange: minValue" << minValue << "is less than type minimum" << typeMin << ". Clamping to type minimum.";
+        }
+        if (maxValue > typeMax) {
+            qWarning() << "setRange: maxValue" << maxValue << "is greater than type maximum" << typeMax << ". Clamping to type maximum.";
+        }
+        if (minValue > maxValue) {
+            qWarning() << "setRange: minValue" << minValue << "is greater than maxValue" << maxValue << ". Adjusting maxValue to minValue.";
+        }
+
+        mMin = std::clamp(minValue, typeMin, typeMax);
+        mMax = std::clamp(maxValue, mMin, typeMax);
+
+        setValue(mCurrentValue);
+    }
+
+    void setMinimum(T minValue) {
+        setRange(minValue, mMax);
+    }
+
+    void setMaximum(T maxValue) {
+        setRange(mMin, maxValue);
+    }
+
+    T minimum() const {
+        return mMin;
+    }
+
+    T maximum() const {
+        return mMax;
+    }
+
     void stepBy(int steps) final {
         setValue(mCurrentValue + steps);
     }
@@ -114,12 +150,6 @@ public:
 protected:
     void updateDisplay()  {
         lineEdit()->setText(QString::number(mCurrentValue));
-    }
-
-private:
-    void setRange(T minValue, T maxValue) {
-        mMin = minValue;
-        mMax = maxValue;
     }
 
 private:
