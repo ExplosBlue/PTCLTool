@@ -187,7 +187,7 @@ static_assert(sizeof(BinTextureRes) == 0x0C, "BinTextureRes is incorrect size.")
 // Size 0x1F4
 struct alignas(4) BinCommonEmitterData {
     EmitterType type;                    // 0x00
-    u32 flag;                            // 0x04
+    BitFlag<EmitterFlag> flag;           // 0x04
     u32 randomSeed;                      // 0x08
     u32 namePos;                         // 0x0C
     uptr32 namePtr;                      // 0x10 - placeholder for a 32 bit const char* (should always be 0)

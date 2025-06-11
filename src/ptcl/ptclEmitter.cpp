@@ -9,7 +9,7 @@ namespace Ptcl {
 
 Emitter::Emitter() {
     mType = EmitterType::Simple;
-    mFlag = 0;
+    mFlag = BitFlag<EmitterFlag>{};
     mRandomSeed = PtclSeed{};
     mName = "";
 
@@ -98,12 +98,12 @@ void Emitter::setType(const EmitterType type) {
     mType = type;
 }
 
-u32 Emitter::flag() const {
+BitFlag<EmitterFlag>& Emitter::flags() {
     return mFlag;
 }
 
-void Emitter::setFlag(const u32 flag) {
-    mFlag = flag;
+const BitFlag<EmitterFlag>& Emitter::flags() const {
+    return mFlag;
 }
 
 PtclSeed& Emitter::randomSeed() {

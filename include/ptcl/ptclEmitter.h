@@ -36,8 +36,8 @@ public:
     EmitterType type() const;
     void setType(const EmitterType type);
 
-    u32 flag() const;
-    void setFlag(const u32 flag);
+    BitFlag<EmitterFlag>& flags();
+    const BitFlag<EmitterFlag>& flags() const;
 
     PtclSeed& randomSeed();
     const PtclSeed& randomSeed() const;
@@ -285,7 +285,7 @@ public:
 
 private:
     EmitterType mType;
-    u32 mFlag;
+    BitFlag<EmitterFlag> mFlag;
 
     PtclSeed mRandomSeed;
 

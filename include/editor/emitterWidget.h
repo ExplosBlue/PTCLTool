@@ -1,9 +1,8 @@
 #pragma once
 
 #include "ptcl/ptclEmitter.h"
-#include "editor/colorGradientEditor.h"
+#include "editor/colorPropertiesWidget.h"
 #include "editor/enumComboBox.h"
-#include "editor/rgbaColorWidget.h"
 #include "editor/sizedSpinBox.h"
 #include "editor/texturePropertiesWidget.h"
 #include "editor/vectorSpinBox.h"
@@ -36,18 +35,12 @@ signals:
     void textureUpdated(int oldIndex, int index);
     void nameUpdated(const QString& name);
 
-private slots:
-    void handleColorChanged();
-
-    void updateColorSection(ColorGradientEditor::HandleType handleType);
-
 private:
     Ptcl::Emitter* mEmitterPtr;
 
     QGridLayout mMainLayout;
 
     EnumComboBox<Ptcl::EmitterType> mTypeComboBox;
-    SizedSpinBox<u32> mFlagSpinBox;
 
     QComboBox mRandomSeedMode;
     SizedSpinBox<u32> mRandomSeedSpinBox;
@@ -88,14 +81,10 @@ private:
     QDoubleSpinBox m_A0SpinBox;
     QDoubleSpinBox m_A4SpinBox;
 
-    std::array<RGBAColorWidget, 3> mColorWidgets;
-
     // _D8
 
-    // ColorSection1, 2, 3
-    ColorGradientEditor mColorSections;
+    ColorPropertiesWidget mColorProperties;
 
-    SizedSpinBox<s32> mColorNumRepeatSpinBox;
     QDoubleSpinBox mInitAlphaSpinBox;
     QDoubleSpinBox mDiffAlpha21SpinBox;
     QDoubleSpinBox mDiffAlpha32SpinBox;

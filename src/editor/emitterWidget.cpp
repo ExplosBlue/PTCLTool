@@ -44,7 +44,6 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     };
 
     addLabledWidget(&mTypeComboBox, "Emitter Type:", 0, 0, 3);
-    addLabledWidget(&mFlagSpinBox, "Flag:", 1, 0, 3);
 
     // Random Seed
     mRandomSeedMode.addItem("Random Per Emitter", static_cast<int>(PtclSeed::Mode::RandomPerEmitter));
@@ -90,6 +89,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     });
     addLabledWidget(&mNameLineEdit, "Name:", 4, 0, 3);
 
+    // Texture Properties
     auto texPropertiesSection = new CollapsibleWidget("Texture properties", this);
     texPropertiesSection->setContent(&mTextureProperties);
 
@@ -144,26 +144,12 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&m_A0SpinBox,        "_A0:",            31, 0, 3);
     addLabledWidget(&m_A4SpinBox,        "_A4:",            32, 0, 3);
 
-    for (int i = 0; i < mColorWidgets.size(); ++i) {
-        addLabledWidget(&mColorWidgets[i], QString("Color %1:").arg(i), 33 + i, 0, 3);
-        mColorWidgets[i].setProperty("colorIndex", i);
-        connect(&mColorWidgets[i], &RGBAColorWidget::colorChanged, this, &EmitterWidget::handleColorChanged);
-    }
+    // Color Properties
+    auto colorPropertiesSection = new CollapsibleWidget("Color properties", this);
+    colorPropertiesSection->setContent(&mColorProperties);
+    mMainLayout.addWidget(colorPropertiesSection, 33, 0, 1, 4);
 
     // _D8
-
-    // Color Sections
-    connect(&mColorSections, &ColorGradientEditor::handleMoved, this, &EmitterWidget::updateColorSection);
-    addLabledWidget(&mColorSections, "Color Sections:", 36, 0, 3);
-
-    addLabledWidget(&mColorNumRepeatSpinBox, "Color Num Reapeat:", 37, 0, 3);
-    connect(&mColorNumRepeatSpinBox, &SizedSpinBoxBase::valueChanged, this, [=, this](int value) {
-        mColorSections.setRepetitionCount(value);
-        if (!mEmitterPtr) {
-            return;
-        }
-        mEmitterPtr->setColorNumRepeat(value);
-    });
 
     addLabledWidget(&mInitAlphaSpinBox, "Initial Alpha:", 38, 0, 3);
     addLabledWidget(&mDiffAlpha21SpinBox, "Diff Alpha21:", 39, 0, 3);
@@ -195,7 +181,6 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     // TODO: Update stuff...
 
     mTypeComboBox.setCurrentEnum(mEmitterPtr->type());
-    mFlagSpinBox.setValue(mEmitterPtr->flag());
 
     // Random Seed
     auto& randomSeed = mEmitterPtr->randomSeed();
@@ -242,25 +227,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_A0SpinBox.setValue(mEmitterPtr->_A0());
     m_A4SpinBox.setValue(mEmitterPtr->_A4());
 
-    for (int i = 0; i < mColorWidgets.size(); ++i) {
-        mColorWidgets[i].setColor(mEmitterPtr->colors()[i]);
-    }
-
-    mColorSections.setTimings(
-        mEmitterPtr->colorSection1(),
-        mEmitterPtr->colorSection2(),
-        mEmitterPtr->colorSection3()
-    );
-
-    mColorSections.setColors(
-        QColor::fromRgbF(mEmitterPtr->colors()[0].r, mEmitterPtr->colors()[0].g, mEmitterPtr->colors()[0].b),
-        QColor::fromRgbF(mEmitterPtr->colors()[1].r, mEmitterPtr->colors()[1].g, mEmitterPtr->colors()[1].b),
-        QColor::fromRgbF(mEmitterPtr->colors()[2].r, mEmitterPtr->colors()[2].g, mEmitterPtr->colors()[2].b)
-    );
-
-    mColorSections.setRepetitionCount(mEmitterPtr->colorNumRepeat());
-
-    mColorNumRepeatSpinBox.setValue(mEmitterPtr->colorNumRepeat());
+    mColorProperties.setEmitter(mEmitterPtr);
 
     mInitAlphaSpinBox.setValue(mEmitterPtr->initAlpha());
     mDiffAlpha21SpinBox.setValue(mEmitterPtr->diffAlpha21());
@@ -289,51 +256,6 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
 
 TexturePropertiesWidget& EmitterWidget::getTextureProperties() {
     return mTextureProperties;
-}
-
-void EmitterWidget::handleColorChanged() {
-    if (mIsPopulating) {
-        return;
-    }
-
-    auto* colorWidget = qobject_cast<RGBAColorWidget*>(sender());
-
-    if (!colorWidget) {
-        return;
-    }
-
-    bool ok = false;
-    int index = colorWidget->property("colorIndex").toInt(&ok);
-
-    if (!ok) {
-        qWarning() << "colorIndex propery missing or invalid";
-        return;
-    }
-
-    mEmitterPtr->setColor(index, colorWidget->color());
-
-    auto color = QColor::fromRgbF(colorWidget->color().r, colorWidget->color().g, colorWidget->color().b);
-    if (index == 0) {
-        mColorSections.setInitialColor(color);
-    } else if (index == 1) {
-        mColorSections.setPeakColor(color);
-    } else if (index == 2) {
-        mColorSections.setEndColor(color);
-    }
-}
-
-void EmitterWidget::updateColorSection(ColorGradientEditor::HandleType handleType) {
-    switch (handleType) {
-    case ColorGradientEditor::HandleType::InCompletedHandle:
-        mEmitterPtr->setColorSection1(mColorSections.inCompletedTiming());
-        break;
-    case ColorGradientEditor::HandleType::PeakHandle:
-        mEmitterPtr->setColorSection2(mColorSections.peakTiming());
-        break;
-    case ColorGradientEditor::HandleType::OutStartHandle:
-        mEmitterPtr->setColorSection3(mColorSections.outStartTiming());
-        break;
-    }
 }
 
 
