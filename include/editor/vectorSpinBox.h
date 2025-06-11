@@ -111,7 +111,7 @@ public:
         }
     }
 
-    const T& getVector() const {
+    T getVector() const {
         if constexpr (mAxisCount == 2) {
             return QVector2D(mSpinBoxX->value(), mSpinBoxY->value());
         } else if constexpr (mAxisCount == 3) {
