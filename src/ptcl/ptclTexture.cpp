@@ -27,8 +27,7 @@ const std::vector<u8>& Texture::textureDataRaw() const {
     return mEncodedData;
 }
 
-TextureFormat Texture::textureFormat() const
-{
+TextureFormat Texture::textureFormat() const {
     return mTextureFormat;
 }
 
