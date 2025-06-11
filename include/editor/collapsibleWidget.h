@@ -16,6 +16,8 @@ public:
 
     void setContent(QWidget* widget);
 
+    bool eventFilter(QObject* watched, QEvent* event) override;
+
 private slots:
     void toggle(bool expanded);
 

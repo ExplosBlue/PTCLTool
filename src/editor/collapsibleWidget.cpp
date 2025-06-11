@@ -1,5 +1,6 @@
 #include "editor/collapsibleWidget.h"
 
+#include <QEvent>
 #include <QFrame>
 #include <QStyleOption>
 #include <QVBoxLayout>
@@ -86,17 +87,33 @@ CollapsibleWidget::CollapsibleWidget(const QString& title, QWidget* parent) :
 
 void CollapsibleWidget::setContent(QWidget* widget) {
     if (mContentWidget) {
+        mContentWidget->removeEventFilter(this);
         mContentWidget->setParent(nullptr);
     }
 
     mContentWidget = widget;
     mContentFrame.layout()->addWidget(mContentWidget);
 
+    mContentWidget->installEventFilter(this);
     mContentWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mContentWidget->adjustSize();
 
     const int height = mContentWidget->sizeHint().height() + 16;
     mAnimation.setEndValue(height);
+    if (mToggleButton.isChecked()) {
+        mContentFrame.setMaximumHeight(height);
+    }
+}
+
+bool CollapsibleWidget::eventFilter(QObject* watched, QEvent* event) {
+    if (watched == mContentWidget && event->type() == QEvent::Resize) {
+        if (mToggleButton.isChecked()) {
+            const int newHeight = mContentWidget->sizeHint().height() + 16;
+            mContentFrame.setMaximumHeight(newHeight);
+            mAnimation.setEndValue(newHeight);
+        }
+    }
+    return QWidget::eventFilter(watched, event);
 }
 
 void CollapsibleWidget::toggle(bool expanded) {
