@@ -65,7 +65,7 @@ void PtclList::filterList(const QString& text) {
 
     for (const auto& [index, name] : mEmitterNames) {
         if (text.isEmpty() || name.contains(text, Qt::CaseInsensitive)) {
-            QStandardItem* item = new QStandardItem(name);
+            auto* item = new QStandardItem(name);
             item->setEditable(false);
             item->setData(index, Qt::UserRole);
             mListModel.appendRow(item);
@@ -85,8 +85,9 @@ void PtclList::filterList(const QString& text) {
 }
 
 void PtclList::selectionChanged(const QItemSelection& selection) {
-    if (selection.indexes().isEmpty())
+    if (selection.indexes().isEmpty()) {
         return;
+    }
 
     QModelIndex index = selection.indexes().front();
     mSelectedEmitterIndex = index.data(Qt::UserRole).toInt();

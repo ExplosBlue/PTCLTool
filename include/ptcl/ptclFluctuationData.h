@@ -18,13 +18,13 @@ public:
     FluctuationData& operator=(const FluctuationData&) = delete;
 
     f32 scale() const;
-    void setScale(const f32 scale);
+    void setScale(f32 scale);
 
     f32 freq() const;
-    void setFreq(const f32 freq);
+    void setFreq(f32 freq);
 
     u32 phaseRnd() const;
-    void setPhaseRnd(const u32 phaseRnd);
+    void setPhaseRnd(u32 phaseRnd);
 
     void initFromBinary(const BinFluctuationData& fluctuationData);
 

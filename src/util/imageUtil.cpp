@@ -113,8 +113,9 @@ inline std::vector<u8> ETC1Decompress(const std::vector<u8>& input, s32 width, s
                     int dstX = tx + px;
                     int dstY = ty + py;
 
-                    if (dstX >= width || dstY >= height)
+                    if (dstX >= width || dstY >= height) {
                         continue;
+                    }
 
                     int outOffs = ((height - 1 - dstY) * width + dstX) * 4;
 
@@ -402,8 +403,9 @@ std::vector<u8> QImageToPicaTexture(const QImage& image, Ptcl::TextureFormat for
                 u32 imgY = ty + y;
 
                 // Bounds check
-                if (imgX >= (u32)width || imgY >= (u32)height)
+                if (imgX >= (u32) width || imgY >= (u32) height) {
                     continue;
+                }
 
                 QRgb pixel = rgbaImage.pixel(static_cast<int>(imgX), static_cast<int>(imgY));
 
@@ -482,8 +484,8 @@ std::vector<u8> QImageToPicaTexture(const QImage& image, Ptcl::TextureFormat for
                 }
                 case Ptcl::TextureFormat::L4: {
                     u8 luminance = static_cast<u8>(qGray(pixel) >> 4); // Get 4-bit value
-                    int byteIndex = dstIdx >> 1;
-                    int shift = (dstIdx & 1) << 2; // 0 for even, 4 for odd (low nibble)
+                    size_t byteIndex = dstIdx >> 1;
+                    size_t shift = (dstIdx & 1) << 2; // 0 for even, 4 for odd (low nibble)
 
                     textureData[byteIndex] &= ~(0xF << shift);            // Clear target nibble
                     textureData[byteIndex] |= (luminance & 0xF) << shift; // Set nibble
@@ -491,8 +493,8 @@ std::vector<u8> QImageToPicaTexture(const QImage& image, Ptcl::TextureFormat for
                 }
                 case Ptcl::TextureFormat::A4: {
                     u8 alpha = static_cast<u8>(qAlpha(pixel) >> 4);
-                    int byteIndex = dstIdx >> 1;
-                    int shift = (dstIdx & 1) << 2;
+                    size_t byteIndex = dstIdx >> 1;
+                    size_t shift = (dstIdx & 1) << 2;
 
                     textureData[byteIndex] &= ~(0xF << shift);            // Clear target nibble
                     textureData[byteIndex] |= (alpha & 0xF) << shift;     // Set nibble

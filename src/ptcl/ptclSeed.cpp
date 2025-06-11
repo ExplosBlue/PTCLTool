@@ -15,14 +15,15 @@ PtclSeed::PtclSeed(u32 raw) :
 PtclSeed::Mode PtclSeed::mode() const {
     if (mValue == static_cast<u32>(PtclSeed::Mode::RandomPerEmitter)) {
         return PtclSeed::Mode::RandomPerEmitter;
-    } else if (mValue == static_cast<u32>(PtclSeed::Mode::RandomPerSet)) {
-        return PtclSeed::Mode::RandomPerSet;
-    } else {
-        return PtclSeed::Mode::ConstantSeed;
     }
+    if (mValue == static_cast<u32>(PtclSeed::Mode::RandomPerSet)) {
+        return PtclSeed::Mode::RandomPerSet;
+    }
+    return PtclSeed::Mode::ConstantSeed;
 }
 
-void PtclSeed::setMode(PtclSeed::Mode mode) {
+void PtclSeed::setMode(PtclSeed::Mode mode)
+{
     switch (mode) {
     case PtclSeed::Mode::RandomPerEmitter:
         mValue = static_cast<u32>(PtclSeed::Mode::RandomPerEmitter);

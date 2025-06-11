@@ -18,7 +18,7 @@ namespace Ptcl {
 
 class ChildData {
 public:
-    ChildData();
+    ChildData() = default;
 
     ChildData(const ChildData&) = delete;
     ChildData& operator=(const ChildData&) = delete;
@@ -27,13 +27,13 @@ public:
     void set_0(const std::array<u8, 44>& _0);
 
     u32 _2C() const;
-    void set_2C(const u32 _2C);
+    void set_2C(u32 _2C);
 
     const std::array<u8, 4>& _30() const;
     void set_30(const std::array<u8, 4>& _30);
 
     const TextureHandle& textureHandle() const;
-    void setTexture(std::shared_ptr<Texture> texture);
+    void setTexture(const std::shared_ptr<Texture>& texture);
 
     TextureWrap textureWrapT() const;
     void setTextureWrapT(TextureWrap wrap);
@@ -54,13 +54,13 @@ public:
     void set_4C(const std::array<u8, 16>& _4C);
 
     f32 _5C() const;
-    void set_5C(const f32 _5C);
+    void set_5C(f32 _5C);
 
     f32 _60() const;
-    void set_60(const f32 _60);
+    void set_60(f32 _60);
 
     f32 _64() const;
-    void set_64(const f32 _64);
+    void set_64(f32 _64);
 
     const std::array<u8, 84>& _68() const;
     void set_68(const std::array<u8, 84>& _68);
@@ -72,7 +72,7 @@ public:
     void set_C8(const std::array<u8, 32>& _C8);
 
     f32 _E8() const;
-    void set_E8(const f32 _E8);
+    void set_E8(f32 _E8);
 
     void initFromBinary(const BinChildData& childData);
 

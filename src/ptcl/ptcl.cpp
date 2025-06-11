@@ -1,6 +1,5 @@
 #include "ptcl/ptcl.h"
 #include "ptcl/ptclBinary.h"
-#include "util/imageUtil.h"
 #include "util/stringUtil.h"
 
 #include <QDataStream>
@@ -54,7 +53,7 @@ bool PtclRes::load(const QString& filePath) {
 
         auto emitterSet = std::make_unique<EmitterSet>();
 
-        file.seek(emitterSetTblPos + (sizeof(BinEmitterSetData) * resEmitterSetIdx));
+        file.seek(emitterSetTblPos + static_cast<qint64>((sizeof(BinEmitterSetData)) * resEmitterSetIdx));
         BinEmitterSetData binEmitterSetData;
         stream >> binEmitterSetData;
 
@@ -75,7 +74,7 @@ bool PtclRes::load(const QString& filePath) {
 
                 auto emitter = std::make_unique<Emitter>();
 
-                file.seek(binEmitterSetData.emitterTblPos + (sizeof(BinEmitterTblData) * emitterIdx));
+                file.seek(binEmitterSetData.emitterTblPos + static_cast<qint64>((sizeof(BinEmitterTblData)) * emitterIdx));
                 BinEmitterTblData binEmitterTblData;
                 stream >> binEmitterTblData;
 
@@ -119,7 +118,7 @@ bool PtclRes::load(const QString& filePath) {
                     emitter->setTexture(mTextures[textureOffsetMap[textureOffset]]);
 
                     if (binCommonEmitterData.type == EmitterType::Complex || binCommonEmitterData.type == EmitterType::UnkType2) {
-                        file.seek(binEmitterTblData.emitterPos + sizeof(BinCommonEmitterData));
+                        file.seek(binEmitterTblData.emitterPos + static_cast<qint64>(sizeof(BinCommonEmitterData)));
                         BinComplexEmitterData binComplexEmitterData;
                         stream >> binComplexEmitterData;
 
@@ -228,7 +227,7 @@ u32 PtclRes::emitterSetCount() const {
 }
 
 u32 PtclRes::emitterCount() const {
-    s32 count = 0;
+    u32 count = 0;
 
     for (auto& emitterSet : mEmitterSets) {
         count += emitterSet->emitterCount();
@@ -366,7 +365,8 @@ bool PtclRes::save(const QString& filePath) {
                     emitterData.texturePos = textureOffsetMap[emitter->textureHandle()->Id()];
                     emitterData.textureSize = emitter->textureHandle()->textureDataRaw().size();
                 } else {
-                    qint64 paddingNeeded = (128 - (emitter->textureHandle()->textureDataRaw().size() % 128)) % 128;
+                    qint64 dataSize = static_cast<qint64>(emitter->textureHandle()->textureDataRaw().size());
+                    qint64 paddingNeeded = (128 - (dataSize % 128)) % 128;
 
                     emitterData.texturePos = textureTblCurOffset;
                     textureOffsetMap.try_emplace(emitter->textureHandle()->Id(), textureTblCurOffset);
@@ -418,7 +418,8 @@ bool PtclRes::save(const QString& filePath) {
                         binChildData.texturePos = textureOffsetMap[emitter->childData().textureHandle()->Id()];
                         binChildData.textureSize = emitter->childData().textureHandle()->textureDataRaw().size();
                     } else {
-                        qint64 paddingNeeded = (128 - (emitter->childData().textureHandle()->textureDataRaw().size() % 128)) % 128;
+                        qint64 dataSize = static_cast<qint64>(emitter->childData().textureHandle()->textureDataRaw().size());
+                        qint64 paddingNeeded = (128 - (dataSize % 128)) % 128;
 
                         binChildData.texturePos = textureTblCurOffset;
                         textureOffsetMap.try_emplace(emitter->childData().textureHandle()->Id(), textureTblCurOffset);
@@ -439,7 +440,8 @@ bool PtclRes::save(const QString& filePath) {
                     emitterData.texturePos = textureOffsetMap[emitter->textureHandle()->Id()];
                     emitterData.textureSize = emitter->textureHandle()->textureDataRaw().size();
                 } else {
-                    qint64 paddingNeeded = (128 - (emitter->textureHandle()->textureDataRaw().size() % 128)) % 128;
+                    qint64 dataSize = static_cast<qint64>(emitter->textureHandle()->textureDataRaw().size());
+                    qint64 paddingNeeded = (128 - (dataSize % 128)) % 128;
 
                     emitterData.texturePos = textureTblCurOffset;
                     textureOffsetMap.try_emplace(emitter->textureHandle()->Id(), textureTblCurOffset);
@@ -490,7 +492,7 @@ bool PtclRes::save(const QString& filePath) {
                 }
 
                 // Append to list
-                emitterData.mDataSize = emitterDataSize;
+                emitterData.mDataSize = static_cast<s32>(emitterDataSize);
 
                 emitterDataCurOffset += emitterDataSize;
                 binEmitterDataList.emplace_back(emitterData);
@@ -565,11 +567,11 @@ bool PtclRes::save(const QString& filePath) {
     }
 
     qint64 textureTblPos = file.pos();
-    stream.writeRawData(textureTbl.data(), textureTbl.size());
+    stream.writeRawData(textureTbl.data(), static_cast<qint64>(textureTbl.size()));
     qint64 textureTblSize = file.pos() - textureTblPos;
 
     qint64 nameTblPos = file.pos();
-    stream.writeRawData(nameTbl.data(), nameTbl.size());
+    stream.writeRawData(nameTbl.data(), static_cast<qint64>(nameTbl.size()));
 
     // Update header with nameTbl/textureTbl pos & size
     headerData.textureTblPos = textureTblPos;

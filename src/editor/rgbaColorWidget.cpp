@@ -21,8 +21,8 @@ RGBAColorWidget::RGBAColorWidget(QWidget* parent) :
 
     using SliderType = std::variant<GradientSlider*, AlphaSlider*>;
 
-    auto addChannelRow = [&](const QString &name, SliderType sliderType, QDoubleSpinBox* spinbox) {
-        QHBoxLayout *row = new QHBoxLayout;
+    auto addChannelRow = [&](const QString& name, SliderType sliderType, QDoubleSpinBox* spinbox) {
+        auto* row = new QHBoxLayout;
         row->addWidget(new QLabel(name));
         row->addWidget(spinbox);
         spinbox->setDecimals(3);

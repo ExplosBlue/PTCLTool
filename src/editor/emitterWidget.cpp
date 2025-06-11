@@ -13,20 +13,20 @@ namespace PtclEditor {
 
 EmitterWidget::EmitterWidget(QWidget* parent) :
     QWidget{parent}, mIsPopulating{false} {
-    QWidget* containerWidget = new QWidget;
+    auto* containerWidget = new QWidget;
     containerWidget->setLayout(&mMainLayout);
 
     containerWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     containerWidget->setMinimumWidth(400);
 
-    QScrollArea* scrollArea = new QScrollArea(this);
+    auto* scrollArea = new QScrollArea(this);
     scrollArea->setWidget(containerWidget);
     scrollArea->setWidgetResizable(true);
 
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    QVBoxLayout* outerLayout = new QVBoxLayout(this);
+    auto* outerLayout = new QVBoxLayout(this);
     outerLayout->addWidget(scrollArea);
     outerLayout->setContentsMargins(0, 0, 0, 0);
     setLayout(outerLayout);
@@ -186,8 +186,9 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     auto& randomSeed = mEmitterPtr->randomSeed();
     auto seedMode = randomSeed.mode();
     int index = mRandomSeedMode.findData(static_cast<int>(seedMode));
-    if (index != -1)
+    if (index != -1) {
         mRandomSeedMode.setCurrentIndex(index);
+    }
     mRandomSeedSpinBox.setValue(randomSeed.constantSeed());
     mRandomSeedSpinBox.setVisible(seedMode == PtclSeed::Mode::ConstantSeed);
 

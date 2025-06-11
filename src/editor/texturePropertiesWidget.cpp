@@ -261,8 +261,9 @@ void TexturePropertiesWidget::updateTexPatTblColumns() {
 
     for (int i = 0; i < 16; ++i) {
         QTableWidgetItem* item = mTexPatTbl.item(0, i);
-        if (!item)
+        if (!item) {
             continue;
+        }
 
         if (i >= use) {
             item->setFlags(Qt::NoItemFlags);

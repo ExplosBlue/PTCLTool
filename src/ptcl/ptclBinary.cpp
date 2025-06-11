@@ -88,12 +88,17 @@ QMatrix3x4 binMtx34f::toQMatrix3x4() const {
 }
 
 QDataStream& operator>>(QDataStream& in, binMtx34f& item) {
-    in.readRawData(reinterpret_cast<char*>(item.cells.data()), sizeof(binMtx34f));
+    for (f32& val : item.cells) {
+        in >> val;
+    }
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const binMtx34f& item) {
-    out.writeRawData(reinterpret_cast<const char*>(item.cells.data()), sizeof(binMtx34f));
+    for (const f32& val : item.cells) {
+        out << val;
+    }
+
     return out;
 }
 
@@ -370,7 +375,11 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item._5C
         >> item.initVelRnd
         >> item.spreadVec;
-    in.readRawData(reinterpret_cast<char*>(item._70.data()), sizeof(item._70));
+
+    for (u32& val : item._70) {
+        in >> val;
+    }
+
     in >> item._80
         >> item.ptclLife
         >> item.ptclLifeRnd
@@ -384,7 +393,11 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item.color[0]
         >> item.color[1]
         >> item.color[2];
-    in.readRawData(reinterpret_cast<char*>(item._D8.data()), sizeof(item._D8));
+
+    for (u32& val : item._D8) {
+        in >> val;
+    }
+
     in >> item.colorSection1
         >> item.colorSection2
         >> item.colorSection3
@@ -407,7 +420,11 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item.initRotRand
         >> item.rotVel
         >> item.rotVelRand;
-    in.readRawData(reinterpret_cast<char*>(item._168.data()), sizeof(item._168));
+
+    for (u32& val : item._168) {
+        in >> val;
+    }
+
     in >> item.transformSRT
         >> item.transformRT
         >> item.alphaAddInFade
@@ -415,7 +432,11 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item.numTexDivX
         >> item.numTexDivY
         >> item.texUVScale;
-    in.readRawData(reinterpret_cast<char*>(item.texPatTbl.data()), sizeof(item.texPatTbl));
+
+    for (u8& val : item.texPatTbl) {
+        in >> val;
+    }
+
     in >> item.texPatFreq
         >> item.texPatTblUse;
     return in;
@@ -448,7 +469,11 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item._5C
         << item.initVelRnd
         << item.spreadVec;
-    out.writeRawData(reinterpret_cast<const char*>(item._70.data()), sizeof(item._70));
+
+    for (const u32& val : item._70) {
+        out << val;
+    }
+
     out << item._80
         << item.ptclLife
         << item.ptclLifeRnd
@@ -462,7 +487,11 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item.color[0]
         << item.color[1]
         << item.color[2];
-    out.writeRawData(reinterpret_cast<const char*>(item._D8.data()), sizeof(item._D8));
+
+    for (const u32& val : item._D8) {
+        out << val;
+    }
+
     out << item.colorSection1
         << item.colorSection2
         << item.colorSection3
@@ -485,7 +514,11 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item.initRotRand
         << item.rotVel
         << item.rotVelRand;
-    out.writeRawData(reinterpret_cast<const char*>(item._168.data()), sizeof(item._168));
+
+    for (const u32& val : item._168) {
+        out << val;
+    }
+
     out << item.transformSRT
         << item.transformRT
         << item.alphaAddInFade
@@ -493,7 +526,11 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item.numTexDivX
         << item.numTexDivY
         << item.texUVScale;
-    out.writeRawData(reinterpret_cast<const char*>(item.texPatTbl.data()), sizeof(item.texPatTbl));
+
+    for (const u8& val : item.texPatTbl) {
+        out << val;
+    }
+
     out << item.texPatFreq
         << item.texPatTblUse;
     return out;
@@ -674,39 +711,77 @@ BinChildData::BinChildData(const Ptcl::ChildData& childData) {
 
 
 QDataStream& operator>>(QDataStream& in, BinChildData& item) {
-    in.readRawData(reinterpret_cast<char*>(item._0.data()), sizeof(item._0));
+    for (u8& val : item._0) {
+        in >> val;
+    }
+
     in >> item._2C;
-    in.readRawData(reinterpret_cast<char*>(item._30.data()), sizeof(item._30));
+
+    for (u8& val : item._30) {
+        in >> val;
+    }
+
     in >> item.textureRes
         >> item.textureSize
         >> item.texturePos
         >> item.textureHandlePtr;
-    in.readRawData(reinterpret_cast<char*>(item._4C.data()), sizeof(item._4C));
+
+    for (u8& val : item._4C) {
+        in >> val;
+    }
+
     in >> item._5C
         >> item._60
         >> item._64;
-    in.readRawData(reinterpret_cast<char*>(item._68.data()), sizeof(item._68));
+
+    for (u8& val : item._68) {
+        in >> val;
+    }
+
     in >> item._BC;
-    in.readRawData(reinterpret_cast<char*>(item._C8.data()), sizeof(item._C8));
+
+    for (u8& val : item._C8) {
+        in >> val;
+    }
+
     in >> item._E8;
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinChildData& item) {
-    out.writeRawData(reinterpret_cast<const char*>(item._0.data()), sizeof(item._0));
+    for (const u8& val : item._0) {
+        out << val;
+    }
+
     out << item._2C;
-    out.writeRawData(reinterpret_cast<const char*>(item._30.data()), sizeof(item._30));
+
+    for (const u8& val : item._30) {
+        out << val;
+    }
+
     out << item.textureRes
         << item.textureSize
         << item.texturePos
         << item.textureHandlePtr;
-    out.writeRawData(reinterpret_cast<const char*>(item._4C.data()), sizeof(item._4C));
+
+    for (const u8& val : item._4C) {
+        out << val;
+    }
+
     out << item._5C
         << item._60
         << item._64;
-    out.writeRawData(reinterpret_cast<const char*>(item._68.data()), sizeof(item._68));
+
+    for (const u8& val : item._68) {
+        out << val;
+    }
+
     out << item._BC;
-    out.writeRawData(reinterpret_cast<const char*>(item._C8.data()), sizeof(item._C8));
+
+    for (const u8& val : item._C8) {
+        out << val;
+    }
+
     out << item._E8;
     return out;
 }
@@ -896,12 +971,18 @@ BinStripeData::BinStripeData(const Ptcl::StripeData& stripeData) {
 }
 
 QDataStream& operator>>(QDataStream& in, BinStripeData& item) {
-    in.readRawData(reinterpret_cast<char*>(item._0.data()), sizeof(item._0));
+    for (u8& val : item._0) {
+        in >> val;
+    }
+
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinStripeData& item) {
-    out.writeRawData(reinterpret_cast<const char*>(item._0.data()), sizeof(item._0));
+    for (const u8& val : item._0) {
+        out << val;
+    }
+
     return out;
 }
 
