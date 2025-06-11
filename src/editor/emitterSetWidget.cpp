@@ -34,7 +34,7 @@ EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
     });
 
     // Name layout
-    QHBoxLayout* nameLayout = new QHBoxLayout();
+    auto* nameLayout = new QHBoxLayout();
     nameLayout->addWidget(new QLabel("EmitterSet Name:"));
     nameLayout->addWidget(&mNameLineEdit);
 
@@ -130,8 +130,8 @@ void EmitterSetWidget::populateEmitterPicker() {
     mEmitterTabPlaceholders.clear();
 
     for (auto& emitter : mEmitterSetPtr->emitters()) {
-        QWidget* placeholder = new QWidget();
-        QVBoxLayout* layout = new QVBoxLayout(placeholder);
+        auto* placeholder = new QWidget();
+        auto* layout      = new QVBoxLayout(placeholder);
         layout->setContentsMargins(0, 0, 0, 0);
         placeholder->setLayout(layout);
 
@@ -140,7 +140,7 @@ void EmitterSetWidget::populateEmitterPicker() {
     }
 
     // Add a tab to add new emitters
-    QWidget* addTabPlaceholder = new QWidget();
+    auto* addTabPlaceholder = new QWidget();
     int plusTabIndex = mEmitterTabs.addTab(addTabPlaceholder, "+");
 
     QTabBar* tabBar = mEmitterTabs.tabBar();

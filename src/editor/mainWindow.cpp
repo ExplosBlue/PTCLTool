@@ -197,7 +197,7 @@ void MainWindow::saveFile() {
 }
 
 void MainWindow::openRecentFile() {
-    QAction* action = qobject_cast<QAction*>(sender());
+    auto* action = qobject_cast<QAction*>(sender());
 
     if (!action) {
         return;

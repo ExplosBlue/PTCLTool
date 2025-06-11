@@ -22,7 +22,7 @@ public:
     FieldRandomData& operator=(const FieldRandomData&) = delete;
 
     s32 randomBlank() const;
-    void setRandomBlank(const s32 randomBlank);
+    void setRandomBlank(s32 randomBlank);
 
     const QVector3D& randomVelAdd() const;
     void setRandomVelAdd(const QVector3D& randomVelAdd);
@@ -47,13 +47,13 @@ public:
     FieldMagnetData& operator=(const FieldMagnetData&) = delete;
 
     f32 magnetPower() const;
-    void setMagnetPower(const f32 magnetPower);
+    void setMagnetPower(f32 magnetPower);
 
     const QVector3D& magnetPos() const;
     void setMagnetPos(const QVector3D& magnetPos);
 
     u32 magnetFlag() const;
-    void setMagnetFlag(const u32 magnetFlag);
+    void setMagnetFlag(u32 magnetFlag);
 
     void initFromBinary(const BinFieldMagnetData& fieldMagnetData);
 
@@ -76,10 +76,10 @@ public:
     FieldSpinData& operator=(const FieldSpinData&) = delete;
 
     s32 spinRotate() const;
-    void setSpinRotate(const s32 spinRotate);
+    void setSpinRotate(s32 spinRotate);
 
     s32 spinAxis() const;
-    void setSpinAxis(const s32 spinAxis);
+    void setSpinAxis(s32 spinAxis);
 
     void initFromBinary(const BinFieldSpinData& fieldSpinData);
 
@@ -101,16 +101,16 @@ public:
     FieldCollisionData& operator=(const FieldCollisionData&) = delete;
 
     u16 collisionType() const;
-    void setCollisionType(const u16 collisionType);
+    void setCollisionType(u16 collisionType);
 
     u16 collisionIsWorld() const;
-    void setCollisionIsWorld(const u16 collisionIsWorld);
+    void setCollisionIsWorld(u16 collisionIsWorld);
 
     f32 collisionCoord() const;
-    void setCollisionCoord(const f32 collisionCoord);
+    void setCollisionCoord(f32 collisionCoord);
 
     f32 collisionCoef() const;
-    void setCollisionCoef(const f32 collisionCoef);
+    void setCollisionCoef(f32 collisionCoef);
 
     void initFromBinary(const BinFieldCollisionData& fieldCollisionData);
 
@@ -134,7 +134,7 @@ public:
     FieldConvergenceData& operator=(const FieldConvergenceData&) = delete;
 
     FieldConvergenceType convergenceType() const;
-    void setConvergenceType(const FieldConvergenceType convergenceType);
+    void                 setConvergenceType(FieldConvergenceType convergenceType);
 
     const QVector3D& convergencePos() const;
     void setConvergencePos(const QVector3D& convergencePos);

@@ -23,7 +23,7 @@ TextureImportDialog::TextureImportDialog(QWidget* parent, Qt::WindowFlags flags)
     mFormatPreview.setThumbnailSize(QSize(256, 256));
 
     // Button Box
-    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
+    auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
@@ -41,7 +41,7 @@ TextureImportDialog::TextureImportDialog(QWidget* parent, Qt::WindowFlags flags)
     mInfoLabel.setText("Dimentions: N/A\nSize: N/A");
     mInfoLabel.setAlignment(Qt::AlignRight);
 
-    QGridLayout* gridLayout = new QGridLayout;
+    auto* gridLayout = new QGridLayout;
 
     // Row 0: Format selector label + combo
     gridLayout->addWidget(new QLabel("Texture Format:"), 0, 0, Qt::AlignRight | Qt::AlignVCenter);
@@ -55,8 +55,8 @@ TextureImportDialog::TextureImportDialog(QWidget* parent, Qt::WindowFlags flags)
     gridLayout->addWidget(&mETCDither, 2, 1);
 
     // Row 3: Labels above previews
-    QLabel* originalLabel = new QLabel("Original");
-    QLabel* previewLabel = new QLabel("Preview");
+    auto* originalLabel = new QLabel("Original");
+    auto* previewLabel  = new QLabel("Preview");
     originalLabel->setAlignment(Qt::AlignCenter);
     previewLabel->setAlignment(Qt::AlignCenter);
     originalLabel->setStyleSheet("font-weight: bold;");

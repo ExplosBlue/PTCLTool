@@ -27,7 +27,7 @@ signals:
 
 template<typename T>
 class SizedSpinBox final : public SizedSpinBoxBase {
-    static_assert(std::is_integral<T>::value, "SizedSpinBox only supports integral types");
+    static_assert(std::is_integral_v<T>, "SizedSpinBox only supports integral types");
 
 public:
     explicit SizedSpinBox(QWidget* parent = nullptr) :

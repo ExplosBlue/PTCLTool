@@ -21,7 +21,7 @@ public:
     const QImage& textureData() const;
     const std::vector<u8>& textureDataRaw() const;
 
-    const TextureFormat textureFormat() const;
+    TextureFormat textureFormat() const;
 
     u32 userCount() const;
 
@@ -63,7 +63,7 @@ public:
     bool isValid() const;
 
     std::shared_ptr<Texture> get() const;
-    void set(std::shared_ptr<Texture> texture);
+    void                     set(const std::shared_ptr<Texture>& texture);
 
     TextureHandle& operator=(std::shared_ptr<Texture> texture);
     std::shared_ptr<Texture> operator->() const;

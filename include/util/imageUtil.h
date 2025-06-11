@@ -21,13 +21,15 @@ enum class ETC1Quality {
 };
 
 template<typename EnumType>
-const QString toString(const EnumType&) {
+QString toString(const EnumType&)
+{
     static_assert(sizeof(EnumType) == 0, "toString not implemented for this enum type");
     return {};
 }
 
 template<>
-inline const QString toString<ETC1Quality>(const ETC1Quality& type) {
+inline QString toString<ETC1Quality>(const ETC1Quality& type)
+{
     switch (type) {
     case ETC1Quality::LowQuality:    return "Low Quality";
     case ETC1Quality::MediumQuality: return "Medium Quality";

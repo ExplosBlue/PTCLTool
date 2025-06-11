@@ -27,7 +27,8 @@ const std::vector<u8>& Texture::textureDataRaw() const {
     return mEncodedData;
 }
 
-const TextureFormat Texture::textureFormat() const {
+TextureFormat Texture::textureFormat() const
+{
     return mTextureFormat;
 }
 
@@ -79,7 +80,8 @@ std::shared_ptr<Texture> TextureHandle::get() const {
     return mTexturePtr;
 }
 
-void TextureHandle::set(std::shared_ptr<Texture> texture) {
+void TextureHandle::set(const std::shared_ptr<Texture>& texture)
+{
     if (mTexturePtr != texture) {
         decrementCount();
         mTexturePtr = texture;
@@ -88,7 +90,7 @@ void TextureHandle::set(std::shared_ptr<Texture> texture) {
 }
 
 TextureHandle& TextureHandle::operator=(std::shared_ptr<Texture> texture) {
-    set(texture);
+    set(std::move(texture));
     return *this;
 }
 

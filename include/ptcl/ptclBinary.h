@@ -396,7 +396,7 @@ struct alignas(4) BinFieldCollisionData {
     f32 fieldCollisionCoef;     // 0x08
 
     BinFieldCollisionData() = default;
-    BinFieldCollisionData(const Ptcl::FieldCollisionData& fieldCollsionData);
+    BinFieldCollisionData(const Ptcl::FieldCollisionData& fieldCollisionData);
 
     friend QDataStream& operator>>(QDataStream& in, BinFieldCollisionData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinFieldCollisionData& item);

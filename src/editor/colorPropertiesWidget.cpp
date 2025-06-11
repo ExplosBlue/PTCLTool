@@ -100,10 +100,11 @@ void ColorPropertiesWidget::updateUiFromFlags() {
     }
 
     Behavior behavior = Behavior::Constant;
-    if (mEmitterPtr->flags().isSet(Ptcl::EmitterFlag::ColorRandom))
+    if (mEmitterPtr->flags().isSet(Ptcl::EmitterFlag::ColorRandom)) {
         behavior = Behavior::Random;
-    else if (mEmitterPtr->flags().isSet(Ptcl::EmitterFlag::ColorAnimation))
+    } else if (mEmitterPtr->flags().isSet(Ptcl::EmitterFlag::ColorAnimation)) {
         behavior = Behavior::Animation;
+    }
 
     QSignalBlocker blocker(mColorBehavior);
     mColorBehavior.setCurrentIndex(behaviorToIndex(behavior));
@@ -135,8 +136,9 @@ void ColorPropertiesWidget::applyBehaviorToUI(Behavior behavior) {
 }
 
 void ColorPropertiesWidget::showColorWidgets(std::array<bool, 3> visibility) {
-    for (int i = 0; i < mColorWidgets.size(); ++i)
+    for (int i = 0; i < mColorWidgets.size(); ++i) {
         mColorWidgets[i].setVisible(visibility[i]);
+    }
 }
 
 void ColorPropertiesWidget::setColorLabels(const std::array<QString, 3>& labels) {
@@ -190,9 +192,13 @@ void ColorPropertiesWidget::handleColorChanged() {
     mEmitterPtr->setColor(index, color);
 
     QColor qcolor = QColor::fromRgbF(color.r, color.g, color.b);
-    if (index == 0) mColorSections.setInitialColor(qcolor);
-    else if (index == 1) mColorSections.setPeakColor(qcolor);
-    else if (index == 2) mColorSections.setEndColor(qcolor);
+    if (index == 0) {
+        mColorSections.setInitialColor(qcolor);
+    } else if (index == 1) {
+        mColorSections.setPeakColor(qcolor);
+    } else if (index == 2) {
+        mColorSections.setEndColor(qcolor);
+    }
 }
 
 void ColorPropertiesWidget::updateColorSection(ColorGradientEditor::HandleType handleType) {

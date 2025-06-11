@@ -8,7 +8,7 @@
 
 template <typename T>
 class EnumComboBox : public QComboBox {
-    static_assert(std::is_enum<T>::value, "EnumComboBox requires an enum type");
+    static_assert(std::is_enum_v<T>, "EnumComboBox requires an enum type");
 
 public:
     EnumComboBox(QWidget* parent = nullptr) :

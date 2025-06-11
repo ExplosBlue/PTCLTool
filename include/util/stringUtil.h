@@ -71,7 +71,7 @@ inline QString shiftJISToQString(const char* input, size_t inputLength = 0) {
         throw std::runtime_error("Converted string size too large");
     }
 
-    qsizetype length = static_cast<qsizetype>(byteCount);
+    auto length = static_cast<qsizetype>(byteCount);
     return QString::fromUtf8(outputBuffer.constData(), length);
 }
 
@@ -112,7 +112,7 @@ inline QByteArray qStringToShiftJIS(const QString& input) {
         throw std::runtime_error("iconv conversion failed");
     }
 
-    qsizetype writtenSize = static_cast<qsizetype>(outputBuffer.size() - outBytesLeft);
+    auto writtenSize = static_cast<qsizetype>(outputBuffer.size() - outBytesLeft);
     return outputBuffer.left(writtenSize);
 }
 

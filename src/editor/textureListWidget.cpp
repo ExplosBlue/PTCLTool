@@ -29,13 +29,13 @@ TextureListItem::TextureListItem(const QString& text, QIcon thumbnail, QWidget* 
     layout->setContentsMargins(5, 5, 5, 5);
 
     // Create a label for the thumbnail
-    ThumbnailWidget* thumbnailWidget = new ThumbnailWidget(this);
+    auto* thumbnailWidget = new ThumbnailWidget(this);
     thumbnailWidget->setPixmap(mThumbnail.pixmap(64, 64));
     thumbnailWidget->setThumbnailSize(QSize(64, 64));
     layout->addWidget(thumbnailWidget);
 
     // Create a label for the text
-    QLabel* textLabel = new QLabel(text, this);
+    auto* textLabel = new QLabel(text, this);
     textLabel->setWordWrap(true);
     layout->addWidget(textLabel);
 
@@ -89,7 +89,7 @@ void TextureListItem::contextMenuEvent(QContextMenuEvent* event) {
 TextureListWidget::TextureListWidget(QWidget *parent) :
     QWidget{parent}, mTexturesPtr{nullptr}, mScrollArea{this},
     mLastColumnCount{-1}, mLastWidgetCount{0} {
-    QVBoxLayout* mainLayout = new QVBoxLayout;
+    auto* mainLayout = new QVBoxLayout;
 
     // Grid Container
     mGridLayout.setSpacing(10);
@@ -165,7 +165,7 @@ void TextureListWidget::exportImage() {
         return;
     }
 
-    TextureListItem* item = qobject_cast<TextureListItem*>(sender());
+    auto* item = qobject_cast<TextureListItem*>(sender());
     if (!item) {
         return;
     }
@@ -243,7 +243,7 @@ void TextureListWidget::replaceTexture() {
         return;
     }
 
-    TextureListItem* item = qobject_cast<TextureListItem*>(sender());
+    auto* item = qobject_cast<TextureListItem*>(sender());
     if (!item) {
         return;
     }
@@ -322,7 +322,7 @@ void TextureListWidget::setupListItem(TextureListItem* item, int index) {
         item->update();
     } else {
         // Create a new item
-        TextureListItem* newItem = new TextureListItem(text, QIcon(pixmap), &mGridContainer);
+        auto* newItem = new TextureListItem(text, QIcon(pixmap), &mGridContainer);
         newItem->setFixedSize(200, 74);// TODO: Size dynamically
         newItem->setProperty("textureIndex", index);
         connect(newItem, &TextureListItem::exportImage, this, &TextureListWidget::exportImage);

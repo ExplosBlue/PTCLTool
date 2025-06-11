@@ -7,8 +7,6 @@ namespace Ptcl {
 // ========================================================================== //
 
 
-ChildData::ChildData() {}
-
 const std::array<u8, 44>& ChildData::_0() const {
     return m_0;
 }
@@ -21,7 +19,7 @@ u32 ChildData::_2C() const {
     return m_2C;
 }
 
-void ChildData::set_2C(const u32 _2C) {
+void ChildData::set_2C(u32 _2C) {
     m_2C = _2C;
 }
 
@@ -37,7 +35,7 @@ const TextureHandle& ChildData::textureHandle() const {
     return mTextureHande;
 }
 
-void ChildData::setTexture(std::shared_ptr<Texture> texture) {
+void ChildData::setTexture(const std::shared_ptr<Texture>& texture) {
     mTextureHande.set(texture);
 }
 

@@ -34,7 +34,7 @@ public:
     Emitter& operator=(const Emitter&) = delete;
 
     EmitterType type() const;
-    void setType(const EmitterType type);
+    void        setType(EmitterType type);
 
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag>& flags() const;
@@ -65,52 +65,52 @@ public:
     void setTextureMipFilter(TextureMipFilter filter);
 
     u8 _2C() const;
-    void set_2C(const u8 _2C);
+    void set_2C(u8 _2C);
 
     u8 _2D() const;
-    void set_2D(const u8 _2D);
+    void set_2D(u8 _2D);
 
     u8 _2E() const;
-    void set_2E(const u8 _2E);
+    void set_2E(u8 _2E);
 
     u8 _2F() const;
-    void set_2F(const u8 _2F);
+    void set_2F(u8 _2F);
 
     u8 _30() const;
-    void set_30(const u8 _30);
+    void set_30(u8 _30);
 
     u8 _31() const;
-    void set_31(const u8 _31);
+    void set_31(u8 _31);
 
     u8 volumeTblIndex() const;
-    void setVolumeTblIndex(const u8 volumeTblIndex);
+    void setVolumeTblIndex(u8 volumeTblIndex);
 
     u8 _33() const;
-    void set_33(const u8 _33);
+    void set_33(u8 _33);
 
     VolumeType volumeType() const;
-    void setVolumeType(const VolumeType volumeType);
+    void       setVolumeType(VolumeType volumeType);
 
     const QVector3D& volumeRadius() const;
     void setVolumeRadius(const QVector3D& volumeRadius);
 
     f32 _44() const;
-    void set_44(const f32 _44);
+    void set_44(f32 _44);
 
     f32 _48() const;
-    void set_48(const f32 _48);
+    void set_48(f32 _48);
 
     f32 figureVel() const;
-    void setFigureVel(const f32 figureVel);
+    void setFigureVel(f32 figureVel);
 
     const QVector3D& emitterVelDir() const;
     void setEmitterVelDir(const QVector3D& emitterVelDir);
 
     f32 _5C() const;
-    void set_5C(const f32 _5C);
+    void set_5C(f32 _5C);
 
     f32 initVelRnd() const;
-    void setInitVelRnd(const f32 initVelRnd);
+    void setInitVelRnd(f32 initVelRnd);
 
     const QVector3D& spreadVec() const;
     void setSpreadVec(const QVector3D& spreadVec);
@@ -119,34 +119,34 @@ public:
     void set_70(const std::array<u32, 4>& _70);
 
     u32 _80() const;
-    void set_80(const u32 _80);
+    void set_80(u32 _80);
 
     s32 ptclLife() const;
-    void setPtclLife(const s32 ptclLife);
+    void setPtclLife(s32 ptclLife);
 
     s32 ptclLifeRnd() const;
-    void setPtclLifeRnd(const s32 ptclLifeRnd);
+    void setPtclLifeRnd(s32 ptclLifeRnd);
 
     f32 _8C() const;
-    void set_8C(const f32 _8C);
+    void set_8C(f32 _8C);
 
     u32 _90() const;
     void set_90(u32 _90);
 
     BillboardType billboardType() const;
-    void setBillboardType(const BillboardType billboardType);
+    void          setBillboardType(BillboardType billboardType);
 
     u32 _98() const;
-    void set_98(const u32 _98);
+    void set_98(u32 _98);
 
     f32 _9C() const;
-    void set_9C(const f32 _9C);
+    void set_9C(f32 _9C);
 
     f32 _A0() const;
-    void set_A0(const f32 _A0);
+    void set_A0(f32 _A0);
 
     f32 _A4() const;
-    void set_A4(const f32 _A4);
+    void set_A4(f32 _A4);
 
     const std::array<binColor4f, 3>& colors() const;
     void setColors(const std::array<binColor4f, 3>& colors);
@@ -156,31 +156,31 @@ public:
     void set_D8(const std::array<u32, 3>& _D8);
 
     s32 colorSection1() const;
-    void setColorSection1(const s32 colorSection1);
+    void setColorSection1(s32 colorSection1);
 
     s32 colorSection2() const;
-    void setColorSection2(const s32 colorSection2);
+    void setColorSection2(s32 colorSection2);
 
     s32 colorSection3() const;
-    void setColorSection3(const s32 colorSection3);
+    void setColorSection3(s32 colorSection3);
 
     s32 colorNumRepeat() const;
-    void setColorNumRepeat(const s32 colorNumRepeat);
+    void setColorNumRepeat(s32 colorNumRepeat);
 
     f32 initAlpha() const;
-    void setInitAlpha(const f32 initAlpha);
+    void setInitAlpha(f32 initAlpha);
 
     f32 diffAlpha21() const;
-    void setDiffAlpha21(const f32 diffAlpha21);
+    void setDiffAlpha21(f32 diffAlpha21);
 
     f32 diffAlpha32() const;
-    void setDiffAlpha32(const f32 diffAlpha32);
+    void setDiffAlpha32(f32 diffAlpha32);
 
     s32 alphaSection1() const;
-    void setAlphaSection1(const s32 alphaSection1);
+    void setAlphaSection1(s32 alphaSection1);
 
     s32 alphaSection2() const;
-    void setAlphaSection2(const s32 alphaSection2);
+    void setAlphaSection2(s32 alphaSection2);
 
     const QVector2D& initScale() const;
     void setInitScale(const QVector2D& initScale);
@@ -192,22 +192,22 @@ public:
     void setDiffScale32(const QVector2D& diffScale32);
 
     s32 scaleSection1() const;
-    void setScaleSection1(const s32 scaleSection1);
+    void setScaleSection1(s32 scaleSection1);
 
     s32 scaleSection2() const;
-    void setScaleSection2(const s32 scaleSection2);
+    void setScaleSection2(s32 scaleSection2);
 
     f32 scaleRand() const;
-    void setScaleRand(const f32 scaleRand);
+    void setScaleRand(f32 scaleRand);
 
     u32 _12C() const;
-    void set_12C(const u32 _12C);
+    void set_12C(u32 _12C);
 
     u32 _130() const;
-    void set_130(const u32 _130);
+    void set_130(u32 _130);
 
     u32 _134() const;
-    void set_134(const u32 _134);
+    void set_134(u32 _134);
 
     const QVector3D& initRot() const;
     void setInitRot(const QVector3D& initRot);
@@ -231,16 +231,16 @@ public:
     void setTransformRT(const QMatrix3x4& transformRT);
 
     f32 alphaAddInFade() const;
-    void setAlphaAddInFade(const f32 alphaAddInFade);
+    void setAlphaAddInFade(f32 alphaAddInFade);
 
     u16 numTexPat() const;
-    void setNumTexPat(const u16 numTexPat);
+    void setNumTexPat(u16 numTexPat);
 
     u8 numTexDivX() const;
-    void setNumTexDivX(const u8 numTexDivX);
+    void setNumTexDivX(u8 numTexDivX);
 
     u8 numTexDivY() const;
-    void setNumTexDivY(const u8 numTexDivY);
+    void setNumTexDivY(u8 numTexDivY);
 
     const QVector2D& texUVScale() const;
     void setTexUVScale(const QVector2D& texUVScale);
@@ -250,10 +250,10 @@ public:
     void setTexPatTblData(int index, u8 value);
 
     u16 texPatFreq() const;
-    void setTexPatFreq(const u16 texPatFreq);
+    void setTexPatFreq(u16 texPatFreq);
 
     u16 texPatTblUse() const;
-    void setTexPatTblUse(const u16 texPatTblUse);
+    void setTexPatTblUse(u16 texPatTblUse);
 
     BitFlag<ChildFlag>& childFlags();
     BitFlag<FieldFlag>& fieldFlags();
@@ -266,7 +266,7 @@ public:
     const BitFlag<StripeFlag>& stripeFlags() const;
 
     bool hasStripeData() const;
-    void setHasStripeData(const bool hasStripeData);
+    void setHasStripeData(bool hasStripeData);
 
     ChildData& childData();
 
