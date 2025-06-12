@@ -2,6 +2,7 @@
 
 #include "typedefs.h"
 
+#include <QBoxLayout>
 #include <QDoubleSpinBox>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -14,71 +15,80 @@
 // ========================================================================== //
 
 
-class VectorSpinBoxBase : public QWidget
-{
+class VectorSpinBoxBase : public QWidget {
     Q_OBJECT
 public:
     explicit VectorSpinBoxBase(QWidget* parent = nullptr) :
         QWidget{parent} {}
 
+    void setOrientation(Qt::Orientation orientation) {
+        if (!mMainLayout) {
+            return;
+        }
+
+        mMainLayout->setDirection(orientation == Qt::Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
+    }
+
 signals:
     void valueChanged();
 
 protected:
-    QLabel* mLabelX;
-    QLabel* mLabelY;
-    QLabel* mLabelZ;
-    QLabel* mLabelW;
-
-    QDoubleSpinBox* mSpinBoxX;
-    QDoubleSpinBox* mSpinBoxY;
-    QDoubleSpinBox* mSpinBoxZ;
-    QDoubleSpinBox* mSpinBoxW;
-
     inline void setupUI(u32 axisCount) {
-        auto* layout = new QHBoxLayout(this);
+        mMainLayout = new QBoxLayout(QBoxLayout::LeftToRight, this);
+        mMainLayout->setContentsMargins(mMainLayout->contentsMargins().left(), 0, 0, 0);
+        setLayout(mMainLayout);
 
-        mLabelX = new QLabel("X:", this);
-        mSpinBoxX = new QDoubleSpinBox(this);
-        mSpinBoxX->setRange(std::numeric_limits<f64>::min(), std::numeric_limits<f64>::max());
-        mSpinBoxX->setDecimals(4);
-        layout->addWidget(mLabelX);
-        layout->addWidget(mSpinBoxX);
-
-        mLabelY = new QLabel("Y:", this);
-        mSpinBoxY = new QDoubleSpinBox(this);
-        mSpinBoxY->setRange(std::numeric_limits<f64>::min(), std::numeric_limits<f64>::max());
-        mSpinBoxY->setDecimals(4);
-        layout->addWidget(mLabelY);
-        layout->addWidget(mSpinBoxY);
-
-        mLabelZ = new QLabel("Z:", this);
-        mSpinBoxZ = new QDoubleSpinBox(this);
-        mSpinBoxZ->setRange(std::numeric_limits<f64>::min(), std::numeric_limits<f64>::max());
-        mSpinBoxZ->setDecimals(4);
-        layout->addWidget(mLabelZ);
-        layout->addWidget(mSpinBoxZ);
-        if (axisCount < 3) {
-            mLabelZ->setVisible(false);
-            mSpinBoxZ->setVisible(false);
-        }
-
-        mLabelW = new QLabel("W:", this);
-        mSpinBoxW = new QDoubleSpinBox(this);
-        mSpinBoxW->setRange(std::numeric_limits<f64>::min(), std::numeric_limits<f64>::max());
-        mSpinBoxW->setDecimals(4);
-        layout->addWidget(mLabelW);
-        layout->addWidget(mSpinBoxW);
-        if (axisCount < 4) {
-            mLabelW->setVisible(false);
-            mSpinBoxW->setVisible(false);
-        }
+        std::tie(mLabelX, mSpinBoxX) = createAxis("X");
+        std::tie(mLabelY, mSpinBoxY) = createAxis("Y");
 
         connect(mSpinBoxX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &VectorSpinBoxBase::valueChanged);
         connect(mSpinBoxY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &VectorSpinBoxBase::valueChanged);
-        connect(mSpinBoxZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &VectorSpinBoxBase::valueChanged);
-        connect(mSpinBoxW, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &VectorSpinBoxBase::valueChanged);
+
+        if (axisCount >= 3) {
+            std::tie(mLabelZ, mSpinBoxZ) = createAxis("Z");
+            connect(mSpinBoxZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &VectorSpinBoxBase::valueChanged);
+        }
+
+        if (axisCount >= 4) {
+            std::tie(mLabelW, mSpinBoxW) = createAxis("W");
+            connect(mSpinBoxW, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &VectorSpinBoxBase::valueChanged);
+        }
     }
+
+private:
+    std::pair<QLabel*, QDoubleSpinBox*> createAxis(const QString& axisName) {
+        // Spinbox
+        auto* spinBox = new QDoubleSpinBox(this);
+        spinBox->setRange(std::numeric_limits<f64>::lowest(), std::numeric_limits<f64>::max());
+        spinBox->setDecimals(4);
+
+        // Label
+        auto* label = new QLabel(axisName + ":", this);
+        label->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+
+        // Layout
+        auto* axisLayout = new QHBoxLayout();
+        axisLayout->setContentsMargins(0, 0, 0, 0);
+
+        axisLayout->addWidget(label);
+        axisLayout->addWidget(spinBox, 1);
+
+        mMainLayout->addLayout(axisLayout);
+        return {label, spinBox};
+    }
+
+protected:
+    QLabel* mLabelX = nullptr;
+    QLabel* mLabelY = nullptr;
+    QLabel* mLabelZ = nullptr;
+    QLabel* mLabelW = nullptr;
+
+    QDoubleSpinBox* mSpinBoxX = nullptr;
+    QDoubleSpinBox* mSpinBoxY = nullptr;
+    QDoubleSpinBox* mSpinBoxZ = nullptr;
+    QDoubleSpinBox* mSpinBoxW = nullptr;
+
+    QBoxLayout* mMainLayout = nullptr;
 };
 
 
@@ -86,8 +96,7 @@ protected:
 
 
 template<typename T>
-class VectorSpinBox final : public VectorSpinBoxBase
-{
+class VectorSpinBox final : public VectorSpinBoxBase {
     static_assert(std::is_same_v<T, QVector2D> ||
                   std::is_same_v<T, QVector3D> ||
                   std::is_same_v<T, QVector4D>,
