@@ -150,6 +150,35 @@ inline QDebug operator<<(QDebug dbg, const VolumeType& type) {
 
 // ========================================================================== //
 
+enum class FollowType : u32 {
+    All         = 0x0,
+    None        = 0x1,
+    PosOnly     = 0x2,
+
+    MAX
+};
+
+template<>
+inline QString toString<FollowType>(const FollowType& type)
+{
+    switch (type) {
+    case FollowType::All:       return "All";
+    case FollowType::None:      return "None";
+    case FollowType::PosOnly:   return "PosOnly";
+    case FollowType::MAX:       return "FOLLOW_TYPE_MAX";
+    default: return "UNKNOWN";
+    }
+}
+
+inline QDebug operator<<(QDebug dbg, const FollowType& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
+
+
+// ========================================================================== //
+
 
 enum class TextureFormat : u8 {
     RGBA8888   = 0x0,

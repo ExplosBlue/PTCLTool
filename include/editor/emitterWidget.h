@@ -99,7 +99,7 @@ private:
     QDoubleSpinBox mScaleRandSpinBox;
 
     SizedSpinBox<u32> m_12CSpinBox;
-    SizedSpinBox<u32> m_130SpinBox;
+    EnumComboBox<Ptcl::FollowType> mFollowTypeSpinBox;
     SizedSpinBox<u32> m_134SpinBox;
 
     VectorSpinBox<QVector3D> mInitRotSpinBox;
