@@ -70,7 +70,7 @@ Emitter::Emitter() {
     mScaleSection2 = 0;
     mScaleRand = 0.0f;
     m_12C = 0;
-    m_130 = 0;
+    mFollowType = FollowType::All;
     m_134 = 0;
     mInitRot = {0.0f, 0.0f, 0.0f};
     mInitRotRand = {0.0f, 0.0f, 0.0f};
@@ -553,12 +553,12 @@ void Emitter::set_12C(const u32 _12C) {
     m_12C = _12C;
 }
 
-u32 Emitter::_130() const {
-    return m_130;
+FollowType Emitter::followType() const {
+    return mFollowType;
 }
 
-void Emitter::set_130(const u32 _130) {
-    m_130 = _130;
+void Emitter::setFollowType(const FollowType followType) {
+    mFollowType = followType;
 }
 
 u32 Emitter::_134() const {
@@ -835,7 +835,7 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mScaleSection2 = emitterData.scaleSection2;
     mScaleRand = emitterData.scaleRand;
     m_12C = emitterData._12C;
-    m_130 = emitterData._130;
+    mFollowType = emitterData.followType;
     m_134 = emitterData._134;
     mInitRot = QVector3D(emitterData.initRot.x, emitterData.initRot.y, emitterData.initRot.z);
     mInitRotRand = QVector3D(emitterData.initRotRand.x, emitterData.initRotRand.y, emitterData.initRotRand.z);

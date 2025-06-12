@@ -241,7 +241,7 @@ struct alignas(4) BinCommonEmitterData {
     s32 scaleSection2;                   // 0x124
     f32 scaleRand;                       // 0x128
     u32 _12C;                            // 0x12C - indexes rot calc function table @ 0x00602C90
-    u32 _130;                            // 0x130 - indexes complex follow preCalc function table @ 0x00602CEC
+    FollowType followType;               // 0x130
     u32 _134;                            // 0x134
     binVec3f initRot;                    // 0x138 - these may be wrong
     binVec3f initRotRand;                // 0x144 - ^

@@ -165,7 +165,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&mScaleRandSpinBox, "Scale Random:", 48, 0, 3);
 
     addLabledWidget(&m_12CSpinBox, "_12C:", 49, 0, 3);
-    addLabledWidget(&m_130SpinBox, "_130:", 50, 0, 3);
+    addLabledWidget(&mFollowTypeSpinBox, "FollowType:", 50, 0, 3);
     addLabledWidget(&m_134SpinBox, "_134:", 51, 0, 3);
 
     addLabledWidget(&mInitRotSpinBox, "Initial Rotation:", 52, 0, 3);
@@ -244,7 +244,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mScaleRandSpinBox.setValue(mEmitterPtr->scaleRand());
 
     m_12CSpinBox.setValue(mEmitterPtr->_12C());
-    m_130SpinBox.setValue(mEmitterPtr->_130());
+    mFollowTypeSpinBox.setCurrentEnum(mEmitterPtr->followType());
     m_134SpinBox.setValue(mEmitterPtr->_134());
 
     mInitRotSpinBox.setVector(mEmitterPtr->initRot());

@@ -89,7 +89,7 @@ public:
     void set_33(u8 _33);
 
     VolumeType volumeType() const;
-    void       setVolumeType(VolumeType volumeType);
+    void setVolumeType(VolumeType volumeType);
 
     const QVector3D& volumeRadius() const;
     void setVolumeRadius(const QVector3D& volumeRadius);
@@ -134,7 +134,7 @@ public:
     void set_90(u32 _90);
 
     BillboardType billboardType() const;
-    void          setBillboardType(BillboardType billboardType);
+    void setBillboardType(BillboardType billboardType);
 
     u32 _98() const;
     void set_98(u32 _98);
@@ -203,8 +203,8 @@ public:
     u32 _12C() const;
     void set_12C(u32 _12C);
 
-    u32 _130() const;
-    void set_130(u32 _130);
+    FollowType followType() const;
+    void setFollowType(FollowType followType);
 
     u32 _134() const;
     void set_134(u32 _134);
@@ -344,7 +344,7 @@ private:
     s32 mScaleSection2;
     f32 mScaleRand;
     u32 m_12C;
-    u32 m_130;
+    FollowType mFollowType;
     u32 m_134;
     QVector3D mInitRot;
     QVector3D mInitRotRand;
