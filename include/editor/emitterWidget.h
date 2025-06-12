@@ -98,7 +98,8 @@ private:
     SizedSpinBox<s32> mScaleSection2SpinBox;
     QDoubleSpinBox mScaleRandSpinBox;
 
-    SizedSpinBox<u32> m_12CSpinBox;
+    EnumComboBox<Ptcl::RotType> mRotTypeSpinBox;
+    EnumComboBox<Ptcl::CombinerType> mCombinerTypeSpinBox;
     EnumComboBox<Ptcl::FollowType> mFollowTypeSpinBox;
     SizedSpinBox<u32> m_134SpinBox;
 
