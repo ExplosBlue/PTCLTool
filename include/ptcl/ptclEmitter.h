@@ -200,8 +200,11 @@ public:
     f32 scaleRand() const;
     void setScaleRand(f32 scaleRand);
 
-    u32 _12C() const;
-    void set_12C(u32 _12C);
+    RotType rotType() const;
+    void setRotType(RotType rotType);
+
+    CombinerType combinerType() const;
+    void setCombinerType(CombinerType combinerType);
 
     FollowType followType() const;
     void setFollowType(FollowType followType);
@@ -343,7 +346,8 @@ private:
     s32 mScaleSection1;
     s32 mScaleSection2;
     f32 mScaleRand;
-    u32 m_12C;
+    CombinerType mCombinerType;
+    RotType mRotType;
     FollowType mFollowType;
     u32 m_134;
     QVector3D mInitRot;

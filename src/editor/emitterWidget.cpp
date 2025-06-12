@@ -164,14 +164,15 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&mScaleSection2SpinBox, "Scale Section 2:", 47, 0, 3);
     addLabledWidget(&mScaleRandSpinBox, "Scale Random:", 48, 0, 3);
 
-    addLabledWidget(&m_12CSpinBox, "_12C:", 49, 0, 3);
-    addLabledWidget(&mFollowTypeSpinBox, "FollowType:", 50, 0, 3);
-    addLabledWidget(&m_134SpinBox, "_134:", 51, 0, 3);
+    addLabledWidget(&mRotTypeSpinBox, "Rotation Type:", 49, 0, 3);
+    addLabledWidget(&mCombinerTypeSpinBox, "Combiner Type:", 50, 0, 3);
+    addLabledWidget(&mFollowTypeSpinBox, "Follow Type:", 51, 0, 3);
+    addLabledWidget(&m_134SpinBox, "_134:", 52, 0, 3);
 
-    addLabledWidget(&mInitRotSpinBox, "Initial Rotation:", 52, 0, 3);
-    addLabledWidget(&mInitRotRandSpinBox, "Initial Rotation Random:", 53, 0, 3);
-    addLabledWidget(&mRotVelSpinBox, "Rotation Velocity:", 54, 0, 3);
-    addLabledWidget(&mRotVelRandSpinBox, "Rotation Velocity Random:", 55, 0, 3);
+    addLabledWidget(&mInitRotSpinBox, "Initial Rotation:", 53, 0, 3);
+    addLabledWidget(&mInitRotRandSpinBox, "Initial Rotation Random:", 54, 0, 3);
+    addLabledWidget(&mRotVelSpinBox, "Rotation Velocity:", 55, 0, 3);
+    addLabledWidget(&mRotVelRandSpinBox, "Rotation Velocity Random:", 56, 0, 3);
 }
 
 void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
@@ -243,7 +244,8 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mScaleSection2SpinBox.setValue(mEmitterPtr->scaleSection2());
     mScaleRandSpinBox.setValue(mEmitterPtr->scaleRand());
 
-    m_12CSpinBox.setValue(mEmitterPtr->_12C());
+    mRotTypeSpinBox.setCurrentEnum(mEmitterPtr->rotType());
+    mCombinerTypeSpinBox.setCurrentEnum(mEmitterPtr->combinerType());
     mFollowTypeSpinBox.setCurrentEnum(mEmitterPtr->followType());
     m_134SpinBox.setValue(mEmitterPtr->_134());
 

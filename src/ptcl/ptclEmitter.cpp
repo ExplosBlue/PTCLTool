@@ -69,7 +69,8 @@ Emitter::Emitter() {
     mScaleSection1 = 0;
     mScaleSection2 = 0;
     mScaleRand = 0.0f;
-    m_12C = 0;
+    mRotType = RotType::None;
+    mCombinerType = CombinerType::None;
     mFollowType = FollowType::All;
     m_134 = 0;
     mInitRot = {0.0f, 0.0f, 0.0f};
@@ -545,12 +546,20 @@ void Emitter::setScaleRand(const f32 scaleRand) {
     mScaleRand = scaleRand;
 }
 
-u32 Emitter::_12C() const {
-    return m_12C;
+RotType Emitter::rotType() const {
+    return mRotType;
 }
 
-void Emitter::set_12C(const u32 _12C) {
-    m_12C = _12C;
+void Emitter::setRotType(const RotType rotType) {
+    mRotType = rotType;
+}
+
+CombinerType Emitter::combinerType() const {
+    return mCombinerType;
+}
+
+void Emitter::setCombinerType(const CombinerType combinerType) {
+    mCombinerType = combinerType;
 }
 
 FollowType Emitter::followType() const {
@@ -834,7 +843,8 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mScaleSection1 = emitterData.scaleSection1;
     mScaleSection2 = emitterData.scaleSection2;
     mScaleRand = emitterData.scaleRand;
-    m_12C = emitterData._12C;
+    mRotType = static_cast<RotType>(emitterData.rotCombinerType % 5);
+    mCombinerType = static_cast<CombinerType>(emitterData.rotCombinerType / 5);
     mFollowType = emitterData.followType;
     m_134 = emitterData._134;
     mInitRot = QVector3D(emitterData.initRot.x, emitterData.initRot.y, emitterData.initRot.z);

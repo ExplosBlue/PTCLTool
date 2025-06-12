@@ -328,7 +328,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     scaleSection1 = emitter.scaleSection1();
     scaleSection2 = emitter.scaleSection2();
     scaleRand = emitter.scaleRand();
-    _12C = emitter._12C();
+    rotCombinerType = static_cast<u32>(emitter.rotType()) + 5 * static_cast<u32>(emitter.combinerType());
     followType = emitter.followType();
     _134 = emitter._134();
     initRot = emitter.initRot();
@@ -413,7 +413,7 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item.scaleSection1
         >> item.scaleSection2
         >> item.scaleRand
-        >> item._12C
+        >> item.rotCombinerType
         >> item.followType
         >> item._134
         >> item.initRot
@@ -507,7 +507,7 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item.scaleSection1
         << item.scaleSection2
         << item.scaleRand
-        << item._12C
+        << item.rotCombinerType
         << item.followType
         << item._134
         << item.initRot
@@ -594,7 +594,7 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- scaleSection1:    " << scaleSection1;
     qDebug() << indentation << "- scaleSection2:    " << scaleSection2;
     qDebug() << indentation << "- scaleRand:        " << scaleRand;
-    qDebug() << indentation << "- _12C:             " << _12C;
+    qDebug() << indentation << "- rotCombinerType:  " << rotCombinerType;
     qDebug() << indentation << "- followType:       " << followType;
     qDebug() << indentation << "- _134:             " << _134;
     qDebug() << indentation << "- initRot:          " << initRot;

@@ -12,8 +12,7 @@ namespace Ptcl {
 
 
 template<typename EnumType>
-QString toString(const EnumType&)
-{
+QString toString(const EnumType&) {
     static_assert(sizeof(EnumType) == 0, "toString not implemented for this enum type");
     return {};
 }
@@ -36,8 +35,7 @@ enum class BillboardType : u32 {
 };
 
 template<>
-inline QString toString<BillboardType>(const BillboardType& type)
-{
+inline QString toString<BillboardType>(const BillboardType& type) {
     switch (type) {
     case BillboardType::Billboard:          return "Billboard";
     case BillboardType::PolygonXY:          return "PolygonXY";
@@ -72,8 +70,7 @@ enum class EmitterType : u32 {
 };
 
 template<>
-inline QString toString<EmitterType>(const EmitterType& type)
-{
+inline QString toString<EmitterType>(const EmitterType& type) {
     switch (type) {
     case EmitterType::Simple:           return "Simple";
     case EmitterType::Complex:          return "Complex";
@@ -119,8 +116,7 @@ enum class VolumeType : u32 {
 };
 
 template<>
-inline QString toString<VolumeType>(const VolumeType& type)
-{
+inline QString toString<VolumeType>(const VolumeType& type) {
     switch (type) {
     case VolumeType::Point:           return "Point";
     case VolumeType::Circle:          return "Circle";
@@ -150,6 +146,7 @@ inline QDebug operator<<(QDebug dbg, const VolumeType& type) {
 
 // ========================================================================== //
 
+
 enum class FollowType : u32 {
     All         = 0x0,
     None        = 0x1,
@@ -159,8 +156,7 @@ enum class FollowType : u32 {
 };
 
 template<>
-inline QString toString<FollowType>(const FollowType& type)
-{
+inline QString toString<FollowType>(const FollowType& type) {
     switch (type) {
     case FollowType::All:       return "All";
     case FollowType::None:      return "None";
@@ -179,6 +175,67 @@ inline QDebug operator<<(QDebug dbg, const FollowType& type) {
 
 // ========================================================================== //
 
+
+enum class RotType : u8 {
+    None    = 0x0,
+    RotX    = 0x1,
+    RotY    = 0x2,
+    RotZ    = 0x3,
+    RotXYZ  = 0x4,
+
+    MAX
+};
+
+template<>
+inline QString toString<RotType>(const RotType& type) {
+    switch (type) {
+    case RotType::None:     return "None";
+    case RotType::RotX:     return "RotX";
+    case RotType::RotY:     return "RotY";
+    case RotType::RotZ:     return "RotZ";
+    case RotType::RotXYZ:   return "RotXYZ";
+    case RotType::MAX:      return "ROT_TYPE_MAX";
+    default: return "UNKNOWN";
+    }
+}
+
+inline QDebug operator<<(QDebug dbg, const RotType& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
+
+
+// ========================================================================== //
+
+
+enum class CombinerType : u8 {
+    None        = 0x0,
+    Pass1       = 0x1,
+    Interpolate = 0x2,
+
+    MAX
+};
+
+template<>
+inline QString toString<CombinerType>(const CombinerType& type) {
+    switch (type) {
+    case CombinerType::None:        return "None";
+    case CombinerType::Pass1:       return "Pass1";
+    case CombinerType::Interpolate: return "Interpolate";
+    case CombinerType::MAX:         return "COMBINER_TYPE_MAX";
+    default: return "UNKNOWN";
+    }
+}
+
+inline QDebug operator<<(QDebug dbg, const CombinerType& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
+
+
+// ========================================================================== //
 
 enum class TextureFormat : u8 {
     RGBA8888   = 0x0,
@@ -200,8 +257,7 @@ enum class TextureFormat : u8 {
 };
 
 template<>
-inline QString toString<TextureFormat>(const TextureFormat& type)
-{
+inline QString toString<TextureFormat>(const TextureFormat& type) {
     switch (type) {
     case TextureFormat::RGBA8888: return "RGBA8888";
     case TextureFormat::RGB888:   return "RGB888";
@@ -246,8 +302,7 @@ enum class TextureWrap : u8 {
 };
 
 template<>
-inline QString toString<TextureWrap>(const TextureWrap& type)
-{
+inline QString toString<TextureWrap>(const TextureWrap& type) {
     switch (type) {
     case TextureWrap::ClampToEdge:    return "ClampToEdge";
     case TextureWrap::ClampToBorder:  return "ClampToBorder";
@@ -280,8 +335,7 @@ enum class TextureFilter : u8 {
 };
 
 template<>
-inline QString toString<TextureFilter>(const TextureFilter& type)
-{
+inline QString toString<TextureFilter>(const TextureFilter& type) {
     switch (type) {
     case TextureFilter::Nearest: return "Nearest";
     case TextureFilter::Linear:  return "Linear";
@@ -313,8 +367,7 @@ enum class TextureMipFilter : u8 {
 };
 
 template<>
-inline QString toString<TextureMipFilter>(const TextureMipFilter& type)
-{
+inline QString toString<TextureMipFilter>(const TextureMipFilter& type) {
     switch (type) {
     case TextureMipFilter::None:    return "None";
     case TextureMipFilter::Nearest: return "Nearest";
@@ -414,8 +467,7 @@ enum class FieldConvergenceType : u32 {
 };
 
 template<>
-inline QString toString<FieldConvergenceType>(const FieldConvergenceType& type)
-{
+inline QString toString<FieldConvergenceType>(const FieldConvergenceType& type) {
     switch (type) {
     case FieldConvergenceType::AssignedPos: return "AssignedPos";
     case FieldConvergenceType::EmitterPos:  return "EmitterPos";
