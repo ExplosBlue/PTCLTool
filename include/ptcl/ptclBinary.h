@@ -205,8 +205,8 @@ struct alignas(4) BinCommonEmitterData {
     u8 _33;                              // 0x33
     VolumeType volumeType;               // 0x34
     binVec3f volumeRadius;               // 0x38
-    f32 _44;                             // 0x44 - volumeSweepParam? rotWidth?
-    f32 _48;                             // 0x48 - volumeSweepStart? rotStart?
+    s32 volumeSweepStart;                // 0x44
+    u32 volumeSweepParam;                // 0x48
     f32 figureVel;                       // 0x4C
     binVec3f emitterVelDir;              // 0x50
     f32 _5C;                             // 0x5C

@@ -39,6 +39,7 @@ set(PROJECT_SOURCES
     src/editor/textureSelectDialog.cpp
     src/editor/thumbnailWidget.cpp
     src/editor/ptclListWidget.cpp
+    src/editor/volumePropertiesWidget.cpp
     src/etc1/rg_etc1.cpp
     src/ptcl/ptcl.cpp
     src/ptcl/ptclBinary.cpp
@@ -77,6 +78,7 @@ set(PROJECT_HEADERS
     include/editor/ptclListWidget.h
     include/editor/sizedSpinBox.h
     include/editor/vectorSpinBox.h
+    include/editor/volumePropertiesWidget.h
     include/etc1/rg_etc1.h
     include/ptcl/ptcl.h
     include/ptcl/ptclBinary.h

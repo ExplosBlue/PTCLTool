@@ -293,8 +293,8 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     _33 = emitter._33();
     volumeType = emitter.volumeType();
     volumeRadius = emitter.volumeRadius();
-    _44 = emitter._44();
-    _48 = emitter._48();
+    volumeSweepStart = emitter.volumeSweepStart();
+    volumeSweepParam = emitter.volumeSweepParam();
     figureVel = emitter.figureVel();
     emitterVelDir = emitter.emitterVelDir();
     _5C = emitter._5C();
@@ -368,8 +368,8 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item._33
         >> item.volumeType
         >> item.volumeRadius
-        >> item._44
-        >> item._48
+        >> item.volumeSweepStart
+        >> item.volumeSweepParam
         >> item.figureVel
         >> item.emitterVelDir
         >> item._5C
@@ -462,8 +462,8 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item._33
         << item.volumeType
         << item.volumeRadius
-        << item._44
-        << item._48
+        << item.volumeSweepStart
+        << item.volumeSweepParam
         << item.figureVel
         << item.emitterVelDir
         << item._5C
@@ -559,8 +559,8 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- _33:              " << _33;
     qDebug() << indentation << "- volumeType:       " << volumeType;
     qDebug() << indentation << "- volumeRadius:     " << volumeRadius;
-    qDebug() << indentation << "- _44:              " << _44;
-    qDebug() << indentation << "- _48:              " << _48;
+    qDebug() << indentation << "- volumeSweepStart: " << volumeSweepStart;
+    qDebug() << indentation << "- volumeSweepParam: " << volumeSweepParam;
     qDebug() << indentation << "- figureVel:        " << figureVel;
     qDebug() << indentation << "- emitterVelDir:    " << emitterVelDir;
     qDebug() << indentation << "- _5C:              " << _5C;

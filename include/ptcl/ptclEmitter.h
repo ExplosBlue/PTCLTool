@@ -94,11 +94,11 @@ public:
     const QVector3D& volumeRadius() const;
     void setVolumeRadius(const QVector3D& volumeRadius);
 
-    f32 _44() const;
-    void set_44(f32 _44);
+    s32 volumeSweepStart() const;
+    void setVolumeSweepStart(s32 volumeSweepStart);
 
-    f32 _48() const;
-    void set_48(f32 _48);
+    u32 volumeSweepParam() const;
+    void setVolumeSweepParam(u32 volumeSweepParam);
 
     f32 figureVel() const;
     void setFigureVel(f32 figureVel);
@@ -311,8 +311,8 @@ private:
     u8 m_33; // probably padding...
     VolumeType mVolumeType;
     QVector3D mVolumeRadius;
-    f32 m_44;
-    f32 m_48;
+    s32 mVolumeSweepStart;
+    u32 mVolumeSweepParam;
     f32 mFigureVel;
     QVector3D mEmitterVelDir;
     f32 m_5C;
