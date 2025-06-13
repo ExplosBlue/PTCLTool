@@ -30,8 +30,8 @@ Emitter::Emitter() {
     m_33 = 0;
     mVolumeType = VolumeType::Point;
     mVolumeRadius = {1.0f, 1.0f, 1.0f};
-    m_44 = 0.0f;
-    m_48 = 0.0f;
+    mVolumeSweepStart = 0;
+    mVolumeSweepParam = 0;
     mFigureVel = 0.0f;
     mEmitterVelDir = {0.0f, 0.0f, 0.0f};
     m_5C = 0.0f;
@@ -256,20 +256,20 @@ void Emitter::setVolumeRadius(const QVector3D& volumeRadius) {
     mVolumeRadius = volumeRadius;
 }
 
-f32 Emitter::_44() const {
-    return m_44;
+s32 Emitter::volumeSweepStart() const {
+    return mVolumeSweepStart;
 }
 
-void Emitter::set_44(const f32 _44) {
-    m_44 = _44;
+void Emitter::setVolumeSweepStart(const s32 volumeSweepStart) {
+    mVolumeSweepStart = volumeSweepStart;
 }
 
-f32 Emitter::_48() const {
-    return m_48;
+u32 Emitter::volumeSweepParam() const {
+    return mVolumeSweepParam;
 }
 
-void Emitter::set_48(const f32 _48) {
-    m_48 = _48;
+void Emitter::setVolumeSweepParam(const u32 volumeSweepParam) {
+    mVolumeSweepParam = volumeSweepParam;
 }
 
 f32 Emitter::figureVel() const {
@@ -805,8 +805,8 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_33 = emitterData._33;
     mVolumeType = emitterData.volumeType;
     mVolumeRadius = QVector3D(emitterData.volumeRadius.x, emitterData.volumeRadius.y, emitterData.volumeRadius.z);
-    m_44 = emitterData._44;
-    m_48 = emitterData._48;
+    mVolumeSweepStart = emitterData.volumeSweepStart;
+    mVolumeSweepParam = emitterData.volumeSweepParam;
     mFigureVel = emitterData.figureVel;
     mEmitterVelDir = QVector3D(emitterData.emitterVelDir.x, emitterData.emitterVelDir.y, emitterData.emitterVelDir.z);
     m_5C = emitterData._5C;

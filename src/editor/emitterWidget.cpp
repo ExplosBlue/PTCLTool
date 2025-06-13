@@ -104,19 +104,12 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&m_2FSpinBox, "_2F:",  9, 0, 3);
     addLabledWidget(&m_30SpinBox, "_30:",  10, 0, 3);
     addLabledWidget(&m_31SpinBox, "_31:", 11, 0, 3);
-    addLabledWidget(&mVolumeTblIndexSpinBox, "Volume Table Index:", 12, 0, 3);
     addLabledWidget(&m_31SpinBox, "_33:", 13, 0, 3);
 
-    addLabledWidget(&mVolumeTypeComboBox,  "Volume Type:",   14, 0, 3);
-    addLabledWidget(&mVolumeRadiusSpinBox, "Volume Radius:", 15, 0, 3);
-
-    m_44SpinBox.setMaximum(std::numeric_limits<f32>::max());
-    m_44SpinBox.setMinimum(std::numeric_limits<f32>::min());
-    addLabledWidget(&m_44SpinBox, "_44:", 16, 0, 3);
-
-    m_48SpinBox.setMaximum(std::numeric_limits<f32>::max());
-    m_48SpinBox.setMinimum(std::numeric_limits<f32>::min());
-    addLabledWidget(&m_48SpinBox, "_48:", 17, 0, 3);
+    // Volume Properties
+    auto volumePropertiesSection = new CollapsibleWidget("Volume properties", this);
+    volumePropertiesSection->setContent(&mVolumeProperties);
+    mMainLayout.addWidget(volumePropertiesSection, 14, 0, 1, 4);
 
     mFigureVelSpinBox.setMaximum(std::numeric_limits<f32>::max());
     mFigureVelSpinBox.setMinimum(std::numeric_limits<f32>::min());
@@ -205,15 +198,10 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_30SpinBox.setValue(mEmitterPtr->_30());
     m_31SpinBox.setValue(mEmitterPtr->_31());
 
-    mVolumeTblIndexSpinBox.setValue(mEmitterPtr->volumeTblIndex());
     m_33SpinBox.setValue(mEmitterPtr->_33());
 
+    mVolumeProperties.setEmitter(mEmitterPtr);
 
-    mVolumeTypeComboBox.setCurrentEnum(mEmitterPtr->volumeType());
-    mVolumeRadiusSpinBox.setVector(mEmitterPtr->volumeRadius());
-
-    m_44SpinBox.setValue(mEmitterPtr->_44());
-    m_48SpinBox.setValue(mEmitterPtr->_48());
     mFigureVelSpinBox.setValue(mEmitterPtr->figureVel());
     mEmitterVelDirSpinBox.setVector(mEmitterPtr->emitterVelDir());
     m_5CSpinBox.setValue(mEmitterPtr->_5C());
