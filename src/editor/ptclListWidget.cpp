@@ -7,18 +7,47 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
+EmitterFilterProxyModel::EmitterFilterProxyModel(QObject* parent) :
+    QSortFilterProxyModel{parent} {}
+
+bool EmitterFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const {
+    QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+    if (!index.isValid())
+        return false;
+
+    if (sourceModel()->data(index).toString().contains(filterRegularExpression()))
+        return true;
+
+    for (int i = 0; i < sourceModel()->rowCount(index); ++i) {
+        if (filterAcceptsRow(i, index))
+            return true;
+    }
+
+    return false;
+}
+
+
+// ========================================================================== //
+
+
 PtclList::PtclList(QWidget* parent) :
     QWidget(parent), mResPtr(nullptr) {
     // Search Box
     mSearchBox.setPlaceholderText("Search");
     connect(&mSearchBox, &QLineEdit::textChanged, this, &PtclList::filterList);
 
-    // List View
-    mListView.setModel(&mListModel);
-    connect(mListView.selectionModel(), &QItemSelectionModel::selectionChanged, this, &PtclList::selectionChanged);
+    // Proxy Model
+    mProxyModel.setSourceModel(&mListModel);
+    mProxyModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
+    mProxyModel.setRecursiveFilteringEnabled(true);
+
+    // Tree View
+    mTreeView.setModel(&mProxyModel);
+    mTreeView.setHeaderHidden(true);
+    connect(mTreeView.selectionModel(), &QItemSelectionModel::selectionChanged, this, &PtclList::selectionChanged);
 
     // Main layout
-    mMainLayout.addWidget(&mListView);
+    mMainLayout.addWidget(&mTreeView);
     mMainLayout.addWidget(&mSearchBox);
 
     setLayout(&mMainLayout);
@@ -30,13 +59,11 @@ void PtclList::setPtclRes(Ptcl::PtclRes* ptclRes) {
     }
 
     mListModel.clear();
-
     mResPtr = ptclRes;
-
     populateList();
 }
 
-void PtclEditor::PtclList::refreshNames() {
+void PtclEditor::PtclList::refresh() {
     populateList();
 }
 
@@ -45,53 +72,60 @@ void PtclList::populateList() {
         return;
     }
 
-    mEmitterNames.clear();
+    mListModel.clear();
 
-    u32 index = 0;
-    for (auto& emitterSet : mResPtr->getEmitterSets()) {
-        QString name = QString::number(index) + ": " + emitterSet->name();
-        mEmitterNames.emplace_back(index, name);
-        ++index;
+    const auto& sets = mResPtr->getEmitterSets();
+    for (u32 setIndex = 0; setIndex < sets.size(); ++setIndex) {
+        const auto& set = sets[setIndex];
+        QString setName = QString("%1: %2").arg(setIndex).arg(set->name());
+        QStandardItem* setItem = new QStandardItem(setName);
+        setItem->setEditable(false);
+
+        for (u32 emitterIndex = 0; emitterIndex < set->emitters().size(); ++emitterIndex) {
+            auto* emitter = set->emitters()[emitterIndex].get();
+            QString emitterName = QString("Emitter %1: %2").arg(emitterIndex).arg(emitter->name());
+            QStandardItem* emitterItem = new QStandardItem(emitterName);
+            emitterItem->setEditable(false);
+
+            emitterItem->setData(setIndex, Qt::UserRole);
+            emitterItem->setData(emitterIndex, Qt::UserRole + 1);
+
+            setItem->setData(setIndex, Qt::UserRole);
+            setItem->appendRow(emitterItem);
+
+        }
+
+        mListModel.appendRow(setItem);
     }
 
+    mTreeView.expandAll();
     filterList(mSearchBox.text());
 }
 
 void PtclList::filterList(const QString& text) {
-    mListModel.clear();
-
-    int rowToSelect = -1;
-    int row = 0;
-
-    for (const auto& [index, name] : mEmitterNames) {
-        if (text.isEmpty() || name.contains(text, Qt::CaseInsensitive)) {
-            auto* item = new QStandardItem(name);
-            item->setEditable(false);
-            item->setData(index, Qt::UserRole);
-            mListModel.appendRow(item);
-
-            if (index == mSelectedEmitterIndex) {
-                rowToSelect = row;
-            }
-            ++row;
-        }
-    }
-
-    if (rowToSelect >= 0) {
-        QModelIndex indexToSelect = mListModel.index(rowToSelect, 0);
-        mListView.setCurrentIndex(indexToSelect);
-        mListView.selectionModel()->select(indexToSelect, QItemSelectionModel::Select | QItemSelectionModel::Rows);
-    }
+    mProxyModel.setFilterFixedString(text);
 }
 
 void PtclList::selectionChanged(const QItemSelection& selection) {
-    if (selection.indexes().isEmpty()) {
+    if (selection.indexes().isEmpty())
         return;
-    }
 
-    QModelIndex index = selection.indexes().front();
-    mSelectedEmitterIndex = index.data(Qt::UserRole).toInt();
-    emit selectedIndexChanged(mSelectedEmitterIndex);
+    QModelIndex proxyIndex = selection.indexes().first();
+    QModelIndex sourceIndex = mProxyModel.mapToSource(proxyIndex);
+    QStandardItem* item = mListModel.itemFromIndex(sourceIndex);
+
+    if (!item) return;
+
+    if (item->parent()) {
+        // Emitter
+        u32 setIndex = item->data(Qt::UserRole).toUInt();
+        u32 emitterIndex = item->data(Qt::UserRole + 1).toUInt();
+        emit selectedEmitterChanged(setIndex, emitterIndex);
+    } else {
+        // EmitterSet
+        u32 setIndex = item->data(Qt::UserRole).toUInt();
+        emit selectedEmitterSetChanged(setIndex);
+    }
 }
 
 

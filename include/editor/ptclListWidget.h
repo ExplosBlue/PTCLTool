@@ -1,11 +1,11 @@
-#ifndef PTCLLISTWIDGET_H
-#define PTCLLISTWIDGET_H
+#pragma once
 
 #include "ptcl/ptcl.h"
 
 #include <QLineEdit>
-#include <QListView>
+#include <QSortFilterProxyModel>
 #include <QStandardItemModel>
+#include <QTreeView>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -16,17 +16,31 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
+class EmitterFilterProxyModel : public QSortFilterProxyModel {
+    Q_OBJECT
+public:
+    explicit EmitterFilterProxyModel(QObject* parent = nullptr);
+
+protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
+};
+
+
+// ========================================================================== //
+
+
 class PtclList : public QWidget {
     Q_OBJECT
 public:
-    explicit PtclList(QWidget *parent = nullptr);
+    explicit PtclList(QWidget* parent = nullptr);
 
-    void setPtclRes(Ptcl::PtclRes *ptclRes);
+    void setPtclRes(Ptcl::PtclRes* ptclRes);
 
-    void refreshNames();
+    void refresh();
 
 signals:
-    void selectedIndexChanged(u32 index);
+    void selectedEmitterSetChanged(u32 index);
+    void selectedEmitterChanged(u32 setIndex, u32 emitterIndex);
 
 private slots:
     void selectionChanged(const QItemSelection& selection);
@@ -39,12 +53,11 @@ private:
     Ptcl::PtclRes* mResPtr;
 
     QStandardItemModel mListModel;
-    QListView mListView;
+    QTreeView  mTreeView;
     QLineEdit mSearchBox;
     QVBoxLayout mMainLayout;
 
-    int mSelectedEmitterIndex;
-    std::vector<std::pair<u32, QString>> mEmitterNames;
+    EmitterFilterProxyModel mProxyModel;
 };
 
 
@@ -53,5 +66,3 @@ private:
 
 } //namespace PtclEditor
 
-
-#endif // PTCLLISTWIDGET_H
