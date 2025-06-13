@@ -91,6 +91,7 @@ set(PROJECT_HEADERS
     include/ptcl/ptclTexture.h
     include/util/bitflagUtil.h
     include/util/imageUtil.h
+    include/util/mathUtil.h
     include/util/nameValidator.h
     include/util/printUtil.h
     include/util/settingsUtil.h
