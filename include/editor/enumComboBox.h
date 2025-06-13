@@ -29,6 +29,13 @@ public:
         updateTooltip();
     }
 
+    void setEnumText(T value, const QString& text) {
+        int index = static_cast<int>(value);
+        if (index >= 0 && index < count()) {
+            setItemText(index, text);
+        }
+    }
+
     void setEnumTooltip(T value, const QString& tooltip) {
         int index = static_cast<int>(value);
         if (index >= 0 && index < count()) {
