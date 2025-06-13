@@ -66,6 +66,11 @@ void MainWindow::setupUi() {
         mPtclList.refresh();
     });
 
+    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterNameUpdated, this, [=, this]() {
+        // TODO: this should update a singluar list element instead of refreshing everything
+        mPtclList.refresh();
+    });
+
     // Texture Widget
     mTextureWidget.setEnabled(false);
 
