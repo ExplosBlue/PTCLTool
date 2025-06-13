@@ -60,6 +60,14 @@ void EmitterSetWidget::setEmitterSet(Ptcl::EmitterSet* emitterSet) {
     populateProperties();
 }
 
+void EmitterSetWidget::setEmitterTab(int emitterIndex) {
+    if (emitterIndex < 0 || emitterIndex >= mEmitterTabs.count() - 1) {
+        return; // Invalid or "+" tab
+    }
+
+    mEmitterTabs.setCurrentIndex(emitterIndex);
+}
+
 EmitterWidget& EmitterSetWidget::getEmitterWidget() {
     return mEmitterWidget;
 }
@@ -83,6 +91,7 @@ void EmitterSetWidget::selectedEmitterChanged(u32 index) {
 
         mEmitterTabs.setCurrentIndex(lastIndex - 1);
 
+        emit emitterAdded();
         return;
     }
 
@@ -122,6 +131,8 @@ void EmitterSetWidget::emitterTabClosed(int index) {
     mEmitterSetPtr->emitters().erase(mEmitterSetPtr->emitters().begin() + index);
     populateEmitterPicker();
     populateProperties();
+
+    emit emitterRemoved();
 }
 
 void EmitterSetWidget::populateEmitterPicker() {

@@ -24,9 +24,14 @@ public:
     void setEmitterSet(Ptcl::EmitterSet* emitterSet);
     EmitterWidget& getEmitterWidget();
 
+    void setEmitterTab(int emitterIndex);
+
 signals:
     void textureUpdated(int oldIndex, int index);
     void nameUpdated(const QString& name);
+
+    void emitterAdded();
+    void emitterRemoved();
 
 private slots:
     void selectedEmitterChanged(u32 index);

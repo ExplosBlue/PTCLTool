@@ -41,7 +41,8 @@ void MainWindow::setupUi() {
     // Ptcl List
     mPtclList.setEnabled(false);
     mPtclList.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
-    connect(&mPtclList, &PtclList::selectedIndexChanged, this, &MainWindow::selectedEmitterSetChanged);
+    connect(&mPtclList, &PtclList::selectedEmitterSetChanged, this, &MainWindow::selectedEmitterSetChanged);
+    connect(&mPtclList, &PtclList::selectedEmitterChanged, this, &MainWindow::selectedEmitterChanged);
 
     // EmitterSet Widget
     mEmitterSetWidget.setEnabled(false);
@@ -52,7 +53,17 @@ void MainWindow::setupUi() {
     });
 
     connect(&mEmitterSetWidget, &EmitterSetWidget::nameUpdated, this, [=, this](const QString& name) {
-        mPtclList.refreshNames();
+        mPtclList.refresh();
+    });
+
+    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterAdded, this, [=, this]() {
+        // TODO: this should insert a singluar list element instead of refreshing everything
+        mPtclList.refresh();
+    });
+
+    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterRemoved, this, [=, this]() {
+        // TODO: this should remove a singluar list element instead of refreshing everything
+        mPtclList.refresh();
     });
 
     // Texture Widget
@@ -260,6 +271,19 @@ void MainWindow::selectedEmitterSetChanged(u32 index) {
     if (!mEmitterSetWidget.isEnabled()) {
         mEmitterSetWidget.setEnabled(true);
     }
+}
+
+void MainWindow::selectedEmitterChanged(u32 setIndex, u32 emitterIndex) {
+    mCurEmitterSetIdx = setIndex;
+    auto &emitterSet = mPtclRes->getEmitterSets()[setIndex];
+
+    mEmitterSetWidget.setEmitterSet(emitterSet.get());
+
+    if (!mEmitterSetWidget.isEnabled()) {
+        mEmitterSetWidget.setEnabled(true);
+    }
+
+    mEmitterSetWidget.setEmitterTab(emitterIndex);
 }
 
 
