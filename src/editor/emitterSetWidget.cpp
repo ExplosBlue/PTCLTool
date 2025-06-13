@@ -20,6 +20,7 @@ EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
     connect(&mEmitterWidget, &EmitterWidget::nameUpdated, this, [=, this](const QString& name) {
         int currIndex = mEmitterTabs.currentIndex();
         mEmitterTabs.setTabText(currIndex, name);
+        emit emitterNameUpdated(currIndex, name);
     });
 
     // Name Edit
