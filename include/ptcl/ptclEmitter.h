@@ -212,17 +212,17 @@ public:
     u32 _134() const;
     void set_134(u32 _134);
 
-    const QVector3D& initRot() const;
-    void setInitRot(const QVector3D& initRot);
+    const binVec3i& initRot() const;
+    void setInitRot(const binVec3i& initRot);
 
-    const QVector3D& initRotRand() const;
-    void setInitRotRand(const QVector3D& initRotRand);
+    const binVec3i& initRotRand() const;
+    void setInitRotRand(const binVec3i& initRotRand);
 
-    const QVector3D& rotVel() const;
-    void setRotVel(const QVector3D& rotVel);
+    const binVec3i& rotVel() const;
+    void setRotVel(const binVec3i& rotVel);
 
-    const QVector3D& rotVelRand() const;
-    void setRotVelRand(const QVector3D& rotVelRand);
+    const binVec3i& rotVelRand() const;
+    void setRotVelRand(const binVec3i& rotVelRand);
 
     const std::array<u32, 2>& _168() const;
     void set_168(const std::array<u32, 2>& _168);
@@ -350,10 +350,10 @@ private:
     RotType mRotType;
     FollowType mFollowType;
     u32 m_134;
-    QVector3D mInitRot;
-    QVector3D mInitRotRand;
-    QVector3D mRotVel;
-    QVector3D mRotVelRand;
+    binVec3i mInitRot;
+    binVec3i mInitRotRand;
+    binVec3i mRotVel;
+    binVec3i mRotVelRand;
     std::array<u32, 2> m_168;
     QMatrix3x4 mTransformSRT;
     QMatrix3x4 mTransformRT;

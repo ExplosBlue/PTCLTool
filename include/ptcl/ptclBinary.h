@@ -73,6 +73,26 @@ static_assert(sizeof(binVec3f) == 0x0C, "binVec3f is incorrect size.");
 // ========================================================================== //
 
 
+// Size 0x0C
+struct alignas(4) binVec3i {
+    s32 x;   // 0x00
+    s32 y;   // 0x04
+    s32 z;   // 0x08
+
+    binVec3i();
+
+    friend QDataStream& operator>>(QDataStream& in, binVec3i& item);
+    friend QDataStream& operator<<(QDataStream& out, const binVec3i& item);
+
+    friend QDebug operator<<(QDebug dbg, const binVec3i& item);
+};
+
+static_assert(sizeof(binVec3i) == 0x0C, "binVec3i is incorrect size.");
+
+
+// ========================================================================== //
+
+
 // Size 0x30
 union alignas(4) binMtx34f {
     std::array<std::array<f32, 4>, 3> rows;   // 0x00 - 0x30
@@ -243,10 +263,10 @@ struct alignas(4) BinCommonEmitterData {
     u32 rotCombinerType;                 // 0x12C
     FollowType followType;               // 0x130
     u32 _134;                            // 0x134
-    binVec3f initRot;                    // 0x138 - these may be wrong
-    binVec3f initRotRand;                // 0x144 - ^
-    binVec3f rotVel;                     // 0x150 - ^
-    binVec3f rotVelRand;                 // 0x15C - ^
+    binVec3i initRot;                    // 0x138 - these may be wrong
+    binVec3i initRotRand;                // 0x144 - ^
+    binVec3i rotVel;                     // 0x150 - ^
+    binVec3i rotVelRand;                 // 0x15C - ^
     std::array<u32, 2> _168;             // 0x168
     binMtx34f transformSRT;              // 0x170
     binMtx34f transformRT;               // 0x1A0

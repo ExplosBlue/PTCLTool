@@ -73,10 +73,10 @@ Emitter::Emitter() {
     mCombinerType = CombinerType::None;
     mFollowType = FollowType::All;
     m_134 = 0;
-    mInitRot = {0.0f, 0.0f, 0.0f};
-    mInitRotRand = {0.0f, 0.0f, 0.0f};
-    mRotVel = {0.0f, 0.0f, 0.0f};
-    mRotVelRand = {0.0f, 0.0f, 0.0f};
+    mInitRot = {};
+    mInitRotRand = {};
+    mRotVel = {};
+    mRotVelRand = {};
     m_168 = {0, 0};
     mTransformSRT = {};
     mTransformRT = {};
@@ -578,35 +578,35 @@ void Emitter::set_134(const u32 _134) {
     m_134 = _134;
 }
 
-const QVector3D& Emitter::initRot() const {
+const binVec3i& Emitter::initRot() const {
     return mInitRot;
 }
 
-void Emitter::setInitRot(const QVector3D& initRot) {
+void Emitter::setInitRot(const binVec3i& initRot) {
     mInitRot = initRot;
 }
 
-const QVector3D& Emitter::initRotRand() const {
+const binVec3i& Emitter::initRotRand() const {
     return mInitRotRand;
 }
 
-void Emitter::setInitRotRand(const QVector3D& initRotRand) {
+void Emitter::setInitRotRand(const binVec3i& initRotRand) {
     mInitRotRand = initRotRand;
 }
 
-const QVector3D& Emitter::rotVel() const {
+const binVec3i& Emitter::rotVel() const {
     return mRotVel;
 }
 
-void Emitter::setRotVel(const QVector3D& rotVel) {
+void Emitter::setRotVel(const binVec3i& rotVel) {
     mRotVel = rotVel;
 }
 
-const QVector3D& Emitter::rotVelRand() const {
+const binVec3i& Emitter::rotVelRand() const {
     return mRotVelRand;
 }
 
-void Emitter::setRotVelRand(const QVector3D& rotVelRand) {
+void Emitter::setRotVelRand(const binVec3i& rotVelRand) {
     mRotVelRand = rotVelRand;
 }
 
@@ -847,10 +847,10 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mCombinerType = static_cast<CombinerType>(emitterData.rotCombinerType / 5);
     mFollowType = emitterData.followType;
     m_134 = emitterData._134;
-    mInitRot = QVector3D(emitterData.initRot.x, emitterData.initRot.y, emitterData.initRot.z);
-    mInitRotRand = QVector3D(emitterData.initRotRand.x, emitterData.initRotRand.y, emitterData.initRotRand.z);
-    mRotVel = QVector3D(emitterData.rotVel.x, emitterData.rotVel.y, emitterData.rotVel.z);
-    mRotVelRand = QVector3D(emitterData.rotVelRand.x, emitterData.rotVelRand.y, emitterData.rotVelRand.z);
+    mInitRot = emitterData.initRot;
+    mInitRotRand = emitterData.initRotRand;
+    mRotVel = emitterData.rotVel;
+    mRotVelRand = emitterData.rotVelRand;
     std::ranges::copy(emitterData._168, m_168.begin());
 
     mTransformSRT = emitterData.transformSRT.toQMatrix3x4();
