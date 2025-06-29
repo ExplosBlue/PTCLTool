@@ -17,6 +17,30 @@
 
 class VectorSpinBoxBase : public QWidget {
     Q_OBJECT
+
+public:
+    enum class Axis : u8 {
+        None  = 0,
+        X     = 1 << 0,
+        Y     = 1 << 1,
+        Z     = 1 << 2,
+        W     = 1 << 3,
+
+        XY    = X | Y,
+        XZ    = X | Z,
+        XW    = X | W,
+        YZ    = Y | Z,
+        YW    = Y | W,
+        ZW    = Z | W,
+        XYZ   = X | Y | Z,
+        XYW   = X | Y | W,
+        XZW   = X | Z | W,
+        YZW   = Y | Z | W,
+        XYZW  = X | Y | Z | W
+    };
+
+    friend Axis operator&(Axis a, Axis b);
+
 public:
     explicit VectorSpinBoxBase(QWidget* parent = nullptr) :
         QWidget{parent} {}
@@ -27,6 +51,27 @@ public:
         }
 
         mMainLayout->setDirection(orientation == Qt::Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
+    }
+
+    void disableAxis(Axis axis, bool disable) {
+        if ((axis & Axis::X) == Axis::X && mSpinBoxX) { mSpinBoxX->setDisabled(disable); }
+        if ((axis & Axis::Y) == Axis::Y && mSpinBoxY) { mSpinBoxY->setDisabled(disable); }
+        if ((axis & Axis::Z) == Axis::Z && mSpinBoxZ) { mSpinBoxZ->setDisabled(disable); }
+        if ((axis & Axis::W) == Axis::W && mSpinBoxW) { mSpinBoxW->setDisabled(disable); }
+    }
+
+    void setDisabledAxis(Axis axis) {
+        if (mSpinBoxX) { mSpinBoxX->setDisabled((axis & Axis::X) == Axis::X); }
+        if (mSpinBoxY) { mSpinBoxY->setDisabled((axis & Axis::Y) == Axis::Y); }
+        if (mSpinBoxZ) { mSpinBoxZ->setDisabled((axis & Axis::Z) == Axis::Z); }
+        if (mSpinBoxW) { mSpinBoxW->setDisabled((axis & Axis::W) == Axis::W); }
+    }
+
+    void setEnabledAxis(Axis axis) {
+        if (mSpinBoxX) { mSpinBoxX->setEnabled((axis & Axis::X) == Axis::X); }
+        if (mSpinBoxY) { mSpinBoxY->setEnabled((axis & Axis::Y) == Axis::Y); }
+        if (mSpinBoxZ) { mSpinBoxZ->setEnabled((axis & Axis::Z) == Axis::Z); }
+        if (mSpinBoxW) { mSpinBoxW->setEnabled((axis & Axis::W) == Axis::W); }
     }
 
 signals:
@@ -90,6 +135,11 @@ protected:
 
     QBoxLayout* mMainLayout = nullptr;
 };
+
+
+inline VectorSpinBoxBase::Axis operator&(VectorSpinBoxBase::Axis a, VectorSpinBoxBase::Axis b) {
+    return static_cast<VectorSpinBoxBase::Axis>(static_cast<u8>(a) & static_cast<u8>(b));
+}
 
 
 // ========================================================================== //
