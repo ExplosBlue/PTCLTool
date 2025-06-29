@@ -3,10 +3,11 @@
 #include "ptcl/ptclEmitter.h"
 #include "editor/colorPropertiesWidget.h"
 #include "editor/enumComboBox.h"
+#include "editor/rotationPropertiesWidget.h"
 #include "editor/sizedSpinBox.h"
 #include "editor/texturePropertiesWidget.h"
 #include "editor/vectorSpinBox.h"
-#include "Editor/volumePropertiesWidget.h"
+#include "editor/volumePropertiesWidget.h"
 
 #include <QComboBox>
 #include <QDoubleSpinBox>
@@ -95,15 +96,13 @@ private:
     SizedSpinBox<s32> mScaleSection2SpinBox;
     QDoubleSpinBox mScaleRandSpinBox;
 
-    EnumComboBox<Ptcl::RotType> mRotTypeSpinBox;
+    RotationPropertiesWidget mRotationProperties;
+
     EnumComboBox<Ptcl::CombinerType> mCombinerTypeSpinBox;
     EnumComboBox<Ptcl::FollowType> mFollowTypeSpinBox;
     SizedSpinBox<u32> m_134SpinBox;
 
-    VectorSpinBox<QVector3D> mInitRotSpinBox;
-    VectorSpinBox<QVector3D> mInitRotRandSpinBox;
-    VectorSpinBox<QVector3D> mRotVelSpinBox;
-    VectorSpinBox<QVector3D> mRotVelRandSpinBox;
+
 
     // _168
     // transformSRT

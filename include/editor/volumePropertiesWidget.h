@@ -11,6 +11,7 @@
 
 // ========================================================================== //
 
+
 class VolumePropertiesWidget : public QWidget {
     Q_OBJECT
 public:
