@@ -33,6 +33,7 @@ set(PROJECT_SOURCES
     src/editor/gradientSlider.cpp
     src/editor/loadingSpinner.cpp
     src/editor/rgbaColorWidget.cpp
+    src/editor/rotationPropertiesWidget.cpp
     src/editor/textureImportDialog.cpp
     src/editor/textureListWidget.cpp
     src/editor/texturePropertiesWidget.cpp
@@ -70,6 +71,7 @@ set(PROJECT_HEADERS
     include/editor/gradientSlider.h
     include/editor/loadingSpinner.h
     include/editor/rgbaColorWidget.h
+    include/editor/rotationPropertiesWidget.h
     include/editor/textureImportDialog.h
     include/editor/textureListWidget.h
     include/editor/texturePropertiesWidget.h

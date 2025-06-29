@@ -157,15 +157,15 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&mScaleSection2SpinBox, "Scale Section 2:", 47, 0, 3);
     addLabledWidget(&mScaleRandSpinBox, "Scale Random:", 48, 0, 3);
 
-    addLabledWidget(&mRotTypeSpinBox, "Rotation Type:", 49, 0, 3);
+    // Rotation Properties
+    auto rotationPropertiesSection = new CollapsibleWidget("Rotation properties", this);
+    rotationPropertiesSection->setContent(&mRotationProperties);
+    mMainLayout.addWidget(rotationPropertiesSection, 49, 0, 1, 4);
+
+
     addLabledWidget(&mCombinerTypeSpinBox, "Combiner Type:", 50, 0, 3);
     addLabledWidget(&mFollowTypeSpinBox, "Follow Type:", 51, 0, 3);
     addLabledWidget(&m_134SpinBox, "_134:", 52, 0, 3);
-
-    addLabledWidget(&mInitRotSpinBox, "Initial Rotation:", 53, 0, 3);
-    addLabledWidget(&mInitRotRandSpinBox, "Initial Rotation Random:", 54, 0, 3);
-    addLabledWidget(&mRotVelSpinBox, "Rotation Velocity:", 55, 0, 3);
-    addLabledWidget(&mRotVelRandSpinBox, "Rotation Velocity Random:", 56, 0, 3);
 }
 
 void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
@@ -232,15 +232,11 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mScaleSection2SpinBox.setValue(mEmitterPtr->scaleSection2());
     mScaleRandSpinBox.setValue(mEmitterPtr->scaleRand());
 
-    mRotTypeSpinBox.setCurrentEnum(mEmitterPtr->rotType());
     mCombinerTypeSpinBox.setCurrentEnum(mEmitterPtr->combinerType());
     mFollowTypeSpinBox.setCurrentEnum(mEmitterPtr->followType());
     m_134SpinBox.setValue(mEmitterPtr->_134());
 
-    mInitRotSpinBox.setVector(mEmitterPtr->initRot());
-    mInitRotRandSpinBox.setVector(mEmitterPtr->initRotRand());
-    mRotVelSpinBox.setVector(mEmitterPtr->rotVel());
-    mRotVelRandSpinBox.setVector(mEmitterPtr->rotVelRand());
+    mRotationProperties.setEmitter(mEmitterPtr);
 
     mIsPopulating = false;
 }
