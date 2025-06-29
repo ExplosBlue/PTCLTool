@@ -65,6 +65,30 @@ QDebug operator<<(QDebug dbg, const binVec3f& item) {
 // ========================================================================== //
 
 
+binVec3i::binVec3i() :
+    x(1), y(1), z(1) {
+}
+
+QDataStream& operator>>(QDataStream& in, binVec3i& item) {
+    in >> item.x >> item.y >> item.z;
+    return in;
+}
+
+QDataStream& operator<<(QDataStream& out, const binVec3i& item) {
+    out << item.x << item.y << item.z;
+    return out;
+}
+
+QDebug operator<<(QDebug dbg, const binVec3i& item) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << "{" << item.x << "," << item.y << "," << item.z << "}";
+    return dbg;
+}
+
+
+// ========================================================================== //
+
+
 binMtx34f::binMtx34f() {}
 
 binMtx34f::binMtx34f(const QMatrix3x4& mtx) {
