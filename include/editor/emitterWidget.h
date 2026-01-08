@@ -18,6 +18,8 @@
 #include <QWidget>
 
 
+#include "editor/animGraph.h"
+
 namespace PtclEditor {
 
 
@@ -103,6 +105,7 @@ private:
     SizedSpinBox<u32> m_134SpinBox;
 
 
+    AnimGraph mScaleAnimGraph;
 
     // _168
     // transformSRT

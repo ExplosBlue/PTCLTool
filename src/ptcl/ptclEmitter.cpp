@@ -6,7 +6,6 @@ namespace Ptcl {
 
 // ========================================================================== //
 
-
 Emitter::Emitter() {
     mType = EmitterType::Simple;
     mFlag = BitFlag<EmitterFlag>{};
@@ -63,11 +62,15 @@ Emitter::Emitter() {
     mDiffAlpha32 = 0.0f;
     mAlphaSection1 = 0;
     mAlphaSection2 = 0;
-    mInitScale = {1.0f, 1.0f};
-    mDiffScale21 = {0.0f, 0.0f};
-    mDiffScale32 = {0.0f, 0.0f};
-    mScaleSection1 = 0;
-    mScaleSection2 = 0;
+
+    mScaleAnim = {
+        .initScale = {1.0f, 1.0f},
+        .diffScale21 = {0.0f, 0.0f},
+        .diffScale32 = {0.0f, 0.0f},
+        .scaleSection1 = 0,
+        .scaleSection2 = 0
+    };
+
     mScaleRand = 0.0f;
     mRotType = RotType::None;
     mCombinerType = CombinerType::None;
@@ -498,45 +501,53 @@ void Emitter::setAlphaSection2(const s32 alphaSection2) {
     mAlphaSection2 = alphaSection2;
 }
 
-const QVector2D& Emitter::initScale() const {
-    return mInitScale;
+const ScaleAnim& Emitter::scaleAnim() const {
+    return mScaleAnim;
 }
 
-void Emitter::setInitScale(const QVector2D& initScale) {
-    mInitScale = initScale;
+void Emitter::setScaleAnim(const ScaleAnim& scaleAnim) {
+    mScaleAnim = scaleAnim;
 }
 
-const QVector2D& Emitter::diffScale21() const {
-    return mDiffScale21;
-}
+// const QVector2D& Emitter::initScale() const {
+//     return mInitScale;
+// }
 
-void Emitter::setDiffScale21(const QVector2D& diffScale21) {
-    mDiffScale21 = diffScale21;
-}
+// void Emitter::setInitScale(const QVector2D& initScale) {
+//     mInitScale = initScale;
+// }
 
-const QVector2D& Emitter::diffScale32() const {
-    return mDiffScale32;
-}
+// const QVector2D& Emitter::diffScale21() const {
+//     return mDiffScale21;
+// }
 
-void Emitter::setDiffScale32(const QVector2D& diffScale32) {
-    mDiffScale32 = diffScale32;
-}
+// void Emitter::setDiffScale21(const QVector2D& diffScale21) {
+//     mDiffScale21 = diffScale21;
+// }
 
-s32 Emitter::scaleSection1() const {
-    return mScaleSection1;
-}
+// const QVector2D& Emitter::diffScale32() const {
+//     return mDiffScale32;
+// }
 
-void Emitter::setScaleSection1(const s32 scaleSection1) {
-    mScaleSection1 = scaleSection1;
-}
+// void Emitter::setDiffScale32(const QVector2D& diffScale32) {
+//     mDiffScale32 = diffScale32;
+// }
 
-s32 Emitter::scaleSection2() const {
-    return mScaleSection2;
-}
+// s32 Emitter::scaleSection1() const {
+//     return mScaleSection1;
+// }
 
-void Emitter::setScaleSection2(const s32 scaleSection2) {
-    mScaleSection2 = scaleSection2;
-}
+// void Emitter::setScaleSection1(const s32 scaleSection1) {
+//     mScaleSection1 = scaleSection1;
+// }
+
+// s32 Emitter::scaleSection2() const {
+//     return mScaleSection2;
+// }
+
+// void Emitter::setScaleSection2(const s32 scaleSection2) {
+//     mScaleSection2 = scaleSection2;
+// }
 
 f32 Emitter::scaleRand() const {
     return mScaleRand;
@@ -837,11 +848,15 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mDiffAlpha32 = emitterData.diffAlpha32;
     mAlphaSection1 = emitterData.alphaSection1;
     mAlphaSection2 = emitterData.alphaSection2;
-    mInitScale = QVector2D(emitterData.initScale.x, emitterData.initScale.y);
-    mDiffScale21 = QVector2D(emitterData.diffScale21.x, emitterData.diffScale21.y);
-    mDiffScale32 = QVector2D(emitterData.diffScale32.x, emitterData.diffScale32.y);
-    mScaleSection1 = emitterData.scaleSection1;
-    mScaleSection2 = emitterData.scaleSection2;
+
+    mScaleAnim = {
+        .initScale = QVector2D(emitterData.initScale.x, emitterData.initScale.y),
+        .diffScale21 = QVector2D(emitterData.diffScale21.x, emitterData.diffScale21.y),
+        .diffScale32 = QVector2D(emitterData.diffScale32.x, emitterData.diffScale32.y),
+        .scaleSection1 = emitterData.scaleSection1,
+        .scaleSection2 = emitterData.scaleSection2
+    };
+
     mScaleRand = emitterData.scaleRand;
     mRotType = static_cast<RotType>(emitterData.rotCombinerType % 5);
     mCombinerType = static_cast<CombinerType>(emitterData.rotCombinerType / 5);
