@@ -33,14 +33,15 @@ set(PROJECT_SOURCES
     src/editor/emitterSetWidget.cpp
     src/editor/gradientSlider.cpp
     src/editor/loadingSpinner.cpp
+    src/editor/ptclListWidget.cpp
     src/editor/rgbaColorWidget.cpp
     src/editor/rotationPropertiesWidget.cpp
+    src/editor/scalepropertieswidget.cpp
     src/editor/textureImportDialog.cpp
     src/editor/textureListWidget.cpp
     src/editor/texturePropertiesWidget.cpp
     src/editor/textureSelectDialog.cpp
     src/editor/thumbnailWidget.cpp
-    src/editor/ptclListWidget.cpp
     src/editor/volumePropertiesWidget.cpp
     src/etc1/rg_etc1.cpp
     src/ptcl/ptcl.cpp
@@ -72,15 +73,16 @@ set(PROJECT_HEADERS
     include/editor/enumComboBox.h
     include/editor/gradientSlider.h
     include/editor/loadingSpinner.h
+    include/editor/ptclListWidget.h
     include/editor/rgbaColorWidget.h
     include/editor/rotationPropertiesWidget.h
+    include/editor/scalepropertieswidget.h
+    include/editor/sizedSpinBox.h
     include/editor/textureImportDialog.h
     include/editor/textureListWidget.h
     include/editor/texturePropertiesWidget.h
     include/editor/textureSelectDialog.h
     include/editor/thumbnailWidget.h
-    include/editor/ptclListWidget.h
-    include/editor/sizedSpinBox.h
     include/editor/vectorSpinBox.h
     include/editor/volumePropertiesWidget.h
     include/etc1/rg_etc1.h

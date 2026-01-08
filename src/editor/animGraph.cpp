@@ -8,13 +8,18 @@
 
 AnimGraph::AnimGraph(QWidget* parent) :
     QWidget{parent} {
-    setMinimumSize(200, 400);
+    setMinimumSize(200, 200);
 }
 
-void AnimGraph::setAnim(const Ptcl::ScaleAnim& scaleAnim) {
-    mAnim = scaleAnim;
+void AnimGraph::setControlPoints(const PointList& points) {
+    mPoints = points;
     update();
-}
+};
+
+void AnimGraph::setLineColor(const QColor& color) {
+    mLineColor = color;
+    update();
+};
 
 f32 AnimGraph::chooseTickStep(f32 range, s32 maxTicks) {
     constexpr f32 base = 10.0f;
@@ -26,13 +31,13 @@ f32 AnimGraph::chooseTickStep(f32 range, s32 maxTicks) {
     return step;
 }
 
-GraphRange AnimGraph::computeGraphRange(const std::initializer_list<f32>& values, s32 maxTicks) {
+AnimGraph::GraphRange AnimGraph::computeGraphRange(s32 maxTicks) {
     f32 minV = std::numeric_limits<f32>::max();
     f32 maxV = std::numeric_limits<f32>::lowest();
 
-    for (f32 v : values) {
-        minV = std::min(minV, v);
-        maxV = std::max(maxV, v);
+    for (GraphPoint pt : mPoints) {
+        minV = std::min(minV, pt.value);
+        maxV = std::max(maxV, pt.value);
     }
 
     if (minV == maxV) {
@@ -144,18 +149,6 @@ void AnimGraph::paintEvent(QPaintEvent*) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    constexpr s32 labelPadding = 28;
-    constexpr s32 graphSpacing = 16;
-
-    const s32 w = width();
-    const s32 h = height();
-    const s32 halfH = (h - graphSpacing) / 2;
-
-    const QVector2D s1 = mAnim.initScale;
-    const QVector2D s2 = s1 + mAnim.diffScale21;
-    const QVector2D s3 = s2;
-    const QVector2D s4 = s3 + mAnim.diffScale32;
-
     constexpr s32 paddingLeft = 40;
     constexpr s32 paddingRight = 16;
     constexpr s32 paddingTop = 16;
@@ -163,58 +156,46 @@ void AnimGraph::paintEvent(QPaintEvent*) {
 
     const s32 contentX = paddingLeft;
     const s32 contentY = paddingTop;
-    const s32 contentW = w - paddingLeft - paddingRight;
-    const s32 contentH = halfH - paddingTop - paddingBottom;
+    const s32 contentW = width() - paddingLeft - paddingRight;
+    const s32 contentH = height() - paddingTop - paddingBottom;
 
-    auto drawGraph = [&](s32 yOffset, const QColor& color, const auto& get) {
-        painter.save();
-        painter.translate(contentX, contentY + yOffset);
+    painter.save();
+    painter.translate(contentX, contentY);
 
-        const f32 v1 = get(s1);
-        const f32 v2 = get(s2);
-        const f32 v3 = get(s3);
-        const f32 v4 = get(s4);
+    const GraphRange range = computeGraphRange(5);
 
-        const GraphRange range = computeGraphRange({v1, v2, v3, v4}, 5);
+    painter.save();
+    painter.setClipRect(0, 0, contentW, contentH);
+    drawGrid(painter, contentW, contentH, range);
+    painter.restore();
 
-        painter.save();
-        painter.setClipRect(0, 0, contentW, contentH);
-        drawGrid(painter, contentW, contentH, range);
-        painter.restore();
+    drawAxisLabels(painter, contentW, contentH, 10, range);
 
-        drawAxisLabels(painter, contentW, contentH, 10, range);
-
-        // Helper lambda to map X (0-100%) to pixel
-        auto mapX = [contentW](f32 percent) {
-            return static_cast<s32>(percent * static_cast<f32>(contentW) * 0.01f);
-        };
-
-        // Helper to generate a Y axis mapping function
-        auto mapY = [contentH, range](f32 value) {
-            return s32(((range.max - value) / (range.max - range.min)) * static_cast<f32>(contentH));
-        };
-
-        const QPoint p1(mapX(0.0f), mapY(v1));
-        const QPoint p2(mapX(mAnim.scaleSection1), mapY(v2));
-        const QPoint p3(mapX(mAnim.scaleSection2), mapY(v3));
-        const QPoint p4(mapX(100.0f), mapY(v4));
-
-        painter.setPen(QPen(color, 2));
-        painter.drawPolyline(QPolygon({ p1, p2, p3, p4 }));
-
-        painter.setPen(QPen(sColorHandle, 2));
-        for (const QPoint& pt : { p1, p2, p3, p4 }) {
-            painter.drawEllipse(pt, 4, 4);
-        }
-
-        painter.restore();
+    // Helper lambda to map X (0-100%) to pixel
+    auto mapX = [contentW](f32 percent) {
+        return static_cast<s32>(percent * static_cast<f32>(contentW) * 0.01f);
     };
 
-    // Draw X axis graph
-    drawGraph(0, sColorAxisX, [](const QVector2D& v) { return v.x(); });
+    // Helper to map Y range to pixel
+    auto mapY = [contentH, range](f32 value) {
+        return s32(((range.max - value) / (range.max - range.min)) * static_cast<f32>(contentH));
+    };
 
-    // Draw Y axis graph
-    drawGraph(halfH + graphSpacing, sColorAxisY, [](const QVector2D& v) { return v.y(); });
+    QVector<QPoint> poly;
+    poly.reserve(static_cast<qsizetype>(mPoints.size()));
+    for (auto & mPoint : mPoints) {
+        poly.push_back(QPoint(mapX(mPoint.position), mapY(mPoint.value)));
+    }
+
+    painter.setPen(QPen(mLineColor, 2));
+    painter.drawPolyline(QPolygon::fromVector(poly));
+
+    painter.setPen(QPen(sColorHandle, 2));
+    for (const QPoint& pt : std::as_const(poly)) {
+        painter.drawEllipse(pt, 4, 4);
+    }
+
+    painter.restore();
 }
 
 // ========================================================================== //

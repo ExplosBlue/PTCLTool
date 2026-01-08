@@ -167,9 +167,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&mFollowTypeSpinBox, "Follow Type:", 51, 0, 3);
     addLabledWidget(&m_134SpinBox, "_134:", 52, 0, 3);
 
-    addLabledWidget(&mScaleAnimGraph, "mScaleAnimGraph:", 53, 0, 3);
-
-
+    addLabledWidget(&mScaleProperties, "mScaleProperties:", 53, 0, 3);
 }
 
 void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
@@ -236,7 +234,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mScaleSection1SpinBox.setValue(mEmitterPtr->scaleAnim().scaleSection1);
     mScaleSection2SpinBox.setValue(mEmitterPtr->scaleAnim().scaleSection2);
 
-    mScaleAnimGraph.setAnim(mEmitterPtr->scaleAnim());
+    mScaleProperties.setAnim(mEmitterPtr->scaleAnim());
 
     mScaleRandSpinBox.setValue(mEmitterPtr->scaleRand());
 

@@ -4,6 +4,7 @@
 #include "editor/colorPropertiesWidget.h"
 #include "editor/enumComboBox.h"
 #include "editor/rotationPropertiesWidget.h"
+#include "editor/scalepropertieswidget.h"
 #include "editor/sizedSpinBox.h"
 #include "editor/texturePropertiesWidget.h"
 #include "editor/vectorSpinBox.h"
@@ -17,8 +18,6 @@
 #include <QSpinBox>
 #include <QWidget>
 
-
-#include "editor/animGraph.h"
 
 namespace PtclEditor {
 
@@ -105,7 +104,7 @@ private:
     SizedSpinBox<u32> m_134SpinBox;
 
 
-    AnimGraph mScaleAnimGraph;
+    scalePropertiesWidget mScaleProperties;
 
     // _168
     // transformSRT
