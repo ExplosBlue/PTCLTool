@@ -1,26 +1,42 @@
 #pragma once
 
-#include "ptcl/ptclEmitter.h"
+#include "typedefs.h"
 
 #include <QWidget>
 
 
 // ========================================================================== //
 
-struct GraphRange {
-    f32 min;
-    f32 max;
-    f32 tickStep;
+
+struct GraphPoint {
+    f32 position;   // X Axis (value from 0% - 100%)
+    f32 value;      // Y Axis
+    // TODO: Handle type [Locked Position, Hold Start, Hold End]
 };
+
 
 // ========================================================================== //
 
+
 class AnimGraph : public QWidget {
     Q_OBJECT
+
+public:
+    using PointList = std::vector<GraphPoint>;
+
+private:
+    struct GraphRange {
+        f32 min;
+        f32 max;
+        f32 tickStep;
+    };
+
 public:
     explicit AnimGraph(QWidget* parent = nullptr);
 
-    void setAnim(const Ptcl::ScaleAnim& scaleAnim);
+    void setControlPoints(const PointList& points);
+
+    void setLineColor(const QColor& color);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -29,11 +45,12 @@ private:
     static void drawAxisLabels(QPainter& painter, s32 width, s32 height, s32 xDivs, const GraphRange& range);
     static void drawGrid(QPainter& painter, s32 width, s32 height, const GraphRange& range);
 
-    static GraphRange computeGraphRange(const std::initializer_list<f32>& values, s32 maxTicks);
+    GraphRange computeGraphRange(s32 maxTicks);
     static f32 chooseTickStep(f32 range, s32 maxTicks);
 
 private:
-    Ptcl::ScaleAnim mAnim;
+    PointList mPoints;
+    QColor mLineColor = Qt::white;
 
     // Ui Style
     static constexpr QColor sColorGridBg = { 48, 48, 48 };
@@ -42,11 +59,6 @@ private:
 
     static constexpr QColor sColorHandle = { 0, 0, 0 };
     static constexpr QColor sColorHandleActive = { 253, 133, 2 };
-
-    static constexpr QColor sColorAxisX = { 238, 51, 79 };
-    static constexpr QColor sColorAxisY = { 42, 125, 212 };
-    static constexpr QColor sColorAxisZ = { 137, 214, 1 };
-
 };
 
 // ========================================================================== //
