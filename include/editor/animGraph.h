@@ -40,17 +40,32 @@ public:
 
 protected:
     void paintEvent(QPaintEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
     static void drawAxisLabels(QPainter& painter, s32 width, s32 height, s32 xDivs, const GraphRange& range);
     static void drawGrid(QPainter& painter, s32 width, s32 height, const GraphRange& range);
 
-    GraphRange computeGraphRange(s32 maxTicks);
+    static QPoint mapToScreen(const GraphPoint& point, s32 contentW, s32 contentH, const GraphRange& range);
+
+    GraphRange computeGraphRange(s32 maxTicks) const;
     static f32 chooseTickStep(f32 range, s32 maxTicks);
+
+    s32 hitTestPoint(const QPoint& mousePos) const;
+
+    void moveHandle(s32 handleIndex, f32 newPos, f32 newValue);
+    void enforceOrdering();
 
 private:
     PointList mPoints;
     QColor mLineColor = Qt::white;
+
+    s32 mSelectedIdx = -1;
+    bool mIsDragging = false;
+
+    static constexpr s32 sHandleRadius = 5;
 
     // Ui Style
     static constexpr QColor sColorGridBg = { 48, 48, 48 };
