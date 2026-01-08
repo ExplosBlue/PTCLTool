@@ -7,7 +7,7 @@
 #include <QContextMenuEvent>
 #include <QFileDialog>
 #include <QMenu>
-#include <Qpainter>
+#include <QPainter>
 #include <QStandardItemModel>
 #include <QStandardPaths>
 

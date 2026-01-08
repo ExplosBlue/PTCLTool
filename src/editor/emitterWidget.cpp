@@ -166,6 +166,10 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&mCombinerTypeSpinBox, "Combiner Type:", 50, 0, 3);
     addLabledWidget(&mFollowTypeSpinBox, "Follow Type:", 51, 0, 3);
     addLabledWidget(&m_134SpinBox, "_134:", 52, 0, 3);
+
+    addLabledWidget(&mScaleAnimGraph, "mScaleAnimGraph:", 53, 0, 3);
+
+
 }
 
 void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
@@ -225,11 +229,15 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mAlphaSection1SpinBox.setValue(mEmitterPtr->alphaSection1());
     mAlphaSection2SpinBox.setValue(mEmitterPtr->alphaSection2());
 
-    mInitScaleSpinBox.setVector(mEmitterPtr->initScale());
-    mDiffScale21SpinBox.setVector(mEmitterPtr->diffScale21());
-    mDiffScale32SpinBox.setVector(mEmitterPtr->diffScale32());
-    mScaleSection1SpinBox.setValue(mEmitterPtr->scaleSection1());
-    mScaleSection2SpinBox.setValue(mEmitterPtr->scaleSection2());
+    // TODO: kill this
+    mInitScaleSpinBox.setVector(mEmitterPtr->scaleAnim().initScale);
+    mDiffScale21SpinBox.setVector(mEmitterPtr->scaleAnim().diffScale21);
+    mDiffScale32SpinBox.setVector(mEmitterPtr->scaleAnim().diffScale32);
+    mScaleSection1SpinBox.setValue(mEmitterPtr->scaleAnim().scaleSection1);
+    mScaleSection2SpinBox.setValue(mEmitterPtr->scaleAnim().scaleSection2);
+
+    mScaleAnimGraph.setAnim(mEmitterPtr->scaleAnim());
+
     mScaleRandSpinBox.setValue(mEmitterPtr->scaleRand());
 
     mCombinerTypeSpinBox.setCurrentEnum(mEmitterPtr->combinerType());

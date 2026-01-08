@@ -25,6 +25,18 @@ namespace Ptcl {
 // ========================================================================== //
 
 
+struct ScaleAnim {
+    QVector2D initScale = {1.0f, 1.0f};
+    QVector2D diffScale21 = {0.0f, 0.0f};
+    QVector2D diffScale32 = {0.0f, 0.0f};
+    s32 scaleSection1 = 0;
+    s32 scaleSection2 = 0;
+};
+
+
+// ========================================================================== //
+
+
 class Emitter
 {
 public:
@@ -182,20 +194,23 @@ public:
     s32 alphaSection2() const;
     void setAlphaSection2(s32 alphaSection2);
 
-    const QVector2D& initScale() const;
-    void setInitScale(const QVector2D& initScale);
+    const ScaleAnim& scaleAnim() const;
+    void setScaleAnim(const ScaleAnim& scaleAnim);
 
-    const QVector2D& diffScale21() const;
-    void setDiffScale21(const QVector2D& diffScale21);
+    // const QVector2D& initScale() const;
+    // void setInitScale(const QVector2D& initScale);
 
-    const QVector2D& diffScale32() const;
-    void setDiffScale32(const QVector2D& diffScale32);
+    // const QVector2D& diffScale21() const;
+    // void setDiffScale21(const QVector2D& diffScale21);
 
-    s32 scaleSection1() const;
-    void setScaleSection1(s32 scaleSection1);
+    // const QVector2D& diffScale32() const;
+    // void setDiffScale32(const QVector2D& diffScale32);
 
-    s32 scaleSection2() const;
-    void setScaleSection2(s32 scaleSection2);
+    // s32 scaleSection1() const;
+    // void setScaleSection1(s32 scaleSection1);
+
+    // s32 scaleSection2() const;
+    // void setScaleSection2(s32 scaleSection2);
 
     f32 scaleRand() const;
     void setScaleRand(f32 scaleRand);
@@ -340,11 +355,9 @@ private:
     f32 mDiffAlpha32;
     s32 mAlphaSection1;
     s32 mAlphaSection2;
-    QVector2D mInitScale;
-    QVector2D mDiffScale21;
-    QVector2D mDiffScale32;
-    s32 mScaleSection1;
-    s32 mScaleSection2;
+
+    ScaleAnim mScaleAnim;
+
     f32 mScaleRand;
     CombinerType mCombinerType;
     RotType mRotType;
