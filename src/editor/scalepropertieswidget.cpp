@@ -27,7 +27,7 @@ scalePropertiesWidget::scalePropertiesWidget(QWidget* parent) :
     auto* xLabel = new QLabel("X:", this);
     xLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     xRow->addWidget(xLabel);
-    xRow->addWidget(&mGraphX, 1); // stretch factor 1 to fill remaining space
+    xRow->addWidget(&mGraphX, 1);
     mainLayout->addLayout(xRow);
 
     // Y graph row: label + graph
@@ -35,7 +35,7 @@ scalePropertiesWidget::scalePropertiesWidget(QWidget* parent) :
     auto* yLabel = new QLabel("Y:", this);
     yLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     yRow->addWidget(yLabel);
-    yRow->addWidget(&mGraphY, 1); // stretch factor 1 to fill remaining space
+    yRow->addWidget(&mGraphY, 1);
     mainLayout->addLayout(yRow);
 }
 
