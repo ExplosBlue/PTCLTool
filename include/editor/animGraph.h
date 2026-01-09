@@ -2,6 +2,8 @@
 
 #include "typedefs.h"
 
+#include <QDoubleSpinBox>
+#include <QFrame>
 #include <QWidget>
 
 
@@ -18,7 +20,28 @@ struct GraphPoint {
 // ========================================================================== //
 
 
-class AnimGraph : public QWidget {
+class GraphHandleEditor final : public QFrame {
+    Q_OBJECT
+
+public:
+    explicit GraphHandleEditor(QWidget* parent = nullptr);
+
+    void setValues(f32 position, f32 value);
+    void setValueRange(f32 min, f32 max);
+
+signals:
+    void valuesEdited(f32 position, f32 value);
+
+private:
+    QDoubleSpinBox* mPosition;
+    QDoubleSpinBox* mValue;
+};
+
+
+// ========================================================================== //
+
+
+class AnimGraph final : public QWidget {
     Q_OBJECT
 
 public:
@@ -39,10 +62,10 @@ public:
     void setLineColor(const QColor& color);
 
 protected:
-    void paintEvent(QPaintEvent* event) override;
-    void mousePressEvent(QMouseEvent* event) override;
-    void mouseMoveEvent(QMouseEvent* event) override;
-    void mouseReleaseEvent(QMouseEvent* event) override;
+    void paintEvent(QPaintEvent* event) final;
+    void mousePressEvent(QMouseEvent* event) final;
+    void mouseMoveEvent(QMouseEvent* event) final;
+    void mouseReleaseEvent(QMouseEvent* event) final;
 
 private:
     static void drawAxisLabels(QPainter& painter, s32 width, s32 height, s32 xDivs, const GraphRange& range);
@@ -50,13 +73,18 @@ private:
 
     static QPoint mapToScreen(const GraphPoint& point, s32 contentW, s32 contentH, const GraphRange& range);
 
-    GraphRange computeGraphRange(s32 maxTicks) const;
-    static f32 chooseTickStep(f32 range, s32 maxTicks);
+    GraphRange computeGraphRange() const;
+    static f32 chooseTickStep(f32 range);
 
     s32 hitTestPoint(const QPoint& mousePos) const;
 
     void moveHandle(s32 handleIndex, f32 newPos, f32 newValue);
     void enforceOrdering();
+
+    GraphRange currentGraphRange() const;
+
+    void showHandleEditor(s32 index);
+    void hideHandleEditor();
 
 private:
     PointList mPoints;
@@ -64,6 +92,20 @@ private:
 
     s32 mSelectedIdx = -1;
     bool mIsDragging = false;
+    bool mDragOccured = false;
+
+    QPoint mPressPos;
+    bool mPendingClick = false;
+
+    bool mHasFrozenRange = false;
+    GraphRange mFrozenRange;
+
+    GraphHandleEditor* mHandleEditor = nullptr;
+
+    static constexpr s32 sPaddingLeft = 40;
+    static constexpr s32 sPaddingRight = 16;
+    static constexpr s32 sPaddingTop = 16;
+    static constexpr s32 sPaddingBottom = 28;
 
     static constexpr s32 sHandleRadius = 5;
 

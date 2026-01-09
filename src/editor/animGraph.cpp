@@ -1,7 +1,55 @@
 #include "editor/animGraph.h"
 
+#include <QApplication>
+#include <QHBoxLayout>
 #include <QPainter>
 #include <QMouseEvent>
+
+
+// ========================================================================== //
+
+
+GraphHandleEditor::GraphHandleEditor(QWidget* parent) :
+    QFrame{parent} {
+    setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);
+    setFrameShape(QFrame::Box);
+    setLineWidth(1);
+
+    mPosition = new QDoubleSpinBox(this);
+    mValue = new QDoubleSpinBox(this);
+
+    mPosition->setRange(0.0f, 100.0f);
+    mPosition->setDecimals(2);
+    mPosition->setSuffix("%");
+
+    mValue->setDecimals(3);
+
+    auto* layout = new QHBoxLayout(this);
+    layout->setContentsMargins(6, 4, 6, 4);
+    layout->addWidget(mPosition);
+    layout->addWidget(mValue);
+
+    connect(mPosition, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this] {
+        emit valuesEdited(static_cast<f32>(mPosition->value()), static_cast<f32>(mValue->value()));
+    });
+
+    connect(mValue, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this] {
+        emit valuesEdited(static_cast<f32>(mPosition->value()), static_cast<f32>(mValue->value()));
+    });
+}
+
+
+void GraphHandleEditor::setValues(f32 position, f32 value) {
+    QSignalBlocker b1(mPosition);
+    QSignalBlocker b2(mValue);
+
+    mPosition->setValue(position);
+    mValue->setValue(value);
+}
+
+void GraphHandleEditor::setValueRange(f32 min, f32 max) {
+    mValue->setRange(min, max);
+}
 
 
 // ========================================================================== //
@@ -22,8 +70,9 @@ void AnimGraph::setLineColor(const QColor& color) {
     update();
 };
 
-f32 AnimGraph::chooseTickStep(f32 range, s32 maxTicks) {
+f32 AnimGraph::chooseTickStep(f32 range) {
     constexpr f32 base = 10.0f;
+    constexpr s32 maxTicks = 5;
 
     f32 step = base;
     while (range > step * static_cast<f32>(maxTicks - 1)) {
@@ -32,7 +81,7 @@ f32 AnimGraph::chooseTickStep(f32 range, s32 maxTicks) {
     return step;
 }
 
-AnimGraph::GraphRange AnimGraph::computeGraphRange(s32 maxTicks) const {
+AnimGraph::GraphRange AnimGraph::computeGraphRange() const {
     f32 minV = std::numeric_limits<f32>::max();
     f32 maxV = std::numeric_limits<f32>::lowest();
 
@@ -51,7 +100,7 @@ AnimGraph::GraphRange AnimGraph::computeGraphRange(s32 maxTicks) const {
     const f32 paddedMin = minV - padding;
     const f32 paddedMax = maxV + padding;
 
-    const f32 step = chooseTickStep(paddedMax - paddedMin, maxTicks);
+    const f32 step = chooseTickStep(paddedMax - paddedMin);
 
     f32 snappedMin = std::floor(paddedMin / step) * step;
     f32 snappedMax = std::ceil (paddedMax / step) * step;
@@ -147,17 +196,11 @@ void AnimGraph::drawGrid(QPainter& painter, s32 width, s32 height, const GraphRa
 }
 
 s32 AnimGraph::hitTestPoint(const QPoint& mousePos) const {
-    // TODO: store these somewhere
-    constexpr s32 paddingLeft = 40;
-    constexpr s32 paddingRight = 16;
-    constexpr s32 paddingTop = 16;
-    constexpr s32 paddingBottom = 28;
+    const s32 contentW = width() - sPaddingLeft - sPaddingRight;
+    const s32 contentH = height() - sPaddingTop - sPaddingBottom;
 
-    const s32 contentW = width() - paddingLeft - paddingRight;
-    const s32 contentH = height() - paddingTop - paddingBottom;
-
-    const GraphRange range = computeGraphRange(5);
-    const QPoint local = mousePos - QPoint(paddingLeft, paddingTop);
+    const GraphRange range = currentGraphRange();
+    const QPoint local = mousePos - QPoint(sPaddingLeft, sPaddingTop);
 
     for (int i = 0; i < mPoints.size(); ++i) {
         const QPoint p = mapToScreen(mPoints[i], contentW, contentH, range);
@@ -168,15 +211,39 @@ s32 AnimGraph::hitTestPoint(const QPoint& mousePos) const {
     return -1;
 }
 
-void AnimGraph::mousePressEvent(QMouseEvent* event) {
-    if (event->button() != Qt::LeftButton) {
+void AnimGraph::showHandleEditor(s32 index) {
+    if (index < 0 || index >= mPoints.size()) {
         return;
     }
 
-    mSelectedIdx = hitTestPoint(event->pos());
-    mIsDragging = (mSelectedIdx != -1);
+    if (!mHandleEditor) {
+        mHandleEditor = new GraphHandleEditor(this);
+        connect(mHandleEditor, &GraphHandleEditor::valuesEdited, this, [this](f32 pos, f32 val) {
+            if (mSelectedIdx >= 0) {
+                moveHandle(mSelectedIdx, pos, val);
+                update();
+            }
+        });
+    }
 
-    update();
+    const s32 contentW = width() - sPaddingLeft - sPaddingRight;
+    const s32 contentH = height() - sPaddingTop - sPaddingBottom;
+
+    const GraphRange range = currentGraphRange();
+    const QPoint handlePos = mapToScreen(mPoints[index], contentW, contentH, range) + QPoint(sPaddingLeft, sPaddingTop);
+
+    mHandleEditor->setValueRange(-1000.0f, 1000.0f);
+    mHandleEditor->setValues(mPoints[index].position, mPoints[index].value);
+
+    const QPoint globalPos = mapToGlobal(handlePos + QPoint(10, -10));
+    mHandleEditor->move(globalPos);
+    mHandleEditor->show();
+}
+
+void AnimGraph::hideHandleEditor() {
+    if (mHandleEditor) {
+        mHandleEditor->hide();
+    }
 }
 
 void AnimGraph::moveHandle(s32 handleIndex, f32 newPos, f32 newValue) {
@@ -213,30 +280,77 @@ void AnimGraph::enforceOrdering() {
     mPoints[0].position = 0.0f;
     mPoints[3].position = 100.0f;
 
-    // Keep handle 1 and 2 correctly ordered
     mPoints[1].position = std::clamp(mPoints[1].position, 0.0f, mPoints[2].position);
     mPoints[2].position = std::clamp(mPoints[2].position, mPoints[1].position, 100.0f);
 }
 
-void AnimGraph::mouseReleaseEvent(QMouseEvent* event) {
-    mIsDragging = false;
+AnimGraph::GraphRange AnimGraph::currentGraphRange() const {
+    if (mHasFrozenRange) {
+        return mFrozenRange;
+    }
+    return computeGraphRange();
 }
 
-void AnimGraph::mouseMoveEvent(QMouseEvent* event) {
-    if (!mIsDragging || mSelectedIdx < 0) {
+void AnimGraph::mousePressEvent(QMouseEvent* event) {
+    if (event->button() != Qt::LeftButton) {
         return;
     }
 
-    constexpr s32 paddingLeft = 40;
-    constexpr s32 paddingRight = 16;
-    constexpr s32 paddingTop = 16;
-    constexpr s32 paddingBottom = 28;
+    mSelectedIdx = hitTestPoint(event->pos());
+    if (mSelectedIdx == -1) {
+        hideHandleEditor();
+        return;
+    }
 
-    const s32 contentW = width() - paddingLeft - paddingRight;
-    const s32 contentH = height() - paddingTop - paddingBottom;
+    mPressPos = event->pos();
+    mPendingClick = true;
+    mIsDragging = false;
 
-    const GraphRange range = computeGraphRange(5);
-    const QPoint local = event->pos() - QPoint(paddingLeft, paddingTop);
+    mFrozenRange = currentGraphRange();
+    mHasFrozenRange = true;
+
+    update();
+}
+
+void AnimGraph::mouseReleaseEvent(QMouseEvent* event) {
+    mHasFrozenRange = false;
+
+    if (mSelectedIdx >= 0) {
+        if (mPendingClick || mDragOccured) {
+            showHandleEditor(mSelectedIdx);
+        }
+    }
+
+    mPendingClick = false;
+    mIsDragging = false;
+    mDragOccured = false;
+
+    update();
+}
+
+void AnimGraph::mouseMoveEvent(QMouseEvent* event) {
+    if (mSelectedIdx < 0) {
+        return;
+    }
+
+    const s32 dragThreshold = QApplication::startDragDistance();
+
+    if (!mIsDragging) {
+        if ((event->pos() - mPressPos).manhattanLength() < dragThreshold) {
+            return;
+        }
+
+        mIsDragging = true;
+        mDragOccured = true;
+        mPendingClick = false;
+        hideHandleEditor();
+    }
+
+    const s32 contentW = width() - sPaddingLeft - sPaddingRight;
+    const s32 contentH = height() - sPaddingTop - sPaddingBottom;
+
+    const GraphRange range = currentGraphRange();
+    const QPoint local = event->pos() - QPoint(sPaddingLeft, sPaddingTop);
 
     const f32 contentWF = static_cast<f32>(contentW);
     const f32 contentHF = static_cast<f32>(contentH);
@@ -248,6 +362,10 @@ void AnimGraph::mouseMoveEvent(QMouseEvent* event) {
     const f32 value = range.max - std::clamp(y / contentHF, 0.0f, 1.0f) * (range.max - range.min);
 
     moveHandle(mSelectedIdx, t * 100.0f, value);
+
+    if (mHandleEditor) {
+        mHandleEditor->setValues(mPoints[mSelectedIdx].position, mPoints[mSelectedIdx].value);
+    }
 
     update();
 }
@@ -265,20 +383,15 @@ void AnimGraph::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    constexpr s32 paddingLeft = 40;
-    constexpr s32 paddingRight = 16;
-    constexpr s32 paddingTop = 16;
-    constexpr s32 paddingBottom = 28;
-
-    const s32 contentX = paddingLeft;
-    const s32 contentY = paddingTop;
-    const s32 contentW = width() - paddingLeft - paddingRight;
-    const s32 contentH = height() - paddingTop - paddingBottom;
+    const s32 contentX = sPaddingLeft;
+    const s32 contentY = sPaddingTop;
+    const s32 contentW = width() - sPaddingLeft - sPaddingRight;
+    const s32 contentH = height() - sPaddingTop - sPaddingBottom;
 
     painter.save();
     painter.translate(contentX, contentY);
 
-    const GraphRange range = computeGraphRange(5);
+    const GraphRange range = currentGraphRange();
 
     painter.save();
     painter.setClipRect(0, 0, contentW, contentH);
