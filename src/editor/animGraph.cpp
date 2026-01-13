@@ -93,6 +93,11 @@ void GraphHandleEditor::setValueRange(f32 min, f32 max) {
     mValue->setRange(min, max);
 }
 
+void GraphHandleEditor::setHandleType(HandleType type) {
+    mType = type;
+
+    mPosition->setDisabled(mType == HandleType::Locked);
+}
 
 // ========================================================================== //
 
@@ -106,6 +111,10 @@ void AnimGraph::setControlPoints(const PointList& points) {
     mPoints = points;
     update();
 };
+
+const AnimGraph::PointList& AnimGraph::getPoints() const {
+    return mPoints;
+}
 
 void AnimGraph::setLineColor(const QColor& color) {
     mLineColor = color;
@@ -228,7 +237,6 @@ void AnimGraph::drawGrid(QPainter& painter, s32 width, s32 height, const GraphRa
     const s32 tickCount = static_cast<s32>((range.max - range.min) / range.tickStep);
     for (s32 tick = 0; tick <= tickCount; ++tick) {
         const f32 i = range.min + static_cast<f32>(tick) * range.tickStep;
-
         const f32 t = (range.max - i) / (range.max - range.min);
         const s32 y = s32(t * heightF);
         painter.drawLine(0, y, width, y);
@@ -244,9 +252,11 @@ s32 AnimGraph::hitTestPoint(const QPoint& mousePos) const {
     const GraphRange range = currentGraphRange();
     const QPoint local = mousePos - QPoint(sPaddingLeft, sPaddingTop);
 
-    for (int i = 0; i < mPoints.size(); ++i) {
-        const QPoint p = mapToScreen(mPoints[i], contentW, contentH, range);
-        if ((p - local).manhattanLength() <= sHandleRadius + 2) {
+    for (s32 i = 0; i < mPoints.size(); ++i) {
+        const auto& pt = mPoints[i];
+        const QPoint center = mapToScreen(pt, contentW, contentH, range);
+
+        if (getHitRect(center, pt.handleType).contains(local)) {
             return i;
         }
     }
@@ -276,6 +286,7 @@ void AnimGraph::showHandleEditor(s32 index) {
 
     mHandleEditor->setValueRange(-1000.0f, 1000.0f);
     mHandleEditor->setValues(mPoints[index].position, mPoints[index].value);
+    mHandleEditor->setHandleType(mPoints[index].handleType);
 
     mHandleEditor->adjustSize();
     const s32 anchorX = mHandleEditor->width() / 2;
@@ -411,18 +422,15 @@ void AnimGraph::mouseMoveEvent(QMouseEvent* event) {
 
     // Grid snap
     if (!(event->modifiers() & Qt::ShiftModifier)) {
-        constexpr f32 kTimeSnap  = 2.5f;   // percent (0–100)
-        constexpr f32 kValueSnap = 5.0f;   // value units
+        constexpr f32 timeSnap  = 2.5f;   // percent (0–100)
+        constexpr f32 valueSnap = 5.0f;   // value units
 
         const f32 time = t * 100.0f;
 
-        const f32 snappedTime =
-            std::round(time / kTimeSnap) * kTimeSnap;
+        const f32 snappedTime = std::round(time / timeSnap) * timeSnap;
+        const f32 snappedValue = std::round(value / valueSnap) * valueSnap;
 
-        const f32 snappedValue =
-            std::round(value / kValueSnap) * kValueSnap;
-
-        t     = std::clamp(snappedTime / 100.0f, 0.0f, 1.0f);
+        t = std::clamp(snappedTime / 100.0f, 0.0f, 1.0f);
         value = std::clamp(snappedValue, range.min, range.max);
     }
 
@@ -441,6 +449,51 @@ QPoint AnimGraph::mapToScreen(const GraphPoint& point, s32 contentW, s32 content
     s32 y = s32(((range.max - point.value) / (range.max - range.min)) * static_cast<f32>(contentH));
 
     return { x, y };
+}
+
+QRect AnimGraph::getHitRect(const QPoint& center, HandleType type) const {
+    static constexpr s32 r = sHandleRadius + 2;
+
+    switch (type) {
+        case HandleType::Locked:
+            return {center.x() - r, center.y() - r, r * 2, r * 2};
+        case HandleType::HoldStart:
+            return {center.x() - r, center.y() - r, r, r * 2};
+        case HandleType::HoldEnd:
+            return {center.x(), center.y() - r, r, r * 2};
+    }
+    return {};
+}
+
+void AnimGraph::drawHandle(QPainter& painter, const QPoint& pos, HandleType type, bool isSelected) const {
+    const QColor color = isSelected ? sColorHandleActive : sColorHandle;
+
+    painter.setPen(QPen(color, 2));
+    painter.setBrush(Qt::NoBrush);
+
+    static constexpr s32 r = sHandleRadius;
+
+    switch (type) {
+        case HandleType::Locked:
+            painter.drawEllipse(pos, r, r);
+            break;
+        case HandleType::HoldStart: {
+            QPainterPath path;
+            path.moveTo(pos);
+            path.arcTo(QRectF(pos.x() - r, pos.y() - r, r * 2, r * 2), 90, 180);
+            path.closeSubpath();
+            painter.drawPath(path);
+            break;
+        }
+        case HandleType::HoldEnd: {
+            QPainterPath path;
+            path.moveTo(pos);
+            path.arcTo(QRectF(pos.x() - r, pos.y() - r, r * 2, r * 2), -90, 180);
+            path.closeSubpath();
+            painter.drawPath(path);
+            break;
+        }
+    }
 }
 
 void AnimGraph::paintEvent(QPaintEvent* event) {
@@ -472,18 +525,25 @@ void AnimGraph::paintEvent(QPaintEvent* event) {
         poly.push_back(mapToScreen(mPoint, contentW, contentH, range));
     }
 
-    painter.setPen(QPen(mLineColor, 2));
-    painter.drawPolyline(QPolygon::fromVector(poly));
+    for (s32 i = 0; i + 1 < mPoints.size(); ++i) {
+        const QPoint& start = poly[i];
+        const QPoint& end = poly[i + 1];
+
+        QPen pen(mLineColor, 2);
+
+        if (mPoints[i].handleType == HandleType::HoldStart &&
+            mPoints[i + 1].handleType == HandleType::HoldEnd) {
+            pen.setStyle(Qt::DashDotLine);
+        } else {
+            pen.setStyle(Qt::SolidLine);
+        }
+
+        painter.setPen(pen);
+        painter.drawLine(start, end);
+    }
 
     for (s32 i = 0; i < poly.size(); ++i) {
-        const auto& pt = poly[i];
-
-        if (i == mSelectedIdx) {
-            painter.setPen(QPen(sColorHandleActive, 2));
-        } else {
-            painter.setPen(QPen(sColorHandle, 2));
-        }
-        painter.drawEllipse(pt, 4, 4);
+        drawHandle(painter, poly[i], mPoints[i].handleType, i == mSelectedIdx);
     }
 
     painter.restore();

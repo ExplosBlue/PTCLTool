@@ -20,7 +20,7 @@ signals:
     void propertiesUpdated(const Ptcl::ScaleProperties& properties);
 
 private:
-    void updateAnimPoint(s32 pointIndex, const GraphPoint& point, f32 (QVector2D::*get)() const);
+    void updateAnimPoint(s32 pointIndex, const AnimGraph::GraphPoint& point, f32 (QVector2D::*get)() const);
     void updateGraphs();
 
 private:
