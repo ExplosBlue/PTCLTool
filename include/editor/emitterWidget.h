@@ -4,7 +4,7 @@
 #include "editor/colorPropertiesWidget.h"
 #include "editor/enumComboBox.h"
 #include "editor/rotationPropertiesWidget.h"
-#include "editor/scalepropertieswidget.h"
+#include "editor/scalePropertiesWidget.h"
 #include "editor/sizedSpinBox.h"
 #include "editor/texturePropertiesWidget.h"
 #include "editor/vectorSpinBox.h"

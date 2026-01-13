@@ -63,15 +63,15 @@ Emitter::Emitter() {
     mAlphaSection1 = 0;
     mAlphaSection2 = 0;
 
-    mScaleAnim = {
+    mScaleProperties = {
         .initScale = {1.0f, 1.0f},
         .diffScale21 = {0.0f, 0.0f},
         .diffScale32 = {0.0f, 0.0f},
         .scaleSection1 = 0,
-        .scaleSection2 = 0
+        .scaleSection2 = 0,
+        .scaleRand = 0.0f
     };
 
-    mScaleRand = 0.0f;
     mRotType = RotType::None;
     mCombinerType = CombinerType::None;
     mFollowType = FollowType::All;
@@ -501,12 +501,12 @@ void Emitter::setAlphaSection2(const s32 alphaSection2) {
     mAlphaSection2 = alphaSection2;
 }
 
-const ScaleAnim& Emitter::scaleAnim() const {
-    return mScaleAnim;
+const ScaleProperties& Emitter::scaleProperties() const {
+    return mScaleProperties;
 }
 
-void Emitter::setScaleAnim(const ScaleAnim& scaleAnim) {
-    mScaleAnim = scaleAnim;
+void Emitter::setScaleProperties(const ScaleProperties& scaleProperties) {
+    mScaleProperties = scaleProperties;
 }
 
 // const QVector2D& Emitter::initScale() const {
@@ -549,13 +549,13 @@ void Emitter::setScaleAnim(const ScaleAnim& scaleAnim) {
 //     mScaleSection2 = scaleSection2;
 // }
 
-f32 Emitter::scaleRand() const {
-    return mScaleRand;
-}
+// f32 Emitter::scaleRand() const {
+//     return mScaleRand;
+// }
 
-void Emitter::setScaleRand(const f32 scaleRand) {
-    mScaleRand = scaleRand;
-}
+// void Emitter::setScaleRand(const f32 scaleRand) {
+//     mScaleRand = scaleRand;
+// }
 
 RotType Emitter::rotType() const {
     return mRotType;
@@ -849,15 +849,15 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mAlphaSection1 = emitterData.alphaSection1;
     mAlphaSection2 = emitterData.alphaSection2;
 
-    mScaleAnim = {
+    mScaleProperties = {
         .initScale = QVector2D(emitterData.initScale.x, emitterData.initScale.y),
         .diffScale21 = QVector2D(emitterData.diffScale21.x, emitterData.diffScale21.y),
         .diffScale32 = QVector2D(emitterData.diffScale32.x, emitterData.diffScale32.y),
         .scaleSection1 = emitterData.scaleSection1,
-        .scaleSection2 = emitterData.scaleSection2
+        .scaleSection2 = emitterData.scaleSection2,
+        .scaleRand = emitterData.scaleRand
     };
 
-    mScaleRand = emitterData.scaleRand;
     mRotType = static_cast<RotType>(emitterData.rotCombinerType % 5);
     mCombinerType = static_cast<CombinerType>(emitterData.rotCombinerType / 5);
     mFollowType = emitterData.followType;

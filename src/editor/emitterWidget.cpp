@@ -150,13 +150,6 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&mAlphaSection1SpinBox, "Alpha Section 1:", 41, 0, 3);
     addLabledWidget(&mAlphaSection2SpinBox, "Alpha Section 2:", 42, 0, 3);
 
-    addLabledWidget(&mInitScaleSpinBox, "Initial Scale:", 43, 0, 3);
-    addLabledWidget(&mDiffScale21SpinBox, "Diff Scale 21:", 44, 0, 3);
-    addLabledWidget(&mDiffScale32SpinBox, "Diff Scale 32:", 45, 0, 3);
-    addLabledWidget(&mScaleSection1SpinBox, "Scale Section 1:", 46, 0, 3);
-    addLabledWidget(&mScaleSection2SpinBox, "Scale Section 2:", 47, 0, 3);
-    addLabledWidget(&mScaleRandSpinBox, "Scale Random:", 48, 0, 3);
-
     // Rotation Properties
     auto rotationPropertiesSection = new CollapsibleWidget("Rotation properties", this);
     rotationPropertiesSection->setContent(&mRotationProperties);
@@ -167,7 +160,15 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&mFollowTypeSpinBox, "Follow Type:", 51, 0, 3);
     addLabledWidget(&m_134SpinBox, "_134:", 52, 0, 3);
 
-    addLabledWidget(&mScaleProperties, "mScaleProperties:", 53, 0, 3);
+    // Scale Properties
+    connect(&mScaleProperties, &scalePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ScaleProperties& properties) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setScaleProperties(properties);
+    });
+
+    auto scalePropertiesSection = new CollapsibleWidget("Scale properties", this);
+    scalePropertiesSection->setContent(&mScaleProperties);
+    mMainLayout.addWidget(scalePropertiesSection, 53, 0, 1, 4);
 }
 
 void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
@@ -227,16 +228,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mAlphaSection1SpinBox.setValue(mEmitterPtr->alphaSection1());
     mAlphaSection2SpinBox.setValue(mEmitterPtr->alphaSection2());
 
-    // TODO: kill this
-    mInitScaleSpinBox.setVector(mEmitterPtr->scaleAnim().initScale);
-    mDiffScale21SpinBox.setVector(mEmitterPtr->scaleAnim().diffScale21);
-    mDiffScale32SpinBox.setVector(mEmitterPtr->scaleAnim().diffScale32);
-    mScaleSection1SpinBox.setValue(mEmitterPtr->scaleAnim().scaleSection1);
-    mScaleSection2SpinBox.setValue(mEmitterPtr->scaleAnim().scaleSection2);
-
-    mScaleProperties.setAnim(mEmitterPtr->scaleAnim());
-
-    mScaleRandSpinBox.setValue(mEmitterPtr->scaleRand());
+    mScaleProperties.setProperties(mEmitterPtr->scaleProperties());
 
     mCombinerTypeSpinBox.setCurrentEnum(mEmitterPtr->combinerType());
     mFollowTypeSpinBox.setCurrentEnum(mEmitterPtr->followType());

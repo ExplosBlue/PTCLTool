@@ -25,12 +25,13 @@ namespace Ptcl {
 // ========================================================================== //
 
 
-struct ScaleAnim {
+struct ScaleProperties {
     QVector2D initScale = {1.0f, 1.0f};
     QVector2D diffScale21 = {0.0f, 0.0f};
     QVector2D diffScale32 = {0.0f, 0.0f};
     s32 scaleSection1 = 0;
     s32 scaleSection2 = 0;
+    f32 scaleRand = 0.0f;
 };
 
 
@@ -194,8 +195,8 @@ public:
     s32 alphaSection2() const;
     void setAlphaSection2(s32 alphaSection2);
 
-    const ScaleAnim& scaleAnim() const;
-    void setScaleAnim(const ScaleAnim& scaleAnim);
+    const ScaleProperties& scaleProperties() const;
+    void setScaleProperties(const ScaleProperties& scaleProperties);
 
     // const QVector2D& initScale() const;
     // void setInitScale(const QVector2D& initScale);
@@ -212,8 +213,8 @@ public:
     // s32 scaleSection2() const;
     // void setScaleSection2(s32 scaleSection2);
 
-    f32 scaleRand() const;
-    void setScaleRand(f32 scaleRand);
+    // f32 scaleRand() const;
+    // void setScaleRand(f32 scaleRand);
 
     RotType rotType() const;
     void setRotType(RotType rotType);
@@ -356,9 +357,8 @@ private:
     s32 mAlphaSection1;
     s32 mAlphaSection2;
 
-    ScaleAnim mScaleAnim;
+    ScaleProperties mScaleProperties;
 
-    f32 mScaleRand;
     CombinerType mCombinerType;
     RotType mRotType;
     FollowType mFollowType;

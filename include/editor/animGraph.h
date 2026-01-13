@@ -3,7 +3,6 @@
 #include "typedefs.h"
 
 #include <QDoubleSpinBox>
-#include <QFrame>
 #include <QWidget>
 
 
@@ -20,7 +19,7 @@ struct GraphPoint {
 // ========================================================================== //
 
 
-class GraphHandleEditor final : public QFrame {
+class GraphHandleEditor final : public QWidget {
     Q_OBJECT
 
 public:
@@ -29,12 +28,18 @@ public:
     void setValues(f32 position, f32 value);
     void setValueRange(f32 min, f32 max);
 
+protected:
+    void paintEvent(QPaintEvent* event) final;
+
 signals:
     void valuesEdited(f32 position, f32 value);
 
 private:
-    QDoubleSpinBox* mPosition;
-    QDoubleSpinBox* mValue;
+    QDoubleSpinBox* mPosition{};
+    QDoubleSpinBox* mValue{};
+
+    static constexpr s32 sArrowHeight = 8;
+    static constexpr s32 sArrowWidth = 12;
 };
 
 
@@ -60,6 +65,9 @@ public:
     void setControlPoints(const PointList& points);
 
     void setLineColor(const QColor& color);
+
+signals:
+    void pointEdited(s32 index, const GraphPoint& point);
 
 protected:
     void paintEvent(QPaintEvent* event) final;
