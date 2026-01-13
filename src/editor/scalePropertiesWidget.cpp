@@ -21,6 +21,9 @@ scalePropertiesWidget::scalePropertiesWidget(QWidget* parent) :
     mainLayout->addRow("Y Scale Anim:", &mGraphY);
     mainLayout->addRow("Scale Random:", &mRandSpinbox);
 
+    // TODO: Check this is valid
+    mRandSpinbox.setRange(0.0f, 1.0f);
+
     connect(&mGraphX, &AnimGraph::pointEdited, this, [this](s32 pointIndex, const AnimGraph::GraphPoint& point) {
         updateAnimPoint(pointIndex, point, &QVector2D::x);
     });
@@ -29,6 +32,10 @@ scalePropertiesWidget::scalePropertiesWidget(QWidget* parent) :
         updateAnimPoint(pointIndex, point, &QVector2D::y);
     });
 
+    connect(&mRandSpinbox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
+        mProps.scaleRand = static_cast<f32>(value);
+        emit propertiesUpdated(mProps);
+    });
 }
 
 void scalePropertiesWidget::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphPoint& point, f32 (QVector2D::*get)() const) {
