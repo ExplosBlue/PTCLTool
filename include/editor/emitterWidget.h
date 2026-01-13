@@ -104,7 +104,7 @@ private:
     SizedSpinBox<u32> m_134SpinBox;
 
 
-    scalePropertiesWidget mScaleProperties;
+    ScalePropertiesWidget mScaleProperties;
 
     // _168
     // transformSRT

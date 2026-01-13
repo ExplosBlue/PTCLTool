@@ -5,7 +5,7 @@
 #include <QFormLayout>
 #include <QLabel>
 
-scalePropertiesWidget::scalePropertiesWidget(QWidget* parent) :
+ScalePropertiesWidget::ScalePropertiesWidget(QWidget* parent) :
     QWidget{parent} {
 
     // TODO: Move these somewhere else
@@ -38,7 +38,7 @@ scalePropertiesWidget::scalePropertiesWidget(QWidget* parent) :
     });
 }
 
-void scalePropertiesWidget::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphPoint& point, f32 (QVector2D::*get)() const) {
+void ScalePropertiesWidget::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphPoint& point, f32 (QVector2D::*get)() const) {
     auto set = [&](QVector2D& v, f32 val) {
         if (get == &QVector2D::x) {
             v.setX(val);
@@ -93,7 +93,7 @@ void scalePropertiesWidget::updateAnimPoint(s32 pointIndex, const AnimGraph::Gra
     updateGraphs();
 }
 
-void scalePropertiesWidget::updateGraphs() {
+void ScalePropertiesWidget::updateGraphs() {
     auto updateGraph = [this](AnimGraph& graph, f32 (QVector2D::*get)() const) {
         QSignalBlocker blocker(graph);
 
@@ -120,7 +120,7 @@ void scalePropertiesWidget::updateGraphs() {
     updateGraph(mGraphY, &QVector2D::y);
 }
 
-void scalePropertiesWidget::setProperties(const Ptcl::ScaleProperties& properties) {
+void ScalePropertiesWidget::setProperties(const Ptcl::ScaleProperties& properties) {
     mProps = properties;
 
     updateGraphs();

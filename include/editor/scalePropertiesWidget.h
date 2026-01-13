@@ -9,10 +9,10 @@
 
 // ========================================================================== //
 
-class scalePropertiesWidget final : public QWidget {
+class ScalePropertiesWidget final : public QWidget {
     Q_OBJECT
 public:
-    explicit scalePropertiesWidget(QWidget* parent = nullptr);
+    explicit ScalePropertiesWidget(QWidget* parent = nullptr);
 
     void setProperties(const Ptcl::ScaleProperties& properties);
 
