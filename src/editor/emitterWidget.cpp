@@ -166,7 +166,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&m_134SpinBox, "_134:", 52, 0, 3);
 
     // Scale Properties
-    connect(&mScaleProperties, &scalePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ScaleProperties& properties) {
+    connect(&mScaleProperties, &ScalePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ScaleProperties& properties) {
         if (!mEmitterPtr) { return; }
         mEmitterPtr->setScaleProperties(properties);
     });
