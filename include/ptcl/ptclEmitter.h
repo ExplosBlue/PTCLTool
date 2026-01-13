@@ -38,6 +38,18 @@ struct ScaleProperties {
 // ========================================================================== //
 
 
+struct RotationProperties {
+    RotType rotType = RotType::None;
+    binVec3i initRot = {};
+    binVec3i initRotRand = {};
+    binVec3i rotVel = {};
+    binVec3i rotVelRand = {};
+};
+
+
+// ========================================================================== //
+
+
 class Emitter
 {
 public:
@@ -198,27 +210,6 @@ public:
     const ScaleProperties& scaleProperties() const;
     void setScaleProperties(const ScaleProperties& scaleProperties);
 
-    // const QVector2D& initScale() const;
-    // void setInitScale(const QVector2D& initScale);
-
-    // const QVector2D& diffScale21() const;
-    // void setDiffScale21(const QVector2D& diffScale21);
-
-    // const QVector2D& diffScale32() const;
-    // void setDiffScale32(const QVector2D& diffScale32);
-
-    // s32 scaleSection1() const;
-    // void setScaleSection1(s32 scaleSection1);
-
-    // s32 scaleSection2() const;
-    // void setScaleSection2(s32 scaleSection2);
-
-    // f32 scaleRand() const;
-    // void setScaleRand(f32 scaleRand);
-
-    RotType rotType() const;
-    void setRotType(RotType rotType);
-
     CombinerType combinerType() const;
     void setCombinerType(CombinerType combinerType);
 
@@ -228,17 +219,8 @@ public:
     u32 _134() const;
     void set_134(u32 _134);
 
-    const binVec3i& initRot() const;
-    void setInitRot(const binVec3i& initRot);
-
-    const binVec3i& initRotRand() const;
-    void setInitRotRand(const binVec3i& initRotRand);
-
-    const binVec3i& rotVel() const;
-    void setRotVel(const binVec3i& rotVel);
-
-    const binVec3i& rotVelRand() const;
-    void setRotVelRand(const binVec3i& rotVelRand);
+    const RotationProperties& rotationProperties() const;
+    void setRotationProperties(const RotationProperties& rotationProperties);
 
     const std::array<u32, 2>& _168() const;
     void set_168(const std::array<u32, 2>& _168);
@@ -360,13 +342,12 @@ private:
     ScaleProperties mScaleProperties;
 
     CombinerType mCombinerType;
-    RotType mRotType;
+
+    RotationProperties mRotationProperties;
+
     FollowType mFollowType;
     u32 m_134;
-    binVec3i mInitRot;
-    binVec3i mInitRotRand;
-    binVec3i mRotVel;
-    binVec3i mRotVelRand;
+
     std::array<u32, 2> m_168;
     QMatrix3x4 mTransformSRT;
     QMatrix3x4 mTransformRT;

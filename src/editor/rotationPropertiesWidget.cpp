@@ -9,17 +9,14 @@
 RotationPropertiesWidget::RotationPropertiesWidget(QWidget* parent) :
     QWidget{parent} {
 
-    auto* mainLayout = new QFormLayout;
+    auto* mainLayout = new QFormLayout(this);
 
     // RotType
     mainLayout->addRow("Rotation Type", &mRotTypeSpinBox);
     connect(&mRotTypeSpinBox, &QComboBox::currentIndexChanged, this, [this]() {
-        if (!mEmitterPtr || misPopulating) {
-            return;
-        }
-
-        mEmitterPtr->setRotType(mRotTypeSpinBox.currentEnum());
+        mProps.rotType = mRotTypeSpinBox.currentEnum();
         updateAxis();
+        emit propertiesUpdated(mProps);
     });
 
     auto deg2idxVec = [](const QVector3D& v) {
@@ -35,59 +32,41 @@ RotationPropertiesWidget::RotationPropertiesWidget(QWidget* parent) :
     // Initial Rotation
     mainLayout->addRow("Initial Rotation", &mInitRotSpinBox);
     connect(&mInitRotSpinBox, &VectorSpinBoxBase::valueChanged, this, [this, deg2idxVec]() {
-        if (!mEmitterPtr || misPopulating) {
-            return;
-        }
-
-        mEmitterPtr->setInitRot(deg2idxVec(mInitRotSpinBox.getVector()));
+        mProps.initRot = deg2idxVec(mInitRotSpinBox.getVector());
+        emit propertiesUpdated(mProps);
     });
 
     // Initial Rotation Rand
     mainLayout->addRow("Initial Rotation Random", &mInitRotRandSpinBox);
     connect(&mInitRotRandSpinBox, &VectorSpinBoxBase::valueChanged, this, [this, deg2idxVec]() {
-        if (!mEmitterPtr || misPopulating) {
-            return;
-        }
-
-        mEmitterPtr->setInitRotRand(deg2idxVec(mInitRotRandSpinBox.getVector()));
+        mProps.initRotRand = deg2idxVec(mInitRotRandSpinBox.getVector());
+        emit propertiesUpdated(mProps);
     });
 
     // Rotation Speed
     mainLayout->addRow("Rotation Speed", &mRotVelSpinBox);
     connect(&mRotVelSpinBox, &VectorSpinBoxBase::valueChanged, this, [this, deg2idxVec]() {
-        if (!mEmitterPtr || misPopulating) {
-            return;
-        }
-
-        mEmitterPtr->setRotVel(deg2idxVec(mRotVelSpinBox.getVector()));
+        mProps.rotVel = deg2idxVec(mRotVelSpinBox.getVector());
+        emit propertiesUpdated(mProps);
     });
 
     // Rotation Speed Rand
     mainLayout->addRow("Rotation Speed Random", &mRotVelRandSpinBox);
     connect(&mRotVelRandSpinBox, &VectorSpinBoxBase::valueChanged, this, [this, deg2idxVec]() {
-        if (!mEmitterPtr || misPopulating) {
-            return;
-        }
-
-        mEmitterPtr->setRotVelRand(deg2idxVec(mRotVelRandSpinBox.getVector()));
+        mProps.rotVelRand = deg2idxVec(mRotVelRandSpinBox.getVector());
+        emit propertiesUpdated(mProps);
     });
 
     setLayout(mainLayout);
 
 }
 
-void RotationPropertiesWidget::setEmitter(Ptcl::Emitter* emitter) {
-    mEmitterPtr = emitter;
+void RotationPropertiesWidget::setProperties(const Ptcl::RotationProperties& properties) {
+    mProps = properties;
     populateWidgets();
 }
 
 void RotationPropertiesWidget::populateWidgets() {
-    if (!mEmitterPtr) {
-        return;
-    }
-
-    misPopulating = true;
-
     auto idx2degVec = [](const Ptcl::binVec3i& v) {
         return QVector3D {
             MathUtil::to180(MathUtil::idx2deg(v.x)),
@@ -96,28 +75,28 @@ void RotationPropertiesWidget::populateWidgets() {
         };
     };
 
-    mRotTypeSpinBox.setCurrentEnum(mEmitterPtr->rotType());
+    QSignalBlocker b1(mRotTypeSpinBox);
+    mRotTypeSpinBox.setCurrentEnum(mProps.rotType);
 
-    mInitRotSpinBox.setVector(idx2degVec(mEmitterPtr->initRot()));
-    mInitRotRandSpinBox.setVector(idx2degVec(mEmitterPtr->initRotRand()));
-    mRotVelSpinBox.setVector(idx2degVec(mEmitterPtr->rotVel()));
-    mRotVelRandSpinBox.setVector(idx2degVec(mEmitterPtr->rotVelRand()));
+    QSignalBlocker b2(mInitRotSpinBox);
+    mInitRotSpinBox.setVector(idx2degVec(mProps.initRot));
+
+    QSignalBlocker b3(mInitRotRandSpinBox);
+    mInitRotRandSpinBox.setVector(idx2degVec(mProps.initRotRand));
+
+    QSignalBlocker b4(mRotVelSpinBox);
+    mRotVelSpinBox.setVector(idx2degVec(mProps.rotVel));
+
+    QSignalBlocker b5(mRotVelRandSpinBox);
+    mRotVelRandSpinBox.setVector(idx2degVec(mProps.rotVelRand));
 
     updateAxis();
-
-    misPopulating = false;
 }
 
 void RotationPropertiesWidget::updateAxis() {
-    if (!mEmitterPtr) {
-        return;
-    }
-
-    auto rotType = mEmitterPtr->rotType();
-
     using Axis = VectorSpinBoxBase::Axis;
 
-    switch (rotType) {
+    switch (mProps.rotType) {
     case Ptcl::RotType::None:
         mInitRotSpinBox.setEnabledAxis(Axis::None);
         mInitRotRandSpinBox.setEnabledAxis(Axis::None);
@@ -151,7 +130,6 @@ void RotationPropertiesWidget::updateAxis() {
     default:
         break;
     }
-
 }
 
 

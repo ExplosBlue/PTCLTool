@@ -151,6 +151,11 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&mAlphaSection2SpinBox, "Alpha Section 2:", 42, 0, 3);
 
     // Rotation Properties
+    connect(&mRotationProperties, &RotationPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::RotationProperties& properties) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setRotationProperties(properties);
+    });
+
     auto rotationPropertiesSection = new CollapsibleWidget("Rotation properties", this);
     rotationPropertiesSection->setContent(&mRotationProperties);
     mMainLayout.addWidget(rotationPropertiesSection, 49, 0, 1, 4);
@@ -234,7 +239,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mFollowTypeSpinBox.setCurrentEnum(mEmitterPtr->followType());
     m_134SpinBox.setValue(mEmitterPtr->_134());
 
-    mRotationProperties.setEmitter(mEmitterPtr);
+    mRotationProperties.setProperties(mEmitterPtr->rotationProperties());
 
     mIsPopulating = false;
 }

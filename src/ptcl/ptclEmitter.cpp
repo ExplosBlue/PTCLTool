@@ -6,6 +6,7 @@ namespace Ptcl {
 
 // ========================================================================== //
 
+
 Emitter::Emitter() {
     mType = EmitterType::Simple;
     mFlag = BitFlag<EmitterFlag>{};
@@ -72,14 +73,17 @@ Emitter::Emitter() {
         .scaleRand = 0.0f
     };
 
-    mRotType = RotType::None;
+    mRotationProperties = {
+        .rotType = RotType::None,
+        .initRot = {},
+        .initRotRand = {},
+        .rotVel = {},
+        .rotVelRand = {}
+    };
+
     mCombinerType = CombinerType::None;
     mFollowType = FollowType::All;
     m_134 = 0;
-    mInitRot = {};
-    mInitRotRand = {};
-    mRotVel = {};
-    mRotVelRand = {};
     m_168 = {0, 0};
     mTransformSRT = {};
     mTransformRT = {};
@@ -509,62 +513,6 @@ void Emitter::setScaleProperties(const ScaleProperties& scaleProperties) {
     mScaleProperties = scaleProperties;
 }
 
-// const QVector2D& Emitter::initScale() const {
-//     return mInitScale;
-// }
-
-// void Emitter::setInitScale(const QVector2D& initScale) {
-//     mInitScale = initScale;
-// }
-
-// const QVector2D& Emitter::diffScale21() const {
-//     return mDiffScale21;
-// }
-
-// void Emitter::setDiffScale21(const QVector2D& diffScale21) {
-//     mDiffScale21 = diffScale21;
-// }
-
-// const QVector2D& Emitter::diffScale32() const {
-//     return mDiffScale32;
-// }
-
-// void Emitter::setDiffScale32(const QVector2D& diffScale32) {
-//     mDiffScale32 = diffScale32;
-// }
-
-// s32 Emitter::scaleSection1() const {
-//     return mScaleSection1;
-// }
-
-// void Emitter::setScaleSection1(const s32 scaleSection1) {
-//     mScaleSection1 = scaleSection1;
-// }
-
-// s32 Emitter::scaleSection2() const {
-//     return mScaleSection2;
-// }
-
-// void Emitter::setScaleSection2(const s32 scaleSection2) {
-//     mScaleSection2 = scaleSection2;
-// }
-
-// f32 Emitter::scaleRand() const {
-//     return mScaleRand;
-// }
-
-// void Emitter::setScaleRand(const f32 scaleRand) {
-//     mScaleRand = scaleRand;
-// }
-
-RotType Emitter::rotType() const {
-    return mRotType;
-}
-
-void Emitter::setRotType(const RotType rotType) {
-    mRotType = rotType;
-}
-
 CombinerType Emitter::combinerType() const {
     return mCombinerType;
 }
@@ -589,36 +537,12 @@ void Emitter::set_134(const u32 _134) {
     m_134 = _134;
 }
 
-const binVec3i& Emitter::initRot() const {
-    return mInitRot;
+const RotationProperties& Emitter::rotationProperties() const {
+    return mRotationProperties;
 }
 
-void Emitter::setInitRot(const binVec3i& initRot) {
-    mInitRot = initRot;
-}
-
-const binVec3i& Emitter::initRotRand() const {
-    return mInitRotRand;
-}
-
-void Emitter::setInitRotRand(const binVec3i& initRotRand) {
-    mInitRotRand = initRotRand;
-}
-
-const binVec3i& Emitter::rotVel() const {
-    return mRotVel;
-}
-
-void Emitter::setRotVel(const binVec3i& rotVel) {
-    mRotVel = rotVel;
-}
-
-const binVec3i& Emitter::rotVelRand() const {
-    return mRotVelRand;
-}
-
-void Emitter::setRotVelRand(const binVec3i& rotVelRand) {
-    mRotVelRand = rotVelRand;
+void Emitter::setRotationProperties(const RotationProperties& rotationProperties) {
+    mRotationProperties = rotationProperties;
 }
 
 const std::array<u32, 2>& Emitter::_168() const {
@@ -858,14 +782,18 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .scaleRand = emitterData.scaleRand
     };
 
-    mRotType = static_cast<RotType>(emitterData.rotCombinerType % 5);
+    mRotationProperties = {
+        .rotType = static_cast<RotType>(emitterData.rotCombinerType % 5),
+        .initRot = emitterData.initRot,
+        .initRotRand = emitterData.initRotRand,
+        .rotVel = emitterData.rotVel,
+        .rotVelRand = emitterData.rotVelRand,
+    };
+
     mCombinerType = static_cast<CombinerType>(emitterData.rotCombinerType / 5);
     mFollowType = emitterData.followType;
     m_134 = emitterData._134;
-    mInitRot = emitterData.initRot;
-    mInitRotRand = emitterData.initRotRand;
-    mRotVel = emitterData.rotVel;
-    mRotVelRand = emitterData.rotVelRand;
+
     std::ranges::copy(emitterData._168, m_168.begin());
 
     mTransformSRT = emitterData.transformSRT.toQMatrix3x4();
