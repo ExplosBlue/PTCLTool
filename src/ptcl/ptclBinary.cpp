@@ -347,13 +347,13 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     alphaSection1 = emitter.alphaSection1();
     alphaSection2 = emitter.alphaSection2();
 
-    initScale = emitter.scaleAnim().initScale;
-    diffScale21 = emitter.scaleAnim().diffScale21;
-    diffScale32 = emitter.scaleAnim().diffScale32;
-    scaleSection1 = emitter.scaleAnim().scaleSection1;
-    scaleSection2 = emitter.scaleAnim().scaleSection2;
+    initScale = emitter.scaleProperties().initScale;
+    diffScale21 = emitter.scaleProperties().diffScale21;
+    diffScale32 = emitter.scaleProperties().diffScale32;
+    scaleSection1 = emitter.scaleProperties().scaleSection1;
+    scaleSection2 = emitter.scaleProperties().scaleSection2;
+    scaleRand = emitter.scaleProperties().scaleRand;
 
-    scaleRand = emitter.scaleRand();
     rotCombinerType = static_cast<u32>(emitter.rotType()) + 5 * static_cast<u32>(emitter.combinerType());
     followType = emitter.followType();
     _134 = emitter._134();

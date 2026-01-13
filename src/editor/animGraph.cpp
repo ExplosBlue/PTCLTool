@@ -1,8 +1,9 @@
 #include "editor/animGraph.h"
 
 #include <QApplication>
-#include <QHBoxLayout>
+#include <QFormLayout>
 #include <QPainter>
+#include <QPainterPath>
 #include <QMouseEvent>
 
 
@@ -10,10 +11,14 @@
 
 
 GraphHandleEditor::GraphHandleEditor(QWidget* parent) :
-    QFrame{parent} {
+    QWidget{parent} {
     setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);
-    setFrameShape(QFrame::Box);
-    setLineWidth(1);
+
+    setAttribute(Qt::WA_TranslucentBackground);
+    setAttribute(Qt::WA_NoSystemBackground);
+    setAutoFillBackground(false);
+
+    setAttribute(Qt::WA_StyledBackground, true);
 
     mPosition = new QDoubleSpinBox(this);
     mValue = new QDoubleSpinBox(this);
@@ -24,10 +29,10 @@ GraphHandleEditor::GraphHandleEditor(QWidget* parent) :
 
     mValue->setDecimals(3);
 
-    auto* layout = new QHBoxLayout(this);
-    layout->setContentsMargins(6, 4, 6, 4);
-    layout->addWidget(mPosition);
-    layout->addWidget(mValue);
+    auto* layout = new QFormLayout(this);
+    layout->setContentsMargins(6, 4 + sArrowHeight, 6, 4);
+    layout->addRow("Time:", mPosition);
+    layout->addRow("Value:", mValue);
 
     connect(mPosition, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this] {
         emit valuesEdited(static_cast<f32>(mPosition->value()), static_cast<f32>(mValue->value()));
@@ -38,6 +43,43 @@ GraphHandleEditor::GraphHandleEditor(QWidget* parent) :
     });
 }
 
+void GraphHandleEditor::paintEvent(QPaintEvent* event) {
+    Q_UNUSED(event);
+
+    QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing);
+
+    const QRect r = rect();
+
+    // Main body rect (below arrow)
+    QRect bodyRect = r.adjusted(0, sArrowHeight, 0, 0);
+
+    // Colors from palette so it matches theme
+    const QColor bg = palette().window().color();
+    const QColor border = palette().shadow().color();
+
+    // Build path
+    QPainterPath path;
+
+    // Arrow tip (top center)
+    const f32 cx = static_cast<f32>(r.width()) * 0.5f;
+    path.moveTo(cx - sArrowWidth * 0.5f, sArrowHeight);
+    path.lineTo(cx, 0);
+    path.lineTo(cx + sArrowWidth * 0.5f, sArrowHeight);
+
+    // Body rectangle
+    path.addRoundedRect(bodyRect.adjusted(0, 0, -1, -1), 4.0, 4.0);
+
+    // Fill
+    p.setBrush(bg);
+    p.setPen(Qt::NoPen);
+    p.drawPath(path);
+
+    // Border
+    p.setBrush(Qt::NoBrush);
+    p.setPen(QPen(border, 1));
+    p.drawPath(path);
+}
 
 void GraphHandleEditor::setValues(f32 position, f32 value) {
     QSignalBlocker b1(mPosition);
@@ -235,7 +277,11 @@ void AnimGraph::showHandleEditor(s32 index) {
     mHandleEditor->setValueRange(-1000.0f, 1000.0f);
     mHandleEditor->setValues(mPoints[index].position, mPoints[index].value);
 
-    const QPoint globalPos = mapToGlobal(handlePos + QPoint(10, -10));
+    mHandleEditor->adjustSize();
+    const s32 anchorX = mHandleEditor->width() / 2;
+    const s32 anchorY = 0;
+
+    const QPoint globalPos = mapToGlobal(handlePos + QPoint(-anchorX, anchorY));
     mHandleEditor->move(globalPos);
     mHandleEditor->show();
 }
@@ -274,6 +320,8 @@ void AnimGraph::moveHandle(s32 handleIndex, f32 newPos, f32 newValue) {
     }
 
     enforceOrdering();
+
+    emit pointEdited(handleIndex, mPoints[handleIndex]);
 }
 
 void AnimGraph::enforceOrdering() {
@@ -358,8 +406,26 @@ void AnimGraph::mouseMoveEvent(QMouseEvent* event) {
     const f32 x = static_cast<f32>(local.x());
     const f32 y = static_cast<f32>(local.y());
 
-    const f32 t = std::clamp(x / contentWF, 0.0f, 1.0f);
-    const f32 value = range.max - std::clamp(y / contentHF, 0.0f, 1.0f) * (range.max - range.min);
+    f32 t = std::clamp(x / contentWF, 0.0f, 1.0f);
+    f32 value = range.max - std::clamp(y / contentHF, 0.0f, 1.0f) * (range.max - range.min);
+
+    // Grid snap
+    if (!(event->modifiers() & Qt::ShiftModifier)) {
+        constexpr f32 kTimeSnap  = 2.5f;   // percent (0–100)
+        constexpr f32 kValueSnap = 5.0f;   // value units
+
+        const f32 time = t * 100.0f;
+
+        const f32 snappedTime =
+            std::round(time / kTimeSnap) * kTimeSnap;
+
+        const f32 snappedValue =
+            std::round(value / kValueSnap) * kValueSnap;
+
+        t     = std::clamp(snappedTime / 100.0f, 0.0f, 1.0f);
+        value = std::clamp(snappedValue, range.min, range.max);
+    }
+
 
     moveHandle(mSelectedIdx, t * 100.0f, value);
 
