@@ -50,28 +50,48 @@ struct RotationProperties {
 // ========================================================================== //
 
 
+struct ColorProperties {
+    std::array<binColor4f, 3> colors {
+        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+    };
+    s32 colorSection1 = 20;
+    s32 colorSection2 = 60;
+    s32 colorSection3 = 80;
+    s32 colorNumRepeat = 1;
+
+    bool colorRandom = false;
+    bool colorAnimation = false;
+};
+
+
+// ========================================================================== //
+
+
 class Emitter
 {
 public:
+    void extracted();
     Emitter();
 
-    Emitter(const Emitter&) = delete;
-    Emitter& operator=(const Emitter&) = delete;
+    Emitter(const Emitter &) = delete;
+    Emitter &operator=(const Emitter &) = delete;
 
     EmitterType type() const;
-    void        setType(EmitterType type);
+    void setType(EmitterType type);
 
-    BitFlag<EmitterFlag>& flags();
-    const BitFlag<EmitterFlag>& flags() const;
+    BitFlag<EmitterFlag> &flags();
+    const BitFlag<EmitterFlag> &flags() const;
 
-    PtclSeed& randomSeed();
-    const PtclSeed& randomSeed() const;
+    PtclSeed &randomSeed();
+    const PtclSeed &randomSeed() const;
 
-    const QString& name() const;
-    void setName(const QString& name);
+    const QString &name() const;
+    void setName(const QString &name);
 
-    const TextureHandle& textureHandle() const;
-    TextureHandle& textureHandle();
+    const TextureHandle &textureHandle() const;
+    TextureHandle &textureHandle();
     void setTexture(std::shared_ptr<Texture> texture);
 
     TextureWrap textureWrapT() const;
@@ -116,8 +136,8 @@ public:
     VolumeType volumeType() const;
     void setVolumeType(VolumeType volumeType);
 
-    const QVector3D& volumeRadius() const;
-    void setVolumeRadius(const QVector3D& volumeRadius);
+    const QVector3D &volumeRadius() const;
+    void setVolumeRadius(const QVector3D &volumeRadius);
 
     s32 volumeSweepStart() const;
     void setVolumeSweepStart(s32 volumeSweepStart);
@@ -128,8 +148,8 @@ public:
     f32 figureVel() const;
     void setFigureVel(f32 figureVel);
 
-    const QVector3D& emitterVelDir() const;
-    void setEmitterVelDir(const QVector3D& emitterVelDir);
+    const QVector3D &emitterVelDir() const;
+    void setEmitterVelDir(const QVector3D &emitterVelDir);
 
     f32 _5C() const;
     void set_5C(f32 _5C);
@@ -137,11 +157,11 @@ public:
     f32 initVelRnd() const;
     void setInitVelRnd(f32 initVelRnd);
 
-    const QVector3D& spreadVec() const;
-    void setSpreadVec(const QVector3D& spreadVec);
+    const QVector3D &spreadVec() const;
+    void setSpreadVec(const QVector3D &spreadVec);
 
-    const std::array<u32, 4>& _70() const;
-    void set_70(const std::array<u32, 4>& _70);
+    const std::array<u32, 4> &_70() const;
+    void set_70(const std::array<u32, 4> &_70);
 
     u32 _80() const;
     void set_80(u32 _80);
@@ -173,24 +193,11 @@ public:
     f32 _A4() const;
     void set_A4(f32 _A4);
 
-    const std::array<binColor4f, 3>& colors() const;
-    void setColors(const std::array<binColor4f, 3>& colors);
-    void setColor(int index, const binColor4f& color);
+    const std::array<u32, 3> &_D8() const;
+    void set_D8(const std::array<u32, 3> &_D8);
 
-    const std::array<u32, 3>& _D8() const;
-    void set_D8(const std::array<u32, 3>& _D8);
-
-    s32 colorSection1() const;
-    void setColorSection1(s32 colorSection1);
-
-    s32 colorSection2() const;
-    void setColorSection2(s32 colorSection2);
-
-    s32 colorSection3() const;
-    void setColorSection3(s32 colorSection3);
-
-    s32 colorNumRepeat() const;
-    void setColorNumRepeat(s32 colorNumRepeat);
+    const ColorProperties &colorProperties() const;
+    void setColorProperties(const ColorProperties &colorProperties);
 
     f32 initAlpha() const;
     void setInitAlpha(f32 initAlpha);
@@ -207,8 +214,8 @@ public:
     s32 alphaSection2() const;
     void setAlphaSection2(s32 alphaSection2);
 
-    const ScaleProperties& scaleProperties() const;
-    void setScaleProperties(const ScaleProperties& scaleProperties);
+    const ScaleProperties &scaleProperties() const;
+    void setScaleProperties(const ScaleProperties &scaleProperties);
 
     CombinerType combinerType() const;
     void setCombinerType(CombinerType combinerType);
@@ -219,17 +226,17 @@ public:
     u32 _134() const;
     void set_134(u32 _134);
 
-    const RotationProperties& rotationProperties() const;
-    void setRotationProperties(const RotationProperties& rotationProperties);
+    const RotationProperties &rotationProperties() const;
+    void setRotationProperties(const RotationProperties &rotationProperties);
 
-    const std::array<u32, 2>& _168() const;
-    void set_168(const std::array<u32, 2>& _168);
+    const std::array<u32, 2> &_168() const;
+    void set_168(const std::array<u32, 2> &_168);
 
-    const QMatrix3x4& transformSRT() const;
-    void setTransformSRT(const QMatrix3x4& transformSRT);
+    const QMatrix3x4 &transformSRT() const;
+    void setTransformSRT(const QMatrix3x4 &transformSRT);
 
-    const QMatrix3x4& transformRT() const;
-    void setTransformRT(const QMatrix3x4& transformRT);
+    const QMatrix3x4 &transformRT() const;
+    void setTransformRT(const QMatrix3x4 &transformRT);
 
     f32 alphaAddInFade() const;
     void setAlphaAddInFade(f32 alphaAddInFade);
@@ -243,11 +250,11 @@ public:
     u8 numTexDivY() const;
     void setNumTexDivY(u8 numTexDivY);
 
-    const QVector2D& texUVScale() const;
-    void setTexUVScale(const QVector2D& texUVScale);
+    const QVector2D &texUVScale() const;
+    void setTexUVScale(const QVector2D &texUVScale);
 
-    const std::array<u8, 16>& texPatTbl() const;
-    void setTexPatTbl(const std::array<u8, 16>& texPatTbl);
+    const std::array<u8, 16> &texPatTbl() const;
+    void setTexPatTbl(const std::array<u8, 16> &texPatTbl);
     void setTexPatTblData(int index, u8 value);
 
     u16 texPatFreq() const;
@@ -256,33 +263,33 @@ public:
     u16 texPatTblUse() const;
     void setTexPatTblUse(u16 texPatTblUse);
 
-    BitFlag<ChildFlag>& childFlags();
-    BitFlag<FieldFlag>& fieldFlags();
-    BitFlag<FluctuationFlag>& fluctuationFlags();
-    BitFlag<StripeFlag>& stripeFlags();
+    BitFlag<ChildFlag> &childFlags();
+    BitFlag<FieldFlag> &fieldFlags();
+    BitFlag<FluctuationFlag> &fluctuationFlags();
+    BitFlag<StripeFlag> &stripeFlags();
 
-    const BitFlag<ChildFlag>& childFlags() const;
-    const BitFlag<FieldFlag>& fieldFlags() const;
-    const BitFlag<FluctuationFlag>& fluctuationFlags() const;
-    const BitFlag<StripeFlag>& stripeFlags() const;
+    const BitFlag<ChildFlag> &childFlags() const;
+    const BitFlag<FieldFlag> &fieldFlags() const;
+    const BitFlag<FluctuationFlag> &fluctuationFlags() const;
+    const BitFlag<StripeFlag> &stripeFlags() const;
 
     bool hasStripeData() const;
     void setHasStripeData(bool hasStripeData);
 
-    ChildData& childData();
+    ChildData &childData();
 
-    FieldRandomData& fieldRandomData();
-    FieldMagnetData& fieldMagnetData();
-    FieldSpinData& fieldSpinData();
-    FieldCollisionData& fieldCollisionData();
-    FieldConvergenceData& fieldConvergenceData();
-    FieldPosAddData& fieldPosAddData();
+    FieldRandomData &fieldRandomData();
+    FieldMagnetData &fieldMagnetData();
+    FieldSpinData &fieldSpinData();
+    FieldCollisionData &fieldCollisionData();
+    FieldConvergenceData &fieldConvergenceData();
+    FieldPosAddData &fieldPosAddData();
 
-    FluctuationData& fluctuationData();
+    FluctuationData &fluctuationData();
 
-    StripeData& stripeData();
+    StripeData &stripeData();
 
-    void initFromBinary(const BinCommonEmitterData& emitterData);
+    void initFromBinary(const BinCommonEmitterData &emitterData);
 
 private:
     EmitterType mType;
@@ -327,23 +334,20 @@ private:
     f32 m_9C;
     f32 m_A0;
     f32 m_A4;
-    std::array<binColor4f, 3> mColors;
+
     std::array<u32, 3> m_D8;
-    s32 mColorSection1; // Should these be QColor?
-    s32 mColorSection2; // Should these be QColor?
-    s32 mColorSection3; // Should these be QColor?
-    s32 mColorNumRepeat;
+
     f32 mInitAlpha;
     f32 mDiffAlpha21;
     f32 mDiffAlpha32;
     s32 mAlphaSection1;
     s32 mAlphaSection2;
 
-    ScaleProperties mScaleProperties;
-
     CombinerType mCombinerType;
 
+    ScaleProperties mScaleProperties;
     RotationProperties mRotationProperties;
+    ColorProperties mColorProperties;
 
     FollowType mFollowType;
     u32 m_134;

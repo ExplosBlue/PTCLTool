@@ -335,12 +335,12 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     _9C = emitter._9C();
     _A0 = emitter._A0();
     _A4 = emitter._A4();
-    color = emitter.colors();
+    color = emitter.colorProperties().colors;
     std::copy(emitter._D8().begin(), emitter._D8().end(), _D8.data());
-    colorSection1 = emitter.colorSection1();
-    colorSection2 = emitter.colorSection2();
-    colorSection3 = emitter.colorSection3();
-    colorNumRepeat = emitter.colorNumRepeat();
+    colorSection1 = emitter.colorProperties().colorSection1;
+    colorSection2 = emitter.colorProperties().colorSection2;
+    colorSection3 = emitter.colorProperties().colorSection3;
+    colorNumRepeat = emitter.colorProperties().colorNumRepeat;
     initAlpha = emitter.initAlpha();
     diffAlpha21 = emitter.diffAlpha21();
     diffAlpha32 = emitter.diffAlpha32();

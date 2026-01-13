@@ -8,6 +8,7 @@ namespace Ptcl {
 
 
 Emitter::Emitter() {
+
     mType = EmitterType::Simple;
     mFlag = BitFlag<EmitterFlag>{};
     mRandomSeed = PtclSeed{};
@@ -48,16 +49,23 @@ Emitter::Emitter() {
     m_9C = 0.0f;
     m_A0 = 0.0f;
     m_A4 = 0.0f;
-    mColors = {
-        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
-        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
-        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
-    };
+
     m_D8 = {0, 0, 0};
-    mColorSection1 = 20;
-    mColorSection2 = 60;
-    mColorSection3 = 80;
-    mColorNumRepeat = 1;
+
+    mColorProperties = {
+     .colors {
+        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+    },
+    .colorSection1 = 20,
+    .colorSection2 = 60,
+    .colorSection3 = 80,
+    .colorNumRepeat = 1,
+    .colorRandom = mFlag.isSet(EmitterFlag::ColorRandom),
+    .colorAnimation = mFlag.isSet(EmitterFlag::ColorAnimation),
+    };
+
     mInitAlpha = 0.0f;
     mDiffAlpha21 = 0.0f;
     mDiffAlpha32 = 0.0f;
@@ -407,23 +415,6 @@ void Emitter::set_A4(const f32 _A4) {
     m_A4 = _A4;
 }
 
-const std::array<binColor4f, 3>& Emitter::colors() const {
-    return mColors;
-}
-
-void Emitter::setColors(const std::array<binColor4f, 3>& colors) {
-    mColors = colors;
-}
-
-void Emitter::setColor(int index, const binColor4f& color) {
-    if (index >= 3) {
-        qWarning() << "invalid color index";
-        return;
-    }
-
-    mColors[index] = color;
-}
-
 const std::array<u32, 3>& Emitter::_D8() const {
     return m_D8;
 }
@@ -432,36 +423,15 @@ void Emitter::set_D8(const std::array<u32, 3>& _D8) {
     m_D8 = _D8;
 }
 
-s32 Emitter::colorSection1() const {
-    return mColorSection1;
+const ColorProperties& Emitter::colorProperties() const {
+    return mColorProperties;
 }
 
-void Emitter::setColorSection1(const s32 colorSection1) {
-    mColorSection1 = colorSection1;
-}
-
-s32 Emitter::colorSection2() const {
-    return mColorSection2;
-}
-
-void Emitter::setColorSection2(const s32 colorSection2) {
-    mColorSection2 = colorSection2;
-}
-
-s32 Emitter::colorSection3() const {
-    return mColorSection3;
-}
-
-void Emitter::setColorSection3(const s32 colorSection3) {
-    mColorSection3 = colorSection3;
-}
-
-s32 Emitter::colorNumRepeat() const {
-    return mColorNumRepeat;
-}
-
-void Emitter::setColorNumRepeat(const s32 colorNumRepeat) {
-    mColorNumRepeat = colorNumRepeat;
+void Emitter::setColorProperties(const ColorProperties& colorProperties) {
+    mColorProperties = colorProperties;
+    // Sync color flags with mFlag
+    mColorProperties.colorRandom ? mFlag.set(EmitterFlag::ColorRandom) : mFlag.clear(EmitterFlag::ColorRandom);
+    mColorProperties.colorAnimation ? mFlag.set(EmitterFlag::ColorAnimation) : mFlag.clear(EmitterFlag::ColorAnimation);
 }
 
 f32 Emitter::initAlpha() const {
@@ -759,14 +729,19 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_A0 = emitterData._A0;
     m_A4 = emitterData._A4;
 
-    mColors = emitterData.color;
 
     std::ranges::copy(emitterData._D8, m_D8.begin());
 
-    mColorSection1 = emitterData.colorSection1;
-    mColorSection2 = emitterData.colorSection2;
-    mColorSection3 = emitterData.colorSection3;
-    mColorNumRepeat = emitterData.colorNumRepeat;
+    mColorProperties = {
+        .colors = emitterData.color,
+        .colorSection1 = emitterData.colorSection1,
+        .colorSection2 = emitterData.colorSection2,
+        .colorSection3 = emitterData.colorSection3,
+        .colorNumRepeat = emitterData.colorNumRepeat,
+        .colorRandom = emitterData.flag.isSet(EmitterFlag::ColorRandom),
+        .colorAnimation = emitterData.flag.isSet(EmitterFlag::ColorAnimation),
+    };
+
     mInitAlpha = emitterData.initAlpha;
     mDiffAlpha21 = emitterData.diffAlpha21;
     mDiffAlpha32 = emitterData.diffAlpha32;
