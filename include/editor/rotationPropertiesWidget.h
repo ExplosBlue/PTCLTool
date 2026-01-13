@@ -12,28 +12,28 @@
 // ========================================================================== //
 
 
-class RotationPropertiesWidget : public QWidget {
+class RotationPropertiesWidget final : public QWidget {
     Q_OBJECT
 public:
     explicit RotationPropertiesWidget(QWidget* parent = nullptr);
 
-    void setEmitter(Ptcl::Emitter* emitter);
+    void setProperties(const Ptcl::RotationProperties& properties);
+
+signals:
+    void propertiesUpdated(const Ptcl::RotationProperties& properties);
 
 private:
     void populateWidgets();
     void updateAxis();
 
 private:
-    Ptcl::Emitter* mEmitterPtr;
+    Ptcl::RotationProperties mProps{};
 
-    EnumComboBox<Ptcl::RotType> mRotTypeSpinBox;
-
-    VectorSpinBox<QVector3D> mInitRotSpinBox;
-    VectorSpinBox<QVector3D> mInitRotRandSpinBox;
-    VectorSpinBox<QVector3D> mRotVelSpinBox;
-    VectorSpinBox<QVector3D> mRotVelRandSpinBox;
-
-    bool misPopulating = false;
+    EnumComboBox<Ptcl::RotType> mRotTypeSpinBox{};
+    VectorSpinBox<QVector3D> mInitRotSpinBox{};
+    VectorSpinBox<QVector3D> mInitRotRandSpinBox{};
+    VectorSpinBox<QVector3D> mRotVelSpinBox{};
+    VectorSpinBox<QVector3D> mRotVelRandSpinBox{};
 };
 
 

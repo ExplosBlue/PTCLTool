@@ -354,13 +354,13 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     scaleSection2 = emitter.scaleProperties().scaleSection2;
     scaleRand = emitter.scaleProperties().scaleRand;
 
-    rotCombinerType = static_cast<u32>(emitter.rotType()) + 5 * static_cast<u32>(emitter.combinerType());
+    rotCombinerType = static_cast<u32>(emitter.rotationProperties().rotType) + 5 * static_cast<u32>(emitter.combinerType());
     followType = emitter.followType();
     _134 = emitter._134();
-    initRot = emitter.initRot();
-    initRotRand = emitter.initRotRand();
-    rotVel = emitter.rotVel();
-    rotVelRand = emitter.rotVelRand();
+    initRot = emitter.rotationProperties().initRot;
+    initRotRand = emitter.rotationProperties().initRotRand;
+    rotVel = emitter.rotationProperties().rotVel;
+    rotVelRand = emitter.rotationProperties().rotVelRand;
     std::copy(emitter._168().begin(), emitter._168().end(), _168.data());
     transformSRT = emitter.transformSRT();
     transformRT = emitter.transformRT();
