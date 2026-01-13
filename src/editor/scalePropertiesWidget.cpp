@@ -58,43 +58,32 @@ void scalePropertiesWidget::updateAnimPoint(s32 pointIndex, const AnimGraph::Gra
     const f32 oldP2 = oldP1;
     const f32 oldP3 = oldP2 + (mProps.diffScale32.*get)();
 
-    switch (pointIndex) {
-    case 0:
-        set(mProps.initScale, point.value);
-        set(mProps.diffScale21, oldP1 - point.value);
-        break;
-    case 1:
-    {
-        set(mProps.diffScale21, point.value - oldP0);
-
-        const f32 sec1 = getGraphPoints()[1].position;
-        const f32 sec2 = getGraphPoints()[2].position;
-
-        // Disable if handles overlap
-        if (std::abs(sec1 - sec2) < std::numeric_limits<f32>::epsilon()) {
-            mProps.scaleSection1 = -127;
-        } else {
-            mProps.scaleSection1 = static_cast<s32>(point.position);
-        }
-        break;
-    }
-    case 2:
-    {
+    auto updateScaleSection = [&](s32* section, bool isSection2 = false) {
         set(mProps.diffScale21, point.value - oldP0);
         set(mProps.diffScale32, oldP3 - point.value);
 
         const f32 sec1 = getGraphPoints()[1].position;
         const f32 sec2 = getGraphPoints()[2].position;
 
-        // Disable if handles overlap
         if (std::abs(sec1 - sec2) < std::numeric_limits<f32>::epsilon()) {
-            mProps.scaleSection1 = -127;
-            mProps.scaleSection2 = static_cast<s32>(point.position);
+            mProps.scaleSection1 = -127; // Disable section1 if handles overlap
+            if (isSection2) { *section = static_cast<s32>(point.position); }
         } else {
-            mProps.scaleSection2 = static_cast<s32>(point.position);
+            *section = static_cast<s32>(point.position);
         }
+    };
+
+    switch (pointIndex) {
+    case 0:
+        set(mProps.initScale, point.value);
+        set(mProps.diffScale21, oldP1 - point.value);
         break;
-    }
+    case 1:
+        updateScaleSection(&mProps.scaleSection1);
+        break;
+    case 2:
+        updateScaleSection(&mProps.scaleSection2, true);
+        break;
     case 3:
         set(mProps.diffScale32, point.value - oldP1);
         break;
