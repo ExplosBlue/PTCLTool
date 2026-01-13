@@ -8,7 +8,7 @@
 
 
 ColorPropertiesWidget::ColorPropertiesWidget(QWidget* parent) :
-    QWidget{parent}, mIsPopulating{false} {
+    QWidget{parent} {
     // Color Behavior Type
     auto colorBehaviorLayout = new QHBoxLayout;
     mColorBehavior.addItem("Constant", QVariant::fromValue(Behavior::Constant));
@@ -26,8 +26,6 @@ ColorPropertiesWidget::ColorPropertiesWidget(QWidget* parent) :
         colorsLayout->addWidget(&mColorWidgets[i]);
         mColorWidgets[i].setProperty("colorIndex", i);
         connect(&mColorWidgets[i], &RGBAColorWidget::colorChanged, this, &ColorPropertiesWidget::handleColorChanged);
-
-        // Label
         colorLabelLayout->addWidget(&mColorLabels[i]);
     }
 
@@ -42,10 +40,7 @@ ColorPropertiesWidget::ColorPropertiesWidget(QWidget* parent) :
     colorRepeatLayout->addStretch();
     connect(&mColorNumRepeatSpinBox, &SizedSpinBoxBase::valueChanged, this, [=, this](int value) {
         mColorSections.setRepetitionCount(value);
-        if (!mEmitterPtr) {
-            return;
-        }
-        mEmitterPtr->setColorNumRepeat(value);
+        mProps.colorNumRepeat = value;
     });
 
     // Main Layout
@@ -59,50 +54,46 @@ ColorPropertiesWidget::ColorPropertiesWidget(QWidget* parent) :
     setLayout(mainLayout);
 }
 
-void ColorPropertiesWidget::setEmitter(Ptcl::Emitter* emitter) {
-    mEmitterPtr = emitter;
+void ColorPropertiesWidget::setProperties(const Ptcl::ColorProperties& properties) {
+    mProps = properties;
     populateWidgets();
 }
 
 void ColorPropertiesWidget::populateWidgets() {
-    if (!mEmitterPtr) {
-        return;
-    }
+    QSignalBlocker b1(mColorSections);
+    QSignalBlocker b2(mColorNumRepeatSpinBox);
 
-    mIsPopulating = true;
+    QSignalBlocker bColor0(mColorWidgets[0]);
+    QSignalBlocker bColor1(mColorWidgets[1]);
+    QSignalBlocker bColor2(mColorWidgets[2]);
 
     for (int i = 0; i < mColorWidgets.size(); ++i) {
-        mColorWidgets[i].setColor(mEmitterPtr->colors()[i]);
+        mColorWidgets[i].setColor(mProps.colors[i]);
     }
 
     mColorSections.setTimings(
-        mEmitterPtr->colorSection1(),
-        mEmitterPtr->colorSection2(),
-        mEmitterPtr->colorSection3()
+        mProps.colorSection1,
+        mProps.colorSection2,
+        mProps.colorSection3
     );
 
-    const auto& colors = mEmitterPtr->colors();
+    const auto& colors = mProps.colors;
     mColorSections.setInitialColor(QColor::fromRgbF(colors[0].r, colors[0].g, colors[0].b));
     mColorSections.setPeakColor(QColor::fromRgbF(colors[1].r, colors[1].g, colors[1].b));
     mColorSections.setEndColor(QColor::fromRgbF(colors[2].r, colors[2].g, colors[2].b));
 
-    mColorSections.setRepetitionCount(mEmitterPtr->colorNumRepeat());
-    mColorNumRepeatSpinBox.setValue(mEmitterPtr->colorNumRepeat());
+    mColorSections.setRepetitionCount(mProps.colorNumRepeat);
+    mColorNumRepeatSpinBox.setValue(mProps.colorNumRepeat);
 
     updateUiFromFlags();
-
-    mIsPopulating = false;
 }
 
 void ColorPropertiesWidget::updateUiFromFlags() {
-    if (!mEmitterPtr) {
-        return;
-    }
 
     Behavior behavior = Behavior::Constant;
-    if (mEmitterPtr->flags().isSet(Ptcl::EmitterFlag::ColorRandom)) {
+    if (mProps.colorRandom) {
         behavior = Behavior::Random;
-    } else if (mEmitterPtr->flags().isSet(Ptcl::EmitterFlag::ColorAnimation)) {
+    } else if (mProps.colorAnimation) {
         behavior = Behavior::Animation;
     }
 
@@ -149,35 +140,29 @@ void ColorPropertiesWidget::setColorLabels(const std::array<QString, 3>& labels)
 }
 
 void ColorPropertiesWidget::handleBehaviorChanged(int index) {
-    if (!mEmitterPtr || mIsPopulating) {
-        return;
-    }
-
     auto behavior = behaviorFromIndex(index);
 
     applyBehaviorToUI(behavior);
 
     switch (behavior) {
     case Behavior::Constant:
-        mEmitterPtr->flags().clear(Ptcl::EmitterFlag::ColorRandom);
-        mEmitterPtr->flags().clear(Ptcl::EmitterFlag::ColorAnimation);
+        mProps.colorRandom = false;
+        mProps.colorAnimation = false;
         break;
     case Behavior::Random:
-        mEmitterPtr->flags().set(Ptcl::EmitterFlag::ColorRandom);
-        mEmitterPtr->flags().clear(Ptcl::EmitterFlag::ColorAnimation);
+        mProps.colorRandom = true;
+        mProps.colorAnimation = false;
         break;
     case Behavior::Animation:
-        mEmitterPtr->flags().clear(Ptcl::EmitterFlag::ColorRandom);
-        mEmitterPtr->flags().set(Ptcl::EmitterFlag::ColorAnimation);
+        mProps.colorRandom = false;
+        mProps.colorAnimation = true;
         break;
     }
+
+    emit propertiesUpdated(mProps);
 }
 
 void ColorPropertiesWidget::handleColorChanged() {
-    if (mIsPopulating) {
-        return;
-    }
-
     auto* widget = qobject_cast<RGBAColorWidget*>(sender());
     if (!widget) {
         return;
@@ -189,7 +174,7 @@ void ColorPropertiesWidget::handleColorChanged() {
     }
 
     const auto& color = widget->color();
-    mEmitterPtr->setColor(index, color);
+    mProps.colors[index] = color;
 
     QColor qcolor = QColor::fromRgbF(color.r, color.g, color.b);
     if (index == 0) {
@@ -199,22 +184,22 @@ void ColorPropertiesWidget::handleColorChanged() {
     } else if (index == 2) {
         mColorSections.setEndColor(qcolor);
     }
+
+    emit propertiesUpdated(mProps);
 }
 
 void ColorPropertiesWidget::updateColorSection(ColorGradientEditor::HandleType handleType) {
-    if (!mEmitterPtr) {
-        return;
-    }
-
     switch (handleType) {
     case ColorGradientEditor::HandleType::InCompletedHandle:
-        mEmitterPtr->setColorSection1(mColorSections.inCompletedTiming());
+        mProps.colorSection1 = mColorSections.inCompletedTiming();
         break;
     case ColorGradientEditor::HandleType::PeakHandle:
-        mEmitterPtr->setColorSection2(mColorSections.peakTiming());
+        mProps.colorSection2 = mColorSections.peakTiming();
         break;
     case ColorGradientEditor::HandleType::OutStartHandle:
-        mEmitterPtr->setColorSection3(mColorSections.outStartTiming());
+        mProps.colorSection3 = mColorSections.outStartTiming();
         break;
     }
+
+    emit propertiesUpdated(mProps);
 }

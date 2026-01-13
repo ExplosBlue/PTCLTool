@@ -138,6 +138,11 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&m_A4SpinBox,        "_A4:",            32, 0, 3);
 
     // Color Properties
+    connect(&mColorProperties, &ColorPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ColorProperties& properties) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setColorProperties(properties);
+    });
+
     auto colorPropertiesSection = new CollapsibleWidget("Color properties", this);
     colorPropertiesSection->setContent(&mColorProperties);
     mMainLayout.addWidget(colorPropertiesSection, 33, 0, 1, 4);
@@ -225,7 +230,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_A0SpinBox.setValue(mEmitterPtr->_A0());
     m_A4SpinBox.setValue(mEmitterPtr->_A4());
 
-    mColorProperties.setEmitter(mEmitterPtr);
+    mColorProperties.setProperties(mEmitterPtr->colorProperties());
 
     mInitAlphaSpinBox.setValue(mEmitterPtr->initAlpha());
     mDiffAlpha21SpinBox.setValue(mEmitterPtr->diffAlpha21());

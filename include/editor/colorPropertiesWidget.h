@@ -30,13 +30,16 @@ static int behaviorToIndex(Behavior behavior) {
 // ========================================================================== //
 
 
-class ColorPropertiesWidget : public QWidget {
+class ColorPropertiesWidget final : public QWidget {
     Q_OBJECT
 public:
     explicit ColorPropertiesWidget(QWidget* parent = nullptr);
 
-    void setEmitter(Ptcl::Emitter* emitter);
+    void setProperties(const Ptcl::ColorProperties& properties);
     void populateWidgets();
+
+signals:
+    void propertiesUpdated(const Ptcl::ColorProperties& properties);
 
 private slots:
     void handleColorChanged();
@@ -50,16 +53,14 @@ private:
     void setColorLabels(const std::array<QString, 3>& labels);
 
 private:
-    Ptcl::Emitter* mEmitterPtr;
+    Ptcl::ColorProperties mProps{};
 
-    QComboBox mColorBehavior;
+    QComboBox mColorBehavior{};
     std::array<QLabel, 3> mColorLabels;
     std::array<RGBAColorWidget, 3> mColorWidgets;
-    ColorGradientEditor mColorSections;
-    SizedSpinBox<s32> mColorNumRepeatSpinBox;
-    QLabel mRepetitionCountLabel;
-
-    bool mIsPopulating;
+    ColorGradientEditor mColorSections{};
+    SizedSpinBox<s32> mColorNumRepeatSpinBox{};
+    QLabel mRepetitionCountLabel{};
 };
 
 
