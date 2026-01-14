@@ -115,6 +115,15 @@ struct EmissionProperties {
 // ========================================================================== //
 
 
+struct TerminationProperties {
+    bool isStopEmitInFade = false;
+    f32 alphaAddInFade = 0.0f;
+};
+
+
+// ========================================================================== //
+
+
 class Emitter
 {
 public:
@@ -173,9 +182,6 @@ public:
     u8 _31() const;
     void set_31(u8 _31);
 
-    u8 _33() const;
-    void set_33(u8 _33);;
-
     u32 _80() const;
     void set_80(u32 _80);
 
@@ -208,6 +214,9 @@ public:
 
     const std::array<u32, 3> &_D8() const;
     void set_D8(const std::array<u32, 3> &_D8);
+
+    const TerminationProperties &terminationProperties() const;
+    void setTerminationProperties(const TerminationProperties &terminationProperties);
 
     const EmissionProperties &emissionProperties() const;
     void setEmissionProperties(const EmissionProperties &emissionProperties);
@@ -247,9 +256,6 @@ public:
 
     const QMatrix3x4 &transformRT() const;
     void setTransformRT(const QMatrix3x4 &transformRT);
-
-    f32 alphaAddInFade() const;
-    void setAlphaAddInFade(f32 alphaAddInFade);
 
     u16 numTexPat() const;
     void setNumTexPat(u16 numTexPat);
@@ -323,7 +329,6 @@ private:
     u8 m_30;
     u8 m_31;
 
-    u8 m_33; // probably padding...
 
     u32 m_80;
     s32 mPtclLife;
@@ -338,6 +343,7 @@ private:
 
     std::array<u32, 3> m_D8;
 
+    TerminationProperties mTerminationProperties;
     EmissionProperties mEmissionProperties;
     VelocityProperties mVelocityProperties;
     VolumeProperties mVolumeProperties;
@@ -354,7 +360,6 @@ private:
     std::array<u32, 2> m_168;
     QMatrix3x4 mTransformSRT;
     QMatrix3x4 mTransformRT;
-    f32 mAlphaAddInFade;
 
     u16 mNumTexPat;
     u8 mNumTexDivX;

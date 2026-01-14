@@ -27,7 +27,6 @@ Emitter::Emitter() {
     m_2F = 0;
     m_30 = 0;
     m_31 = 0;
-    m_33 = 0;
 
     m_80 = 0;
     mPtclLife = 0;
@@ -42,6 +41,10 @@ Emitter::Emitter() {
 
     m_D8 = {0, 0, 0};
 
+    mTerminationProperties = {
+        .isStopEmitInFade = false,
+        .alphaAddInFade = 0.0f
+    };
 
     mEmissionProperties = {
         .startFrame = 0,
@@ -110,7 +113,6 @@ Emitter::Emitter() {
     m_168 = {0, 0};
     mTransformSRT = {};
     mTransformRT = {};
-    mAlphaAddInFade = 0.0f;
 
     mNumTexPat = 0;
     mNumTexDivX = 1;
@@ -254,14 +256,6 @@ void Emitter::set_31(const u8 _31) {
     m_31 = _31;
 }
 
-u8 Emitter::_33() const {
-    return m_33;
-}
-
-void Emitter::set_33(const u8 _33) {
-    m_33 = _33;
-}
-
 u32 Emitter::_80() const {
     return m_80;
 }
@@ -348,6 +342,14 @@ const std::array<u32, 3>& Emitter::_D8() const {
 
 void Emitter::set_D8(const std::array<u32, 3>& _D8) {
     m_D8 = _D8;
+}
+
+const TerminationProperties& Emitter::terminationProperties() const {
+    return mTerminationProperties;
+}
+
+void Emitter::setTerminationProperties(const TerminationProperties& terminationProperties) {
+    mTerminationProperties = terminationProperties;
 }
 
 const EmissionProperties& Emitter::emissionProperties() const {
@@ -455,14 +457,6 @@ const QMatrix3x4& Emitter::transformRT() const {
 
 void Emitter::setTransformRT(const QMatrix3x4& transformRT) {
     mTransformRT = transformRT;
-}
-
-f32 Emitter::alphaAddInFade() const {
-    return mAlphaAddInFade;
-}
-
-void Emitter::setAlphaAddInFade(const f32 alphaAddInFade) {
-    mAlphaAddInFade = alphaAddInFade;
 }
 
 u16 Emitter::numTexPat() const {
@@ -624,7 +618,6 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_2F = emitterData._2F;
     m_30 = emitterData._30;
     m_31 = emitterData._31;
-    m_33 = emitterData._33;
 
     m_80 = emitterData._80;
     mPtclLife = emitterData.ptclLife;
@@ -639,6 +632,11 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 
 
     std::ranges::copy(emitterData._D8, m_D8.begin());
+
+    mTerminationProperties = {
+        .isStopEmitInFade = emitterData.isStopEmitInFade,
+        .alphaAddInFade = emitterData.alphaAddInFade
+    };
 
     mEmissionProperties = {
         .startFrame = emitterData.startFrame,
@@ -706,7 +704,6 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 
     mTransformSRT = emitterData.transformSRT.toQMatrix3x4();
     mTransformRT = emitterData.transformRT.toQMatrix3x4();
-    mAlphaAddInFade = emitterData.alphaAddInFade;
     mNumTexPat = emitterData.numTexPat;
     mNumTexDivX = emitterData.numTexDivX;
     mNumTexDivY = emitterData.numTexDivY;
