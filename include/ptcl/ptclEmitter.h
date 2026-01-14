@@ -103,6 +103,18 @@ struct VelocityProperties {
 
 // ========================================================================== //
 
+
+struct EmissionProperties {
+    s32 startFrame = 0;
+    s32 endFrame = 1;
+    s32 lifeStep = 10;
+    s32 lifeStepRnd = 1;
+};
+
+
+// ========================================================================== //
+
+
 class Emitter
 {
 public:
@@ -164,9 +176,6 @@ public:
     u8 _33() const;
     void set_33(u8 _33);;
 
-    const std::array<u32, 4> &_70() const;
-    void set_70(const std::array<u32, 4> &_70);
-
     u32 _80() const;
     void set_80(u32 _80);
 
@@ -199,6 +208,9 @@ public:
 
     const std::array<u32, 3> &_D8() const;
     void set_D8(const std::array<u32, 3> &_D8);
+
+    const EmissionProperties &emissionProperties() const;
+    void setEmissionProperties(const EmissionProperties &emissionProperties);
 
     const VelocityProperties &velocityProperties() const;
     void setVelocityProperties(const VelocityProperties &velocityProperties);
@@ -313,7 +325,6 @@ private:
 
     u8 m_33; // probably padding...
 
-    std::array<u32, 4> m_70;
     u32 m_80;
     s32 mPtclLife;
     u32 mPtclLifeRnd;
@@ -327,6 +338,7 @@ private:
 
     std::array<u32, 3> m_D8;
 
+    EmissionProperties mEmissionProperties;
     VelocityProperties mVelocityProperties;
     VolumeProperties mVolumeProperties;
     ColorProperties mColorProperties;
@@ -356,7 +368,7 @@ private:
     BitFlag<ChildFlag> mChildFlags;
     BitFlag<FieldFlag> mFieldFlags;
     BitFlag<FluctuationFlag> mFluctuationFlags;
-    BitFlag<StripeFlag> mStripeFlags; // I think this is unused
+    BitFlag<StripeFlag> mStripeFlags;
 
     bool mHasStripeData;
 

@@ -3,12 +3,12 @@
 #include "ptcl/ptclEmitter.h"
 #include "editor/alphaPropertiesWidget.h"
 #include "editor/colorPropertiesWidget.h"
+#include "editor/emissionPropertiesWidget.h"
 #include "editor/enumComboBox.h"
 #include "editor/rotationPropertiesWidget.h"
 #include "editor/scalePropertiesWidget.h"
 #include "editor/sizedSpinBox.h"
 #include "editor/texturePropertiesWidget.h"
-#include "editor/vectorSpinBox.h"
 #include "editor/velocityPropertiesWidget.h"
 #include "editor/volumePropertiesWidget.h"
 
@@ -80,6 +80,7 @@ private:
     EnumComboBox<Ptcl::FollowType> mFollowTypeSpinBox;
     SizedSpinBox<u32> m_134SpinBox;
 
+    EmissionPropertiesWidget mEmissionProperties;
     VelocityPropertiesWidget mVelocityProperties;
     VolumePropertiesWidget mVolumeProperties;
     ColorPropertiesWidget mColorProperties;
