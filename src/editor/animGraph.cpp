@@ -121,15 +121,39 @@ void AnimGraph::setLineColor(const QColor& color) {
     update();
 };
 
-f32 AnimGraph::chooseTickStep(f32 range) {
-    constexpr f32 base = 10.0f;
+void AnimGraph::setValueRange(f32 min, f32 max) {
+    if (min >= max) {
+        return;
+    }
+
+    mCustomRange.min = min;
+    mCustomRange.max = max;
+    mCustomRange.tickStep = chooseTickStep(max - min);
+
+    mHasCustomRange = true;
+    update();
+}
+
+void AnimGraph::setTickStepSize(f32 stepSize) {
+    mTickStepSize = stepSize;
+}
+
+f32 AnimGraph::chooseTickStep(f32 range) const {
     constexpr s32 maxTicks = 5;
 
-    f32 step = base;
+    f32 step = mTickStepSize;
     while (range > step * static_cast<f32>(maxTicks - 1)) {
         step *= 2.0f;
     }
     return step;
+}
+
+void AnimGraph::setValueSnap(f32 snap) {
+    mValueSnap = snap;
+}
+
+void AnimGraph::setTimeSnap(f32 snap) {
+    mTimeSnap = snap;
 }
 
 AnimGraph::GraphRange AnimGraph::computeGraphRange() const {
@@ -347,6 +371,11 @@ AnimGraph::GraphRange AnimGraph::currentGraphRange() const {
     if (mHasFrozenRange) {
         return mFrozenRange;
     }
+
+    if (mHasCustomRange) {
+        return mCustomRange;
+    }
+
     return computeGraphRange();
 }
 
@@ -422,13 +451,10 @@ void AnimGraph::mouseMoveEvent(QMouseEvent* event) {
 
     // Grid snap
     if (!(event->modifiers() & Qt::ShiftModifier)) {
-        constexpr f32 timeSnap  = 2.5f;   // percent (0–100)
-        constexpr f32 valueSnap = 5.0f;   // value units
-
         const f32 time = t * 100.0f;
 
-        const f32 snappedTime = std::round(time / timeSnap) * timeSnap;
-        const f32 snappedValue = std::round(value / valueSnap) * valueSnap;
+        const f32 snappedTime = std::round(time / mTimeSnap) * mTimeSnap;
+        const f32 snappedValue = std::round(value / mValueSnap) * mValueSnap;
 
         t = std::clamp(snappedTime / 100.0f, 0.0f, 1.0f);
         value = std::clamp(snappedValue, range.min, range.max);

@@ -1,9 +1,6 @@
 #include "editor/scalePropertiesWidget.h"
 
-#include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QFormLayout>
-#include <QLabel>
 
 ScalePropertiesWidget::ScalePropertiesWidget(QWidget* parent) :
     QWidget{parent} {

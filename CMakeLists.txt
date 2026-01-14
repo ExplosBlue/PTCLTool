@@ -24,6 +24,7 @@ set(PROJECT_SOURCES
     src/main.cpp
     src/editor/mainWindow.cpp
     src/editor/alphaSlider.cpp
+    src/editor/alphaPropertiesWidget.cpp
     src/editor/animGraph.cpp
     src/editor/clickableLabel.cpp
     src/editor/collapsibleWidget.cpp
@@ -63,6 +64,7 @@ set(PROJECT_HEADERS
     include/typedefs.h
     include/editor/mainWindow.h
     include/editor/alphaSlider.h
+    include/editor/alphaPropertiesWidget.h
     include/editor/animGraph.h
     include/editor/clickableLabel.h
     include/editor/collapsibleWidget.h
