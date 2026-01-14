@@ -29,11 +29,6 @@ Emitter::Emitter() {
     m_31 = 0;
     m_33 = 0;
 
-    mFigureVel = 0.0f;
-    mEmitterVelDir = {0.0f, 0.0f, 0.0f};
-    m_5C = 0.0f;
-    mInitVelRnd = 0.0f;
-    mSpreadVec = {0.0f, 0.0f, 0.0f};
     m_70 = {0, 0, 0, 0};
     m_80 = 0;
     mPtclLife = 0;
@@ -47,6 +42,13 @@ Emitter::Emitter() {
     m_A4 = 0.0f;
 
     m_D8 = {0, 0, 0};
+
+    mVelocityProperties = {
+        .figureVel = 0.0f,
+        .emitterVelDir = {0.0f, 0.0f, 0.0f},
+        .initVel = 0.0f,
+        .initVelRnd = 0.0f
+    };
 
     mVolumeProperties = {
         .volumeTblIndex = 0,
@@ -253,46 +255,6 @@ void Emitter::set_33(const u8 _33) {
     m_33 = _33;
 }
 
-f32 Emitter::figureVel() const {
-    return mFigureVel;
-}
-
-void Emitter::setFigureVel(const f32 figureVel) {
-    mFigureVel = figureVel;
-}
-
-const QVector3D& Emitter::emitterVelDir() const {
-    return mEmitterVelDir;
-}
-
-void Emitter::setEmitterVelDir(const QVector3D& emitterVelDir) {
-    mEmitterVelDir = emitterVelDir;
-}
-
-f32 Emitter::_5C() const {
-    return m_5C;
-}
-
-void Emitter::set_5C(const f32 _5C) {
-    m_5C = _5C;
-}
-
-f32 Emitter::initVelRnd() const {
-    return mInitVelRnd;
-}
-
-void Emitter::setInitVelRnd(const f32 initVelRnd) {
-    mInitVelRnd = initVelRnd;
-}
-
-const QVector3D& Emitter::spreadVec() const {
-    return mSpreadVec;
-}
-
-void Emitter::setSpreadVec(const QVector3D& spreadVec) {
-    mSpreadVec = spreadVec;
-}
-
 const std::array<u32, 4>& Emitter::_70() const {
     return m_70;
 }
@@ -387,6 +349,14 @@ const std::array<u32, 3>& Emitter::_D8() const {
 
 void Emitter::set_D8(const std::array<u32, 3>& _D8) {
     m_D8 = _D8;
+}
+
+const VelocityProperties& Emitter::velocityProperties() const {
+    return mVelocityProperties;
+}
+
+void Emitter::setVelocityProperties(const VelocityProperties& velocityProperties) {
+    mVelocityProperties = velocityProperties;
 }
 
 const VolumeProperties& Emitter::volumeProperties() const {
@@ -649,11 +619,6 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_31 = emitterData._31;
     m_33 = emitterData._33;
 
-    mFigureVel = emitterData.figureVel;
-    mEmitterVelDir = QVector3D(emitterData.emitterVelDir.x, emitterData.emitterVelDir.y, emitterData.emitterVelDir.z);
-    m_5C = emitterData._5C;
-    mInitVelRnd = emitterData.initVelRnd;
-    mSpreadVec = QVector3D(emitterData.spreadVec.x, emitterData.spreadVec.y, emitterData.spreadVec.z);
     std::ranges::copy(emitterData._70, m_70.begin());
     m_80 = emitterData._80;
     mPtclLife = emitterData.ptclLife;
@@ -668,6 +633,15 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 
 
     std::ranges::copy(emitterData._D8, m_D8.begin());
+
+    mVelocityProperties = {
+        .figureVel = emitterData.figureVel,
+        .emitterVelDir = QVector3D(emitterData.emitterVelDir.x, emitterData.emitterVelDir.y, emitterData.emitterVelDir.z),
+        .initVel = emitterData.initVel,
+        .initVelRnd = emitterData.initVelRnd,
+        .spreadVec = QVector3D(emitterData.spreadVec.x, emitterData.spreadVec.y, emitterData.spreadVec.z)
+
+    };
 
     mVolumeProperties = {
         .volumeTblIndex = emitterData.volumeTblIndex,

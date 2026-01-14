@@ -92,29 +92,40 @@ struct VolumeProperties {
 // ========================================================================== //
 
 
+struct VelocityProperties {
+    f32 figureVel = 0.0f;
+    QVector3D emitterVelDir = {0.0f, 0.0f, 0.0f};
+    f32 initVel = 0.0f;
+    f32 initVelRnd = 0.0f;
+    QVector3D spreadVec = {0.0f, 0.0f, 0.0f};
+};
+
+
+// ========================================================================== //
+
 class Emitter
 {
 public:
     void extracted();
     Emitter();
 
-    Emitter(const Emitter &) = delete;
-    Emitter &operator=(const Emitter &) = delete;
+    Emitter(const Emitter&) = delete;
+    Emitter &operator=(const Emitter&) = delete;
 
     EmitterType type() const;
     void setType(EmitterType type);
 
-    BitFlag<EmitterFlag> &flags();
+    BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag> &flags() const;
 
     PtclSeed &randomSeed();
     const PtclSeed &randomSeed() const;
 
-    const QString &name() const;
+    const QString& name() const;
     void setName(const QString &name);
 
-    const TextureHandle &textureHandle() const;
-    TextureHandle &textureHandle();
+    const TextureHandle& textureHandle() const;
+    TextureHandle& textureHandle();
     void setTexture(std::shared_ptr<Texture> texture);
 
     TextureWrap textureWrapT() const;
@@ -151,22 +162,7 @@ public:
     void set_31(u8 _31);
 
     u8 _33() const;
-    void set_33(u8 _33);
-
-    f32 figureVel() const;
-    void setFigureVel(f32 figureVel);
-
-    const QVector3D &emitterVelDir() const;
-    void setEmitterVelDir(const QVector3D &emitterVelDir);
-
-    f32 _5C() const;
-    void set_5C(f32 _5C);
-
-    f32 initVelRnd() const;
-    void setInitVelRnd(f32 initVelRnd);
-
-    const QVector3D &spreadVec() const;
-    void setSpreadVec(const QVector3D &spreadVec);
+    void set_33(u8 _33);;
 
     const std::array<u32, 4> &_70() const;
     void set_70(const std::array<u32, 4> &_70);
@@ -203,6 +199,9 @@ public:
 
     const std::array<u32, 3> &_D8() const;
     void set_D8(const std::array<u32, 3> &_D8);
+
+    const VelocityProperties &velocityProperties() const;
+    void setVelocityProperties(const VelocityProperties &velocityProperties);
 
     const VolumeProperties &volumeProperties() const;
     void setVolumeProperties(const VolumeProperties &volumeProperties);
@@ -314,11 +313,6 @@ private:
 
     u8 m_33; // probably padding...
 
-    f32 mFigureVel;
-    QVector3D mEmitterVelDir;
-    f32 m_5C;
-    f32 mInitVelRnd;
-    QVector3D mSpreadVec;
     std::array<u32, 4> m_70;
     u32 m_80;
     s32 mPtclLife;
@@ -333,6 +327,7 @@ private:
 
     std::array<u32, 3> m_D8;
 
+    VelocityProperties mVelocityProperties;
     VolumeProperties mVolumeProperties;
     ColorProperties mColorProperties;
     AlphaProperties mAlphaProperties;

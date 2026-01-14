@@ -9,6 +9,7 @@
 #include "editor/sizedSpinBox.h"
 #include "editor/texturePropertiesWidget.h"
 #include "editor/vectorSpinBox.h"
+#include "editor/velocityPropertiesWidget.h"
 #include "editor/volumePropertiesWidget.h"
 
 #include <QComboBox>
@@ -60,14 +61,6 @@ private:
     SizedSpinBox<u8> m_31SpinBox;
     SizedSpinBox<u8> m_33SpinBox;
 
-    VolumePropertiesWidget mVolumeProperties;
-
-    QDoubleSpinBox mFigureVelSpinBox;
-    VectorSpinBox<QVector3D> mEmitterVelDirSpinBox;
-    QDoubleSpinBox m_5CSpinBox;
-    QDoubleSpinBox mInitVelRndSpinBox;
-    VectorSpinBox<QVector3D> mSpreadVecSpinBox;
-
     // _70
 
     SizedSpinBox<u32> m_80SpinBox;
@@ -83,17 +76,17 @@ private:
 
     // _D8
 
-    ColorPropertiesWidget mColorProperties;
-    AlphaPropertiesWidget mAlphaProperties;
-
-    RotationPropertiesWidget mRotationProperties;
-
     EnumComboBox<Ptcl::CombinerType> mCombinerTypeSpinBox;
     EnumComboBox<Ptcl::FollowType> mFollowTypeSpinBox;
     SizedSpinBox<u32> m_134SpinBox;
 
-
+    VelocityPropertiesWidget mVelocityProperties;
+    VolumePropertiesWidget mVolumeProperties;
+    ColorPropertiesWidget mColorProperties;
+    AlphaPropertiesWidget mAlphaProperties;
+    RotationPropertiesWidget mRotationProperties;
     ScalePropertiesWidget mScaleProperties;
+
 
     // _168
     // transformSRT

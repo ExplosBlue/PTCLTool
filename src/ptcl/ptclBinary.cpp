@@ -319,11 +319,11 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     volumeRadius = emitter.volumeProperties().volumeRadius;
     volumeSweepStart = emitter.volumeProperties().volumeSweepStart;
     volumeSweepParam = emitter.volumeProperties().volumeSweepParam;
-    figureVel = emitter.figureVel();
-    emitterVelDir = emitter.emitterVelDir();
-    _5C = emitter._5C();
-    initVelRnd = emitter.initVelRnd();
-    spreadVec = emitter.spreadVec();
+    figureVel = emitter.velocityProperties().figureVel;
+    emitterVelDir = emitter.velocityProperties().emitterVelDir;
+    initVel = emitter.velocityProperties().initVel;
+    initVelRnd = emitter.velocityProperties().initVelRnd;
+    spreadVec = emitter.velocityProperties().spreadVec;
     std::copy(emitter._70().begin(), emitter._70().end(), _70.data());
     _80 = emitter._80();
     ptclLife = emitter.ptclLife();
@@ -398,7 +398,7 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item.volumeSweepParam
         >> item.figureVel
         >> item.emitterVelDir
-        >> item._5C
+        >> item.initVel
         >> item.initVelRnd
         >> item.spreadVec;
 
@@ -492,7 +492,7 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item.volumeSweepParam
         << item.figureVel
         << item.emitterVelDir
-        << item._5C
+        << item.initVel
         << item.initVelRnd
         << item.spreadVec;
 
@@ -589,7 +589,7 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- volumeSweepParam: " << volumeSweepParam;
     qDebug() << indentation << "- figureVel:        " << figureVel;
     qDebug() << indentation << "- emitterVelDir:    " << emitterVelDir;
-    qDebug() << indentation << "- _5C:              " << _5C;
+    qDebug() << indentation << "- initVel:          " << initVel;
     qDebug() << indentation << "- initVelRnd:       " << initVelRnd;
     qDebug() << indentation << "- spreadVec:        " << spreadVec;
     qDebug() << indentation << "- _70:              " << _70.data();

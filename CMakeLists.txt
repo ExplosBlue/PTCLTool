@@ -43,6 +43,7 @@ set(PROJECT_SOURCES
     src/editor/texturePropertiesWidget.cpp
     src/editor/textureSelectDialog.cpp
     src/editor/thumbnailWidget.cpp
+    src/editor/velocityPropertiesWidget.cpp
     src/editor/volumePropertiesWidget.cpp
     src/etc1/rg_etc1.cpp
     src/ptcl/ptcl.cpp
@@ -86,6 +87,7 @@ set(PROJECT_HEADERS
     include/editor/textureSelectDialog.h
     include/editor/thumbnailWidget.h
     include/editor/vectorSpinBox.h
+    include/editor/velocityPropertiesWidget.h
     include/editor/volumePropertiesWidget.h
     include/etc1/rg_etc1.h
     include/ptcl/ptcl.h

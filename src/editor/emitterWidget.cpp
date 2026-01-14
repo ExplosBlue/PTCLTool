@@ -116,14 +116,15 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     volumePropertiesSection->setContent(&mVolumeProperties);
     mMainLayout.addWidget(volumePropertiesSection, 14, 0, 1, 4);
 
-    mFigureVelSpinBox.setMaximum(std::numeric_limits<f32>::max());
-    mFigureVelSpinBox.setMinimum(std::numeric_limits<f32>::min());
-    addLabledWidget(&mFigureVelSpinBox, "Figure Velocity:", 18, 0, 3);
+    // Velocity Properties
+    connect(&mVelocityProperties, &VelocityPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::VelocityProperties& properties) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setVelocityProperties(properties);
+    });
 
-    addLabledWidget(&mEmitterVelDirSpinBox, "Emitter Velocity Direction:", 19, 0, 3);
-    addLabledWidget(&m_5CSpinBox,           "_5C:",                        20, 0, 3);
-    addLabledWidget(&mInitVelRndSpinBox,    "Initial Velocity Random:",    21, 0, 3);
-    addLabledWidget(&mSpreadVecSpinBox,     "Spread Vector:",              22, 0, 3);
+    auto velocityPropertiesSection = new CollapsibleWidget("Velocity properties", this);
+    velocityPropertiesSection->setContent(&mVelocityProperties);
+    mMainLayout.addWidget(velocityPropertiesSection, 18, 0, 1, 4);
 
     // _70
 
@@ -222,11 +223,6 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
 
     m_33SpinBox.setValue(mEmitterPtr->_33());
 
-    mFigureVelSpinBox.setValue(mEmitterPtr->figureVel());
-    mEmitterVelDirSpinBox.setVector(mEmitterPtr->emitterVelDir());
-    m_5CSpinBox.setValue(mEmitterPtr->_5C());
-    mInitVelRndSpinBox.setValue(mEmitterPtr->initVelRnd());
-    mSpreadVecSpinBox.setVector(mEmitterPtr->spreadVec());
     m_80SpinBox.setValue(mEmitterPtr->_80());
     mPtclLifeSpinBox.setValue(mEmitterPtr->ptclLife());
     mPtclLifeRandSpinBox.setValue(mEmitterPtr->ptclLifeRnd());
@@ -242,6 +238,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_134SpinBox.setValue(mEmitterPtr->_134());
 
 
+    mVelocityProperties.setProperties(mEmitterPtr->velocityProperties());
     mVolumeProperties.setProperties(mEmitterPtr->volumeProperties());
     mColorProperties.setProperties(mEmitterPtr->colorProperties());
     mAlphaProperties.setProperties(mEmitterPtr->alphaProperties());
