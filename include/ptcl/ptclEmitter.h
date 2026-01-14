@@ -80,6 +80,7 @@ struct AlphaProperties {
 
 // ========================================================================== //
 
+
 struct VolumeProperties {
     u8 volumeTblIndex = 0;
     VolumeType volumeType = VolumeType::Point;
@@ -118,6 +119,15 @@ struct EmissionProperties {
 struct TerminationProperties {
     bool isStopEmitInFade = false;
     f32 alphaAddInFade = 0.0f;
+};
+
+
+// ========================================================================== //
+
+
+struct LifespanProperties {
+    s32 ptclLife = 100;
+    s32 ptclLifeRnd = 0;
 };
 
 
@@ -185,12 +195,6 @@ public:
     u32 _80() const;
     void set_80(u32 _80);
 
-    s32 ptclLife() const;
-    void setPtclLife(s32 ptclLife);
-
-    s32 ptclLifeRnd() const;
-    void setPtclLifeRnd(s32 ptclLifeRnd);
-
     f32 _8C() const;
     void set_8C(f32 _8C);
 
@@ -214,6 +218,9 @@ public:
 
     const std::array<u32, 3> &_D8() const;
     void set_D8(const std::array<u32, 3> &_D8);
+
+    const LifespanProperties &lifespanProperties() const;
+    void setLifespanProperties(const LifespanProperties &lifespanProperties);
 
     const TerminationProperties &terminationProperties() const;
     void setTerminationProperties(const TerminationProperties &terminationProperties);
@@ -331,8 +338,6 @@ private:
 
 
     u32 m_80;
-    s32 mPtclLife;
-    u32 mPtclLifeRnd;
     f32 m_8C;
     u32 m_90;
     BillboardType mBillboardType;
@@ -343,6 +348,7 @@ private:
 
     std::array<u32, 3> m_D8;
 
+    LifespanProperties mLifespanProperties;
     TerminationProperties mTerminationProperties;
     EmissionProperties mEmissionProperties;
     VelocityProperties mVelocityProperties;
