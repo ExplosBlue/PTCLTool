@@ -27,12 +27,8 @@ Emitter::Emitter() {
     m_2F = 0;
     m_30 = 0;
     m_31 = 0;
-    mVolumeTblIndex = 0;
     m_33 = 0;
-    mVolumeType = VolumeType::Point;
-    mVolumeRadius = {1.0f, 1.0f, 1.0f};
-    mVolumeSweepStart = 0;
-    mVolumeSweepParam = 0;
+
     mFigureVel = 0.0f;
     mEmitterVelDir = {0.0f, 0.0f, 0.0f};
     m_5C = 0.0f;
@@ -52,18 +48,26 @@ Emitter::Emitter() {
 
     m_D8 = {0, 0, 0};
 
+    mVolumeProperties = {
+        .volumeTblIndex = 0,
+        .volumeType = VolumeType::Point,
+        .volumeRadius = {1.0f, 1.0f, 1.0f},
+        .volumeSweepStart = 0,
+        .volumeSweepParam = 0,
+    };
+
     mColorProperties = {
-     .colors {
-        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
-        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
-        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
-    },
-    .colorSection1 = 20,
-    .colorSection2 = 60,
-    .colorSection3 = 80,
-    .colorNumRepeat = 1,
-    .colorRandom = mFlag.isSet(EmitterFlag::ColorRandom),
-    .colorAnimation = mFlag.isSet(EmitterFlag::ColorAnimation),
+        .colors {
+            binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+            binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+            binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+        },
+        .colorSection1 = 20,
+        .colorSection2 = 60,
+        .colorSection3 = 80,
+        .colorNumRepeat = 1,
+        .colorRandom = mFlag.isSet(EmitterFlag::ColorRandom),
+        .colorAnimation = mFlag.isSet(EmitterFlag::ColorAnimation),
     };
 
     mAlphaProperties = {
@@ -241,52 +245,12 @@ void Emitter::set_31(const u8 _31) {
     m_31 = _31;
 }
 
-u8 Emitter::volumeTblIndex() const {
-    return mVolumeTblIndex;
-}
-
-void Emitter::setVolumeTblIndex(const u8 volumeTblIndex) {
-    mVolumeTblIndex = volumeTblIndex;
-}
-
 u8 Emitter::_33() const {
     return m_33;
 }
 
 void Emitter::set_33(const u8 _33) {
     m_33 = _33;
-}
-
-VolumeType Emitter::volumeType() const {
-    return mVolumeType;
-}
-
-void Emitter::setVolumeType(const VolumeType volumeType) {
-    mVolumeType = volumeType;
-}
-
-const QVector3D& Emitter::volumeRadius() const {
-    return mVolumeRadius;
-}
-
-void Emitter::setVolumeRadius(const QVector3D& volumeRadius) {
-    mVolumeRadius = volumeRadius;
-}
-
-s32 Emitter::volumeSweepStart() const {
-    return mVolumeSweepStart;
-}
-
-void Emitter::setVolumeSweepStart(const s32 volumeSweepStart) {
-    mVolumeSweepStart = volumeSweepStart;
-}
-
-u32 Emitter::volumeSweepParam() const {
-    return mVolumeSweepParam;
-}
-
-void Emitter::setVolumeSweepParam(const u32 volumeSweepParam) {
-    mVolumeSweepParam = volumeSweepParam;
 }
 
 f32 Emitter::figureVel() const {
@@ -423,6 +387,14 @@ const std::array<u32, 3>& Emitter::_D8() const {
 
 void Emitter::set_D8(const std::array<u32, 3>& _D8) {
     m_D8 = _D8;
+}
+
+const VolumeProperties& Emitter::volumeProperties() const {
+    return mVolumeProperties;
+}
+
+void Emitter::setVolumeProperties(const VolumeProperties& volumeProperties) {
+    mVolumeProperties = volumeProperties;
 }
 
 const ColorProperties& Emitter::colorProperties() const {
@@ -675,12 +647,8 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_2F = emitterData._2F;
     m_30 = emitterData._30;
     m_31 = emitterData._31;
-    mVolumeTblIndex = emitterData.volumeTblIndex;
     m_33 = emitterData._33;
-    mVolumeType = emitterData.volumeType;
-    mVolumeRadius = QVector3D(emitterData.volumeRadius.x, emitterData.volumeRadius.y, emitterData.volumeRadius.z);
-    mVolumeSweepStart = emitterData.volumeSweepStart;
-    mVolumeSweepParam = emitterData.volumeSweepParam;
+
     mFigureVel = emitterData.figureVel;
     mEmitterVelDir = QVector3D(emitterData.emitterVelDir.x, emitterData.emitterVelDir.y, emitterData.emitterVelDir.z);
     m_5C = emitterData._5C;
@@ -700,6 +668,14 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 
 
     std::ranges::copy(emitterData._D8, m_D8.begin());
+
+    mVolumeProperties = {
+        .volumeTblIndex = emitterData.volumeTblIndex,
+        .volumeType = emitterData.volumeType,
+        .volumeRadius = QVector3D(emitterData.volumeRadius.x, emitterData.volumeRadius.y, emitterData.volumeRadius.z),
+        .volumeSweepStart = emitterData.volumeSweepStart,
+        .volumeSweepParam = emitterData.volumeSweepParam,
+    };
 
     mColorProperties = {
         .colors = emitterData.color,

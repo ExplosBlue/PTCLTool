@@ -107,6 +107,11 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&m_31SpinBox, "_33:", 13, 0, 3);
 
     // Volume Properties
+    connect(&mVolumeProperties, &VolumePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::VolumeProperties& properties) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setVolumeProperties(properties);
+    });
+
     auto volumePropertiesSection = new CollapsibleWidget("Volume properties", this);
     volumePropertiesSection->setContent(&mVolumeProperties);
     mMainLayout.addWidget(volumePropertiesSection, 14, 0, 1, 4);
@@ -158,12 +163,6 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     auto alphaPropertiesSection = new CollapsibleWidget("Alpha properties", this);
     alphaPropertiesSection->setContent(&mAlphaProperties);
     mMainLayout.addWidget(alphaPropertiesSection, 34, 0, 1, 4);
-
-    // addLabledWidget(&mInitAlphaSpinBox, "Initial Alpha:", 38, 0, 3);
-    // addLabledWidget(&mDiffAlpha21SpinBox, "Diff Alpha21:", 39, 0, 3);
-    // addLabledWidget(&mDiffAlpha32SpinBox, "Diff Alpha32:", 40, 0, 3);
-    // addLabledWidget(&mAlphaSection1SpinBox, "Alpha Section 1:", 41, 0, 3);
-    // addLabledWidget(&mAlphaSection2SpinBox, "Alpha Section 2:", 42, 0, 3);
 
     // Rotation Properties
     connect(&mRotationProperties, &RotationPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::RotationProperties& properties) {
@@ -223,8 +222,6 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
 
     m_33SpinBox.setValue(mEmitterPtr->_33());
 
-    mVolumeProperties.setEmitter(mEmitterPtr);
-
     mFigureVelSpinBox.setValue(mEmitterPtr->figureVel());
     mEmitterVelDirSpinBox.setVector(mEmitterPtr->emitterVelDir());
     m_5CSpinBox.setValue(mEmitterPtr->_5C());
@@ -240,21 +237,15 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_A0SpinBox.setValue(mEmitterPtr->_A0());
     m_A4SpinBox.setValue(mEmitterPtr->_A4());
 
-    mColorProperties.setProperties(mEmitterPtr->colorProperties());
-    mAlphaProperties.setProperties(mEmitterPtr->alphaProperties());
-
-    // mInitAlphaSpinBox.setValue(mEmitterPtr->initAlpha());
-    // mDiffAlpha21SpinBox.setValue(mEmitterPtr->diffAlpha21());
-    // mDiffAlpha32SpinBox.setValue(mEmitterPtr->diffAlpha32());
-    // mAlphaSection1SpinBox.setValue(mEmitterPtr->alphaSection1());
-    // mAlphaSection2SpinBox.setValue(mEmitterPtr->alphaSection2());
-
-    mScaleProperties.setProperties(mEmitterPtr->scaleProperties());
-
     mCombinerTypeSpinBox.setCurrentEnum(mEmitterPtr->combinerType());
     mFollowTypeSpinBox.setCurrentEnum(mEmitterPtr->followType());
     m_134SpinBox.setValue(mEmitterPtr->_134());
 
+
+    mVolumeProperties.setProperties(mEmitterPtr->volumeProperties());
+    mColorProperties.setProperties(mEmitterPtr->colorProperties());
+    mAlphaProperties.setProperties(mEmitterPtr->alphaProperties());
+    mScaleProperties.setProperties(mEmitterPtr->scaleProperties());
     mRotationProperties.setProperties(mEmitterPtr->rotationProperties());
 
     mIsPopulating = false;

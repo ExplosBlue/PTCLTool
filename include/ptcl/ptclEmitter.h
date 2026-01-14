@@ -80,6 +80,18 @@ struct AlphaProperties {
 
 // ========================================================================== //
 
+struct VolumeProperties {
+    u8 volumeTblIndex = 0;
+    VolumeType volumeType = VolumeType::Point;
+    QVector3D volumeRadius = {1.0f, 1.0f, 1.0f};
+    s32 volumeSweepStart = 0;
+    s32 volumeSweepParam = 0;
+};
+
+
+// ========================================================================== //
+
+
 class Emitter
 {
 public:
@@ -138,23 +150,8 @@ public:
     u8 _31() const;
     void set_31(u8 _31);
 
-    u8 volumeTblIndex() const;
-    void setVolumeTblIndex(u8 volumeTblIndex);
-
     u8 _33() const;
     void set_33(u8 _33);
-
-    VolumeType volumeType() const;
-    void setVolumeType(VolumeType volumeType);
-
-    const QVector3D &volumeRadius() const;
-    void setVolumeRadius(const QVector3D &volumeRadius);
-
-    s32 volumeSweepStart() const;
-    void setVolumeSweepStart(s32 volumeSweepStart);
-
-    u32 volumeSweepParam() const;
-    void setVolumeSweepParam(u32 volumeSweepParam);
 
     f32 figureVel() const;
     void setFigureVel(f32 figureVel);
@@ -206,6 +203,9 @@ public:
 
     const std::array<u32, 3> &_D8() const;
     void set_D8(const std::array<u32, 3> &_D8);
+
+    const VolumeProperties &volumeProperties() const;
+    void setVolumeProperties(const VolumeProperties &volumeProperties);
 
     const ColorProperties &colorProperties() const;
     void setColorProperties(const ColorProperties &colorProperties);
@@ -311,12 +311,9 @@ private:
     u8 m_2F;
     u8 m_30;
     u8 m_31;
-    u8 mVolumeTblIndex;
+
     u8 m_33; // probably padding...
-    VolumeType mVolumeType;
-    QVector3D mVolumeRadius;
-    s32 mVolumeSweepStart;
-    u32 mVolumeSweepParam;
+
     f32 mFigureVel;
     QVector3D mEmitterVelDir;
     f32 m_5C;
@@ -336,13 +333,13 @@ private:
 
     std::array<u32, 3> m_D8;
 
+    VolumeProperties mVolumeProperties;
     ColorProperties mColorProperties;
     AlphaProperties mAlphaProperties;
-
-    CombinerType mCombinerType;
-
     ScaleProperties mScaleProperties;
     RotationProperties mRotationProperties;
+
+    CombinerType mCombinerType;
 
     FollowType mFollowType;
     u32 m_134;

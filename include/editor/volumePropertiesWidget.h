@@ -17,9 +17,14 @@ class VolumePropertiesWidget : public QWidget {
 public:
     explicit VolumePropertiesWidget(QWidget* parent = nullptr);
 
-    void setEmitter(Ptcl::Emitter* emitter);
+    void setProperties(const Ptcl::VolumeProperties& properties);
+
+signals:
+    void propertiesUpdated(const Ptcl::VolumeProperties& properties);
 
 private:
+    void setupUi();
+    void setupSignals();
     void populateWidgets();
     void updateFieldVisibility(Ptcl::VolumeType volumeType);
 
@@ -31,7 +36,7 @@ private:
     };
 
 private:
-    Ptcl::Emitter* mEmitterPtr;
+    Ptcl::VolumeProperties mProps{};
 
     std::vector<VolumeField> mFields;
     std::unordered_map<QWidget*, QLabel*> mFieldLabels;
@@ -42,8 +47,6 @@ private:
     QDoubleSpinBox mSweepStartSpinBox;
     QDoubleSpinBox mSweepParamSpinBox;
     QDoubleSpinBox mLengthSpinBox;
-
-    bool misPopulating = false;
 };
 
 

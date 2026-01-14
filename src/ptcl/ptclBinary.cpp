@@ -313,12 +313,12 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     _2F = emitter._2F();
     _30 = emitter._30();
     _31 = emitter._31();
-    volumeTblIndex = emitter.volumeTblIndex();
+    volumeTblIndex = emitter.volumeProperties().volumeTblIndex;
     _33 = emitter._33();
-    volumeType = emitter.volumeType();
-    volumeRadius = emitter.volumeRadius();
-    volumeSweepStart = emitter.volumeSweepStart();
-    volumeSweepParam = emitter.volumeSweepParam();
+    volumeType = emitter.volumeProperties().volumeType;
+    volumeRadius = emitter.volumeProperties().volumeRadius;
+    volumeSweepStart = emitter.volumeProperties().volumeSweepStart;
+    volumeSweepParam = emitter.volumeProperties().volumeSweepParam;
     figureVel = emitter.figureVel();
     emitterVelDir = emitter.emitterVelDir();
     _5C = emitter._5C();
