@@ -229,7 +229,7 @@ struct alignas(4) BinCommonEmitterData {
     s32 volumeSweepParam;                // 0x48
     f32 figureVel;                       // 0x4C
     binVec3f emitterVelDir;              // 0x50
-    f32 _5C;                             // 0x5C
+    f32 initVel;                         // 0x5C
     f32 initVelRnd;                      // 0x60
     binVec3f spreadVec;                  // 0x64
     std::array<u32, 4> _70;              // 0x70
