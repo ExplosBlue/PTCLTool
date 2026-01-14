@@ -46,7 +46,6 @@ VelocityPropertiesWidget::VelocityPropertiesWidget(QWidget* parent) :
         mProps.spreadVec = mSpreadVecSpinbox.getVector();
         emit propertiesUpdated(mProps);
     });
-
 }
 
 void VelocityPropertiesWidget::setProperties(const Ptcl::VelocityProperties& properties) {

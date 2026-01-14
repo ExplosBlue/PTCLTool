@@ -29,7 +29,6 @@ Emitter::Emitter() {
     m_31 = 0;
     m_33 = 0;
 
-    m_70 = {0, 0, 0, 0};
     m_80 = 0;
     mPtclLife = 0;
     mPtclLifeRnd = 0;
@@ -42,6 +41,14 @@ Emitter::Emitter() {
     m_A4 = 0.0f;
 
     m_D8 = {0, 0, 0};
+
+
+    mEmissionProperties = {
+        .startFrame = 0,
+        .endFrame = 1,
+        .lifeStep = 10,
+        .lifeStepRnd = 1
+    };
 
     mVelocityProperties = {
         .figureVel = 0.0f,
@@ -255,14 +262,6 @@ void Emitter::set_33(const u8 _33) {
     m_33 = _33;
 }
 
-const std::array<u32, 4>& Emitter::_70() const {
-    return m_70;
-}
-
-void Emitter::set_70(const std::array<u32, 4>& _70) {
-    m_70 = _70;
-}
-
 u32 Emitter::_80() const {
     return m_80;
 }
@@ -349,6 +348,14 @@ const std::array<u32, 3>& Emitter::_D8() const {
 
 void Emitter::set_D8(const std::array<u32, 3>& _D8) {
     m_D8 = _D8;
+}
+
+const EmissionProperties& Emitter::emissionProperties() const {
+    return mEmissionProperties;
+}
+
+void Emitter::setEmissionProperties(const EmissionProperties& emissionProperties) {
+    mEmissionProperties = emissionProperties;
 }
 
 const VelocityProperties& Emitter::velocityProperties() const {
@@ -619,7 +626,6 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_31 = emitterData._31;
     m_33 = emitterData._33;
 
-    std::ranges::copy(emitterData._70, m_70.begin());
     m_80 = emitterData._80;
     mPtclLife = emitterData.ptclLife;
     mPtclLifeRnd = emitterData.ptclLifeRnd;
@@ -634,13 +640,19 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 
     std::ranges::copy(emitterData._D8, m_D8.begin());
 
+    mEmissionProperties = {
+        .startFrame = emitterData.startFrame,
+        .endFrame = emitterData.endFrame,
+        .lifeStep = emitterData.lifeStep,
+        .lifeStepRnd = emitterData.lifeStepRnd
+    };
+
     mVelocityProperties = {
         .figureVel = emitterData.figureVel,
         .emitterVelDir = QVector3D(emitterData.emitterVelDir.x, emitterData.emitterVelDir.y, emitterData.emitterVelDir.z),
         .initVel = emitterData.initVel,
         .initVelRnd = emitterData.initVelRnd,
         .spreadVec = QVector3D(emitterData.spreadVec.x, emitterData.spreadVec.y, emitterData.spreadVec.z)
-
     };
 
     mVolumeProperties = {

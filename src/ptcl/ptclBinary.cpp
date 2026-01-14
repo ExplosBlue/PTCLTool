@@ -324,7 +324,12 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     initVel = emitter.velocityProperties().initVel;
     initVelRnd = emitter.velocityProperties().initVelRnd;
     spreadVec = emitter.velocityProperties().spreadVec;
-    std::copy(emitter._70().begin(), emitter._70().end(), _70.data());
+
+    startFrame = emitter.emissionProperties().startFrame;
+    endFrame = emitter.emissionProperties().endFrame;
+    lifeStep = emitter.emissionProperties().lifeStep;
+    lifeStepRnd = emitter.emissionProperties().lifeStepRnd;
+
     _80 = emitter._80();
     ptclLife = emitter.ptclLife();
     ptclLifeRnd = emitter.ptclLifeRnd();
@@ -400,13 +405,12 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item.emitterVelDir
         >> item.initVel
         >> item.initVelRnd
-        >> item.spreadVec;
-
-    for (u32& val : item._70) {
-        in >> val;
-    }
-
-    in >> item._80
+        >> item.spreadVec
+        >> item.startFrame
+        >> item.endFrame
+        >> item.lifeStep
+        >> item.lifeStepRnd
+        >> item._80
         >> item.ptclLife
         >> item.ptclLifeRnd
         >> item._8C
@@ -494,13 +498,12 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item.emitterVelDir
         << item.initVel
         << item.initVelRnd
-        << item.spreadVec;
-
-    for (const u32& val : item._70) {
-        out << val;
-    }
-
-    out << item._80
+        << item.spreadVec
+        << item.startFrame
+        << item.endFrame
+        << item.lifeStep
+        << item.lifeStepRnd
+        << item._80
         << item.ptclLife
         << item.ptclLifeRnd
         << item._8C
@@ -592,7 +595,10 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- initVel:          " << initVel;
     qDebug() << indentation << "- initVelRnd:       " << initVelRnd;
     qDebug() << indentation << "- spreadVec:        " << spreadVec;
-    qDebug() << indentation << "- _70:              " << _70.data();
+    qDebug() << indentation << "- startFrame:       " << startFrame;
+    qDebug() << indentation << "- endFrame:         " << endFrame;
+    qDebug() << indentation << "- lifeStep:         " << lifeStep;
+    qDebug() << indentation << "- lifeStepRnd:      " << lifeStepRnd;
     qDebug() << indentation << "- _80:              " << _80;
     qDebug() << indentation << "- ptclLife:         " << ptclLife;
     qDebug() << indentation << "- ptclLifeRnd:      " << ptclLifeRnd;

@@ -106,6 +106,16 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&m_31SpinBox, "_31:", 11, 0, 3);
     addLabledWidget(&m_31SpinBox, "_33:", 13, 0, 3);
 
+    // Emission Properties
+    connect(&mEmissionProperties, &EmissionPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::EmissionProperties& properties) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setEmissionProperties(properties);
+    });
+
+    auto emissionPropertiesSection = new CollapsibleWidget("Emission properties", this);
+    emissionPropertiesSection->setContent(&mEmissionProperties);
+    mMainLayout.addWidget(emissionPropertiesSection, 13, 0, 1, 4);
+
     // Volume Properties
     connect(&mVolumeProperties, &VolumePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::VolumeProperties& properties) {
         if (!mEmitterPtr) { return; }
@@ -237,7 +247,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mFollowTypeSpinBox.setCurrentEnum(mEmitterPtr->followType());
     m_134SpinBox.setValue(mEmitterPtr->_134());
 
-
+    mEmissionProperties.setProperties(mEmitterPtr->emissionProperties());
     mVelocityProperties.setProperties(mEmitterPtr->velocityProperties());
     mVolumeProperties.setProperties(mEmitterPtr->volumeProperties());
     mColorProperties.setProperties(mEmitterPtr->colorProperties());

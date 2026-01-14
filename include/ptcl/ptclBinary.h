@@ -232,7 +232,10 @@ struct alignas(4) BinCommonEmitterData {
     f32 initVel;                         // 0x5C
     f32 initVelRnd;                      // 0x60
     binVec3f spreadVec;                  // 0x64
-    std::array<u32, 4> _70;              // 0x70
+    s32 startFrame;                      // 0x70
+    s32 endFrame;                        // 0x74
+    s32 lifeStep;                        // 0x78
+    s32 lifeStepRnd;                     // 0x7C
     u32 _80;                             // 0x80
     s32 ptclLife;                        // 0x84
     s32 ptclLifeRnd;                     // 0x88
