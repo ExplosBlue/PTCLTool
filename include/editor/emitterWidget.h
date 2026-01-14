@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ptcl/ptclEmitter.h"
+#include "editor/alphaPropertiesWidget.h"
 #include "editor/colorPropertiesWidget.h"
 #include "editor/enumComboBox.h"
 #include "editor/rotationPropertiesWidget.h"
@@ -83,19 +84,7 @@ private:
     // _D8
 
     ColorPropertiesWidget mColorProperties;
-
-    QDoubleSpinBox mInitAlphaSpinBox;
-    QDoubleSpinBox mDiffAlpha21SpinBox;
-    QDoubleSpinBox mDiffAlpha32SpinBox;
-    SizedSpinBox<s32> mAlphaSection1SpinBox;
-    SizedSpinBox<s32> mAlphaSection2SpinBox;
-
-    VectorSpinBox<QVector2D> mInitScaleSpinBox;
-    VectorSpinBox<QVector2D> mDiffScale21SpinBox;
-    VectorSpinBox<QVector2D> mDiffScale32SpinBox;
-    SizedSpinBox<s32> mScaleSection1SpinBox;
-    SizedSpinBox<s32> mScaleSection2SpinBox;
-    QDoubleSpinBox mScaleRandSpinBox;
+    AlphaPropertiesWidget mAlphaProperties;
 
     RotationPropertiesWidget mRotationProperties;
 

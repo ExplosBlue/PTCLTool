@@ -66,11 +66,13 @@ Emitter::Emitter() {
     .colorAnimation = mFlag.isSet(EmitterFlag::ColorAnimation),
     };
 
-    mInitAlpha = 0.0f;
-    mDiffAlpha21 = 0.0f;
-    mDiffAlpha32 = 0.0f;
-    mAlphaSection1 = 0;
-    mAlphaSection2 = 0;
+    mAlphaProperties = {
+        .initAlpha = 0.0f,
+        .diffAlpha21 = 0.0f,
+        .diffAlpha32 = 0.0f,
+        .alphaSection1 = 0,
+        .alphaSection2 = 0
+    };
 
     mScaleProperties = {
         .initScale = {1.0f, 1.0f},
@@ -434,45 +436,12 @@ void Emitter::setColorProperties(const ColorProperties& colorProperties) {
     mColorProperties.colorAnimation ? mFlag.set(EmitterFlag::ColorAnimation) : mFlag.clear(EmitterFlag::ColorAnimation);
 }
 
-f32 Emitter::initAlpha() const {
-    return mInitAlpha;
+const AlphaProperties& Emitter::alphaProperties() const {
+    return mAlphaProperties;
 }
 
-void Emitter::setInitAlpha(const f32 initAlpha) {
-    mInitAlpha = initAlpha;
-}
-
-
-f32 Emitter::diffAlpha21() const {
-    return mDiffAlpha21;
-}
-
-void Emitter::setDiffAlpha21(const f32 diffAlpha21) {
-    mDiffAlpha21 = diffAlpha21;
-}
-
-f32 Emitter::diffAlpha32() const {
-    return mDiffAlpha32;
-}
-
-void Emitter::setDiffAlpha32(const f32 diffAlpha32) {
-    mDiffAlpha32 = diffAlpha32;
-}
-
-s32 Emitter::alphaSection1() const {
-    return mAlphaSection1;
-}
-
-void Emitter::setAlphaSection1(const s32 alphaSection1) {
-    mAlphaSection1 = alphaSection1;
-}
-
-s32 Emitter::alphaSection2() const {
-    return mAlphaSection2;
-}
-
-void Emitter::setAlphaSection2(const s32 alphaSection2) {
-    mAlphaSection2 = alphaSection2;
+void Emitter::setAlphaProperties(const AlphaProperties& alphaProperties) {
+    mAlphaProperties = alphaProperties;
 }
 
 const ScaleProperties& Emitter::scaleProperties() const {
@@ -742,11 +711,13 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .colorAnimation = emitterData.flag.isSet(EmitterFlag::ColorAnimation),
     };
 
-    mInitAlpha = emitterData.initAlpha;
-    mDiffAlpha21 = emitterData.diffAlpha21;
-    mDiffAlpha32 = emitterData.diffAlpha32;
-    mAlphaSection1 = emitterData.alphaSection1;
-    mAlphaSection2 = emitterData.alphaSection2;
+    mAlphaProperties = {
+        .initAlpha = emitterData.initAlpha,
+        .diffAlpha21 = emitterData.diffAlpha21,
+        .diffAlpha32 = emitterData.diffAlpha32,
+        .alphaSection1 = emitterData.alphaSection1,
+        .alphaSection2 = emitterData.alphaSection2,
+    };
 
     mScaleProperties = {
         .initScale = QVector2D(emitterData.initScale.x, emitterData.initScale.y),

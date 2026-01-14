@@ -79,6 +79,10 @@ public:
     void setControlPoints(const PointList& points);
     void setLineColor(const QColor& color);
     const PointList& getPoints() const;
+    void setValueRange(f32 min, f32 max);
+    void setTickStepSize(f32 stepSize);
+    void setValueSnap(f32 snap);
+    void setTimeSnap(f32 snap);
 
 signals:
     void pointEdited(s32 index, const AnimGraph::GraphPoint& point);
@@ -99,7 +103,7 @@ private:
     GraphRange computeGraphRange() const;
     GraphRange currentGraphRange() const;
 
-    static f32 chooseTickStep(f32 range);
+    f32 chooseTickStep(f32 range) const;
 
     s32 hitTestPoint(const QPoint& mousePos) const;
     QRect getHitRect(const QPoint& center, HandleType type) const;
@@ -119,9 +123,15 @@ private:
     bool mDragOccured = false;
     bool mPendingClick = false;
     bool mHasFrozenRange = false;
+    bool mHasCustomRange = false;
+
+    f32 mTickStepSize = 10.0f;
+    f32 mValueSnap = 5.0f;
+    f32 mTimeSnap = 2.5f;
 
     QPoint mPressPos{};
     GraphRange mFrozenRange{};
+    GraphRange mCustomRange{};
 
     QColor mLineColor = Qt::white;
 

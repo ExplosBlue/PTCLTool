@@ -149,11 +149,21 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
 
     // _D8
 
-    addLabledWidget(&mInitAlphaSpinBox, "Initial Alpha:", 38, 0, 3);
-    addLabledWidget(&mDiffAlpha21SpinBox, "Diff Alpha21:", 39, 0, 3);
-    addLabledWidget(&mDiffAlpha32SpinBox, "Diff Alpha32:", 40, 0, 3);
-    addLabledWidget(&mAlphaSection1SpinBox, "Alpha Section 1:", 41, 0, 3);
-    addLabledWidget(&mAlphaSection2SpinBox, "Alpha Section 2:", 42, 0, 3);
+    // Rotation Properties
+    connect(&mAlphaProperties, &AlphaPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::AlphaProperties& properties) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setAlphaProperties(properties);
+    });
+
+    auto alphaPropertiesSection = new CollapsibleWidget("Alpha properties", this);
+    alphaPropertiesSection->setContent(&mAlphaProperties);
+    mMainLayout.addWidget(alphaPropertiesSection, 34, 0, 1, 4);
+
+    // addLabledWidget(&mInitAlphaSpinBox, "Initial Alpha:", 38, 0, 3);
+    // addLabledWidget(&mDiffAlpha21SpinBox, "Diff Alpha21:", 39, 0, 3);
+    // addLabledWidget(&mDiffAlpha32SpinBox, "Diff Alpha32:", 40, 0, 3);
+    // addLabledWidget(&mAlphaSection1SpinBox, "Alpha Section 1:", 41, 0, 3);
+    // addLabledWidget(&mAlphaSection2SpinBox, "Alpha Section 2:", 42, 0, 3);
 
     // Rotation Properties
     connect(&mRotationProperties, &RotationPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::RotationProperties& properties) {
@@ -231,12 +241,13 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_A4SpinBox.setValue(mEmitterPtr->_A4());
 
     mColorProperties.setProperties(mEmitterPtr->colorProperties());
+    mAlphaProperties.setProperties(mEmitterPtr->alphaProperties());
 
-    mInitAlphaSpinBox.setValue(mEmitterPtr->initAlpha());
-    mDiffAlpha21SpinBox.setValue(mEmitterPtr->diffAlpha21());
-    mDiffAlpha32SpinBox.setValue(mEmitterPtr->diffAlpha32());
-    mAlphaSection1SpinBox.setValue(mEmitterPtr->alphaSection1());
-    mAlphaSection2SpinBox.setValue(mEmitterPtr->alphaSection2());
+    // mInitAlphaSpinBox.setValue(mEmitterPtr->initAlpha());
+    // mDiffAlpha21SpinBox.setValue(mEmitterPtr->diffAlpha21());
+    // mDiffAlpha32SpinBox.setValue(mEmitterPtr->diffAlpha32());
+    // mAlphaSection1SpinBox.setValue(mEmitterPtr->alphaSection1());
+    // mAlphaSection2SpinBox.setValue(mEmitterPtr->alphaSection2());
 
     mScaleProperties.setProperties(mEmitterPtr->scaleProperties());
 

@@ -69,6 +69,17 @@ struct ColorProperties {
 // ========================================================================== //
 
 
+struct AlphaProperties {
+    f32 initAlpha = 0.0f;
+    f32 diffAlpha21 = 0.0f;
+    f32 diffAlpha32 = 0.0f;
+    s32 alphaSection1 = 0;
+    s32 alphaSection2 = 0;
+};
+
+
+// ========================================================================== //
+
 class Emitter
 {
 public:
@@ -199,20 +210,8 @@ public:
     const ColorProperties &colorProperties() const;
     void setColorProperties(const ColorProperties &colorProperties);
 
-    f32 initAlpha() const;
-    void setInitAlpha(f32 initAlpha);
-
-    f32 diffAlpha21() const;
-    void setDiffAlpha21(f32 diffAlpha21);
-
-    f32 diffAlpha32() const;
-    void setDiffAlpha32(f32 diffAlpha32);
-
-    s32 alphaSection1() const;
-    void setAlphaSection1(s32 alphaSection1);
-
-    s32 alphaSection2() const;
-    void setAlphaSection2(s32 alphaSection2);
+    const AlphaProperties &alphaProperties() const;
+    void setAlphaProperties(const AlphaProperties &alphaProperties);
 
     const ScaleProperties &scaleProperties() const;
     void setScaleProperties(const ScaleProperties &scaleProperties);
@@ -337,17 +336,13 @@ private:
 
     std::array<u32, 3> m_D8;
 
-    f32 mInitAlpha;
-    f32 mDiffAlpha21;
-    f32 mDiffAlpha32;
-    s32 mAlphaSection1;
-    s32 mAlphaSection2;
+    ColorProperties mColorProperties;
+    AlphaProperties mAlphaProperties;
 
     CombinerType mCombinerType;
 
     ScaleProperties mScaleProperties;
     RotationProperties mRotationProperties;
-    ColorProperties mColorProperties;
 
     FollowType mFollowType;
     u32 m_134;
