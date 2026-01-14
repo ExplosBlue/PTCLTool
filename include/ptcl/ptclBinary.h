@@ -222,7 +222,7 @@ struct alignas(4) BinCommonEmitterData {
     u8 _30;                              // 0x30
     u8 _31;                              // 0x31
     u8 volumeTblIndex;                   // 0x32
-    u8 _33;                              // 0x33
+    bool isStopEmitInFade;               // 0x33
     VolumeType volumeType;               // 0x34
     binVec3f volumeRadius;               // 0x38
     s32 volumeSweepStart;                // 0x44

@@ -104,7 +104,16 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&m_2FSpinBox, "_2F:",  9, 0, 3);
     addLabledWidget(&m_30SpinBox, "_30:",  10, 0, 3);
     addLabledWidget(&m_31SpinBox, "_31:", 11, 0, 3);
-    addLabledWidget(&m_31SpinBox, "_33:", 13, 0, 3);
+
+    // Termination Properties
+    connect(&mTerminationProperties, &TerminationPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::TerminationProperties& properties) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setTerminationProperties(properties);
+    });
+
+    auto terminationPropertiesSection = new CollapsibleWidget("Termination properties", this);
+    terminationPropertiesSection->setContent(&mTerminationProperties);
+    mMainLayout.addWidget(terminationPropertiesSection, 12, 0, 1, 4);
 
     // Emission Properties
     connect(&mEmissionProperties, &EmissionPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::EmissionProperties& properties) {
@@ -231,8 +240,6 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_30SpinBox.setValue(mEmitterPtr->_30());
     m_31SpinBox.setValue(mEmitterPtr->_31());
 
-    m_33SpinBox.setValue(mEmitterPtr->_33());
-
     m_80SpinBox.setValue(mEmitterPtr->_80());
     mPtclLifeSpinBox.setValue(mEmitterPtr->ptclLife());
     mPtclLifeRandSpinBox.setValue(mEmitterPtr->ptclLifeRnd());
@@ -247,6 +254,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mFollowTypeSpinBox.setCurrentEnum(mEmitterPtr->followType());
     m_134SpinBox.setValue(mEmitterPtr->_134());
 
+    mTerminationProperties.setProperties(mEmitterPtr->terminationProperties());
     mEmissionProperties.setProperties(mEmitterPtr->emissionProperties());
     mVelocityProperties.setProperties(mEmitterPtr->velocityProperties());
     mVolumeProperties.setProperties(mEmitterPtr->volumeProperties());

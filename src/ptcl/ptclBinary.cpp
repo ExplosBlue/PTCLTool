@@ -314,7 +314,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     _30 = emitter._30();
     _31 = emitter._31();
     volumeTblIndex = emitter.volumeProperties().volumeTblIndex;
-    _33 = emitter._33();
+    isStopEmitInFade = emitter.terminationProperties().isStopEmitInFade;
     volumeType = emitter.volumeProperties().volumeType;
     volumeRadius = emitter.volumeProperties().volumeRadius;
     volumeSweepStart = emitter.volumeProperties().volumeSweepStart;
@@ -369,7 +369,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     std::copy(emitter._168().begin(), emitter._168().end(), _168.data());
     transformSRT = emitter.transformSRT();
     transformRT = emitter.transformRT();
-    alphaAddInFade = emitter.alphaAddInFade();
+    alphaAddInFade = emitter.terminationProperties().alphaAddInFade;
     numTexPat = emitter.numTexPat();
     numTexDivX = emitter.numTexDivX();
     numTexDivY = emitter.numTexDivY();
@@ -396,7 +396,7 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item._30
         >> item._31
         >> item.volumeTblIndex
-        >> item._33
+        >> item.isStopEmitInFade
         >> item.volumeType
         >> item.volumeRadius
         >> item.volumeSweepStart
@@ -489,7 +489,7 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item._30
         << item._31
         << item.volumeTblIndex
-        << item._33
+        << item.isStopEmitInFade
         << item.volumeType
         << item.volumeRadius
         << item.volumeSweepStart
@@ -585,7 +585,7 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- _30:              " << _30;
     qDebug() << indentation << "- _31:              " << _31;
     qDebug() << indentation << "- volumeTblIndex:   " << volumeTblIndex;
-    qDebug() << indentation << "- _33:              " << _33;
+    qDebug() << indentation << "- isStopEmitInFade: " << isStopEmitInFade;
     qDebug() << indentation << "- volumeType:       " << volumeType;
     qDebug() << indentation << "- volumeRadius:     " << volumeRadius;
     qDebug() << indentation << "- volumeSweepStart: " << volumeSweepStart;

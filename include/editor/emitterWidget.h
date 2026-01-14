@@ -8,6 +8,7 @@
 #include "editor/rotationPropertiesWidget.h"
 #include "editor/scalePropertiesWidget.h"
 #include "editor/sizedSpinBox.h"
+#include "editor/terminationPropertiesWidget.h"
 #include "editor/texturePropertiesWidget.h"
 #include "editor/velocityPropertiesWidget.h"
 #include "editor/volumePropertiesWidget.h"
@@ -59,7 +60,6 @@ private:
     SizedSpinBox<u8> m_2FSpinBox;
     SizedSpinBox<u8> m_30SpinBox;
     SizedSpinBox<u8> m_31SpinBox;
-    SizedSpinBox<u8> m_33SpinBox;
 
     // _70
 
@@ -80,6 +80,7 @@ private:
     EnumComboBox<Ptcl::FollowType> mFollowTypeSpinBox;
     SizedSpinBox<u32> m_134SpinBox;
 
+    TerminationPropertiesWidget mTerminationProperties;
     EmissionPropertiesWidget mEmissionProperties;
     VelocityPropertiesWidget mVelocityProperties;
     VolumePropertiesWidget mVolumeProperties;
