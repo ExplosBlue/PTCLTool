@@ -105,6 +105,16 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&m_30SpinBox, "_30:",  10, 0, 3);
     addLabledWidget(&m_31SpinBox, "_31:", 11, 0, 3);
 
+    // Lifespan Properties
+    connect(&mLifespanProperties, &LifespanPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::LifespanProperties& properties) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setLifespanProperties(properties);
+    });
+
+    auto lifespanPropertiesSection = new CollapsibleWidget("Lifespan properties", this);
+    lifespanPropertiesSection->setContent(&mLifespanProperties);
+    mMainLayout.addWidget(lifespanPropertiesSection, 12, 0, 1, 4);
+
     // Termination Properties
     connect(&mTerminationProperties, &TerminationPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::TerminationProperties& properties) {
         if (!mEmitterPtr) { return; }
@@ -113,7 +123,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
 
     auto terminationPropertiesSection = new CollapsibleWidget("Termination properties", this);
     terminationPropertiesSection->setContent(&mTerminationProperties);
-    mMainLayout.addWidget(terminationPropertiesSection, 12, 0, 1, 4);
+    mMainLayout.addWidget(terminationPropertiesSection, 13, 0, 1, 4);
 
     // Emission Properties
     connect(&mEmissionProperties, &EmissionPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::EmissionProperties& properties) {
@@ -123,7 +133,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
 
     auto emissionPropertiesSection = new CollapsibleWidget("Emission properties", this);
     emissionPropertiesSection->setContent(&mEmissionProperties);
-    mMainLayout.addWidget(emissionPropertiesSection, 13, 0, 1, 4);
+    mMainLayout.addWidget(emissionPropertiesSection, 14, 0, 1, 4);
 
     // Volume Properties
     connect(&mVolumeProperties, &VolumePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::VolumeProperties& properties) {
@@ -133,7 +143,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
 
     auto volumePropertiesSection = new CollapsibleWidget("Volume properties", this);
     volumePropertiesSection->setContent(&mVolumeProperties);
-    mMainLayout.addWidget(volumePropertiesSection, 14, 0, 1, 4);
+    mMainLayout.addWidget(volumePropertiesSection, 15, 0, 1, 4);
 
     // Velocity Properties
     connect(&mVelocityProperties, &VelocityPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::VelocityProperties& properties) {
@@ -143,13 +153,11 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
 
     auto velocityPropertiesSection = new CollapsibleWidget("Velocity properties", this);
     velocityPropertiesSection->setContent(&mVelocityProperties);
-    mMainLayout.addWidget(velocityPropertiesSection, 18, 0, 1, 4);
+    mMainLayout.addWidget(velocityPropertiesSection, 16, 0, 1, 4);
 
     // _70
 
     addLabledWidget(&m_80SpinBox,          "_80:",              23, 0, 3);
-    addLabledWidget(&mPtclLifeSpinBox,     "Ptcl Life:",        24, 0, 3);
-    addLabledWidget(&mPtclLifeRandSpinBox, "Ptcl Life Random:", 25, 0, 3);
 
     m_8CSpinBox.setMaximum(std::numeric_limits<f32>::max());
     m_8CSpinBox.setMinimum(std::numeric_limits<f32>::min());
@@ -241,8 +249,6 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_31SpinBox.setValue(mEmitterPtr->_31());
 
     m_80SpinBox.setValue(mEmitterPtr->_80());
-    mPtclLifeSpinBox.setValue(mEmitterPtr->ptclLife());
-    mPtclLifeRandSpinBox.setValue(mEmitterPtr->ptclLifeRnd());
     m_8CSpinBox.setValue(mEmitterPtr->_8C());
     m_90SpinBox.setValue(mEmitterPtr->_90());
     mBillboardComboBox.setCurrentEnum((mEmitterPtr->billboardType()));
@@ -254,6 +260,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mFollowTypeSpinBox.setCurrentEnum(mEmitterPtr->followType());
     m_134SpinBox.setValue(mEmitterPtr->_134());
 
+    mLifespanProperties.setProperties(mEmitterPtr->lifespanProperties());
     mTerminationProperties.setProperties(mEmitterPtr->terminationProperties());
     mEmissionProperties.setProperties(mEmitterPtr->emissionProperties());
     mVelocityProperties.setProperties(mEmitterPtr->velocityProperties());

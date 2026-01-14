@@ -29,8 +29,6 @@ Emitter::Emitter() {
     m_31 = 0;
 
     m_80 = 0;
-    mPtclLife = 0;
-    mPtclLifeRnd = 0;
     m_8C = 0.0f;
     m_90 = 0;
     mBillboardType = BillboardType::Billboard;
@@ -40,6 +38,11 @@ Emitter::Emitter() {
     m_A4 = 0.0f;
 
     m_D8 = {0, 0, 0};
+
+    mLifespanProperties = {
+        .ptclLife = 100,
+        .ptclLifeRnd = 0
+    };
 
     mTerminationProperties = {
         .isStopEmitInFade = false,
@@ -264,22 +267,6 @@ void Emitter::set_80(const u32 _80) {
     m_80 = _80;
 }
 
-s32 Emitter::ptclLife() const {
-    return mPtclLife;
-}
-
-void Emitter::setPtclLife(const s32 ptclLife) {
-    mPtclLife = ptclLife;
-}
-
-s32 Emitter::ptclLifeRnd() const {
-    return mPtclLifeRnd;
-}
-
-void Emitter::setPtclLifeRnd(const s32 ptclLifeRnd) {
-    mPtclLifeRnd = ptclLifeRnd;
-}
-
 f32 Emitter::_8C() const {
     return m_8C;
 }
@@ -342,6 +329,14 @@ const std::array<u32, 3>& Emitter::_D8() const {
 
 void Emitter::set_D8(const std::array<u32, 3>& _D8) {
     m_D8 = _D8;
+}
+
+const LifespanProperties& Emitter::lifespanProperties() const {
+    return mLifespanProperties;
+}
+
+void Emitter::setLifespanProperties(const LifespanProperties& lifespanProperties) {
+    mLifespanProperties = lifespanProperties;
 }
 
 const TerminationProperties& Emitter::terminationProperties() const {
@@ -620,8 +615,6 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_31 = emitterData._31;
 
     m_80 = emitterData._80;
-    mPtclLife = emitterData.ptclLife;
-    mPtclLifeRnd = emitterData.ptclLifeRnd;
     m_8C = emitterData._8C;
     m_90 = emitterData._90;
     mBillboardType = emitterData.billboardType;
@@ -632,6 +625,11 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 
 
     std::ranges::copy(emitterData._D8, m_D8.begin());
+
+    mLifespanProperties = {
+        .ptclLife = emitterData.ptclLife,
+        .ptclLifeRnd = emitterData.ptclLifeRnd
+    };
 
     mTerminationProperties = {
         .isStopEmitInFade = emitterData.isStopEmitInFade,

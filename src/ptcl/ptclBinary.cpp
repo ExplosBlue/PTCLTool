@@ -331,8 +331,8 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     lifeStepRnd = emitter.emissionProperties().lifeStepRnd;
 
     _80 = emitter._80();
-    ptclLife = emitter.ptclLife();
-    ptclLifeRnd = emitter.ptclLifeRnd();
+    ptclLife = emitter.lifespanProperties().ptclLife;
+    ptclLifeRnd = emitter.lifespanProperties().ptclLifeRnd;
     _8C = emitter._8C();
     _90 = emitter._90();
     billboardType = emitter.billboardType();

@@ -1,6 +1,5 @@
 #include "editor/emissionPropertiesWidget.h"
 
-#include <QFormLayout>
 #include <QGridLayout>
 #include <QLabel>
 
@@ -10,20 +9,12 @@
 EmissionPropertiesWidget::EmissionPropertiesWidget(QWidget* parent) :
     QWidget{parent} {
 
-    // auto* mainLayout = new QFormLayout(this);
     auto* mainLayout = new QGridLayout(this);
 
     mStartFrameSpinBox.setRange(0, sEmitInfinite - 2);
     mEndFrameSpinBox.setRange(1, sEmitInfinite - 1);
     mLifeStepSpinBox.setRange(0, std::numeric_limits<s32>::max());
     mLifeStepRndSpinBox.setRange(0, std::numeric_limits<s32>::max());
-
-    // mainLayout->addRow("Infinite Emission", &mInfiniteEmitCheckBox);
-    // mainLayout->addRow("Emission Start Frame:", &mStartFrameSpinBox);
-    // mainLayout->addRow("Emission End Frame:", &mEndFrameSpinBox);
-
-    // mainLayout->addRow("Emission Interval:", &mLifeStepSpinBox);
-    // mainLayout->addRow("Random Emission Interval:", &mLifeStepRndSpinBox);
 
     // Row 0: Infinite Emission
     mainLayout->addWidget(&mInfiniteEmitCheckBox, 0, 1);
