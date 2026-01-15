@@ -11,6 +11,7 @@
 #include "editor/sizedSpinBox.h"
 #include "editor/terminationPropertiesWidget.h"
 #include "editor/texturePropertiesWidget.h"
+#include "editor/transformPropertiesWidget.h"
 #include "editor/velocityPropertiesWidget.h"
 #include "editor/volumePropertiesWidget.h"
 
@@ -79,6 +80,7 @@ private:
     EnumComboBox<Ptcl::FollowType> mFollowTypeSpinBox;
     SizedSpinBox<u32> m_134SpinBox;
 
+    TransformPropertiesWidget mTransformProperties;
     LifespanPropertiesWidget mLifespanProperties;
     TerminationPropertiesWidget mTerminationProperties;
     EmissionPropertiesWidget mEmissionProperties;
@@ -91,8 +93,6 @@ private:
 
 
     // _168
-    // transformSRT
-    // transformRT
 
     bool mIsPopulating;
 };

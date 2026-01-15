@@ -39,6 +39,11 @@ Emitter::Emitter() {
 
     m_D8 = {0, 0, 0};
 
+    mTransformProperties = {
+        .transformSRT = {},
+        .transformRT = {}
+    };
+
     mLifespanProperties = {
         .ptclLife = 100,
         .ptclLifeRnd = 0
@@ -114,8 +119,6 @@ Emitter::Emitter() {
     mFollowType = FollowType::All;
     m_134 = 0;
     m_168 = {0, 0};
-    mTransformSRT = {};
-    mTransformRT = {};
 
     mNumTexPat = 0;
     mNumTexDivX = 1;
@@ -331,6 +334,14 @@ void Emitter::set_D8(const std::array<u32, 3>& _D8) {
     m_D8 = _D8;
 }
 
+const TransformProperties& Emitter::transformProperties() const {
+    return mTransformProperties;
+}
+
+void Emitter::setTransformProperties(const TransformProperties& transformProperties) {
+    mTransformProperties = transformProperties;
+}
+
 const LifespanProperties& Emitter::lifespanProperties() const {
     return mLifespanProperties;
 }
@@ -436,22 +447,6 @@ const std::array<u32, 2>& Emitter::_168() const {
 
 void Emitter::set_168(const std::array<u32, 2>& _168) {
     m_168 = _168;
-}
-
-const QMatrix3x4& Emitter::transformSRT() const {
-    return mTransformSRT;
-}
-
-void Emitter::setTransformSRT(const QMatrix3x4& transformSRT) {
-    mTransformSRT = transformSRT;
-}
-
-const QMatrix3x4& Emitter::transformRT() const {
-    return mTransformRT;
-}
-
-void Emitter::setTransformRT(const QMatrix3x4& transformRT) {
-    mTransformRT = transformRT;
 }
 
 u16 Emitter::numTexPat() const {
@@ -626,6 +621,11 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 
     std::ranges::copy(emitterData._D8, m_D8.begin());
 
+    mTransformProperties = {
+        .transformSRT = emitterData.transformSRT.toMatrix34f(),
+        .transformRT = emitterData.transformRT.toMatrix34f()
+    };
+
     mLifespanProperties = {
         .ptclLife = emitterData.ptclLife,
         .ptclLifeRnd = emitterData.ptclLifeRnd
@@ -700,8 +700,6 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 
     std::ranges::copy(emitterData._168, m_168.begin());
 
-    mTransformSRT = emitterData.transformSRT.toQMatrix3x4();
-    mTransformRT = emitterData.transformRT.toQMatrix3x4();
     mNumTexPat = emitterData.numTexPat;
     mNumTexDivX = emitterData.numTexDivX;
     mNumTexDivY = emitterData.numTexDivY;

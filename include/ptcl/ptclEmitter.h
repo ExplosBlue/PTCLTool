@@ -10,6 +10,7 @@
 #include "ptcl/ptclTexture.h"
 #include "typedefs.h"
 #include "util/bitflagUtil.h"
+#include "math/matrix.h"
 
 #include <QMatrix3x4>
 #include <QString>
@@ -128,6 +129,15 @@ struct TerminationProperties {
 struct LifespanProperties {
     s32 ptclLife = 100;
     s32 ptclLifeRnd = 0;
+};
+
+
+// ========================================================================== //
+
+
+struct TransformProperties {
+    Math::Matrix34f transformSRT{};
+    Math::Matrix34f transformRT{};
 };
 
 
@@ -258,11 +268,8 @@ public:
     const std::array<u32, 2> &_168() const;
     void set_168(const std::array<u32, 2> &_168);
 
-    const QMatrix3x4 &transformSRT() const;
-    void setTransformSRT(const QMatrix3x4 &transformSRT);
-
-    const QMatrix3x4 &transformRT() const;
-    void setTransformRT(const QMatrix3x4 &transformRT);
+    const TransformProperties &transformProperties() const;
+    void setTransformProperties(const TransformProperties &transformProperties);
 
     u16 numTexPat() const;
     void setNumTexPat(u16 numTexPat);
@@ -348,6 +355,7 @@ private:
 
     std::array<u32, 3> m_D8;
 
+    TransformProperties mTransformProperties;
     LifespanProperties mLifespanProperties;
     TerminationProperties mTerminationProperties;
     EmissionProperties mEmissionProperties;
@@ -364,8 +372,6 @@ private:
     u32 m_134;
 
     std::array<u32, 2> m_168;
-    QMatrix3x4 mTransformSRT;
-    QMatrix3x4 mTransformRT;
 
     u16 mNumTexPat;
     u8 mNumTexDivX;

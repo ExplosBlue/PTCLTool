@@ -3,6 +3,8 @@
 #include "ptcl/ptclEnum.h"
 #include "typedefs.h"
 #include "util/bitflagUtil.h"
+#include "math/matrix.h"
+#include "math/vector.h"
 
 #include <QColor>
 #include <QDataStream>
@@ -99,9 +101,9 @@ union alignas(4) binMtx34f {
     std::array<f32, 12> cells;                // 0x00 - 0x30
 
     binMtx34f();
-    binMtx34f(const QMatrix3x4& mtx);
+    binMtx34f(const Math::Matrix34f& mtx);
 
-    QMatrix3x4 toQMatrix3x4() const;
+    Math::Matrix34f toMatrix34f() const;
 
     friend QDataStream& operator>>(QDataStream& in, binMtx34f& item);
     friend QDataStream& operator<<(QDataStream& out, const binMtx34f& item);

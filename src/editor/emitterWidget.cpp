@@ -155,6 +155,16 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     velocityPropertiesSection->setContent(&mVelocityProperties);
     mMainLayout.addWidget(velocityPropertiesSection, 16, 0, 1, 4);
 
+    // Transform Properties
+    connect(&mTransformProperties, &TransformPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::TransformProperties& properties) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setTransformProperties(properties);
+    });
+
+    auto transformPropertiesSection = new CollapsibleWidget("Transform properties", this);
+    transformPropertiesSection->setContent(&mTransformProperties);
+    mMainLayout.addWidget(transformPropertiesSection, 17, 0, 1, 4);
+
     // _70
 
     addLabledWidget(&m_80SpinBox,          "_80:",              23, 0, 3);
@@ -260,6 +270,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mFollowTypeSpinBox.setCurrentEnum(mEmitterPtr->followType());
     m_134SpinBox.setValue(mEmitterPtr->_134());
 
+    mTransformProperties.setProperties(mEmitterPtr->transformProperties());
     mLifespanProperties.setProperties(mEmitterPtr->lifespanProperties());
     mTerminationProperties.setProperties(mEmitterPtr->terminationProperties());
     mEmissionProperties.setProperties(mEmitterPtr->emissionProperties());
