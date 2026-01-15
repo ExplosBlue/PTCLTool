@@ -209,7 +209,7 @@ inline QDebug operator<<(QDebug dbg, const RotType& type) {
 // ========================================================================== //
 
 
-enum class CombinerType : u8 {
+enum class ColorCalcType : u8 {
     None        = 0x0,
     Pass1       = 0x1,
     Interpolate = 0x2,
@@ -218,17 +218,17 @@ enum class CombinerType : u8 {
 };
 
 template<>
-inline QString toString<CombinerType>(const CombinerType& type) {
+inline QString toString<ColorCalcType>(const ColorCalcType& type) {
     switch (type) {
-    case CombinerType::None:        return "None";
-    case CombinerType::Pass1:       return "Pass1";
-    case CombinerType::Interpolate: return "Interpolate";
-    case CombinerType::MAX:         return "COMBINER_TYPE_MAX";
+    case ColorCalcType::None:        return "None";
+    case ColorCalcType::Pass1:       return "Pass1";
+    case ColorCalcType::Interpolate: return "Interpolate";
+    case ColorCalcType::MAX:         return "COMBINER_TYPE_MAX";
     default: return "UNKNOWN";
     }
 }
 
-inline QDebug operator<<(QDebug dbg, const CombinerType& type) {
+inline QDebug operator<<(QDebug dbg, const ColorCalcType& type) {
     QDebugStateSaver stateSaver(dbg);
     dbg.nospace() << toString(type);
     return dbg;

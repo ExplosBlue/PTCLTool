@@ -88,6 +88,7 @@ Emitter::Emitter() {
         .colorNumRepeat = 1,
         .colorRandom = mFlag.isSet(EmitterFlag::ColorRandom),
         .colorAnimation = mFlag.isSet(EmitterFlag::ColorAnimation),
+        .colorCalcType = ColorCalcType::Pass1
     };
 
     mAlphaProperties = {
@@ -115,7 +116,6 @@ Emitter::Emitter() {
         .rotVelRand = {}
     };
 
-    mCombinerType = CombinerType::None;
     mFollowType = FollowType::All;
     m_134 = 0;
     m_168 = {0, 0};
@@ -401,14 +401,6 @@ void Emitter::setScaleProperties(const ScaleProperties& scaleProperties) {
     mScaleProperties = scaleProperties;
 }
 
-CombinerType Emitter::combinerType() const {
-    return mCombinerType;
-}
-
-void Emitter::setCombinerType(const CombinerType combinerType) {
-    mCombinerType = combinerType;
-}
-
 FollowType Emitter::followType() const {
     return mFollowType;
 }
@@ -659,6 +651,7 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .colorNumRepeat = emitterData.colorNumRepeat,
         .colorRandom = emitterData.flag.isSet(EmitterFlag::ColorRandom),
         .colorAnimation = emitterData.flag.isSet(EmitterFlag::ColorAnimation),
+        .colorCalcType = static_cast<ColorCalcType>(emitterData.rotCalcType / 5)
     };
 
     mAlphaProperties = {
@@ -679,14 +672,13 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     };
 
     mRotationProperties = {
-        .rotType = static_cast<RotType>(emitterData.rotCombinerType % 5),
+        .rotType = static_cast<RotType>(emitterData.rotCalcType % 5),
         .initRot = emitterData.initRot,
         .initRotRand = emitterData.initRotRand,
         .rotVel = emitterData.rotVel,
         .rotVelRand = emitterData.rotVelRand,
     };
 
-    mCombinerType = static_cast<CombinerType>(emitterData.rotCombinerType / 5);
     mFollowType = emitterData.followType;
     m_134 = emitterData._134;
 
