@@ -28,7 +28,6 @@ Emitter::Emitter() {
     m_30 = 0;
     m_31 = 0;
 
-    m_80 = 0;
     m_8C = 0.0f;
     m_90 = 0;
     mBillboardType = BillboardType::Billboard;
@@ -58,7 +57,8 @@ Emitter::Emitter() {
         .startFrame = 0,
         .endFrame = 1,
         .lifeStep = 10,
-        .lifeStepRnd = 1
+        .lifeStepRnd = 1,
+        .emitRate = 1
     };
 
     mVelocityProperties = {
@@ -260,14 +260,6 @@ u8 Emitter::_31() const {
 
 void Emitter::set_31(const u8 _31) {
     m_31 = _31;
-}
-
-u32 Emitter::_80() const {
-    return m_80;
-}
-
-void Emitter::set_80(const u32 _80) {
-    m_80 = _80;
 }
 
 f32 Emitter::_8C() const {
@@ -609,7 +601,6 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_30 = emitterData._30;
     m_31 = emitterData._31;
 
-    m_80 = emitterData._80;
     m_8C = emitterData._8C;
     m_90 = emitterData._90;
     mBillboardType = emitterData.billboardType;
@@ -640,7 +631,8 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .startFrame = emitterData.startFrame,
         .endFrame = emitterData.endFrame,
         .lifeStep = emitterData.lifeStep,
-        .lifeStepRnd = emitterData.lifeStepRnd
+        .lifeStepRnd = emitterData.lifeStepRnd,
+        .emitRate = emitterData.emitRate
     };
 
     mVelocityProperties = {

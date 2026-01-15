@@ -111,6 +111,7 @@ struct EmissionProperties {
     s32 endFrame = 1;
     s32 lifeStep = 10;
     s32 lifeStepRnd = 1;
+    s32 emitRate = 1;
 };
 
 

@@ -167,8 +167,6 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
 
     // _70
 
-    addLabledWidget(&m_80SpinBox,          "_80:",              23, 0, 3);
-
     m_8CSpinBox.setMaximum(std::numeric_limits<f32>::max());
     m_8CSpinBox.setMinimum(std::numeric_limits<f32>::min());
     addLabledWidget(&m_8CSpinBox, "_8C:", 26, 0, 3);
@@ -258,7 +256,6 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_30SpinBox.setValue(mEmitterPtr->_30());
     m_31SpinBox.setValue(mEmitterPtr->_31());
 
-    m_80SpinBox.setValue(mEmitterPtr->_80());
     m_8CSpinBox.setValue(mEmitterPtr->_8C());
     m_90SpinBox.setValue(mEmitterPtr->_90());
     mBillboardComboBox.setCurrentEnum((mEmitterPtr->billboardType()));

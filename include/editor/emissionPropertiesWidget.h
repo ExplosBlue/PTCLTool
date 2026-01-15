@@ -29,6 +29,7 @@ private:
     QCheckBox mInfiniteEmitCheckBox;
     QSpinBox mLifeStepSpinBox;
     QSpinBox mLifeStepRndSpinBox;
+    QSpinBox mEmitRateSpinBox;
 
     static constexpr s32 sEmitInfinite = std::numeric_limits<s32>::max();
 };

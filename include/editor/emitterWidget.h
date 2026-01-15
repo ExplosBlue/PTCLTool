@@ -65,7 +65,6 @@ private:
 
     // _70
 
-    SizedSpinBox<u32> m_80SpinBox;
     QDoubleSpinBox m_8CSpinBox;
     SizedSpinBox<u32> m_90SpinBox;
     EnumComboBox<Ptcl::BillboardType> mBillboardComboBox;
