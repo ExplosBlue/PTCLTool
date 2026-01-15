@@ -4,8 +4,7 @@
 #include "ptcl/ptclBinary.h"
 #include "ptcl/ptclEnum.h"
 #include "ptcl/ptclTexture.h"
-
-#include <QVector3D>
+#include "math/vector.h"
 
 #include <array>
 
@@ -65,8 +64,8 @@ public:
     const std::array<u8, 84>& _68() const;
     void set_68(const std::array<u8, 84>& _68);
 
-    const QVector3D& _BC() const;
-    void set_BC(const QVector3D& _BC);
+    const Math::Vector3f& _BC() const;
+    void set_BC(const Math::Vector3f& _BC);
 
     const std::array<u8, 32>& _C8() const;
     void set_C8(const std::array<u8, 32>& _C8);
@@ -93,7 +92,7 @@ private:
     f32 m_60;
     f32 m_64;
     std::array<u8, 84> m_68;
-    QVector3D m_BC;
+    Math::Vector3f m_BC;
     std::array<u8, 32> m_C8;
     f32 m_E8;
 };

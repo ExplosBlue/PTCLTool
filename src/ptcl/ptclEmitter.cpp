@@ -457,11 +457,11 @@ void Emitter::setNumTexDivY(const u8 numTexDivY) {
     mNumTexDivY = numTexDivY;
 }
 
-const QVector2D& Emitter::texUVScale() const {
+const Math::Vector2f& Emitter::texUVScale() const {
     return mTexUVScale;
 }
 
-void Emitter::setTexUVScale(const QVector2D& texUVScale) {
+void Emitter::setTexUVScale(const Math::Vector2f& texUVScale) {
     mTexUVScale = texUVScale;
 }
 
@@ -629,16 +629,16 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 
     mVelocityProperties = {
         .figureVel = emitterData.figureVel,
-        .emitterVelDir = QVector3D(emitterData.emitterVelDir.x, emitterData.emitterVelDir.y, emitterData.emitterVelDir.z),
+        .emitterVelDir = Math::Vector3f(emitterData.emitterVelDir.x, emitterData.emitterVelDir.y, emitterData.emitterVelDir.z),
         .initVel = emitterData.initVel,
         .initVelRnd = emitterData.initVelRnd,
-        .spreadVec = QVector3D(emitterData.spreadVec.x, emitterData.spreadVec.y, emitterData.spreadVec.z)
+        .spreadVec = Math::Vector3f(emitterData.spreadVec.x, emitterData.spreadVec.y, emitterData.spreadVec.z)
     };
 
     mVolumeProperties = {
         .volumeTblIndex = emitterData.volumeTblIndex,
         .volumeType = emitterData.volumeType,
-        .volumeRadius = QVector3D(emitterData.volumeRadius.x, emitterData.volumeRadius.y, emitterData.volumeRadius.z),
+        .volumeRadius = Math::Vector3f(emitterData.volumeRadius.x, emitterData.volumeRadius.y, emitterData.volumeRadius.z),
         .volumeSweepStart = emitterData.volumeSweepStart,
         .volumeSweepParam = emitterData.volumeSweepParam,
     };
@@ -663,9 +663,9 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     };
 
     mScaleProperties = {
-        .initScale = QVector2D(emitterData.initScale.x, emitterData.initScale.y),
-        .diffScale21 = QVector2D(emitterData.diffScale21.x, emitterData.diffScale21.y),
-        .diffScale32 = QVector2D(emitterData.diffScale32.x, emitterData.diffScale32.y),
+        .initScale = Math::Vector2f(emitterData.initScale.x, emitterData.initScale.y),
+        .diffScale21 = Math::Vector2f(emitterData.diffScale21.x, emitterData.diffScale21.y),
+        .diffScale32 = Math::Vector2f(emitterData.diffScale32.x, emitterData.diffScale32.y),
         .scaleSection1 = emitterData.scaleSection1,
         .scaleSection2 = emitterData.scaleSection2,
         .scaleRand = emitterData.scaleRand
@@ -673,10 +673,10 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 
     mRotationProperties = {
         .rotType = static_cast<RotType>(emitterData.rotCalcType % 5),
-        .initRot = emitterData.initRot,
-        .initRotRand = emitterData.initRotRand,
-        .rotVel = emitterData.rotVel,
-        .rotVelRand = emitterData.rotVelRand,
+        .initRot = Math::Vector3i(emitterData.initRot.x, emitterData.initRot.y, emitterData.initRot.z),
+        .initRotRand = Math::Vector3i(emitterData.initRotRand.x, emitterData.initRotRand.y, emitterData.initRotRand.z),
+        .rotVel = Math::Vector3i(emitterData.rotVel.x, emitterData.rotVel.y, emitterData.rotVel.z),
+        .rotVelRand = Math::Vector3i(emitterData.rotVelRand.x, emitterData.rotVelRand.y, emitterData.rotVelRand.z),
     };
 
     mFollowType = emitterData.followType;
@@ -687,7 +687,7 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mNumTexPat = emitterData.numTexPat;
     mNumTexDivX = emitterData.numTexDivX;
     mNumTexDivY = emitterData.numTexDivY;
-    mTexUVScale = QVector2D(emitterData.texUVScale.x, emitterData.texUVScale.y);
+    mTexUVScale = Math::Vector2f(emitterData.texUVScale.x, emitterData.texUVScale.y);
     std::ranges::copy(emitterData.texPatTbl, mTexPatTbl.begin());
     mTexPatFreq = emitterData.texPatFreq;
     mTexPatTblUse = emitterData.texPatTblUse;

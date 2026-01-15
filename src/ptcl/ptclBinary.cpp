@@ -13,8 +13,8 @@ binVec2f::binVec2f() :
     x(1.0f), y(1.0f) {
 }
 
-binVec2f::binVec2f(const QVector2D& vec) :
-    x(vec.x()), y(vec.y()) {
+binVec2f::binVec2f(const Math::Vector2f& vec) :
+    x(vec.getX()), y(vec.getY()) {
 }
 
 QDataStream& operator>>(QDataStream& in, binVec2f& item) {
@@ -41,8 +41,8 @@ binVec3f::binVec3f() :
     x(1.0f), y(1.0f), z(1.0f) {
 }
 
-binVec3f::binVec3f(const QVector3D& vec) :
-    x(vec.x()), y(vec.y()), z(vec.z()) {
+binVec3f::binVec3f(const Math::Vector3f& vec) :
+    x(vec.getX()), y(vec.getY()), z(vec.getZ()) {
 }
 
 QDataStream& operator>>(QDataStream& in, binVec3f& item) {
@@ -67,6 +67,10 @@ QDebug operator<<(QDebug dbg, const binVec3f& item) {
 
 binVec3i::binVec3i() :
     x(1), y(1), z(1) {
+}
+
+binVec3i::binVec3i(const Math::Vector3i& vec) :
+    x(vec.getX()), y(vec.getY()), z(vec.getZ()) {
 }
 
 QDataStream& operator>>(QDataStream& in, binVec3i& item) {

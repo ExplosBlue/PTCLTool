@@ -15,17 +15,17 @@ void FieldRandomData::setRandomBlank(const s32 randomBlank) {
     mRandomBlank = randomBlank;
 }
 
-const QVector3D& FieldRandomData::randomVelAdd() const {
+const Math::Vector3f& FieldRandomData::randomVelAdd() const {
     return mRandomVelAdd;
 }
 
-void FieldRandomData::setRandomVelAdd(const QVector3D& randomVelAdd) {
+void FieldRandomData::setRandomVelAdd(const Math::Vector3f& randomVelAdd) {
     mRandomVelAdd = randomVelAdd;
 }
 
 void FieldRandomData::initFromBinary(const BinFieldRandomData& fieldRandomData) {
     mRandomBlank = fieldRandomData.fieldRandomBlank;
-    mRandomVelAdd = QVector3D(fieldRandomData.fieldRandomVelAdd.x, fieldRandomData.fieldRandomVelAdd.y, fieldRandomData.fieldRandomVelAdd.z);
+    mRandomVelAdd = Math::Vector3f(fieldRandomData.fieldRandomVelAdd.x, fieldRandomData.fieldRandomVelAdd.y, fieldRandomData.fieldRandomVelAdd.z);
 }
 
 
@@ -40,11 +40,11 @@ void FieldMagnetData::setMagnetPower(const f32 magnetPower) {
     mMagnetPower = magnetPower;
 }
 
-const QVector3D& FieldMagnetData::magnetPos() const {
+const Math::Vector3f& FieldMagnetData::magnetPos() const {
     return mMagnetPos;
 }
 
-void FieldMagnetData::setMagnetPos(const QVector3D& magnetPos) {
+void FieldMagnetData::setMagnetPos(const Math::Vector3f& magnetPos) {
     mMagnetPos = magnetPos;
 }
 
@@ -58,7 +58,7 @@ void FieldMagnetData::setMagnetFlag(const u32 magnetFlag) {
 
 void FieldMagnetData::initFromBinary(const BinFieldMagnetData& fieldMagnetData) {
     mMagnetPower = fieldMagnetData.fieldMagnetPower;
-    mMagnetPos = QVector3D(fieldMagnetData.fieldMagnetPos.x, fieldMagnetData.fieldMagnetPos.y, fieldMagnetData.fieldMagnetPos.z);
+    mMagnetPos = Math::Vector3f(fieldMagnetData.fieldMagnetPos.x, fieldMagnetData.fieldMagnetPos.y, fieldMagnetData.fieldMagnetPos.z);
     mMagnetFlag = fieldMagnetData.fieldMagnetFlag;
 }
 
@@ -142,33 +142,33 @@ void FieldConvergenceData::setConvergenceType(const FieldConvergenceType converg
     mConvergenceType = convergenceType;
 }
 
-const QVector3D& FieldConvergenceData::convergencePos() const {
+const Math::Vector3f& FieldConvergenceData::convergencePos() const {
     return mConvergencePos;
 }
 
-void FieldConvergenceData::setConvergencePos(const QVector3D& convergencePos) {
+void FieldConvergenceData::setConvergencePos(const Math::Vector3f& convergencePos) {
     mConvergencePos = convergencePos;
 }
 
 void FieldConvergenceData::initFromBinary(const BinFieldConvergenceData& fieldConvergenceData) {
     mConvergenceType = fieldConvergenceData.fieldConvergenceType;
-    mConvergencePos = QVector3D(fieldConvergenceData.fieldConvergencePos.x, fieldConvergenceData.fieldConvergencePos.y, fieldConvergenceData.fieldConvergencePos.z);
+    mConvergencePos = Math::Vector3f(fieldConvergenceData.fieldConvergencePos.x, fieldConvergenceData.fieldConvergencePos.y, fieldConvergenceData.fieldConvergencePos.z);
 }
 
 
 // ========================================================================== //
 
 
-const QVector3D& FieldPosAddData::posAdd() const {
+const Math::Vector3f& FieldPosAddData::posAdd() const {
     return mPosAdd;
 }
 
-void FieldPosAddData::setPosAdd(const QVector3D& posAdd) {
+void FieldPosAddData::setPosAdd(const Math::Vector3f& posAdd) {
     mPosAdd = posAdd;
 }
 
 void FieldPosAddData::initFromBinary(const BinFieldPosAddData& fieldPosAddData) {
-    mPosAdd = QVector3D(fieldPosAddData.fieldPosAdd.x, fieldPosAddData.fieldPosAdd.y, fieldPosAddData.fieldPosAdd.z);
+    mPosAdd = Math::Vector3f(fieldPosAddData.fieldPosAdd.x, fieldPosAddData.fieldPosAdd.y, fieldPosAddData.fieldPosAdd.z);
 }
 
 

@@ -24,9 +24,9 @@ private:
 private:
     Ptcl::TransformProperties mProps{};
 
-    VectorSpinBox<QVector3D> mScaleSpinBox;
-    VectorSpinBox<QVector3D> mRotationSpinBox;
-    VectorSpinBox<QVector3D> mTranslationSpinBox;
+    VectorSpinBox<Math::Vector3f> mScaleSpinBox;
+    VectorSpinBox<Math::Vector3f> mRotationSpinBox;
+    VectorSpinBox<Math::Vector3f> mTranslationSpinBox;
 };
 
 

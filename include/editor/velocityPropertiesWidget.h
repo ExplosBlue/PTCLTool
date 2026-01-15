@@ -25,10 +25,10 @@ private:
     Ptcl::VelocityProperties mProps{};
 
     QDoubleSpinBox mFigureVelSpinbox{};
-    VectorSpinBox<QVector3D> mVelDirSpinbox{};
+    VectorSpinBox<Math::Vector3f> mVelDirSpinbox{};
     QDoubleSpinBox mInitVelSpinbox{};
     QDoubleSpinBox mVelRandomSpinbox{};
-    VectorSpinBox<QVector3D> mSpreadVecSpinbox{};
+    VectorSpinBox<Math::Vector3f> mSpreadVecSpinbox{};
 };
 
 

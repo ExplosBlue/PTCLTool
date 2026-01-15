@@ -27,9 +27,9 @@ namespace Ptcl {
 
 
 struct ScaleProperties {
-    QVector2D initScale = {1.0f, 1.0f};
-    QVector2D diffScale21 = {0.0f, 0.0f};
-    QVector2D diffScale32 = {0.0f, 0.0f};
+    Math::Vector2f initScale = {1.0f, 1.0f};
+    Math::Vector2f diffScale21 = {0.0f, 0.0f};
+    Math::Vector2f diffScale32 = {0.0f, 0.0f};
     s32 scaleSection1 = 0;
     s32 scaleSection2 = 0;
     f32 scaleRand = 0.0f;
@@ -41,10 +41,10 @@ struct ScaleProperties {
 
 struct RotationProperties {
     RotType rotType = RotType::None;
-    binVec3i initRot = {};
-    binVec3i initRotRand = {};
-    binVec3i rotVel = {};
-    binVec3i rotVelRand = {};
+    Math::Vector3i initRot = {};
+    Math::Vector3i initRotRand = {};
+    Math::Vector3i rotVel = {};
+    Math::Vector3i rotVelRand = {};
 };
 
 
@@ -86,7 +86,7 @@ struct AlphaProperties {
 struct VolumeProperties {
     u8 volumeTblIndex = 0;
     VolumeType volumeType = VolumeType::Point;
-    QVector3D volumeRadius = {1.0f, 1.0f, 1.0f};
+    Math::Vector3f volumeRadius = {1.0f, 1.0f, 1.0f};
     s32 volumeSweepStart = 0;
     s32 volumeSweepParam = 0;
 };
@@ -97,10 +97,10 @@ struct VolumeProperties {
 
 struct VelocityProperties {
     f32 figureVel = 0.0f;
-    QVector3D emitterVelDir = {0.0f, 0.0f, 0.0f};
+    Math::Vector3f emitterVelDir = {0.0f, 0.0f, 0.0f};
     f32 initVel = 0.0f;
     f32 initVelRnd = 0.0f;
-    QVector3D spreadVec = {0.0f, 0.0f, 0.0f};
+    Math::Vector3f spreadVec = {0.0f, 0.0f, 0.0f};
 };
 
 
@@ -279,8 +279,8 @@ public:
     u8 numTexDivY() const;
     void setNumTexDivY(u8 numTexDivY);
 
-    const QVector2D &texUVScale() const;
-    void setTexUVScale(const QVector2D &texUVScale);
+    const Math::Vector2f &texUVScale() const;
+    void setTexUVScale(const Math::Vector2f &texUVScale);
 
     const std::array<u8, 16> &texPatTbl() const;
     void setTexPatTbl(const std::array<u8, 16> &texPatTbl);
@@ -373,7 +373,7 @@ private:
     u16 mNumTexPat;
     u8 mNumTexDivX;
     u8 mNumTexDivY;
-    QVector2D mTexUVScale;
+    Math::Vector2f mTexUVScale;
     std::array<u8, 16> mTexPatTbl;
     u16 mTexPatFreq;
     u16 mTexPatTblUse;

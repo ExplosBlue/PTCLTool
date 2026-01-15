@@ -43,7 +43,7 @@ private:
 
     QComboBox mVolumeTblIndexComboBox;
     EnumComboBox<Ptcl::VolumeType> mTypeComboBox;
-    VectorSpinBox<QVector3D> mRadiusSpinBox;
+    VectorSpinBox<Math::Vector3f> mRadiusSpinBox;
     QDoubleSpinBox mSweepStartSpinBox;
     QDoubleSpinBox mSweepParamSpinBox;
     QDoubleSpinBox mLengthSpinBox;
