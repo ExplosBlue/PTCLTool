@@ -75,7 +75,6 @@ private:
 
     // _D8
 
-    EnumComboBox<Ptcl::CombinerType> mCombinerTypeSpinBox;
     EnumComboBox<Ptcl::FollowType> mFollowTypeSpinBox;
     SizedSpinBox<u32> m_134SpinBox;
 

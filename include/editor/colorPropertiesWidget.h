@@ -1,6 +1,7 @@
 #pragma once
 
 #include "editor/colorGradientEditor.h"
+#include "editor/enumComboBox.h"
 #include "editor/rgbaColorWidget.h"
 #include "editor/sizedSpinBox.h"
 #include "ptcl/ptclEmitter.h"
@@ -61,6 +62,7 @@ private:
     ColorGradientEditor mColorSections{};
     SizedSpinBox<s32> mColorNumRepeatSpinBox{};
     QLabel mRepetitionCountLabel{};
+    EnumComboBox<Ptcl::ColorCalcType> mColorCalcTypeSpinBox{};
 };
 
 

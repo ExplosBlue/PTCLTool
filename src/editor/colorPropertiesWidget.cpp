@@ -43,6 +43,12 @@ ColorPropertiesWidget::ColorPropertiesWidget(QWidget* parent) :
         mProps.colorNumRepeat = value;
     });
 
+    // Color Calc Type
+    connect(&mColorCalcTypeSpinBox, &QComboBox::currentIndexChanged, this, [this]() {
+        mProps.colorCalcType = mColorCalcTypeSpinBox.currentEnum();
+        emit propertiesUpdated(mProps);
+    });
+
     // Main Layout
     auto mainLayout = new QVBoxLayout(this);
     mainLayout->addLayout(colorBehaviorLayout);
@@ -50,6 +56,8 @@ ColorPropertiesWidget::ColorPropertiesWidget(QWidget* parent) :
     mainLayout->addLayout(colorsLayout);
     mainLayout->addWidget(&mColorSections);
     mainLayout->addLayout(colorRepeatLayout);
+    mainLayout->addWidget(&mColorCalcTypeSpinBox);
+
 
     setLayout(mainLayout);
 }
@@ -62,6 +70,7 @@ void ColorPropertiesWidget::setProperties(const Ptcl::ColorProperties& propertie
 void ColorPropertiesWidget::populateWidgets() {
     QSignalBlocker b1(mColorSections);
     QSignalBlocker b2(mColorNumRepeatSpinBox);
+    QSignalBlocker b3(mColorCalcTypeSpinBox);
 
     QSignalBlocker bColor0(mColorWidgets[0]);
     QSignalBlocker bColor1(mColorWidgets[1]);
@@ -84,6 +93,7 @@ void ColorPropertiesWidget::populateWidgets() {
 
     mColorSections.setRepetitionCount(mProps.colorNumRepeat);
     mColorNumRepeatSpinBox.setValue(mProps.colorNumRepeat);
+    mColorCalcTypeSpinBox.setCurrentEnum(mProps.colorCalcType);
 
     updateUiFromFlags();
 }

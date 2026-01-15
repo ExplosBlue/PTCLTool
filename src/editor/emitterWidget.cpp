@@ -210,8 +210,6 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     rotationPropertiesSection->setContent(&mRotationProperties);
     mMainLayout.addWidget(rotationPropertiesSection, 49, 0, 1, 4);
 
-
-    addLabledWidget(&mCombinerTypeSpinBox, "Combiner Type:", 50, 0, 3);
     addLabledWidget(&mFollowTypeSpinBox, "Follow Type:", 51, 0, 3);
     addLabledWidget(&m_134SpinBox, "_134:", 52, 0, 3);
 
@@ -263,7 +261,6 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_A0SpinBox.setValue(mEmitterPtr->_A0());
     m_A4SpinBox.setValue(mEmitterPtr->_A4());
 
-    mCombinerTypeSpinBox.setCurrentEnum(mEmitterPtr->combinerType());
     mFollowTypeSpinBox.setCurrentEnum(mEmitterPtr->followType());
     m_134SpinBox.setValue(mEmitterPtr->_134());
 

@@ -64,6 +64,7 @@ struct ColorProperties {
 
     bool colorRandom = false;
     bool colorAnimation = false;
+    ColorCalcType colorCalcType;
 };
 
 
@@ -254,9 +255,6 @@ public:
     const ScaleProperties &scaleProperties() const;
     void setScaleProperties(const ScaleProperties &scaleProperties);
 
-    CombinerType combinerType() const;
-    void setCombinerType(CombinerType combinerType);
-
     FollowType followType() const;
     void setFollowType(FollowType followType);
 
@@ -366,8 +364,6 @@ private:
     AlphaProperties mAlphaProperties;
     ScaleProperties mScaleProperties;
     RotationProperties mRotationProperties;
-
-    CombinerType mCombinerType;
 
     FollowType mFollowType;
     u32 m_134;

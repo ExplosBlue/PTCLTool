@@ -238,7 +238,7 @@ struct alignas(4) BinCommonEmitterData {
     s32 endFrame;                        // 0x74
     s32 lifeStep;                        // 0x78
     s32 lifeStepRnd;                     // 0x7C
-    u32 emitRate;                        // 0x80
+    s32 emitRate;                        // 0x80
     s32 ptclLife;                        // 0x84
     s32 ptclLifeRnd;                     // 0x88
     f32 _8C;                             // 0x8C
@@ -265,7 +265,7 @@ struct alignas(4) BinCommonEmitterData {
     s32 scaleSection1;                   // 0x120
     s32 scaleSection2;                   // 0x124
     f32 scaleRand;                       // 0x128
-    u32 rotCombinerType;                 // 0x12C
+    u32 rotCalcType;                     // 0x12C
     FollowType followType;               // 0x130
     u32 _134;                            // 0x134
     binVec3i initRot;                    // 0x138 - these may be wrong
