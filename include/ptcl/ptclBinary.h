@@ -40,7 +40,7 @@ struct alignas(4) binVec2f {
     f32 y; //   0x04
 
     binVec2f();
-    binVec2f(const QVector2D& vec);
+    binVec2f(const Math::Vector2f& vec);
 
     friend QDataStream& operator>>(QDataStream& in, binVec2f& item);
     friend QDataStream& operator<<(QDataStream& out, const binVec2f& item);
@@ -61,7 +61,7 @@ struct alignas(4) binVec3f {
     f32 z;   // 0x08
 
     binVec3f();
-    binVec3f(const QVector3D& vec);
+    binVec3f(const Math::Vector3f& vec);
 
     friend QDataStream& operator>>(QDataStream& in, binVec3f& item);
     friend QDataStream& operator<<(QDataStream& out, const binVec3f& item);
@@ -82,6 +82,7 @@ struct alignas(4) binVec3i {
     s32 z;   // 0x08
 
     binVec3i();
+    binVec3i(const Math::Vector3i& vec);
 
     friend QDataStream& operator>>(QDataStream& in, binVec3i& item);
     friend QDataStream& operator<<(QDataStream& out, const binVec3i& item);

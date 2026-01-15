@@ -19,13 +19,12 @@ RotationPropertiesWidget::RotationPropertiesWidget(QWidget* parent) :
         emit propertiesUpdated(mProps);
     });
 
-    auto deg2idxVec = [](const QVector3D& v) {
-        Ptcl::binVec3i result;
-
-        result.x = Math::Util::deg2idx(v.x());
-        result.y = Math::Util::deg2idx(v.y());
-        result.z = Math::Util::deg2idx(v.z());
-
+    auto deg2idxVec = [](const Math::Vector3f& v) {
+        Math::Vector3i result {
+            Math::Util::deg2idx(v.getX()),
+            Math::Util::deg2idx(v.getY()),
+            Math::Util::deg2idx(v.getZ())
+        };
         return result;
     };
 
@@ -67,11 +66,11 @@ void RotationPropertiesWidget::setProperties(const Ptcl::RotationProperties& pro
 }
 
 void RotationPropertiesWidget::populateWidgets() {
-    auto idx2degVec = [](const Ptcl::binVec3i& v) {
-        return QVector3D {
-            Math::Util::to180(Math::Util::idx2deg(v.x)),
-            Math::Util::to180(Math::Util::idx2deg(v.y)),
-            Math::Util::to180(Math::Util::idx2deg(v.z))
+    auto idx2degVec = [](const Math::Vector3i& v) {
+        return Math::Vector3f {
+            Math::Util::to180(Math::Util::idx2deg(v.getX())),
+            Math::Util::to180(Math::Util::idx2deg(v.getY())),
+            Math::Util::to180(Math::Util::idx2deg(v.getZ()))
         };
     };
 

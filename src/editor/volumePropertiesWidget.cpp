@@ -120,7 +120,7 @@ void VolumePropertiesWidget::setupSignals() {
         mProps.volumeRadius = radius;
         // Keep length spinbox in sync
         const QSignalBlocker block(&mLengthSpinBox);
-        mLengthSpinBox.setValue(radius.z());
+        mLengthSpinBox.setValue(radius.getZ());
         emit propertiesUpdated(mProps);
     });
 
@@ -166,7 +166,7 @@ void VolumePropertiesWidget::populateWidgets() {
 
     auto& radius = mProps.volumeRadius;
     mRadiusSpinBox.setVector(radius);
-    mLengthSpinBox.setValue(radius.z());
+    mLengthSpinBox.setValue(radius.getZ());
 
     mSweepStartSpinBox.setValue(Math::Util::to360(Math::Util::idx2deg(mProps.volumeSweepStart)));
     mSweepParamSpinBox.setValue(Math::Util::to360(Math::Util::idx2deg(mProps.volumeSweepParam)));

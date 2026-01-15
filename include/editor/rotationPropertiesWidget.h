@@ -30,10 +30,10 @@ private:
     Ptcl::RotationProperties mProps{};
 
     EnumComboBox<Ptcl::RotType> mRotTypeSpinBox{};
-    VectorSpinBox<QVector3D> mInitRotSpinBox{};
-    VectorSpinBox<QVector3D> mInitRotRandSpinBox{};
-    VectorSpinBox<QVector3D> mRotVelSpinBox{};
-    VectorSpinBox<QVector3D> mRotVelRandSpinBox{};
+    VectorSpinBox<Math::Vector3f> mInitRotSpinBox{};
+    VectorSpinBox<Math::Vector3f> mInitRotRandSpinBox{};
+    VectorSpinBox<Math::Vector3f> mRotVelSpinBox{};
+    VectorSpinBox<Math::Vector3f> mRotVelRandSpinBox{};
 };
 
 

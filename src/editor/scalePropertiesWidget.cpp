@@ -22,11 +22,11 @@ ScalePropertiesWidget::ScalePropertiesWidget(QWidget* parent) :
     mRandSpinbox.setRange(0.0f, 1.0f);
 
     connect(&mGraphX, &AnimGraph::pointEdited, this, [this](s32 pointIndex, const AnimGraph::GraphPoint& point) {
-        updateAnimPoint(pointIndex, point, &QVector2D::x);
+        updateAnimPoint(pointIndex, point, &Math::Vector2f::getX);
     });
 
     connect(&mGraphY, &AnimGraph::pointEdited, this, [this](s32 pointIndex, const AnimGraph::GraphPoint& point) {
-        updateAnimPoint(pointIndex, point, &QVector2D::y);
+        updateAnimPoint(pointIndex, point, &Math::Vector2f::getY);
     });
 
     connect(&mRandSpinbox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
@@ -35,9 +35,9 @@ ScalePropertiesWidget::ScalePropertiesWidget(QWidget* parent) :
     });
 }
 
-void ScalePropertiesWidget::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphPoint& point, f32 (QVector2D::*get)() const) {
-    auto set = [&](QVector2D& v, f32 val) {
-        if (get == &QVector2D::x) {
+void ScalePropertiesWidget::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphPoint& point, f32 (Math::Vector2f::*get)() const) {
+    auto set = [&](Math::Vector2f& v, f32 val) {
+        if (get == &Math::Vector2f::getX) {
             v.setX(val);
         } else {
             v.setY(val);
@@ -45,7 +45,7 @@ void ScalePropertiesWidget::updateAnimPoint(s32 pointIndex, const AnimGraph::Gra
     };
 
     auto getGraphPoints = [&]() {
-        return (get == &QVector2D::x) ?
+        return (get == &Math::Vector2f::getX) ?
             mGraphX.getPoints() :
             mGraphY.getPoints();
     };
@@ -91,7 +91,7 @@ void ScalePropertiesWidget::updateAnimPoint(s32 pointIndex, const AnimGraph::Gra
 }
 
 void ScalePropertiesWidget::updateGraphs() {
-    auto updateGraph = [this](AnimGraph& graph, f32 (QVector2D::*get)() const) {
+    auto updateGraph = [this](AnimGraph& graph, f32 (Math::Vector2f::*get)() const) {
         QSignalBlocker blocker(graph);
 
         const f32 p0 = (mProps.initScale.*get)();
@@ -113,8 +113,8 @@ void ScalePropertiesWidget::updateGraphs() {
         graph.setControlPoints(points);
     };
 
-    updateGraph(mGraphX, &QVector2D::x);
-    updateGraph(mGraphY, &QVector2D::y);
+    updateGraph(mGraphX, &Math::Vector2f::getX);
+    updateGraph(mGraphY, &Math::Vector2f::getY);
 }
 
 void ScalePropertiesWidget::setProperties(const Ptcl::ScaleProperties& properties) {

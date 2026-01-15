@@ -68,7 +68,7 @@ private:
 
     QTableWidget mTexPatTbl;
 
-    VectorSpinBox<QVector2D> mUVScaleSpinBox;
+    VectorSpinBox<Math::Vector2f> mUVScaleSpinBox;
 
     bool mIsPopulating;
 };

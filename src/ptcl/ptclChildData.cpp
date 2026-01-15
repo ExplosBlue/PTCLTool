@@ -119,11 +119,11 @@ void ChildData::set_68(const std::array<u8, 84>& _68) {
     m_68 = _68;
 }
 
-const QVector3D& ChildData::_BC() const {
+const Math::Vector3f& ChildData::_BC() const {
     return m_BC;
 }
 
-void ChildData::set_BC(const QVector3D& _BC) {
+void ChildData::set_BC(const Math::Vector3f& _BC) {
     m_BC = _BC;
 }
 
@@ -160,7 +160,7 @@ void ChildData::initFromBinary(const BinChildData& childData) {
     m_60 = childData._60;
     m_64 = childData._64;
     m_68 = childData._68;
-    m_BC = QVector3D(childData._BC.x, childData._BC.y, childData._BC.z);
+    m_BC = Math::Vector3f(childData._BC.x, childData._BC.y, childData._BC.z);
     m_C8 = childData._C8;
     m_E8 = childData._E8;
 }

@@ -4,8 +4,7 @@
 #include "ptcl/ptclBinary.h"
 #include "ptcl/ptclEnum.h"
 
-#include <QVector3D>
-
+#include "math/vector.h"
 
 namespace Ptcl {
 
@@ -24,14 +23,14 @@ public:
     s32 randomBlank() const;
     void setRandomBlank(s32 randomBlank);
 
-    const QVector3D& randomVelAdd() const;
-    void setRandomVelAdd(const QVector3D& randomVelAdd);
+    const Math::Vector3f& randomVelAdd() const;
+    void setRandomVelAdd(const Math::Vector3f& randomVelAdd);
 
     void initFromBinary(const BinFieldRandomData& fieldRandomData);
 
 private:
     s32 mRandomBlank;
-    QVector3D mRandomVelAdd;
+    Math::Vector3f mRandomVelAdd;
 };
 
 
@@ -49,8 +48,8 @@ public:
     f32 magnetPower() const;
     void setMagnetPower(f32 magnetPower);
 
-    const QVector3D& magnetPos() const;
-    void setMagnetPos(const QVector3D& magnetPos);
+    const Math::Vector3f& magnetPos() const;
+    void setMagnetPos(const Math::Vector3f& magnetPos);
 
     u32 magnetFlag() const;
     void setMagnetFlag(u32 magnetFlag);
@@ -59,7 +58,7 @@ public:
 
 private:
     f32 mMagnetPower;
-    QVector3D mMagnetPos;
+    Math::Vector3f mMagnetPos;
     u32 mMagnetFlag;
 };
 
@@ -134,16 +133,16 @@ public:
     FieldConvergenceData& operator=(const FieldConvergenceData&) = delete;
 
     FieldConvergenceType convergenceType() const;
-    void                 setConvergenceType(FieldConvergenceType convergenceType);
+    void setConvergenceType(FieldConvergenceType convergenceType);
 
-    const QVector3D& convergencePos() const;
-    void setConvergencePos(const QVector3D& convergencePos);
+    const Math::Vector3f& convergencePos() const;
+    void setConvergencePos(const Math::Vector3f& convergencePos);
 
     void initFromBinary(const BinFieldConvergenceData& fieldConvergenceData);
 
 private:
     FieldConvergenceType mConvergenceType;
-    QVector3D mConvergencePos;
+    Math::Vector3f mConvergencePos;
 };
 
 
@@ -157,13 +156,13 @@ public:
     FieldPosAddData(const FieldPosAddData&) = delete;
     FieldPosAddData& operator=(const FieldPosAddData&) = delete;
 
-    const QVector3D& posAdd() const;
-    void setPosAdd(const QVector3D& posAdd);
+    const Math::Vector3f& posAdd() const;
+    void setPosAdd(const Math::Vector3f& posAdd);
 
     void initFromBinary(const BinFieldPosAddData& fieldPosAddData);
 
 private:
-    QVector3D mPosAdd;
+    Math::Vector3f mPosAdd;
 };
 
 

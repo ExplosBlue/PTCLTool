@@ -36,35 +36,24 @@ void TransformPropertiesWidget::setProperties(const Ptcl::TransformProperties& p
 
     mProps = properties;
 
-    // TODO: VectorSpinBox needs to be reworked to accept custom vector type
-
-    auto trans = Math::Util::getTranslation(mProps.transformRT);
-    QVector3D translation{trans.getX(), trans.getY(), trans.getZ() };
+    auto translation = Math::Util::getTranslation(mProps.transformRT);
     mTranslationSpinBox.setVector(translation);
 
-    auto rot = Math::Util::getRotationEuler(mProps.transformRT);
+    auto rotation = Math::Util::getRotationEuler(mProps.transformRT);
 
-    rot.setX(Math::Util::to180(rot.getX()));
-    rot.setY(Math::Util::to180(rot.getY()));
-    rot.setZ(Math::Util::to180(rot.getZ()));
+    rotation.setX(Math::Util::to180(rotation.getX()));
+    rotation.setY(Math::Util::to180(rotation.getY()));
+    rotation.setZ(Math::Util::to180(rotation.getZ()));
 
-    QVector3D rotation{rot.getX(), rot.getY(), rot.getZ() };
     mRotationSpinBox.setVector(rotation);
 
-    auto sc = Math::Util::getScale(mProps.transformSRT);
-    QVector3D scale{sc.getX(), sc.getY(), sc.getZ() };
+    auto scale = Math::Util::getScale(mProps.transformSRT);
     mScaleSpinBox.setVector(scale);
 }
 
 void TransformPropertiesWidget::rebuildMatrices() {
-
-    // TODO: VectorSpinBox needs to be reworked to accept custom vector type
-
-    const auto rt = mRotationSpinBox.getVector();
-    const Math::Vector3f rotation = {rt.x(), rt.y(), rt.z() };
-
-    const auto trans = mTranslationSpinBox.getVector();
-    const Math::Vector3f translation = {trans.x(), trans.y(), trans.z() };
+    const auto rotation = mRotationSpinBox.getVector();
+    const auto translation = mTranslationSpinBox.getVector();
 
     const auto mtxR = Math::Util::eulerToRotationMatrix(rotation);
 
@@ -78,8 +67,7 @@ void TransformPropertiesWidget::rebuildMatrices() {
 
     mProps.transformRT = mtxRT;
 
-    const auto sc = mScaleSpinBox.getVector();
-    const Math::Vector3f scale = { sc.x(), sc.y(), sc.z() };
+    const auto scale = mScaleSpinBox.getVector();
 
     Math::Matrix34f mtxSRT;
     for (s32 r = 0; r < 3; ++r) {

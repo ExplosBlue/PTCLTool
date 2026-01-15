@@ -2,13 +2,12 @@
 
 #include "typedefs.h"
 
+#include "math/vector.h"
+
 #include <QBoxLayout>
 #include <QDoubleSpinBox>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QVector2D>
-#include <QVector3D>
-#include <QVector4D>
 #include <QWidget>
 
 
@@ -147,10 +146,10 @@ inline VectorSpinBoxBase::Axis operator&(VectorSpinBoxBase::Axis a, VectorSpinBo
 
 template<typename T>
 class VectorSpinBox final : public VectorSpinBoxBase {
-    static_assert(std::is_same_v<T, QVector2D> ||
-                  std::is_same_v<T, QVector3D> ||
-                  std::is_same_v<T, QVector4D>,
-                  "VectorSpinBox only supports QVector2D, QVector3D and QVector4D");
+    static_assert(std::is_same_v<T, Math::Vector2f> ||
+                  std::is_same_v<T, Math::Vector3f> ||
+                  std::is_same_v<T, Math::Vector4f>,
+                  "VectorSpinBox only supports Math::Vector2f, Math::Vector3f and Math::Vector4f");
 public:
     explicit VectorSpinBox(QWidget* parent = nullptr) :
         VectorSpinBoxBase(parent) {
@@ -158,30 +157,30 @@ public:
     }
 
     void setVector(const T& vector) {
-        mSpinBoxX->setValue(vector.x());
-        mSpinBoxY->setValue(vector.y());
+        mSpinBoxX->setValue(vector.getX());
+        mSpinBoxY->setValue(vector.getY());
 
         if constexpr (mAxisCount >= 3) {
-            mSpinBoxZ->setValue(vector.z());
+            mSpinBoxZ->setValue(vector.getZ());
         }
 
         if constexpr (mAxisCount >= 4) {
-            mSpinBoxW->setValue(vector.w());
+            mSpinBoxW->setValue(vector.getW());
         }
     }
 
     T getVector() const {
         if constexpr (mAxisCount == 2) {
-            return QVector2D(mSpinBoxX->value(), mSpinBoxY->value());
+            return Math::Vector2f(mSpinBoxX->value(), mSpinBoxY->value());
         } else if constexpr (mAxisCount == 3) {
-            return QVector3D(mSpinBoxX->value(), mSpinBoxY->value(), mSpinBoxZ->value());
+            return Math::Vector3f(mSpinBoxX->value(), mSpinBoxY->value(), mSpinBoxZ->value());
         } else {
-            return QVector4D(mSpinBoxX->value(), mSpinBoxY->value(), mSpinBoxZ->value(), mSpinBoxW->value());
+            return Math::Vector4f(mSpinBoxX->value(), mSpinBoxY->value(), mSpinBoxZ->value(), mSpinBoxW->value());
         }
     }
 
 private:
-    static constexpr u32 mAxisCount = std::is_same_v<T, QVector2D> ? 2 : std::is_same_v<T, QVector3D> ? 3 : 4;
+    static constexpr u32 mAxisCount = std::is_same_v<T, Math::Vector2f> ? 2 : std::is_same_v<T, Math::Vector3f> ? 3 : 4;
 };
 
 
