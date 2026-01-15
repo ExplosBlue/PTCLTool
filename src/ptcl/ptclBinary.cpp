@@ -318,7 +318,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     lifeStep = emitter.emissionProperties().lifeStep;
     lifeStepRnd = emitter.emissionProperties().lifeStepRnd;
 
-    _80 = emitter._80();
+    emitRate = emitter.emissionProperties().emitRate;
     ptclLife = emitter.lifespanProperties().ptclLife;
     ptclLifeRnd = emitter.lifespanProperties().ptclLifeRnd;
     _8C = emitter._8C();
@@ -398,7 +398,7 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item.endFrame
         >> item.lifeStep
         >> item.lifeStepRnd
-        >> item._80
+        >> item.emitRate
         >> item.ptclLife
         >> item.ptclLifeRnd
         >> item._8C
@@ -491,7 +491,7 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item.endFrame
         << item.lifeStep
         << item.lifeStepRnd
-        << item._80
+        << item.emitRate
         << item.ptclLife
         << item.ptclLifeRnd
         << item._8C
@@ -587,7 +587,7 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- endFrame:         " << endFrame;
     qDebug() << indentation << "- lifeStep:         " << lifeStep;
     qDebug() << indentation << "- lifeStepRnd:      " << lifeStepRnd;
-    qDebug() << indentation << "- _80:              " << _80;
+    qDebug() << indentation << "- emitRate:         " << emitRate;
     qDebug() << indentation << "- ptclLife:         " << ptclLife;
     qDebug() << indentation << "- ptclLifeRnd:      " << ptclLifeRnd;
     qDebug() << indentation << "- _8C:              " << _8C;

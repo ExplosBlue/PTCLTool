@@ -15,6 +15,7 @@ EmissionPropertiesWidget::EmissionPropertiesWidget(QWidget* parent) :
     mEndFrameSpinBox.setRange(1, sEmitInfinite - 1);
     mLifeStepSpinBox.setRange(0, std::numeric_limits<s32>::max());
     mLifeStepRndSpinBox.setRange(0, std::numeric_limits<s32>::max());
+    mEmitRateSpinBox.setRange(0, std::numeric_limits<s32>::max());
 
     // Row 0: Infinite Emission
     mainLayout->addWidget(&mInfiniteEmitCheckBox, 0, 1);
@@ -31,6 +32,10 @@ EmissionPropertiesWidget::EmissionPropertiesWidget(QWidget* parent) :
     mainLayout->addWidget(&mLifeStepSpinBox, 2, 1);
     mainLayout->addWidget(new QLabel("Random Emission Interval:"), 2, 2);
     mainLayout->addWidget(&mLifeStepRndSpinBox, 2, 3);
+
+    // Row 3: Emission Rate
+    mainLayout->addWidget(new QLabel("Emission Rate:"), 3, 0);
+    mainLayout->addWidget(&mEmitRateSpinBox, 3, 1);
 
     mainLayout->setColumnStretch(1, 1);
     mainLayout->setColumnStretch(3, 1);
@@ -64,6 +69,11 @@ EmissionPropertiesWidget::EmissionPropertiesWidget(QWidget* parent) :
         mProps.lifeStepRnd = static_cast<s32>(value);
         emit propertiesUpdated(mProps);
     });
+
+    connect(&mEmitRateSpinBox, &QSpinBox::valueChanged, this, [this](u64 value) {
+        mProps.emitRate = static_cast<s32>(value);
+        emit propertiesUpdated(mProps);
+    });
 }
 
 void EmissionPropertiesWidget::setProperties(const Ptcl::EmissionProperties& properties) {
@@ -72,6 +82,7 @@ void EmissionPropertiesWidget::setProperties(const Ptcl::EmissionProperties& pro
     QSignalBlocker b3(mLifeStepSpinBox);
     QSignalBlocker b4(mLifeStepRndSpinBox);
     QSignalBlocker b5(mInfiniteEmitCheckBox);
+    QSignalBlocker b6(mEmitRateSpinBox);
 
     mProps = properties;
 
@@ -86,6 +97,8 @@ void EmissionPropertiesWidget::setProperties(const Ptcl::EmissionProperties& pro
 
     mLifeStepSpinBox.setValue(mProps.lifeStep);
     mLifeStepRndSpinBox.setValue(mProps.lifeStepRnd);
+
+    mEmitRateSpinBox.setValue(mProps.emitRate);
 }
 
 

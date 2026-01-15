@@ -238,7 +238,7 @@ struct alignas(4) BinCommonEmitterData {
     s32 endFrame;                        // 0x74
     s32 lifeStep;                        // 0x78
     s32 lifeStepRnd;                     // 0x7C
-    u32 _80;                             // 0x80
+    u32 emitRate;                        // 0x80
     s32 ptclLife;                        // 0x84
     s32 ptclLifeRnd;                     // 0x88
     f32 _8C;                             // 0x8C
