@@ -1,0 +1,33 @@
+#pragma once
+
+#include "editor/vectorSpinBox.h"
+#include "ptcl/ptclEmitter.h"
+
+
+
+// ========================================================================== //
+
+
+class TransformPropertiesWidget final : public QWidget {
+    Q_OBJECT
+public:
+    explicit TransformPropertiesWidget(QWidget* parent = nullptr);
+
+    void setProperties(const Ptcl::TransformProperties& properties);
+
+signals:
+    void propertiesUpdated(const Ptcl::TransformProperties& properties);
+
+private:
+    void rebuildMatrices();
+
+private:
+    Ptcl::TransformProperties mProps{};
+
+    VectorSpinBox<QVector3D> mScaleSpinBox;
+    VectorSpinBox<QVector3D> mRotationSpinBox;
+    VectorSpinBox<QVector3D> mTranslationSpinBox;
+};
+
+
+// ========================================================================== //

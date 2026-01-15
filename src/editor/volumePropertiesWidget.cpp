@@ -1,5 +1,5 @@
 #include "editor/volumePropertiesWidget.h"
-#include "util/mathUtil.h"
+#include "math/util.h"
 
 #include <QFormLayout>
 
@@ -136,12 +136,12 @@ void VolumePropertiesWidget::setupSignals() {
     });
 
     connect(&mSweepStartSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
-        mProps.volumeSweepStart = MathUtil::deg2idx(MathUtil::to180(static_cast<f32>(value)));
+        mProps.volumeSweepStart = Math::Util::deg2idx(Math::Util::to180(static_cast<f32>(value)));
         emit propertiesUpdated(mProps);
     });
 
     connect(&mSweepParamSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
-        mProps.volumeSweepParam = MathUtil::deg2idx(MathUtil::to180(static_cast<f32>(value)));
+        mProps.volumeSweepParam = Math::Util::deg2idx(Math::Util::to180(static_cast<f32>(value)));
         emit propertiesUpdated(mProps);
     });
 }
@@ -168,8 +168,8 @@ void VolumePropertiesWidget::populateWidgets() {
     mRadiusSpinBox.setVector(radius);
     mLengthSpinBox.setValue(radius.z());
 
-    mSweepStartSpinBox.setValue(MathUtil::to360(MathUtil::idx2deg(mProps.volumeSweepStart)));
-    mSweepParamSpinBox.setValue(MathUtil::to360(MathUtil::idx2deg(mProps.volumeSweepParam)));
+    mSweepStartSpinBox.setValue(Math::Util::to360(Math::Util::idx2deg(mProps.volumeSweepStart)));
+    mSweepParamSpinBox.setValue(Math::Util::to360(Math::Util::idx2deg(mProps.volumeSweepParam)));
 
     updateFieldVisibility(volumeType);
 }

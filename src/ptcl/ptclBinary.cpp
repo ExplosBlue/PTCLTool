@@ -91,24 +91,12 @@ QDebug operator<<(QDebug dbg, const binVec3i& item) {
 
 binMtx34f::binMtx34f() {}
 
-binMtx34f::binMtx34f(const QMatrix3x4& mtx) {
-    const f32* mtxData = mtx.data();
-    for (int i = 0; i < 12; i++) {
-        cells[i] = mtxData[i];
-    }
+binMtx34f::binMtx34f(const Math::Matrix34f& mtx) {
+    std::copy(mtx.data(), mtx.data() + 12, cells.begin());
 }
 
-QMatrix3x4 binMtx34f::toQMatrix3x4() const {
-    const f32* srcData = cells.data();
-    std::array<f32, 12> transposed;
-
-    for (int r = 0; r < 3; ++r) {
-        for (int c = 0; c < 4; ++c) {
-            transposed[c * 3 + r] = srcData[r * 4 + c];
-        }
-    }
-
-    return QMatrix3x4(transposed.data());
+Math::Matrix34f binMtx34f::toMatrix34f() const {
+    return Math::Matrix34f{ cells.data() };
 }
 
 QDataStream& operator>>(QDataStream& in, binMtx34f& item) {
@@ -367,8 +355,8 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     rotVel = emitter.rotationProperties().rotVel;
     rotVelRand = emitter.rotationProperties().rotVelRand;
     std::copy(emitter._168().begin(), emitter._168().end(), _168.data());
-    transformSRT = emitter.transformSRT();
-    transformRT = emitter.transformRT();
+    transformSRT = emitter.transformProperties().transformSRT;
+    transformRT = emitter.transformProperties().transformRT;
     alphaAddInFade = emitter.terminationProperties().alphaAddInFade;
     numTexPat = emitter.numTexPat();
     numTexDivX = emitter.numTexDivX();

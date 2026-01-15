@@ -1,5 +1,5 @@
 #include "editor/rotationPropertiesWidget.h"
-#include "util/mathUtil.h"
+#include "math/util.h"
 
 #include <QFormLayout>
 
@@ -22,9 +22,9 @@ RotationPropertiesWidget::RotationPropertiesWidget(QWidget* parent) :
     auto deg2idxVec = [](const QVector3D& v) {
         Ptcl::binVec3i result;
 
-        result.x = MathUtil::deg2idx(v.x());
-        result.y = MathUtil::deg2idx(v.y());
-        result.z = MathUtil::deg2idx(v.z());
+        result.x = Math::Util::deg2idx(v.x());
+        result.y = Math::Util::deg2idx(v.y());
+        result.z = Math::Util::deg2idx(v.z());
 
         return result;
     };
@@ -69,9 +69,9 @@ void RotationPropertiesWidget::setProperties(const Ptcl::RotationProperties& pro
 void RotationPropertiesWidget::populateWidgets() {
     auto idx2degVec = [](const Ptcl::binVec3i& v) {
         return QVector3D {
-            MathUtil::to180(MathUtil::idx2deg(v.x)),
-            MathUtil::to180(MathUtil::idx2deg(v.y)),
-            MathUtil::to180(MathUtil::idx2deg(v.z))
+            Math::Util::to180(Math::Util::idx2deg(v.x)),
+            Math::Util::to180(Math::Util::idx2deg(v.y)),
+            Math::Util::to180(Math::Util::idx2deg(v.z))
         };
     };
 
