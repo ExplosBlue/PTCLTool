@@ -5,6 +5,7 @@
 #include "editor/colorPropertiesWidget.h"
 #include "editor/emissionPropertiesWidget.h"
 #include "editor/enumComboBox.h"
+#include "editor/gravityPropertiesWidget.h"
 #include "editor/lifespanPropertiesWidget.h"
 #include "editor/rotationPropertiesWidget.h"
 #include "editor/scalePropertiesWidget.h"
@@ -59,7 +60,6 @@ private:
     SizedSpinBox<u8> m_2CSpinBox;
     SizedSpinBox<u8> m_2DSpinBox;
     SizedSpinBox<u8> m_2ESpinBox;
-    SizedSpinBox<u8> m_2FSpinBox;
     SizedSpinBox<u8> m_30SpinBox;
     SizedSpinBox<u8> m_31SpinBox;
 
@@ -69,15 +69,13 @@ private:
     SizedSpinBox<u32> m_90SpinBox;
     EnumComboBox<Ptcl::BillboardType> mBillboardComboBox;
     SizedSpinBox<u32> m_98SpinBox;
-    QDoubleSpinBox m_9CSpinBox;
-    QDoubleSpinBox m_A0SpinBox;
-    QDoubleSpinBox m_A4SpinBox;
 
     // _D8
 
     EnumComboBox<Ptcl::FollowType> mFollowTypeSpinBox;
     SizedSpinBox<u32> m_134SpinBox;
 
+    GravityPropertiesWidget mGravityProperties;
     TransformPropertiesWidget mTransformProperties;
     LifespanPropertiesWidget mLifespanProperties;
     TerminationPropertiesWidget mTerminationProperties;

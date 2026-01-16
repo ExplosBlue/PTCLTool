@@ -24,7 +24,6 @@ Emitter::Emitter() {
     m_2C = 0;
     m_2D = 0;
     m_2E = 0;
-    m_2F = 0;
     m_30 = 0;
     m_31 = 0;
 
@@ -32,11 +31,13 @@ Emitter::Emitter() {
     m_90 = 0;
     mBillboardType = BillboardType::Billboard;
     m_98 = 0;
-    m_9C = 0.0f;
-    m_A0 = 0.0f;
-    m_A4 = 0.0f;
 
     m_D8 = {0, 0, 0};
+
+    mGravityProperties = {
+        .isDirectional = false,
+        .gravity = {0.0f, -1.0f, 0.0f}
+    };
 
     mTransformProperties = {
         .transformSRT = {},
@@ -238,14 +239,6 @@ void Emitter::set_2E(const u8 _2E) {
     m_2E = _2E;
 }
 
-u8 Emitter::_2F() const {
-    return m_2F;
-}
-
-void Emitter::set_2F(const u8 _2F) {
-    m_2F = _2F;
-}
-
 u8 Emitter::_30() const {
     return m_30;
 }
@@ -294,36 +287,20 @@ void Emitter::set_98(const u32 _98) {
     m_98 = _98;
 }
 
-f32 Emitter::_9C() const {
-    return m_9C;
-}
-
-void Emitter::set_9C(const f32 _9C) {
-    m_9C = _9C;
-}
-
-f32 Emitter::_A0() const {
-    return m_A0;
-}
-
-void Emitter::set_A0(const f32 _A0) {
-    m_A0 = _A0;
-}
-
-f32 Emitter::_A4() const {
-    return m_A4;
-}
-
-void Emitter::set_A4(const f32 _A4) {
-    m_A4 = _A4;
-}
-
 const std::array<u32, 3>& Emitter::_D8() const {
     return m_D8;
 }
 
 void Emitter::set_D8(const std::array<u32, 3>& _D8) {
     m_D8 = _D8;
+}
+
+const GravityProperties& Emitter::gravityProperties() const {
+    return mGravityProperties;
+}
+
+void Emitter::setGravityProperties(const GravityProperties& gravityProperties) {
+    mGravityProperties = gravityProperties;
 }
 
 const TransformProperties& Emitter::transformProperties() const {
@@ -589,7 +566,6 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_2C = emitterData._2C;
     m_2D = emitterData._2D;
     m_2E = emitterData._2E;
-    m_2F = emitterData._2F;
     m_30 = emitterData._30;
     m_31 = emitterData._31;
 
@@ -597,12 +573,13 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_90 = emitterData._90;
     mBillboardType = emitterData.billboardType;
     m_98 = emitterData._98;
-    m_9C = emitterData._9C;
-    m_A0 = emitterData._A0;
-    m_A4 = emitterData._A4;
-
 
     std::ranges::copy(emitterData._D8, m_D8.begin());
+
+    mGravityProperties = {
+        .isDirectional = emitterData.isDirectional,
+        .gravity = Math::Vector3f(emitterData.gravity.x, emitterData.gravity.y, emitterData.gravity.z)
+    };
 
     mTransformProperties = {
         .transformSRT = emitterData.transformSRT.toMatrix34f(),

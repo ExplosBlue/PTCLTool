@@ -101,9 +101,18 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&m_2CSpinBox, "_2C:",  6, 0, 3);
     addLabledWidget(&m_2DSpinBox, "_2D:",  7, 0, 3);
     addLabledWidget(&m_2ESpinBox, "_2E:",  8, 0, 3);
-    addLabledWidget(&m_2FSpinBox, "_2F:",  9, 0, 3);
-    addLabledWidget(&m_30SpinBox, "_30:",  10, 0, 3);
-    addLabledWidget(&m_31SpinBox, "_31:", 11, 0, 3);
+    addLabledWidget(&m_30SpinBox, "_30:",  9, 0, 3);
+    addLabledWidget(&m_31SpinBox, "_31:", 10, 0, 3);
+
+    // Gravity Properties
+    connect(&mGravityProperties, &GravityPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::GravityProperties& properties) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setGravityProperties(properties);
+    });
+
+    auto gravityPropertiesSection = new CollapsibleWidget("Gravity properties", this);
+    gravityPropertiesSection->setContent(&mGravityProperties);
+    mMainLayout.addWidget(gravityPropertiesSection, 11, 0, 1, 4);
 
     // Lifespan Properties
     connect(&mLifespanProperties, &LifespanPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::LifespanProperties& properties) {
@@ -174,9 +183,6 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     addLabledWidget(&m_90SpinBox,        "_90:",            27, 0, 3);
     addLabledWidget(&mBillboardComboBox, "Billboard Type:", 28, 0, 3);
     addLabledWidget(&m_98SpinBox,        "_98:",            29, 0, 3);
-    addLabledWidget(&m_9CSpinBox,        "_9C:",            30, 0, 3);
-    addLabledWidget(&m_A0SpinBox,        "_A0:",            31, 0, 3);
-    addLabledWidget(&m_A4SpinBox,        "_A4:",            32, 0, 3);
 
     // Color Properties
     connect(&mColorProperties, &ColorPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ColorProperties& properties) {
@@ -250,20 +256,17 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_2CSpinBox.setValue(mEmitterPtr->_2C());
     m_2DSpinBox.setValue(mEmitterPtr->_2D());
     m_2ESpinBox.setValue(mEmitterPtr->_2E());
-    m_2FSpinBox.setValue(mEmitterPtr->_2F());
     m_30SpinBox.setValue(mEmitterPtr->_30());
     m_31SpinBox.setValue(mEmitterPtr->_31());
 
     m_8CSpinBox.setValue(mEmitterPtr->_8C());
     m_90SpinBox.setValue(mEmitterPtr->_90());
     mBillboardComboBox.setCurrentEnum((mEmitterPtr->billboardType()));
-    m_9CSpinBox.setValue(mEmitterPtr->_9C());
-    m_A0SpinBox.setValue(mEmitterPtr->_A0());
-    m_A4SpinBox.setValue(mEmitterPtr->_A4());
 
     mFollowTypeSpinBox.setCurrentEnum(mEmitterPtr->followType());
     m_134SpinBox.setValue(mEmitterPtr->_134());
 
+    mGravityProperties.setProperties(mEmitterPtr->gravityProperties());
     mTransformProperties.setProperties(mEmitterPtr->transformProperties());
     mLifespanProperties.setProperties(mEmitterPtr->lifespanProperties());
     mTerminationProperties.setProperties(mEmitterPtr->terminationProperties());

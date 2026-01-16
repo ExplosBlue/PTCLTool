@@ -146,6 +146,14 @@ struct TransformProperties {
 // ========================================================================== //
 
 
+struct GravityProperties {
+    bool isDirectional = false;
+    Math::Vector3f gravity{0.0f, -1.0f, 0.0f};
+};
+
+
+// ========================================================================== //
+
 class Emitter
 {
 public:
@@ -195,9 +203,6 @@ public:
     u8 _2E() const;
     void set_2E(u8 _2E);
 
-    u8 _2F() const;
-    void set_2F(u8 _2F);
-
     u8 _30() const;
     void set_30(u8 _30);
 
@@ -219,17 +224,11 @@ public:
     u32 _98() const;
     void set_98(u32 _98);
 
-    f32 _9C() const;
-    void set_9C(f32 _9C);
-
-    f32 _A0() const;
-    void set_A0(f32 _A0);
-
-    f32 _A4() const;
-    void set_A4(f32 _A4);
-
     const std::array<u32, 3> &_D8() const;
     void set_D8(const std::array<u32, 3> &_D8);
+
+    const GravityProperties &gravityProperties() const;
+    void setGravityProperties(const GravityProperties &gravityProperties);
 
     const LifespanProperties &lifespanProperties() const;
     void setLifespanProperties(const LifespanProperties &lifespanProperties);
@@ -338,7 +337,6 @@ private:
     u8 m_2C;
     u8 m_2D;
     u8 m_2E;
-    u8 m_2F;
     u8 m_30;
     u8 m_31;
 
@@ -348,12 +346,10 @@ private:
     u32 m_90;
     BillboardType mBillboardType;
     u32 m_98;
-    f32 m_9C;
-    f32 m_A0;
-    f32 m_A4;
 
     std::array<u32, 3> m_D8;
 
+    GravityProperties mGravityProperties;
     TransformProperties mTransformProperties;
     LifespanProperties mLifespanProperties;
     TerminationProperties mTerminationProperties;

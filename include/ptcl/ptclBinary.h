@@ -221,7 +221,7 @@ struct alignas(4) BinCommonEmitterData {
     u8 _2C;                              // 0x2C
     u8 _2D;                              // 0x2D
     u8 _2E;                              // 0x2E
-    u8 _2F;                              // 0x2F
+    bool isDirectional;                  // 0x2F
     u8 _30;                              // 0x30
     u8 _31;                              // 0x31
     u8 volumeTblIndex;                   // 0x32
@@ -246,9 +246,7 @@ struct alignas(4) BinCommonEmitterData {
     u32 _90;                             // 0x90
     BillboardType billboardType;         // 0x94
     u32 _98;                             // 0x98
-    f32 _9C;                             // 0x9C - this is probably vec3
-    f32 _A0;                             // 0xA0 - ^
-    f32 _A4;                             // 0xA4 - ^
+    binVec3f gravity;                    // 0x9C
     std::array<binColor4f, 3> color;     // 0xA8
     std::array<u32, 3> _D8;              // 0xD8
     s32 colorSection1;                   // 0xE4
