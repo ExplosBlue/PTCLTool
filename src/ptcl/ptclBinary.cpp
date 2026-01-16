@@ -280,9 +280,9 @@ void BinTextureRes::printData(u32 indentationLevel) {
 
 
 BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
-    type = emitter.type();
+    type = emitter.basicProperties().type;
     flag = emitter.flags();
-    randomSeed = emitter.randomSeed().raw();
+    randomSeed = emitter.basicProperties().randomSeed.raw();
     namePos = 0; // To be assigned after construction...
     namePtr = 0;
 
@@ -350,7 +350,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     scaleRand = emitter.scaleProperties().scaleRand;
 
     rotCalcType = static_cast<u32>(emitter.rotationProperties().rotType) + 5 * static_cast<u32>(emitter.colorProperties().colorCalcType);
-    followType = emitter.followType();
+    followType = emitter.basicProperties().followType;
     _134 = emitter._134();
     initRot = emitter.rotationProperties().initRot;
     initRotRand = emitter.rotationProperties().initRotRand;

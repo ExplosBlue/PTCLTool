@@ -9,11 +9,6 @@ namespace Ptcl {
 
 Emitter::Emitter() {
 
-    mType = EmitterType::Simple;
-    mFlag = BitFlag<EmitterFlag>{};
-    mRandomSeed = PtclSeed{};
-    mName = "";
-
     // TODO: Texture Handle
     mTextureWrapT = TextureWrap::ClampToEdge;
     mTextureWrapS = TextureWrap::ClampToEdge;
@@ -34,90 +29,6 @@ Emitter::Emitter() {
 
     m_D8 = {0, 0, 0};
 
-    mGravityProperties = {
-        .isDirectional = false,
-        .gravity = {0.0f, -1.0f, 0.0f}
-    };
-
-    mTransformProperties = {
-        .transformSRT = {},
-        .transformRT = {}
-    };
-
-    mLifespanProperties = {
-        .ptclLife = 100,
-        .ptclLifeRnd = 0
-    };
-
-    mTerminationProperties = {
-        .isStopEmitInFade = false,
-        .alphaAddInFade = 0.0f
-    };
-
-    mEmissionProperties = {
-        .startFrame = 0,
-        .endFrame = 1,
-        .lifeStep = 10,
-        .lifeStepRnd = 1,
-        .emitRate = 1
-    };
-
-    mVelocityProperties = {
-        .figureVel = 0.0f,
-        .emitterVelDir = {0.0f, 0.0f, 0.0f},
-        .initVel = 0.0f,
-        .initVelRnd = 0.0f
-    };
-
-    mVolumeProperties = {
-        .volumeTblIndex = 0,
-        .volumeType = VolumeType::Point,
-        .volumeRadius = {1.0f, 1.0f, 1.0f},
-        .volumeSweepStart = 0,
-        .volumeSweepParam = 0,
-    };
-
-    mColorProperties = {
-        .colors {
-            binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
-            binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
-            binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
-        },
-        .colorSection1 = 20,
-        .colorSection2 = 60,
-        .colorSection3 = 80,
-        .colorNumRepeat = 1,
-        .colorRandom = mFlag.isSet(EmitterFlag::ColorRandom),
-        .colorAnimation = mFlag.isSet(EmitterFlag::ColorAnimation),
-        .colorCalcType = ColorCalcType::Pass1
-    };
-
-    mAlphaProperties = {
-        .initAlpha = 0.0f,
-        .diffAlpha21 = 0.0f,
-        .diffAlpha32 = 0.0f,
-        .alphaSection1 = 0,
-        .alphaSection2 = 0
-    };
-
-    mScaleProperties = {
-        .initScale = {1.0f, 1.0f},
-        .diffScale21 = {0.0f, 0.0f},
-        .diffScale32 = {0.0f, 0.0f},
-        .scaleSection1 = 0,
-        .scaleSection2 = 0,
-        .scaleRand = 0.0f
-    };
-
-    mRotationProperties = {
-        .rotType = RotType::None,
-        .initRot = {},
-        .initRotRand = {},
-        .rotVel = {},
-        .rotVelRand = {}
-    };
-
-    mFollowType = FollowType::All;
     m_134 = 0;
     m_168 = {0, 0};
 
@@ -131,11 +42,7 @@ Emitter::Emitter() {
 }
 
 EmitterType Emitter::type() const {
-    return mType;
-}
-
-void Emitter::setType(const EmitterType type) {
-    mType = type;
+    return mBasicProperties.type;
 }
 
 BitFlag<EmitterFlag>& Emitter::flags() {
@@ -146,20 +53,12 @@ const BitFlag<EmitterFlag>& Emitter::flags() const {
     return mFlag;
 }
 
-PtclSeed& Emitter::randomSeed() {
-    return mRandomSeed;
-}
-
-const PtclSeed& Emitter::randomSeed() const {
-    return mRandomSeed;
-}
-
 const QString& Emitter::name() const {
-    return mName;
+    return mBasicProperties.name;
 }
 
 void Emitter::setName(const QString& name) {
-    mName = name;
+    mBasicProperties.name = name;
 }
 
 const TextureHandle& Emitter::textureHandle() const {
@@ -295,6 +194,14 @@ void Emitter::set_D8(const std::array<u32, 3>& _D8) {
     m_D8 = _D8;
 }
 
+const BasicProperties& Emitter::basicProperties() const {
+    return mBasicProperties;
+}
+
+void Emitter::setBasicProperties(const BasicProperties& basicProperties) {
+    mBasicProperties = basicProperties;
+}
+
 const GravityProperties& Emitter::gravityProperties() const {
     return mGravityProperties;
 }
@@ -376,14 +283,6 @@ const ScaleProperties& Emitter::scaleProperties() const {
 
 void Emitter::setScaleProperties(const ScaleProperties& scaleProperties) {
     mScaleProperties = scaleProperties;
-}
-
-FollowType Emitter::followType() const {
-    return mFollowType;
-}
-
-void Emitter::setFollowType(const FollowType followType) {
-    mFollowType = followType;
 }
 
 u32 Emitter::_134() const {
@@ -551,10 +450,9 @@ StripeData& Emitter::stripeData() {
 }
 
 void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
-    mType = emitterData.type;
+
     mFlag = emitterData.flag;
-    mRandomSeed = PtclSeed{emitterData.randomSeed};
-    // mName
+
     // mTexture
     // mTextureFormat
     mTextureWrapT = emitterData.textureRes.wrapT;
@@ -575,6 +473,13 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_98 = emitterData._98;
 
     std::ranges::copy(emitterData._D8, m_D8.begin());
+
+    mBasicProperties = {
+        .type = emitterData.type,
+        .followType = emitterData.followType,
+        // name - must be set after initialization
+        .randomSeed = PtclSeed{emitterData.randomSeed}
+    };
 
     mGravityProperties = {
         .isDirectional = emitterData.isDirectional,
@@ -656,7 +561,6 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .rotVelRand = Math::Vector3i(emitterData.rotVelRand.x, emitterData.rotVelRand.y, emitterData.rotVelRand.z),
     };
 
-    mFollowType = emitterData.followType;
     m_134 = emitterData._134;
 
     std::ranges::copy(emitterData._168, m_168.begin());

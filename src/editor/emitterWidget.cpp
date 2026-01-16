@@ -43,51 +43,17 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
         mMainLayout.addWidget(widget,            row, column + 1, 1, span);
     };
 
-    addLabledWidget(&mTypeComboBox, "Emitter Type:", 0, 0, 3);
 
-    // Random Seed
-    mRandomSeedMode.addItem("Random Per Emitter", static_cast<int>(PtclSeed::Mode::RandomPerEmitter));
-    mRandomSeedMode.addItem("Random Per EmitterSet", static_cast<int>(PtclSeed::Mode::RandomPerSet));
-    mRandomSeedMode.addItem("Constant Seed", static_cast<int>(PtclSeed::Mode::ConstantSeed));
-    connect(&mRandomSeedMode, &QComboBox::currentIndexChanged, this, [=, this]() {
-        if (!mEmitterPtr || mIsPopulating) {
-            return;
-        }
-
-        auto& seed = mEmitterPtr->randomSeed();
-        auto mode = static_cast<PtclSeed::Mode>(mRandomSeedMode.currentData().toUInt());
-
-        seed.setMode(mode);
-        mRandomSeedSpinBox.setVisible(mode == PtclSeed::Mode::ConstantSeed);
+    // Basic Properties
+    connect(&mBasicProperties, &BasicPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::BasicProperties& properties) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setBasicProperties(properties);
     });
 
-    mRandomSeedSpinBox.setVisible(false);
-    mRandomSeedSpinBox.setRange(1, 0xFFFFFFFE);
-    connect(&mRandomSeedSpinBox, &SizedSpinBoxBase::valueChanged, this, [=, this](int value) {
-        if (!mEmitterPtr || mIsPopulating) {
-            return;
-        }
+    auto basicPropertiesSection = new CollapsibleWidget("Basic properties", this);
+    basicPropertiesSection->setContent(&mBasicProperties);
+    mMainLayout.addWidget(basicPropertiesSection, 0, 0, 1, 4);
 
-        auto& seed = mEmitterPtr->randomSeed();
-        if (seed.mode() == PtclSeed::Mode::ConstantSeed) {
-            seed.setConstantSeed(static_cast<u32>(value));
-        }
-    });
-
-    addLabledWidget(&mRandomSeedMode, "RNG Mode:", 2, 0, 3);
-    mMainLayout.addWidget(&mRandomSeedSpinBox, 2, 3, 1, 1);
-
-    // Name
-    mNameLineEdit.setValidator(new EmitterNameValidator(&mNameLineEdit));
-    connect(&mNameLineEdit, &QLineEdit::textChanged, this, [=, this](const QString& text) {
-        if (!mEmitterPtr || mIsPopulating) {
-            return;
-        }
-
-        mEmitterPtr->setName(text);
-        emit nameUpdated(text);
-    });
-    addLabledWidget(&mNameLineEdit, "Name:", 4, 0, 3);
 
     // Texture Properties
     auto texPropertiesSection = new CollapsibleWidget("Texture properties", this);
@@ -216,7 +182,6 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     rotationPropertiesSection->setContent(&mRotationProperties);
     mMainLayout.addWidget(rotationPropertiesSection, 49, 0, 1, 4);
 
-    addLabledWidget(&mFollowTypeSpinBox, "Follow Type:", 51, 0, 3);
     addLabledWidget(&m_134SpinBox, "_134:", 52, 0, 3);
 
     // Scale Properties
@@ -234,21 +199,6 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mIsPopulating = true;
 
     mEmitterPtr = emitter;
-    // TODO: Update stuff...
-
-    mTypeComboBox.setCurrentEnum(mEmitterPtr->type());
-
-    // Random Seed
-    auto& randomSeed = mEmitterPtr->randomSeed();
-    auto seedMode = randomSeed.mode();
-    int index = mRandomSeedMode.findData(static_cast<int>(seedMode));
-    if (index != -1) {
-        mRandomSeedMode.setCurrentIndex(index);
-    }
-    mRandomSeedSpinBox.setValue(randomSeed.constantSeed());
-    mRandomSeedSpinBox.setVisible(seedMode == PtclSeed::Mode::ConstantSeed);
-
-    mNameLineEdit.setText(mEmitterPtr->name());
 
     mTextureProperties.setEmitter(mEmitterPtr);
 
@@ -263,9 +213,9 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_90SpinBox.setValue(mEmitterPtr->_90());
     mBillboardComboBox.setCurrentEnum((mEmitterPtr->billboardType()));
 
-    mFollowTypeSpinBox.setCurrentEnum(mEmitterPtr->followType());
     m_134SpinBox.setValue(mEmitterPtr->_134());
 
+    mBasicProperties.setProperties(mEmitterPtr->basicProperties());
     mGravityProperties.setProperties(mEmitterPtr->gravityProperties());
     mTransformProperties.setProperties(mEmitterPtr->transformProperties());
     mLifespanProperties.setProperties(mEmitterPtr->lifespanProperties());

@@ -1,11 +1,12 @@
-#ifndef SIZEDSPINBOX_H
-#define SIZEDSPINBOX_H
+#pragma once
 
 #include "typedefs.h"
 
 #include <QAbstractSpinBox>
+#include <QSpinBox>
 #include <QKeyEvent>
 #include <QLineEdit>
+#include <QStyleOption>
 
 
 // ========================================================================== //
@@ -102,7 +103,7 @@ public:
         bool ok = false;
         T value;
 
-        if constexpr (std::is_unsigned<T>::value) {
+        if constexpr (std::is_unsigned_v<T>) {
             value = static_cast<T>(input.toULongLong(&ok));
         } else {
             value = static_cast<T>(input.toLongLong(&ok));
@@ -120,7 +121,7 @@ public:
 
         QString text = lineEdit()->text();
 
-        if constexpr (std::is_unsigned<T>::value) {
+        if constexpr (std::is_unsigned_v<T>) {
             value = static_cast<T>(text.toULongLong(&ok));
         } else {
             value = static_cast<T>(text.toLongLong(&ok));
@@ -147,6 +148,16 @@ public:
         QAbstractSpinBox::keyPressEvent(event);
     }
 
+    QSize sizeHint() const override {
+        static QSpinBox ref;
+        ref.setFont(font());
+        return ref.sizeHint();
+    }
+
+    QSize minimumSizeHint() const override {
+        return sizeHint();
+    }
+
 protected:
     void updateDisplay()  {
         lineEdit()->setText(QString::number(mCurrentValue));
@@ -160,6 +171,3 @@ private:
 
 
 // ========================================================================== //
-
-
-#endif // SIZEDSPINBOX_H
