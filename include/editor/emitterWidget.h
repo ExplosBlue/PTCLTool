@@ -2,6 +2,7 @@
 
 #include "ptcl/ptclEmitter.h"
 #include "editor/alphaPropertiesWidget.h"
+#include "editor/basicPropertiesWidget.h"
 #include "editor/colorPropertiesWidget.h"
 #include "editor/emissionPropertiesWidget.h"
 #include "editor/enumComboBox.h"
@@ -49,12 +50,6 @@ private:
 
     QGridLayout mMainLayout;
 
-    EnumComboBox<Ptcl::EmitterType> mTypeComboBox;
-
-    QComboBox mRandomSeedMode;
-    SizedSpinBox<u32> mRandomSeedSpinBox;
-    QLineEdit mNameLineEdit;
-
     TexturePropertiesWidget mTextureProperties;
 
     SizedSpinBox<u8> m_2CSpinBox;
@@ -72,9 +67,9 @@ private:
 
     // _D8
 
-    EnumComboBox<Ptcl::FollowType> mFollowTypeSpinBox;
     SizedSpinBox<u32> m_134SpinBox;
 
+    BasicPropertiesWidget mBasicProperties;
     GravityPropertiesWidget mGravityProperties;
     TransformPropertiesWidget mTransformProperties;
     LifespanPropertiesWidget mLifespanProperties;

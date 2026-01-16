@@ -26,6 +26,7 @@ set(PROJECT_SOURCES
     src/editor/alphaSlider.cpp
     src/editor/alphaPropertiesWidget.cpp
     src/editor/animGraph.cpp
+    src/editor/basicPropertiesWidget.cpp
     src/editor/clickableLabel.cpp
     src/editor/collapsibleWidget.cpp
     src/editor/colorGradientEditor.cpp
@@ -72,6 +73,7 @@ set(PROJECT_HEADERS
     include/editor/alphaSlider.h
     include/editor/alphaPropertiesWidget.h
     include/editor/animGraph.h
+    include/editor/basicPropertiesWidget.h
     include/editor/clickableLabel.h
     include/editor/collapsibleWidget.h
     include/editor/colorGradientEditor.h

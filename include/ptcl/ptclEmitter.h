@@ -26,6 +26,17 @@ namespace Ptcl {
 // ========================================================================== //
 
 
+struct BasicProperties {
+    EmitterType type = EmitterType::Simple;
+    FollowType followType = FollowType::All;
+    QString name = "Emitter";
+    PtclSeed randomSeed{};
+};
+
+
+// ========================================================================== //
+
+
 struct ScaleProperties {
     Math::Vector2f initScale = {1.0f, 1.0f};
     Math::Vector2f diffScale21 = {0.0f, 0.0f};
@@ -154,6 +165,7 @@ struct GravityProperties {
 
 // ========================================================================== //
 
+
 class Emitter
 {
 public:
@@ -164,13 +176,9 @@ public:
     Emitter &operator=(const Emitter&) = delete;
 
     EmitterType type() const;
-    void setType(EmitterType type);
 
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag> &flags() const;
-
-    PtclSeed &randomSeed();
-    const PtclSeed &randomSeed() const;
 
     const QString& name() const;
     void setName(const QString &name);
@@ -227,6 +235,9 @@ public:
     const std::array<u32, 3> &_D8() const;
     void set_D8(const std::array<u32, 3> &_D8);
 
+    const BasicProperties &basicProperties() const;
+    void setBasicProperties(const BasicProperties &basicProperties);
+
     const GravityProperties &gravityProperties() const;
     void setGravityProperties(const GravityProperties &gravityProperties);
 
@@ -253,9 +264,6 @@ public:
 
     const ScaleProperties &scaleProperties() const;
     void setScaleProperties(const ScaleProperties &scaleProperties);
-
-    FollowType followType() const;
-    void setFollowType(FollowType followType);
 
     u32 _134() const;
     void set_134(u32 _134);
@@ -320,12 +328,7 @@ public:
     void initFromBinary(const BinCommonEmitterData &emitterData);
 
 private:
-    EmitterType mType;
     BitFlag<EmitterFlag> mFlag;
-
-    PtclSeed mRandomSeed;
-
-    QString mName; // namePos, name
 
     TextureHandle mTextureHande;
     TextureWrap mTextureWrapT;
@@ -349,6 +352,7 @@ private:
 
     std::array<u32, 3> m_D8;
 
+    BasicProperties mBasicProperties;
     GravityProperties mGravityProperties;
     TransformProperties mTransformProperties;
     LifespanProperties mLifespanProperties;
@@ -361,7 +365,6 @@ private:
     ScaleProperties mScaleProperties;
     RotationProperties mRotationProperties;
 
-    FollowType mFollowType;
     u32 m_134;
 
     std::array<u32, 2> m_168;

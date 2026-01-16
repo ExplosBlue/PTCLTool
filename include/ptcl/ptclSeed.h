@@ -28,7 +28,7 @@ public:
     void setRaw(u32 raw);
 
 private:
-    u32 mValue;
+    u32 mValue = 1;
 };
 
 

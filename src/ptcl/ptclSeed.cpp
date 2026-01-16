@@ -6,8 +6,7 @@
 // ========================================================================== //
 
 
-PtclSeed::PtclSeed() :
-    mValue{0} {}
+PtclSeed::PtclSeed() = default;
 
 PtclSeed::PtclSeed(u32 raw) :
     mValue{raw} {}
