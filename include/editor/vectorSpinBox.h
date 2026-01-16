@@ -179,6 +179,19 @@ public:
         }
     }
 
+    void setRange(const f32 min, const f32 max) {
+        mSpinBoxX->setRange(min, max);
+        mSpinBoxY->setRange(min, max);
+
+        if constexpr (mAxisCount >= 3) {
+            mSpinBoxZ->setRange(min, max);
+        }
+
+        if constexpr (mAxisCount >= 4) {
+            mSpinBoxW->setRange(min, max);
+        }
+    }
+
 private:
     static constexpr u32 mAxisCount = std::is_same_v<T, Math::Vector2f> ? 2 : std::is_same_v<T, Math::Vector3f> ? 3 : 4;
 };

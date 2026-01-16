@@ -302,7 +302,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     _2C = emitter._2C();
     _2D = emitter._2D();
     _2E = emitter._2E();
-    _2F = emitter._2F();
+    isDirectional = emitter.gravityProperties().isDirectional;
     _30 = emitter._30();
     _31 = emitter._31();
     volumeTblIndex = emitter.volumeProperties().volumeTblIndex;
@@ -329,9 +329,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     _90 = emitter._90();
     billboardType = emitter.billboardType();
     _98 = emitter._98();
-    _9C = emitter._9C();
-    _A0 = emitter._A0();
-    _A4 = emitter._A4();
+    gravity = emitter.gravityProperties().gravity;
     color = emitter.colorProperties().colors;
     std::copy(emitter._D8().begin(), emitter._D8().end(), _D8.data());
     colorSection1 = emitter.colorProperties().colorSection1;
@@ -384,7 +382,7 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item._2C
         >> item._2D
         >> item._2E
-        >> item._2F
+        >> item.isDirectional
         >> item._30
         >> item._31
         >> item.volumeTblIndex
@@ -409,9 +407,7 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item._90
         >> item.billboardType
         >> item._98
-        >> item._9C
-        >> item._A0
-        >> item._A4
+        >> item.gravity
         >> item.color[0]
         >> item.color[1]
         >> item.color[2];
@@ -477,7 +473,7 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item._2C
         << item._2D
         << item._2E
-        << item._2F
+        << item.isDirectional
         << item._30
         << item._31
         << item.volumeTblIndex
@@ -502,9 +498,7 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item._90
         << item.billboardType
         << item._98
-        << item._9C
-        << item._A0
-        << item._A4
+        << item.gravity
         << item.color[0]
         << item.color[1]
         << item.color[2];
@@ -573,7 +567,7 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- _2C:              " << _2C;
     qDebug() << indentation << "- _2D:              " << _2D;
     qDebug() << indentation << "- _2E:              " << _2E;
-    qDebug() << indentation << "- _2F:              " << _2F;
+    qDebug() << indentation << "- isDirectional:    " << isDirectional;
     qDebug() << indentation << "- _30:              " << _30;
     qDebug() << indentation << "- _31:              " << _31;
     qDebug() << indentation << "- volumeTblIndex:   " << volumeTblIndex;
@@ -598,9 +592,7 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- _90:              " << _90;
     qDebug() << indentation << "- billboardType:    " << billboardType;
     qDebug() << indentation << "- _98:              " << _98;
-    qDebug() << indentation << "- _9C:              " << _9C;
-    qDebug() << indentation << "- _A0:              " << _A0;
-    qDebug() << indentation << "- _A4:              " << _A4;
+    qDebug() << indentation << "- gravity:          " << gravity;
     qDebug() << indentation << "- color:            " << color.data();
     qDebug() << indentation << "- _D8:              " << _D8.data();
     qDebug() << indentation << "- colorSection1:    " << colorSection1;

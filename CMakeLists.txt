@@ -34,6 +34,7 @@ set(PROJECT_SOURCES
     src/editor/emitterWidget.cpp
     src/editor/emitterSetWidget.cpp
     src/editor/gradientSlider.cpp
+    src/editor/gravityPropertiesWidget.cpp
     src/editor/lifespanPropertiesWidget.cpp
     src/editor/loadingSpinner.cpp
     src/editor/ptclListWidget.cpp
@@ -80,6 +81,7 @@ set(PROJECT_HEADERS
     include/editor/emitterSetWidget.h
     include/editor/enumComboBox.h
     include/editor/gradientSlider.h
+    include/editor/gravityPropertiesWidget.h
     include/editor/lifespanPropertiesWidget.h
     include/editor/loadingSpinner.h
     include/editor/ptclListWidget.h
