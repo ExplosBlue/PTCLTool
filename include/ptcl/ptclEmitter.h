@@ -166,6 +166,27 @@ struct GravityProperties {
 // ========================================================================== //
 
 
+struct TextureProperties {
+    TextureWrap textureWrapT = TextureWrap::ClampToEdge;
+    TextureWrap textureWrapS = TextureWrap::ClampToEdge;
+    TextureFilter textureMagFilter = TextureFilter::Nearest;
+    TextureFilter textureMinFilter = TextureFilter::Nearest;
+    TextureMipFilter textureMipFilter = TextureMipFilter::None;
+
+    u16 numTexPat = 0;
+    u8 numTexDivX = 1;
+    u8 numTexDivY = 1;
+    Math::Vector2f texUVScale{1.0f, 1.0f};
+    std::array<u8, 16> texPatTbl{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    u16 texPatFreq = 0;
+    u16 texPatTblUse = 0;
+    bool isTexPatAnim = false;
+};
+
+
+// ========================================================================== //
+
+
 class Emitter
 {
 public:
@@ -187,21 +208,6 @@ public:
     TextureHandle& textureHandle();
     void setTexture(std::shared_ptr<Texture> texture);
 
-    TextureWrap textureWrapT() const;
-    void setTextureWrapT(TextureWrap wrap);
-
-    TextureWrap textureWrapS() const;
-    void setTextureWrapS(TextureWrap wrap);
-
-    TextureFilter textureMagFilter() const;
-    void setTextureMagFilter(TextureFilter filter);
-
-    TextureFilter textureMinFilter() const;
-    void setTextureMinFilter(TextureFilter filter);
-
-    TextureMipFilter textureMipFilter() const;
-    void setTextureMipFilter(TextureMipFilter filter);
-
     u8 _2C() const;
     void set_2C(u8 _2C);
 
@@ -210,9 +216,6 @@ public:
 
     u8 _2E() const;
     void set_2E(u8 _2E);
-
-    u8 _30() const;
-    void set_30(u8 _30);
 
     u8 _31() const;
     void set_31(u8 _31);
@@ -265,6 +268,9 @@ public:
     const ScaleProperties &scaleProperties() const;
     void setScaleProperties(const ScaleProperties &scaleProperties);
 
+    const TextureProperties &textureProperties() const;
+    void setTextureProperties(const TextureProperties &textureProperties);
+
     u32 _134() const;
     void set_134(u32 _134);
 
@@ -276,28 +282,6 @@ public:
 
     const TransformProperties &transformProperties() const;
     void setTransformProperties(const TransformProperties &transformProperties);
-
-    u16 numTexPat() const;
-    void setNumTexPat(u16 numTexPat);
-
-    u8 numTexDivX() const;
-    void setNumTexDivX(u8 numTexDivX);
-
-    u8 numTexDivY() const;
-    void setNumTexDivY(u8 numTexDivY);
-
-    const Math::Vector2f &texUVScale() const;
-    void setTexUVScale(const Math::Vector2f &texUVScale);
-
-    const std::array<u8, 16> &texPatTbl() const;
-    void setTexPatTbl(const std::array<u8, 16> &texPatTbl);
-    void setTexPatTblData(int index, u8 value);
-
-    u16 texPatFreq() const;
-    void setTexPatFreq(u16 texPatFreq);
-
-    u16 texPatTblUse() const;
-    void setTexPatTblUse(u16 texPatTblUse);
 
     BitFlag<ChildFlag> &childFlags();
     BitFlag<FieldFlag> &fieldFlags();
@@ -330,17 +314,9 @@ public:
 private:
     BitFlag<EmitterFlag> mFlag;
 
-    TextureHandle mTextureHande;
-    TextureWrap mTextureWrapT;
-    TextureWrap mTextureWrapS;
-    TextureFilter mTextureMagFilter;
-    TextureFilter mTextureMinFilter;
-    TextureMipFilter mTextureMipFilter;
-
     u8 m_2C;
     u8 m_2D;
     u8 m_2E;
-    u8 m_30;
     u8 m_31;
 
 
@@ -364,18 +340,13 @@ private:
     AlphaProperties mAlphaProperties;
     ScaleProperties mScaleProperties;
     RotationProperties mRotationProperties;
+    TextureProperties mTextureProperties;
+    TextureHandle mTextureHandle;
 
     u32 m_134;
 
     std::array<u32, 2> m_168;
 
-    u16 mNumTexPat;
-    u8 mNumTexDivX;
-    u8 mNumTexDivY;
-    Math::Vector2f mTexUVScale;
-    std::array<u8, 16> mTexPatTbl;
-    u16 mTexPatFreq;
-    u16 mTexPatTblUse;
 
     // Complex / UnkType fields
     BitFlag<ChildFlag> mChildFlags;

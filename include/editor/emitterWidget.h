@@ -38,8 +38,7 @@ public:
     explicit EmitterWidget(QWidget* parent = nullptr);
 
     void setEmitter(Ptcl::Emitter* emitter);
-
-    TexturePropertiesWidget& getTextureProperties();
+    void setTextureList(const Ptcl::TextureList* textureList);
 
 signals:
     void textureUpdated(int oldIndex, int index);
@@ -47,15 +46,14 @@ signals:
 
 private:
     Ptcl::Emitter* mEmitterPtr;
+    const Ptcl::TextureList* mTextureList{nullptr};
 
     QGridLayout mMainLayout;
 
-    TexturePropertiesWidget mTextureProperties;
 
     SizedSpinBox<u8> m_2CSpinBox;
     SizedSpinBox<u8> m_2DSpinBox;
     SizedSpinBox<u8> m_2ESpinBox;
-    SizedSpinBox<u8> m_30SpinBox;
     SizedSpinBox<u8> m_31SpinBox;
 
     // _70
@@ -81,7 +79,7 @@ private:
     AlphaPropertiesWidget mAlphaProperties;
     RotationPropertiesWidget mRotationProperties;
     ScalePropertiesWidget mScaleProperties;
-
+    TexturePropertiesWidget mTextureProperties;
 
     // _168
 

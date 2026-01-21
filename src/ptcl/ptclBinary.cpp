@@ -290,10 +290,10 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
         .width = static_cast<u16>(emitter.textureHandle()->textureData().width()),
         .height = static_cast<u16>(emitter.textureHandle()->textureData().height()),
         .format = emitter.textureHandle()->textureFormat(),
-        .wrapT = emitter.textureWrapT(),
-        .wrapS = emitter.textureWrapS(),
-        .magFilter = emitter.textureMagFilter(),
-        .minMipFilter = static_cast<u8>((static_cast<u8>(emitter.textureMinFilter()) & 0x1) | ((static_cast<u8>(emitter.textureMipFilter()) & 0x3) << 1)),
+        .wrapT = emitter.textureProperties().textureWrapT,
+        .wrapS = emitter.textureProperties().textureWrapS,
+        .magFilter = emitter.textureProperties().textureMagFilter,
+        .minMipFilter = static_cast<u8>((static_cast<u8>(emitter.textureProperties().textureMinFilter) & 0x1) | ((static_cast<u8>(emitter.textureProperties().textureMipFilter) & 0x3) << 1)),
     };
 
     textureSize = 0; // To be assigned after construction...
@@ -303,7 +303,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     _2D = emitter._2D();
     _2E = emitter._2E();
     isDirectional = emitter.gravityProperties().isDirectional;
-    _30 = emitter._30();
+    isTexPatAnim = emitter.textureProperties().isTexPatAnim;
     _31 = emitter._31();
     volumeTblIndex = emitter.volumeProperties().volumeTblIndex;
     isStopEmitInFade = emitter.terminationProperties().isStopEmitInFade;
@@ -360,13 +360,13 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     transformSRT = emitter.transformProperties().transformSRT;
     transformRT = emitter.transformProperties().transformRT;
     alphaAddInFade = emitter.terminationProperties().alphaAddInFade;
-    numTexPat = emitter.numTexPat();
-    numTexDivX = emitter.numTexDivX();
-    numTexDivY = emitter.numTexDivY();
-    texUVScale = emitter.texUVScale();
-    std::copy(emitter.texPatTbl().begin(), emitter.texPatTbl().end(), texPatTbl.data());
-    texPatFreq = emitter.texPatFreq();
-    texPatTblUse = emitter.texPatTblUse();
+    numTexPat = emitter.textureProperties().numTexPat;
+    numTexDivX = emitter.textureProperties().numTexDivX;
+    numTexDivY = emitter.textureProperties().numTexDivY;
+    texUVScale = emitter.textureProperties().texUVScale;
+    std::copy(emitter.textureProperties().texPatTbl.begin(), emitter.textureProperties().texPatTbl.end(), texPatTbl.data());
+    texPatFreq = emitter.textureProperties().texPatFreq;
+    texPatTblUse = emitter.textureProperties().texPatTblUse;
 }
 
 QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
@@ -383,7 +383,7 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item._2D
         >> item._2E
         >> item.isDirectional
-        >> item._30
+        >> item.isTexPatAnim
         >> item._31
         >> item.volumeTblIndex
         >> item.isStopEmitInFade
@@ -474,7 +474,7 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item._2D
         << item._2E
         << item.isDirectional
-        << item._30
+        << item.isTexPatAnim
         << item._31
         << item.volumeTblIndex
         << item.isStopEmitInFade
@@ -568,7 +568,7 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- _2D:              " << _2D;
     qDebug() << indentation << "- _2E:              " << _2E;
     qDebug() << indentation << "- isDirectional:    " << isDirectional;
-    qDebug() << indentation << "- _30:              " << _30;
+    qDebug() << indentation << "- isTexPatAnim:     " << isTexPatAnim;
     qDebug() << indentation << "- _31:              " << _31;
     qDebug() << indentation << "- volumeTblIndex:   " << volumeTblIndex;
     qDebug() << indentation << "- isStopEmitInFade: " << isStopEmitInFade;

@@ -1,6 +1,5 @@
 #include "editor/collapsibleWidget.h"
 #include "editor/emitterWidget.h"
-#include "util/nameValidator.h"
 
 #include <QScrollArea>
 
@@ -60,14 +59,27 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     texPropertiesSection->setContent(&mTextureProperties);
 
     mMainLayout.addWidget(texPropertiesSection, 5, 0, 1, 4);
-    connect(&mTextureProperties, &TexturePropertiesWidget::textureUpdated, this, [=, this](int oldIndex, int index) {
-        emit textureUpdated(oldIndex, index);
+    connect(&mTextureProperties, &TexturePropertiesWidget::textureUpdated, this, [this](const std::shared_ptr<Ptcl::Texture>& oldTexture, const std::shared_ptr<Ptcl::Texture>& newTexture) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setTexture(newTexture);
+
+        s32 oldIndex = -1;
+        s32 newIndex = -1;
+        for (size_t i = 0; i < mTextureList->size(); ++i) {
+            if ((*mTextureList)[i] == oldTexture) { oldIndex = static_cast<s32>(i); }
+            if ((*mTextureList)[i] == newTexture) { newIndex = static_cast<s32>(i); }
+        }
+        emit textureUpdated(oldIndex, newIndex);
+    });
+
+    connect(&mTextureProperties, &TexturePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::TextureProperties& properties) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setTextureProperties(properties);
     });
 
     addLabledWidget(&m_2CSpinBox, "_2C:",  6, 0, 3);
     addLabledWidget(&m_2DSpinBox, "_2D:",  7, 0, 3);
     addLabledWidget(&m_2ESpinBox, "_2E:",  8, 0, 3);
-    addLabledWidget(&m_30SpinBox, "_30:",  9, 0, 3);
     addLabledWidget(&m_31SpinBox, "_31:", 10, 0, 3);
 
     // Gravity Properties
@@ -200,13 +212,10 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
 
     mEmitterPtr = emitter;
 
-    mTextureProperties.setEmitter(mEmitterPtr);
-
     // More Stuff
     m_2CSpinBox.setValue(mEmitterPtr->_2C());
     m_2DSpinBox.setValue(mEmitterPtr->_2D());
     m_2ESpinBox.setValue(mEmitterPtr->_2E());
-    m_30SpinBox.setValue(mEmitterPtr->_30());
     m_31SpinBox.setValue(mEmitterPtr->_31());
 
     m_8CSpinBox.setValue(mEmitterPtr->_8C());
@@ -227,12 +236,14 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mAlphaProperties.setProperties(mEmitterPtr->alphaProperties());
     mScaleProperties.setProperties(mEmitterPtr->scaleProperties());
     mRotationProperties.setProperties(mEmitterPtr->rotationProperties());
+    mTextureProperties.setProperties(mEmitterPtr->textureProperties(), mEmitterPtr->textureHandle().get());
 
     mIsPopulating = false;
 }
 
-TexturePropertiesWidget& EmitterWidget::getTextureProperties() {
-    return mTextureProperties;
+void EmitterWidget::setTextureList(const Ptcl::TextureList* textureList) {
+    mTextureList = textureList;
+    mTextureProperties.setTextureList(textureList);
 }
 
 
