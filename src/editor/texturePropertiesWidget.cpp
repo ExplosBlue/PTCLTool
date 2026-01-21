@@ -13,41 +13,77 @@
 
 
 TexturePropertiesWidget::TexturePropertiesWidget(QWidget* parent) :
-    QWidget{parent}, mEmitterPtr{nullptr}, mTexPatTbl{1, 16, this},
-    mIsPopulating{false} {
+    QWidget{parent} {
     // Wrap T
-    connect(&mWrapTComboBox, &QComboBox::currentIndexChanged, this, &TexturePropertiesWidget::updateWrapT);
+    connect(&mWrapTComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
+        Q_UNUSED(index);
+        mProps.textureWrapT = mWrapTComboBox.currentEnum();
+        emit propertiesUpdated(mProps);
+    });
 
     // Wrap S
-    connect(&mWrapSComboBox, &QComboBox::currentIndexChanged, this, &TexturePropertiesWidget::updateWrapS);
+    connect(&mWrapSComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
+        Q_UNUSED(index);
+        mProps.textureWrapS = mWrapSComboBox.currentEnum();
+        emit propertiesUpdated(mProps);
+    });
 
     // Mag Filter
-    connect(&mMagFilterComboBox, &QComboBox::currentIndexChanged, this, &TexturePropertiesWidget::updateMagFilter);
+    connect(&mMagFilterComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
+        Q_UNUSED(index);
+        mProps.textureMagFilter = mMagFilterComboBox.currentEnum();
+        emit propertiesUpdated(mProps);
+    });
 
     // Min Filter
-    connect(&mMinFilterComboBox, &QComboBox::currentIndexChanged, this, &TexturePropertiesWidget::updateMinFilter);
+    connect(&mMinFilterComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
+        Q_UNUSED(index);
+        mProps.textureMinFilter = mMinFilterComboBox.currentEnum();
+        emit propertiesUpdated(mProps);
+    });
 
     // Mipmap Filter
-    connect(&mMipFilterComboBox, &QComboBox::currentIndexChanged, this, &TexturePropertiesWidget::updateMipFilter);
+    connect(&mMipFilterComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
+        Q_UNUSED(index);
+        mProps.textureMipFilter = mMipFilterComboBox.currentEnum();
+        emit propertiesUpdated(mProps);
+    });
 
     // Texture Preview
-    connect(&mTexturePreview, &ThumbnailWidget::clicked, this, &TexturePropertiesWidget::changeTexture);
     mTexturePreview.setThumbnailSize(QSize(64, 64));
+    connect(&mTexturePreview, &ThumbnailWidget::clicked, this, &TexturePropertiesWidget::changeTexture);
 
     // Texture Division X
-    connect(&mNumTexPat, &SizedSpinBoxBase::valueChanged, this, &TexturePropertiesWidget::updateNumTexPat);
+    connect(&mNumTexPat, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
+        mProps.numTexPat = value;
+        emit propertiesUpdated(mProps);
+    });
 
     // Texture Division X
-    connect(&mTexDivX, &SizedSpinBoxBase::valueChanged, this, &TexturePropertiesWidget::updateTexDivX);
+    connect(&mTexDivX, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
+        mProps.numTexDivX = value;
+        emit propertiesUpdated(mProps);
+    });
 
     // Texture Division Y
-    connect(&mTexDivY, &SizedSpinBoxBase::valueChanged, this, &TexturePropertiesWidget::updateTexDivY);
+    connect(&mTexDivY, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
+        mProps.numTexDivY = value;
+        emit propertiesUpdated(mProps);
+    });
 
     // Texture pattern Frequency
-    connect(&mTexPatFreq, &SizedSpinBoxBase::valueChanged, this, &TexturePropertiesWidget::updateTexPatFreq);
+    connect(&mTexPatFreq, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
+        mProps.texPatFreq = value;
+        emit propertiesUpdated(mProps);
+    });
 
     // Texture pattern table use
-    connect(&mTexPatTblUse, &SizedSpinBoxBase::valueChanged, this, &TexturePropertiesWidget::updateTexPatTblUse);
+    mTexPatTblUse.setRange(0, 16);
+    connect(&mTexPatTblUse, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
+        mProps.texPatTblUse = value;
+        updateTexPatTblColumns();
+        emit propertiesUpdated(mProps);
+    });
 
     // Texture pattern table
     mTexPatTbl.setFixedHeight(60);
@@ -58,16 +94,35 @@ TexturePropertiesWidget::TexturePropertiesWidget(QWidget* parent) :
     mTexPatTbl.setEditTriggers(QAbstractItemView::AllEditTriggers);
 
     // Populate initially
-    for (int i = 0; i < 16; ++i) {
+    for (s32 i = 0; i < 16; ++i) {
         auto* item = new QTableWidgetItem("0");
         item->setTextAlignment(Qt::AlignCenter);
         mTexPatTbl.setItem(0, i, item);
     }
 
-    connect(&mTexPatTbl, &QTableWidget::itemChanged, this, &TexturePropertiesWidget::updateTexPatTbl);
+    connect(&mTexPatTbl, &QTableWidget::itemChanged, this, [this](QTableWidgetItem* item) {
+        bool ok = false;
+        s32 value = item->text().toInt(&ok);
+        if (!ok || value < 0 || value > 255) {
+            item->setText("0");
+            return;
+        }
+
+        mProps.texPatTbl[item->column()] = value;
+        emit propertiesUpdated(mProps);
+    });
 
     // UV Scale
-    connect(&mUVScaleSpinBox, &VectorSpinBoxBase::valueChanged, this, &TexturePropertiesWidget::updateUVScale);
+    connect(&mUVScaleSpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
+        mProps.texUVScale = mUVScaleSpinBox.getVector();
+        emit propertiesUpdated(mProps);
+    });
+
+    // TexPatAnim
+    connect(&mTexPatAnimCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
+        mProps.isTexPatAnim = checked;
+        emit propertiesUpdated(mProps);
+    });
 
     // Texture Settings Layout
     auto settingsLayout = new QGridLayout;
@@ -93,8 +148,10 @@ TexturePropertiesWidget::TexturePropertiesWidget(QWidget* parent) :
     settingsLayout->addWidget(&mTexPatFreq, 6, 1);
     settingsLayout->addWidget(new QLabel("Texture Pattern Tbl Use:"), 6, 2);
     settingsLayout->addWidget(&mTexPatTblUse, 6, 3);
-    settingsLayout->addWidget(new QLabel("Texture Pattern Table:"), 7, 0, 1, 2);
-    settingsLayout->addWidget(&mTexPatTbl, 8, 0, 1, 4);
+    settingsLayout->addWidget(new QLabel("Texture Pattern Anim Enabled:"), 7, 0);
+    settingsLayout->addWidget(&mTexPatAnimCheckBox, 7, 1);
+    settingsLayout->addWidget(new QLabel("Texture Pattern Table:"), 8, 0, 1, 2);
+    settingsLayout->addWidget(&mTexPatTbl, 9, 0, 1, 4);
 
     // Main Layout
     auto mainLayout = new QHBoxLayout(this);
@@ -104,42 +161,51 @@ TexturePropertiesWidget::TexturePropertiesWidget(QWidget* parent) :
 
 }
 
-void TexturePropertiesWidget::setEmitter(Ptcl::Emitter* emitter) {
-    mEmitterPtr = emitter;
+void TexturePropertiesWidget::setProperties(const Ptcl::TextureProperties& properties, const std::shared_ptr<Ptcl::Texture>& texture) {
+    mProps = properties;
+    mTexture = texture;
     populateWidgets();
 }
 
 void TexturePropertiesWidget::populateWidgets() {
-    if (!mEmitterPtr) {
-        return;
+    QSignalBlocker b1(mWrapTComboBox);
+    QSignalBlocker b2(mWrapSComboBox);
+    QSignalBlocker b3(mMagFilterComboBox);
+    QSignalBlocker b4(mMinFilterComboBox);
+    QSignalBlocker b5(mMipFilterComboBox);
+    QSignalBlocker b6(mNumTexPat);
+    QSignalBlocker b7(mTexDivX);
+    QSignalBlocker b8(mTexDivY);
+    QSignalBlocker b9(mTexPatFreq);
+    QSignalBlocker b10(mTexPatTblUse);
+    QSignalBlocker b11(mTexPatTbl);
+    QSignalBlocker b12(mUVScaleSpinBox);
+    QSignalBlocker b13(mTexPatAnimCheckBox);
+
+    if (mTexture) {
+        mTexturePreview.setPixmap(QPixmap::fromImage(mTexture->textureData()));
     }
 
-    mIsPopulating = true;
+    mWrapTComboBox.setCurrentEnum(mProps.textureWrapT);
+    mWrapSComboBox.setCurrentEnum(mProps.textureWrapS);
+    mMagFilterComboBox.setCurrentEnum(mProps.textureMagFilter);
+    mMinFilterComboBox.setCurrentEnum(mProps.textureMinFilter);
+    mMipFilterComboBox.setCurrentEnum(mProps.textureMipFilter);
 
-    if (mEmitterPtr->textureHandle().isValid()) {
-        mTexturePreview.setPixmap(QPixmap::fromImage(mEmitterPtr->textureHandle()->textureData()));
-    }
+    mNumTexPat.setValue(mProps.numTexPat);
+    mTexDivX.setValue(mProps.numTexDivX);
+    mTexDivY.setValue(mProps.numTexDivY);
+    mTexPatFreq.setValue(mProps.texPatFreq);
+    mTexPatTblUse.setValue(mProps.texPatTblUse);
 
-    mWrapTComboBox.setCurrentEnum(mEmitterPtr->textureWrapT());
-    mWrapSComboBox.setCurrentEnum(mEmitterPtr->textureWrapS());
-    mMagFilterComboBox.setCurrentEnum(mEmitterPtr->textureMagFilter());
-    mMinFilterComboBox.setCurrentEnum(mEmitterPtr->textureMinFilter());
-    mMipFilterComboBox.setCurrentEnum(mEmitterPtr->textureMipFilter());
-
-    mNumTexPat.setValue(mEmitterPtr->numTexPat());
-    mTexDivX.setValue(mEmitterPtr->numTexDivX());
-    mTexDivY.setValue(mEmitterPtr->numTexDivY());
-    mTexPatFreq.setValue(mEmitterPtr->texPatFreq());
-    mTexPatTblUse.setValue(mEmitterPtr->texPatTblUse());
-
-    const auto& tbl = mEmitterPtr->texPatTbl();
-    for (int i = 0; i < tbl.size(); ++i) {
+    const auto& tbl = mProps.texPatTbl;
+    for (s32 i = 0; i < tbl.size(); ++i) {
         mTexPatTbl.item(0, i)->setText(QString::number(tbl[i]));
     }
 
-    mUVScaleSpinBox.setVector(mEmitterPtr->texUVScale());
+    mUVScaleSpinBox.setVector(mProps.texUVScale);
+    mTexPatAnimCheckBox.setChecked(mProps.isTexPatAnim);
 
-    mIsPopulating = false;
     updateTexPatTblColumns();
 }
 
@@ -147,125 +213,20 @@ void TexturePropertiesWidget::setTextureList(const Ptcl::TextureList* textureLis
     mTextureList = textureList;
 }
 
-void TexturePropertiesWidget::updateWrapT() {
-    if (!mEmitterPtr || mIsPopulating) {
-        return;
-    }
-
-    mEmitterPtr->setTextureWrapT(mWrapTComboBox.currentEnum());
-}
-
-void TexturePropertiesWidget::updateWrapS() {
-    if (!mEmitterPtr || mIsPopulating) {
-        return;
-    }
-
-    mEmitterPtr->setTextureWrapS(mWrapSComboBox.currentEnum());
-}
-
-void TexturePropertiesWidget::updateMinFilter() {
-    if (!mEmitterPtr || mIsPopulating) {
-        return;
-    }
-
-    mEmitterPtr->setTextureMinFilter(mMinFilterComboBox.currentEnum());
-}
-
-void TexturePropertiesWidget::updateMagFilter() {
-    if (!mEmitterPtr || mIsPopulating) {
-        return;
-    }
-
-    mEmitterPtr->setTextureMagFilter(mMagFilterComboBox.currentEnum());
-}
-
-void TexturePropertiesWidget::updateMipFilter() {
-    if (!mEmitterPtr || mIsPopulating) {
-        return;
-    }
-
-    mEmitterPtr->setTextureMipFilter(mMipFilterComboBox.currentEnum());
-}
-
-void TexturePropertiesWidget::updateNumTexPat() {
-    if (!mEmitterPtr || mIsPopulating) {
-        return;
-    }
-
-    mEmitterPtr->setNumTexPat(mNumTexPat.value());
-}
-
-void TexturePropertiesWidget::updateTexDivX() {
-    if (!mEmitterPtr || mIsPopulating) {
-        return;
-    }
-
-    mEmitterPtr->setNumTexDivX(mTexDivX.value());
-}
-
-void TexturePropertiesWidget::updateTexDivY() {
-    if (!mEmitterPtr || mIsPopulating) {
-        return;
-    }
-
-    mEmitterPtr->setNumTexDivY(mTexDivY.value());
-}
-
-void TexturePropertiesWidget::updateUVScale() {
-    if (!mEmitterPtr || mIsPopulating) {
-        return;
-    }
-
-    mEmitterPtr->setTexUVScale(mUVScaleSpinBox.getVector());
-}
-
-void TexturePropertiesWidget::updateTexPatFreq() {
-    if (!mEmitterPtr || mIsPopulating) {
-        return;
-    }
-
-    mEmitterPtr->setTexPatFreq(mTexPatFreq.value());
-}
-
-void TexturePropertiesWidget::updateTexPatTblUse() {
-    if (!mEmitterPtr || mIsPopulating) {
-        return;
-    }
-
-    mEmitterPtr->setTexPatTblUse(mTexPatTblUse.value());
-    updateTexPatTblColumns();
-}
-
-void TexturePropertiesWidget::updateTexPatTbl(QTableWidgetItem* item) {
-    if (!mEmitterPtr || mIsPopulating) {
-        return;
-    }
-
-    bool ok = false;
-    int value = item->text().toInt(&ok);
-    if (!ok || value < 0 || value > 255) {
-        item->setText("0");
-        return;
-    }
-
-    mEmitterPtr->setTexPatTblData(item->column(), value);
-}
-
 void TexturePropertiesWidget::updateTextureDetails() {
-    mTexturePreview.setPixmap(QPixmap::fromImage(mEmitterPtr->textureHandle()->textureData()));
+    mTexturePreview.setPixmap(QPixmap::fromImage(mTexture->textureData()));
 }
 
 void TexturePropertiesWidget::updateTexPatTblColumns() {
-    int use = mEmitterPtr->texPatTblUse();
     const QPalette& palette = mTexPatTbl.palette();
 
-    for (int i = 0; i < 16; ++i) {
+    for (s32 i = 0; i < 16; ++i) {
         QTableWidgetItem* item = mTexPatTbl.item(0, i);
         if (!item) {
             continue;
         }
 
-        if (i >= use) {
+        if (i >= mProps.texPatTblUse) {
             item->setFlags(Qt::NoItemFlags);
             item->setBackground(palette.color(QPalette::Disabled, QPalette::Base));
             item->setForeground(palette.color(QPalette::Disabled, QPalette::Text));
@@ -278,27 +239,19 @@ void TexturePropertiesWidget::updateTexPatTblColumns() {
 }
 
 void TexturePropertiesWidget::changeTexture() {
-    if (!mEmitterPtr || !mTextureList) {
+    if (!mTextureList) {
         return;
     }
 
-    auto oldTexture = mEmitterPtr->textureHandle().get();
-    int oldIndex = -1;
-
-    for (size_t i = 0; i < mTextureList->size(); ++i) {
-        if (mTextureList->at(i) == oldTexture) {
-            oldIndex = static_cast<int>(i);
-            break;
-        }
-    }
+    auto oldTexture = mTexture;
 
     TextureSelectDialog dialog(*mTextureList, this);
     if (dialog.exec() == QDialog::Accepted) {
-        int index = dialog.selectedIndex();
-        if (index >= 0 && static_cast<size_t>(index) < mTextureList->size()) {
-            mEmitterPtr->textureHandle().set(mTextureList->at(index));
+        s32 selectedInded = dialog.selectedIndex();
+        if (selectedInded >= 0 && static_cast<size_t>(selectedInded) < mTextureList->size()) {
+            mTexture = mTextureList->at(selectedInded);
             updateTextureDetails();
-            emit textureUpdated(oldIndex, index);
+            emit textureUpdated(oldTexture, mTexture);
         }
     }
 }

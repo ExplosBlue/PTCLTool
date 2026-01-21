@@ -63,7 +63,7 @@ public:
     bool isValid() const;
 
     std::shared_ptr<Texture> get() const;
-    void                     set(const std::shared_ptr<Texture>& texture);
+    void set(const std::shared_ptr<Texture>& texture);
 
     TextureHandle& operator=(std::shared_ptr<Texture> texture);
     std::shared_ptr<Texture> operator->() const;

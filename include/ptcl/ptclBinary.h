@@ -222,7 +222,7 @@ struct alignas(4) BinCommonEmitterData {
     u8 _2D;                              // 0x2D
     u8 _2E;                              // 0x2E
     bool isDirectional;                  // 0x2F
-    u8 _30;                              // 0x30
+    bool isTexPatAnim;                   // 0x30
     u8 _31;                              // 0x31
     u8 volumeTblIndex;                   // 0x32
     bool isStopEmitInFade;               // 0x33

@@ -69,9 +69,10 @@ void EmitterSetWidget::setEmitterTab(int emitterIndex) {
     mEmitterTabs.setCurrentIndex(emitterIndex);
 }
 
-EmitterWidget& EmitterSetWidget::getEmitterWidget() {
-    return mEmitterWidget;
-}
+void EmitterSetWidget::setTextureList(const Ptcl::TextureList& textureList) {
+    mEmitterWidget.setTextureList(&textureList);
+};
+
 
 void EmitterSetWidget::selectedEmitterChanged(u32 index) {
     if (!mEmitterSetPtr) {

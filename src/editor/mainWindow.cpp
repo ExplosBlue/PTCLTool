@@ -47,9 +47,9 @@ void MainWindow::setupUi() {
     // EmitterSet Widget
     mEmitterSetWidget.setEnabled(false);
     mEmitterSetWidget.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    connect(&mEmitterSetWidget, &EmitterSetWidget::textureUpdated, this, [=, this](int oldIndex, int index) {
-        mTextureWidget.updateItemAt(oldIndex);
-        mTextureWidget.updateItemAt(index);
+    connect(&mEmitterSetWidget, &EmitterSetWidget::textureUpdated, this, [this](s32 oldIndex, s32 newIndex) {
+        if (oldIndex >= 0) { mTextureWidget.updateItemAt(oldIndex); }
+        if (newIndex >= 0) { mTextureWidget.updateItemAt(newIndex); }
     });
 
     connect(&mEmitterSetWidget, &EmitterSetWidget::nameUpdated, this, [=, this](const QString& name) {
@@ -261,7 +261,7 @@ void MainWindow::loadPtclRes(const QString& path) {
 
     mPtclList.setPtclRes(mPtclRes.get());
     mTextureWidget.setTextures(&mPtclRes->textures());
-    mEmitterSetWidget.getEmitterWidget().getTextureProperties().setTextureList(&mPtclRes->textures());
+    mEmitterSetWidget.setTextureList(mPtclRes->textures());
 
     mPtclList.setEnabled(true);
     mTextureWidget.setEnabled(true);

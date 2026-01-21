@@ -8,18 +8,9 @@ namespace Ptcl {
 
 
 Emitter::Emitter() {
-
-    // TODO: Texture Handle
-    mTextureWrapT = TextureWrap::ClampToEdge;
-    mTextureWrapS = TextureWrap::ClampToEdge;
-    mTextureMagFilter = TextureFilter::Nearest;
-    mTextureMinFilter = TextureFilter::Nearest;
-    mTextureMipFilter = TextureMipFilter::None;
-
     m_2C = 0;
     m_2D = 0;
     m_2E = 0;
-    m_30 = 0;
     m_31 = 0;
 
     m_8C = 0.0f;
@@ -31,14 +22,6 @@ Emitter::Emitter() {
 
     m_134 = 0;
     m_168 = {0, 0};
-
-    mNumTexPat = 0;
-    mNumTexDivX = 1;
-    mNumTexDivY = 1;
-    mTexUVScale = {1.0f, 1.0f};
-    mTexPatTbl = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    mTexPatFreq = 0;
-    mTexPatTblUse = 0;
 }
 
 EmitterType Emitter::type() const {
@@ -62,56 +45,16 @@ void Emitter::setName(const QString& name) {
 }
 
 const TextureHandle& Emitter::textureHandle() const {
-    return mTextureHande;
+    return mTextureHandle;
 }
 
 
 TextureHandle& Emitter::textureHandle() {
-    return mTextureHande;
+    return mTextureHandle;
 }
 
 void Emitter::setTexture(std::shared_ptr<Texture> texture) {
-    mTextureHande.set(texture);
-}
-
-TextureWrap Emitter::textureWrapT() const {
-    return mTextureWrapT;
-}
-
-void Emitter::setTextureWrapT(TextureWrap wrap) {
-    mTextureWrapT = wrap;
-}
-
-TextureWrap Emitter::textureWrapS() const {
-    return mTextureWrapS;
-}
-
-void Emitter::setTextureWrapS(TextureWrap wrap) {
-    mTextureWrapS = wrap;
-}
-
-TextureFilter Emitter::textureMagFilter() const {
-    return mTextureMagFilter;
-}
-
-void Emitter::setTextureMagFilter(TextureFilter filter) {
-    mTextureMagFilter = filter;
-}
-
-TextureFilter Emitter::textureMinFilter() const {
-    return mTextureMinFilter;
-}
-
-void Emitter::setTextureMinFilter(TextureFilter filter) {
-    mTextureMinFilter = filter;
-}
-
-TextureMipFilter Emitter::textureMipFilter() const {
-    return mTextureMipFilter;
-}
-
-void Emitter::setTextureMipFilter(TextureMipFilter filter) {
-    mTextureMipFilter = filter;
+    mTextureHandle.set(texture);
 }
 
 u8 Emitter::_2C() const {
@@ -136,14 +79,6 @@ u8 Emitter::_2E() const {
 
 void Emitter::set_2E(const u8 _2E) {
     m_2E = _2E;
-}
-
-u8 Emitter::_30() const {
-    return m_30;
-}
-
-void Emitter::set_30(const u8 _30) {
-    m_30 = _30;
 }
 
 u8 Emitter::_31() const {
@@ -285,6 +220,14 @@ void Emitter::setScaleProperties(const ScaleProperties& scaleProperties) {
     mScaleProperties = scaleProperties;
 }
 
+const TextureProperties& Emitter::textureProperties() const {
+    return mTextureProperties;
+}
+
+void Emitter::setTextureProperties(const TextureProperties& textureProperties) {
+    mTextureProperties = textureProperties;
+}
+
 u32 Emitter::_134() const {
     return m_134;
 }
@@ -307,70 +250,6 @@ const std::array<u32, 2>& Emitter::_168() const {
 
 void Emitter::set_168(const std::array<u32, 2>& _168) {
     m_168 = _168;
-}
-
-u16 Emitter::numTexPat() const {
-    return mNumTexPat;
-}
-
-void Emitter::setNumTexPat(const u16 numTexPat) {
-    mNumTexPat = numTexPat;
-}
-
-u8 Emitter::numTexDivX() const {
-    return mNumTexDivX;
-}
-
-void Emitter::setNumTexDivX(const u8 numTexDivX) {
-    mNumTexDivX = numTexDivX;
-}
-
-u8 Emitter::numTexDivY() const {
-    return mNumTexDivY;
-}
-
-void Emitter::setNumTexDivY(const u8 numTexDivY) {
-    mNumTexDivY = numTexDivY;
-}
-
-const Math::Vector2f& Emitter::texUVScale() const {
-    return mTexUVScale;
-}
-
-void Emitter::setTexUVScale(const Math::Vector2f& texUVScale) {
-    mTexUVScale = texUVScale;
-}
-
-const std::array<u8, 16>& Emitter::texPatTbl() const {
-    return mTexPatTbl;
-}
-
-void Emitter::setTexPatTbl(const std::array<u8, 16>& texPatTbl) {
-    mTexPatTbl = texPatTbl;
-}
-
-void Emitter::setTexPatTblData(int index, u8 value) {
-    if (index > mTexPatTbl.size()) {
-        return;
-    }
-
-    mTexPatTbl.at(index) = value;
-}
-
-u16 Emitter::texPatFreq() const {
-    return mTexPatFreq;
-}
-
-void Emitter::setTexPatFreq(const u16 texPatFreq) {
-    mTexPatFreq = texPatFreq;
-}
-
-u16 Emitter::texPatTblUse() const {
-    return mTexPatTblUse;
-}
-
-void Emitter::setTexPatTblUse(const u16 texPatTblUse) {
-    mTexPatTblUse = texPatTblUse;
 }
 
 BitFlag<ChildFlag>& Emitter::childFlags() {
@@ -453,18 +332,25 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 
     mFlag = emitterData.flag;
 
-    // mTexture
-    // mTextureFormat
-    mTextureWrapT = emitterData.textureRes.wrapT;
-    mTextureWrapS = emitterData.textureRes.wrapS;
-    mTextureMagFilter = emitterData.textureRes.magFilter;
-    mTextureMinFilter = static_cast<TextureFilter>(emitterData.textureRes.minMipFilter & 0x1);
-    mTextureMipFilter = static_cast<TextureMipFilter>((emitterData.textureRes.minMipFilter >> 1) & 0x3);
+    mTextureProperties = {
+        .textureWrapT = emitterData.textureRes.wrapT,
+        .textureWrapS = emitterData.textureRes.wrapS,
+        .textureMagFilter = emitterData.textureRes.magFilter,
+        .textureMinFilter = static_cast<TextureFilter>(emitterData.textureRes.minMipFilter & 0x1),
+        .textureMipFilter = static_cast<TextureMipFilter>((emitterData.textureRes.minMipFilter >> 1) & 0x3),
+        .numTexPat = emitterData.numTexPat,
+        .numTexDivX = emitterData.numTexDivX,
+        .numTexDivY = emitterData.numTexDivY,
+        .texUVScale = { emitterData.texUVScale.x, emitterData.texUVScale.y },
+        .texPatTbl = emitterData.texPatTbl,
+        .texPatFreq = emitterData.texPatFreq,
+        .texPatTblUse = emitterData.texPatTblUse,
+        .isTexPatAnim = emitterData.isTexPatAnim
+    };
 
     m_2C = emitterData._2C;
     m_2D = emitterData._2D;
     m_2E = emitterData._2E;
-    m_30 = emitterData._30;
     m_31 = emitterData._31;
 
     m_8C = emitterData._8C;
@@ -564,14 +450,6 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_134 = emitterData._134;
 
     std::ranges::copy(emitterData._168, m_168.begin());
-
-    mNumTexPat = emitterData.numTexPat;
-    mNumTexDivX = emitterData.numTexDivX;
-    mNumTexDivY = emitterData.numTexDivY;
-    mTexUVScale = Math::Vector2f(emitterData.texUVScale.x, emitterData.texUVScale.y);
-    std::ranges::copy(emitterData.texPatTbl, mTexPatTbl.begin());
-    mTexPatFreq = emitterData.texPatFreq;
-    mTexPatTblUse = emitterData.texPatTblUse;
 }
 
 
