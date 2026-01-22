@@ -206,7 +206,7 @@ public:
 
     const TextureHandle& textureHandle() const;
     TextureHandle& textureHandle();
-    void setTexture(std::shared_ptr<Texture> texture);
+    void setTexture(const std::shared_ptr<Texture>& texture);
 
     u8 _2C() const;
     void set_2C(u8 _2C);

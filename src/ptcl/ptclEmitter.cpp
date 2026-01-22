@@ -53,7 +53,7 @@ TextureHandle& Emitter::textureHandle() {
     return mTextureHandle;
 }
 
-void Emitter::setTexture(std::shared_ptr<Texture> texture) {
+void Emitter::setTexture(const std::shared_ptr<Texture>& texture) {
     mTextureHandle.set(texture);
 }
 
