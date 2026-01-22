@@ -34,6 +34,7 @@ private:
     VectorSpinBox<Math::Vector3f> mInitRotRandSpinBox{};
     VectorSpinBox<Math::Vector3f> mRotVelSpinBox{};
     VectorSpinBox<Math::Vector3f> mRotVelRandSpinBox{};
+    VectorSpinBox<Math::Vector2f> mRotBasisSpinBox{};
 };
 
 
