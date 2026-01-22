@@ -267,10 +267,10 @@ struct alignas(4) BinCommonEmitterData {
     u32 rotCalcType;                     // 0x12C
     FollowType followType;               // 0x130
     u32 _134;                            // 0x134
-    binVec3i initRot;                    // 0x138 - these may be wrong
-    binVec3i initRotRand;                // 0x144 - ^
-    binVec3i rotVel;                     // 0x150 - ^
-    binVec3i rotVelRand;                 // 0x15C - ^
+    binVec3i initRot;                    // 0x138
+    binVec3i initRotRand;                // 0x144
+    binVec3i rotVel;                     // 0x150
+    binVec3i rotVelRand;                 // 0x15C
     std::array<u32, 2> _168;             // 0x168
     binMtx34f transformSRT;              // 0x170
     binMtx34f transformRT;               // 0x1A0

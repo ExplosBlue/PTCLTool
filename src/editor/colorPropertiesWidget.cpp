@@ -22,7 +22,7 @@ ColorPropertiesWidget::ColorPropertiesWidget(QWidget* parent) :
     // Color Properties
     auto colorLabelLayout = new QHBoxLayout;
     auto colorsLayout = new QHBoxLayout;
-    for (int i = 0; i < mColorWidgets.size(); ++i) {
+    for (s32 i = 0; i < mColorWidgets.size(); ++i) {
         colorsLayout->addWidget(&mColorWidgets[i]);
         mColorWidgets[i].setProperty("colorIndex", i);
         connect(&mColorWidgets[i], &RGBAColorWidget::colorChanged, this, &ColorPropertiesWidget::handleColorChanged);
@@ -38,7 +38,7 @@ ColorPropertiesWidget::ColorPropertiesWidget(QWidget* parent) :
     colorRepeatLayout->addWidget(&mRepetitionCountLabel);
     colorRepeatLayout->addWidget(&mColorNumRepeatSpinBox);
     colorRepeatLayout->addStretch();
-    connect(&mColorNumRepeatSpinBox, &SizedSpinBoxBase::valueChanged, this, [=, this](int value) {
+    connect(&mColorNumRepeatSpinBox, &SizedSpinBoxBase::valueChanged, this, [this](s32 value) {
         mColorSections.setRepetitionCount(value);
         mProps.colorNumRepeat = value;
     });
@@ -76,7 +76,7 @@ void ColorPropertiesWidget::populateWidgets() {
     QSignalBlocker bColor1(mColorWidgets[1]);
     QSignalBlocker bColor2(mColorWidgets[2]);
 
-    for (int i = 0; i < mColorWidgets.size(); ++i) {
+    for (s32 i = 0; i < mColorWidgets.size(); ++i) {
         mColorWidgets[i].setColor(mProps.colors[i]);
     }
 
@@ -137,19 +137,19 @@ void ColorPropertiesWidget::applyBehaviorToUI(Behavior behavior) {
 }
 
 void ColorPropertiesWidget::showColorWidgets(std::array<bool, 3> visibility) {
-    for (int i = 0; i < mColorWidgets.size(); ++i) {
+    for (s32 i = 0; i < mColorWidgets.size(); ++i) {
         mColorWidgets[i].setVisible(visibility[i]);
     }
 }
 
 void ColorPropertiesWidget::setColorLabels(const std::array<QString, 3>& labels) {
-    for (int i = 0; i < mColorLabels.size(); ++i) {
+    for (s32 i = 0; i < mColorLabels.size(); ++i) {
         mColorLabels[i].setText(labels[i]);
         mColorLabels[i].setVisible(!labels[i].isEmpty());
     }
 }
 
-void ColorPropertiesWidget::handleBehaviorChanged(int index) {
+void ColorPropertiesWidget::handleBehaviorChanged(s32 index) {
     auto behavior = behaviorFromIndex(index);
 
     applyBehaviorToUI(behavior);
@@ -178,7 +178,7 @@ void ColorPropertiesWidget::handleColorChanged() {
         return;
     }
 
-    int index = widget->property("colorIndex").toInt();
+    s32 index = widget->property("colorIndex").toInt();
     if (index < 0 || index >= mColorWidgets.size()) {
         return;
     }
