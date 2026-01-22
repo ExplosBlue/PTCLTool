@@ -63,10 +63,20 @@ RGBAColorWidget::RGBAColorWidget(QWidget* parent) :
 }
 
 void RGBAColorWidget::setColor(const Ptcl::binColor4f& color) {
-    int r = static_cast<int>(std::round(color.r * 255.0f));
-    int g = static_cast<int>(std::round(color.g * 255.0f));
-    int b = static_cast<int>(std::round(color.b * 255.0f));
-    int a = static_cast<int>(std::round(color.a * 255.0f));
+    QSignalBlocker b1(mSliderR);
+    QSignalBlocker b2(mSliderG);
+    QSignalBlocker b3(mSliderB);
+    QSignalBlocker b4(mSliderA);
+
+    QSignalBlocker b5(mSpinBoxR);
+    QSignalBlocker b6(mSpinBoxG);
+    QSignalBlocker b7(mSpinBoxB);
+    QSignalBlocker b8(mSpinBoxA);
+
+    s32 r = static_cast<s32>(std::round(color.r * 255.0f));
+    s32 g = static_cast<s32>(std::round(color.g * 255.0f));
+    s32 b = static_cast<s32>(std::round(color.b * 255.0f));
+    s32 a = static_cast<s32>(std::round(color.a * 255.0f));
 
     mSliderR.setRgbValues(r, g, b);
     mSliderG.setRgbValues(r, g, b);
@@ -90,10 +100,10 @@ void RGBAColorWidget::setColor(const Ptcl::binColor4f& color) {
 Ptcl::binColor4f RGBAColorWidget::color() const {
     Ptcl::binColor4f result;
 
-    result.r = static_cast<float>(mSpinBoxR.value());
-    result.g = static_cast<float>(mSpinBoxG.value());
-    result.b = static_cast<float>(mSpinBoxB.value());
-    result.a = static_cast<float>(mSpinBoxA.value());
+    result.r = static_cast<f32>(mSpinBoxR.value());
+    result.g = static_cast<f32>(mSpinBoxG.value());
+    result.b = static_cast<f32>(mSpinBoxB.value());
+    result.a = static_cast<f32>(mSpinBoxA.value());
     return result;
 }
 
@@ -103,15 +113,15 @@ QColor RGBAColorWidget::toQColor() const {
 
 void RGBAColorWidget::updateColorFromSliders() {
     blockSignals(true);
-    mSpinBoxR.blockSignals(true);
-    mSpinBoxG.blockSignals(true);
-    mSpinBoxB.blockSignals(true);
-    mSpinBoxA.blockSignals(true);
+    QSignalBlocker b1(mSpinBoxR);
+    QSignalBlocker b2(mSpinBoxG);
+    QSignalBlocker b3(mSpinBoxB);
+    QSignalBlocker b4(mSpinBoxA);
 
-    int r = mSliderR.value();
-    int g = mSliderG.value();
-    int b = mSliderB.value();
-    int a = mSliderA.value();
+    s32 r = mSliderR.value();
+    s32 g = mSliderG.value();
+    s32 b = mSliderB.value();
+    s32 a = mSliderA.value();
 
     mSliderR.setRgbValues(0, g, b);
     mSliderG.setRgbValues(r, 0, b);
@@ -128,10 +138,6 @@ void RGBAColorWidget::updateColorFromSliders() {
     mSpinBoxB.setValue(bFloat);
     mSpinBoxA.setValue(aFloat);
 
-    mSpinBoxR.blockSignals(false);
-    mSpinBoxG.blockSignals(false);
-    mSpinBoxB.blockSignals(false);
-    mSpinBoxA.blockSignals(false);
     blockSignals(false);
 
     updatePreview();
@@ -140,20 +146,20 @@ void RGBAColorWidget::updateColorFromSliders() {
 
 void RGBAColorWidget::updateColorFromSpinBoxes() {
     blockSignals(true);
-    mSliderR.blockSignals(true);
-    mSliderG.blockSignals(true);
-    mSliderB.blockSignals(true);
-    mSliderA.blockSignals(true);
+    QSignalBlocker b1(mSliderR);
+    QSignalBlocker b2(mSliderG);
+    QSignalBlocker b3(mSliderB);
+    QSignalBlocker b4(mSliderA);
 
     double rFloat = mSpinBoxR.value();
     double gFloat = mSpinBoxG.value();
     double bFloat = mSpinBoxB.value();
     double aFloat = mSpinBoxA.value();
 
-    int r = static_cast<int>(std::round(rFloat * 255.0f));
-    int g = static_cast<int>(std::round(gFloat * 255.0f));
-    int b = static_cast<int>(std::round(bFloat * 255.0f));
-    int a = static_cast<int>(std::round(aFloat * 255.0f));
+    s32 r = static_cast<s32>(std::round(rFloat * 255.0f));
+    s32 g = static_cast<s32>(std::round(gFloat * 255.0f));
+    s32 b = static_cast<s32>(std::round(bFloat * 255.0f));
+    s32 a = static_cast<s32>(std::round(aFloat * 255.0f));
 
     mSliderR.setRgbValues(0, g, b);
     mSliderG.setRgbValues(r, 0, b);
@@ -165,10 +171,6 @@ void RGBAColorWidget::updateColorFromSpinBoxes() {
     mSliderB.setValue(b);
     mSliderA.setValue(a);
 
-    mSliderR.blockSignals(false);
-    mSliderG.blockSignals(false);
-    mSliderA.blockSignals(false);
-    mSliderB.blockSignals(false);
     blockSignals(false);
 
     updatePreview();
@@ -199,7 +201,7 @@ void RGBAColorWidget::updatePreview() {
     QPainter painter(&pixmap);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    const int radius = 5;
+    const s32 radius = 5;
     QRectF roundedRect = pixmap.rect();
     roundedRect = QRectF(
         std::ceil(roundedRect.left()) + 0.5,
@@ -211,12 +213,12 @@ void RGBAColorWidget::updatePreview() {
     path.addRoundedRect(roundedRect, radius, radius);
     painter.setClipPath(path);
 
-    const int checkerSize = 6;
+    const s32 checkerSize = 6;
     QColor light(220, 220, 220);
     QColor dark(180, 180, 180);
 
-    for (int y = 0; y < pixmap.height(); y += checkerSize) {
-        for (int x = 0; x < pixmap.width(); x += checkerSize) {
+    for (s32 y = 0; y < pixmap.height(); y += checkerSize) {
+        for (s32 x = 0; x < pixmap.width(); x += checkerSize) {
             QRect cell(x, y, checkerSize, checkerSize);
             bool isLight = ((x / checkerSize + y / checkerSize) % 2) == 0;
             painter.fillRect(cell, isLight ? light : dark);
