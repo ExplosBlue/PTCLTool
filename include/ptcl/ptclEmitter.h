@@ -187,6 +187,16 @@ struct TextureProperties {
 // ========================================================================== //
 
 
+struct CombinerProperties {
+    BlendFuncType blendFunc = BlendFuncType::Unk0;
+    DepthFuncType depthFunc = DepthFuncType::Unk0;
+    ColorCombinerFuncType combinerFunc = ColorCombinerFuncType::Unk0;
+};
+
+
+// ========================================================================== //
+
+
 class Emitter
 {
 public:
@@ -226,14 +236,8 @@ public:
     f32 _8C() const;
     void set_8C(f32 _8C);
 
-    u32 _90() const;
-    void set_90(u32 _90);
-
     BillboardType billboardType() const;
     void setBillboardType(BillboardType billboardType);
-
-    u32 _98() const;
-    void set_98(u32 _98);
 
     const std::array<u32, 3> &_D8() const;
     void set_D8(const std::array<u32, 3> &_D8);
@@ -271,11 +275,11 @@ public:
     const TextureProperties &textureProperties() const;
     void setTextureProperties(const TextureProperties &textureProperties);
 
-    u32 _134() const;
-    void set_134(u32 _134);
-
     const RotationProperties &rotationProperties() const;
     void setRotationProperties(const RotationProperties &rotationProperties);
+
+    const CombinerProperties &combinerProperties() const;
+    void setCombinerProperties(const CombinerProperties &combinerProperties);
 
     const std::array<u32, 2> &_168() const;
     void set_168(const std::array<u32, 2> &_168);
@@ -322,9 +326,7 @@ private:
 
     u32 m_80;
     f32 m_8C;
-    u32 m_90;
     BillboardType mBillboardType;
-    u32 m_98;
 
     std::array<u32, 3> m_D8;
 
@@ -341,9 +343,9 @@ private:
     ScaleProperties mScaleProperties;
     RotationProperties mRotationProperties;
     TextureProperties mTextureProperties;
-    TextureHandle mTextureHandle;
+    CombinerProperties mCombinerProperties;
 
-    u32 m_134;
+    TextureHandle mTextureHandle;
 
     std::array<u32, 2> m_168;
 

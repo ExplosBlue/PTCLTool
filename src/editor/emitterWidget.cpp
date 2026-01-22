@@ -158,9 +158,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     m_8CSpinBox.setMinimum(std::numeric_limits<f32>::min());
     addLabledWidget(&m_8CSpinBox, "_8C:", 26, 0, 3);
 
-    addLabledWidget(&m_90SpinBox,        "_90:",            27, 0, 3);
     addLabledWidget(&mBillboardComboBox, "Billboard Type:", 28, 0, 3);
-    addLabledWidget(&m_98SpinBox,        "_98:",            29, 0, 3);
 
     // Color Properties
     connect(&mColorProperties, &ColorPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ColorProperties& properties) {
@@ -172,7 +170,15 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     colorPropertiesSection->setContent(&mColorProperties);
     mMainLayout.addWidget(colorPropertiesSection, 33, 0, 1, 4);
 
-    // _D8
+    // Combiner Properties
+    connect(&mCombinerProperties, &CombinerPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::CombinerProperties& properties) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setCombinerProperties(properties);
+    });
+
+    auto combinerPropertiesSection = new CollapsibleWidget("Combiner properties", this);
+    combinerPropertiesSection->setContent(&mCombinerProperties);
+    mMainLayout.addWidget(combinerPropertiesSection, 34, 0, 1, 4);
 
     // Rotation Properties
     connect(&mAlphaProperties, &AlphaPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::AlphaProperties& properties) {
@@ -182,7 +188,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
 
     auto alphaPropertiesSection = new CollapsibleWidget("Alpha properties", this);
     alphaPropertiesSection->setContent(&mAlphaProperties);
-    mMainLayout.addWidget(alphaPropertiesSection, 34, 0, 1, 4);
+    mMainLayout.addWidget(alphaPropertiesSection, 35, 0, 1, 4);
 
     // Rotation Properties
     connect(&mRotationProperties, &RotationPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::RotationProperties& properties) {
@@ -192,9 +198,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
 
     auto rotationPropertiesSection = new CollapsibleWidget("Rotation properties", this);
     rotationPropertiesSection->setContent(&mRotationProperties);
-    mMainLayout.addWidget(rotationPropertiesSection, 49, 0, 1, 4);
-
-    addLabledWidget(&m_134SpinBox, "_134:", 52, 0, 3);
+    mMainLayout.addWidget(rotationPropertiesSection, 36, 0, 1, 4);
 
     // Scale Properties
     connect(&mScaleProperties, &ScalePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ScaleProperties& properties) {
@@ -204,7 +208,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
 
     auto scalePropertiesSection = new CollapsibleWidget("Scale properties", this);
     scalePropertiesSection->setContent(&mScaleProperties);
-    mMainLayout.addWidget(scalePropertiesSection, 53, 0, 1, 4);
+    mMainLayout.addWidget(scalePropertiesSection, 37, 0, 1, 4);
 }
 
 void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
@@ -219,10 +223,8 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_31SpinBox.setValue(mEmitterPtr->_31());
 
     m_8CSpinBox.setValue(mEmitterPtr->_8C());
-    m_90SpinBox.setValue(mEmitterPtr->_90());
     mBillboardComboBox.setCurrentEnum((mEmitterPtr->billboardType()));
 
-    m_134SpinBox.setValue(mEmitterPtr->_134());
 
     mBasicProperties.setProperties(mEmitterPtr->basicProperties());
     mGravityProperties.setProperties(mEmitterPtr->gravityProperties());
@@ -237,6 +239,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mScaleProperties.setProperties(mEmitterPtr->scaleProperties());
     mRotationProperties.setProperties(mEmitterPtr->rotationProperties());
     mTextureProperties.setProperties(mEmitterPtr->textureProperties(), mEmitterPtr->textureHandle().get());
+    mCombinerProperties.setProperties(mEmitterPtr->combinerProperties());
 
     mIsPopulating = false;
 }

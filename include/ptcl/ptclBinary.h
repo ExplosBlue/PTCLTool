@@ -209,79 +209,79 @@ static_assert(sizeof(BinTextureRes) == 0x0C, "BinTextureRes is incorrect size.")
 
 // Size 0x1F4
 struct alignas(4) BinCommonEmitterData {
-    EmitterType type;                    // 0x00
-    BitFlag<EmitterFlag> flag;           // 0x04
-    u32 randomSeed;                      // 0x08
-    u32 namePos;                         // 0x0C
-    uptr32 namePtr;                      // 0x10 - placeholder for a 32 bit const char* (should always be 0)
-    BinTextureRes textureRes;            // 0x14
-    u32 textureSize;                     // 0x20
-    u32 texturePos;                      // 0x24
-    uptr32 textureHandlePtr;             // 0x28 - placeholder for a 32 bit textureHandle* (should always be 0)
-    u8 _2C;                              // 0x2C
-    u8 _2D;                              // 0x2D
-    u8 _2E;                              // 0x2E
-    bool isDirectional;                  // 0x2F
-    bool isTexPatAnim;                   // 0x30
-    u8 _31;                              // 0x31
-    u8 volumeTblIndex;                   // 0x32
-    bool isStopEmitInFade;               // 0x33
-    VolumeType volumeType;               // 0x34
-    binVec3f volumeRadius;               // 0x38
-    s32 volumeSweepStart;                // 0x44
-    s32 volumeSweepParam;                // 0x48
-    f32 figureVel;                       // 0x4C
-    binVec3f emitterVelDir;              // 0x50
-    f32 initVel;                         // 0x5C
-    f32 initVelRnd;                      // 0x60
-    binVec3f spreadVec;                  // 0x64
-    s32 startFrame;                      // 0x70
-    s32 endFrame;                        // 0x74
-    s32 lifeStep;                        // 0x78
-    s32 lifeStepRnd;                     // 0x7C
-    s32 emitRate;                        // 0x80
-    s32 ptclLife;                        // 0x84
-    s32 ptclLifeRnd;                     // 0x88
-    f32 _8C;                             // 0x8C
-    u32 _90;                             // 0x90
-    BillboardType billboardType;         // 0x94
-    u32 _98;                             // 0x98
-    binVec3f gravity;                    // 0x9C
-    std::array<binColor4f, 3> color;     // 0xA8
-    std::array<u32, 3> _D8;              // 0xD8
-    s32 colorSection1;                   // 0xE4
-    s32 colorSection2;                   // 0xE8
-    s32 colorSection3;                   // 0xEC
-    s32 colorNumRepeat;                  // 0xF0
-    f32 initAlpha;                       // 0xF4
-    f32 diffAlpha21;                     // 0xF8
-    f32 diffAlpha32;                     // 0xFC
-    s32 alphaSection1;                   // 0x100
-    s32 alphaSection2;                   // 0x104
-    binVec2f initScale;                  // 0x108
-    binVec2f diffScale21;                // 0x110
-    binVec2f diffScale32;                // 0x118
-    s32 scaleSection1;                   // 0x120
-    s32 scaleSection2;                   // 0x124
-    f32 scaleRand;                       // 0x128
-    u32 rotCalcType;                     // 0x12C
-    FollowType followType;               // 0x130
-    u32 _134;                            // 0x134
-    binVec3i initRot;                    // 0x138
-    binVec3i initRotRand;                // 0x144
-    binVec3i rotVel;                     // 0x150
-    binVec3i rotVelRand;                 // 0x15C
-    std::array<u32, 2> _168;             // 0x168
-    binMtx34f transformSRT;              // 0x170
-    binMtx34f transformRT;               // 0x1A0
-    f32 alphaAddInFade;                  // 0x1D0
-    u16 numTexPat;                       // 0x1D4
-    u8 numTexDivX;                       // 0x1D6
-    u8 numTexDivY;                       // 0x1D7
-    binVec2f texUVScale;                 // 0x1D8
-    std::array<u8, 16> texPatTbl;        // 0x1E0
-    u16 texPatFreq;                      // 0x1F0
-    u16 texPatTblUse;                    // 0x1F2
+    EmitterType type;                           // 0x00
+    BitFlag<EmitterFlag> flag;                  // 0x04
+    u32 randomSeed;                             // 0x08
+    u32 namePos;                                // 0x0C
+    uptr32 namePtr;                             // 0x10 - placeholder for a 32 bit const char* (should always be 0)
+    BinTextureRes textureRes;                   // 0x14
+    u32 textureSize;                            // 0x20
+    u32 texturePos;                             // 0x24
+    uptr32 textureHandlePtr;                    // 0x28 - placeholder for a 32 bit textureHandle* (should always be 0)
+    u8 _2C;                                     // 0x2C
+    u8 _2D;                                     // 0x2D
+    u8 _2E;                                     // 0x2E
+    bool isDirectional;                         // 0x2F
+    bool isTexPatAnim;                          // 0x30
+    u8 _31;                                     // 0x31
+    u8 volumeTblIndex;                          // 0x32
+    bool isStopEmitInFade;                      // 0x33
+    VolumeType volumeType;                      // 0x34
+    binVec3f volumeRadius;                      // 0x38
+    s32 volumeSweepStart;                       // 0x44
+    s32 volumeSweepParam;                       // 0x48
+    f32 figureVel;                              // 0x4C
+    binVec3f emitterVelDir;                     // 0x50
+    f32 initVel;                                // 0x5C
+    f32 initVelRnd;                             // 0x60
+    binVec3f spreadVec;                         // 0x64
+    s32 startFrame;                             // 0x70
+    s32 endFrame;                               // 0x74
+    s32 lifeStep;                               // 0x78
+    s32 lifeStepRnd;                            // 0x7C
+    s32 emitRate;                               // 0x80
+    s32 ptclLife;                               // 0x84
+    s32 ptclLifeRnd;                            // 0x88
+    f32 _8C;                                    // 0x8C
+    BlendFuncType blendFunc;                    // 0x90
+    BillboardType billboardType;                // 0x94
+    DepthFuncType depthFunc;                    // 0x98
+    binVec3f gravity;                           // 0x9C
+    std::array<binColor4f, 3> color;            // 0xA8
+    std::array<u32, 3> _D8;                     // 0xD8
+    s32 colorSection1;                          // 0xE4
+    s32 colorSection2;                          // 0xE8
+    s32 colorSection3;                          // 0xEC
+    s32 colorNumRepeat;                         // 0xF0
+    f32 initAlpha;                              // 0xF4
+    f32 diffAlpha21;                            // 0xF8
+    f32 diffAlpha32;                            // 0xFC
+    s32 alphaSection1;                          // 0x100
+    s32 alphaSection2;                          // 0x104
+    binVec2f initScale;                         // 0x108
+    binVec2f diffScale21;                       // 0x110
+    binVec2f diffScale32;                       // 0x118
+    s32 scaleSection1;                          // 0x120
+    s32 scaleSection2;                          // 0x124
+    f32 scaleRand;                              // 0x128
+    u32 rotCalcType;                            // 0x12C
+    FollowType followType;                      // 0x130
+    ColorCombinerFuncType colorCombinerFunc;    // 0x134
+    binVec3i initRot;                           // 0x138
+    binVec3i initRotRand;                       // 0x144
+    binVec3i rotVel;                            // 0x150
+    binVec3i rotVelRand;                        // 0x15C
+    std::array<u32, 2> _168;                    // 0x168
+    binMtx34f transformSRT;                     // 0x170
+    binMtx34f transformRT;                      // 0x1A0
+    f32 alphaAddInFade;                         // 0x1D0
+    u16 numTexPat;                              // 0x1D4
+    u8 numTexDivX;                              // 0x1D6
+    u8 numTexDivY;                              // 0x1D7
+    binVec2f texUVScale;                        // 0x1D8
+    std::array<u8, 16> texPatTbl;               // 0x1E0
+    u16 texPatFreq;                             // 0x1F0
+    u16 texPatTblUse;                           // 0x1F2
 
     BinCommonEmitterData() = default;
     BinCommonEmitterData(const Ptcl::Emitter& emitter);

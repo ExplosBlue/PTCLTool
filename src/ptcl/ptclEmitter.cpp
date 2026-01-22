@@ -12,15 +12,9 @@ Emitter::Emitter() {
     m_2D = 0;
     m_2E = 0;
     m_31 = 0;
-
     m_8C = 0.0f;
-    m_90 = 0;
     mBillboardType = BillboardType::Billboard;
-    m_98 = 0;
-
     m_D8 = {0, 0, 0};
-
-    m_134 = 0;
     m_168 = {0, 0};
 }
 
@@ -47,7 +41,6 @@ void Emitter::setName(const QString& name) {
 const TextureHandle& Emitter::textureHandle() const {
     return mTextureHandle;
 }
-
 
 TextureHandle& Emitter::textureHandle() {
     return mTextureHandle;
@@ -97,28 +90,12 @@ void Emitter::set_8C(const f32 _8C) {
     m_8C = _8C;
 }
 
-u32 Emitter::_90() const {
-    return m_90;
-}
-
-void Emitter::set_90(const u32 _90) {
-    m_90 = _90;
-}
-
 BillboardType Emitter::billboardType() const {
     return mBillboardType;
 }
 
 void Emitter::setBillboardType(const BillboardType billboardType) {
     mBillboardType = billboardType;
-}
-
-u32 Emitter::_98() const {
-    return m_98;
-}
-
-void Emitter::set_98(const u32 _98) {
-    m_98 = _98;
 }
 
 const std::array<u32, 3>& Emitter::_D8() const {
@@ -228,20 +205,20 @@ void Emitter::setTextureProperties(const TextureProperties& textureProperties) {
     mTextureProperties = textureProperties;
 }
 
-u32 Emitter::_134() const {
-    return m_134;
-}
-
-void Emitter::set_134(const u32 _134) {
-    m_134 = _134;
-}
-
 const RotationProperties& Emitter::rotationProperties() const {
     return mRotationProperties;
 }
 
 void Emitter::setRotationProperties(const RotationProperties& rotationProperties) {
     mRotationProperties = rotationProperties;
+}
+
+const CombinerProperties& Emitter::combinerProperties() const {
+    return mCombinerProperties;
+}
+
+void Emitter::setCombinerProperties(const CombinerProperties& combinerProperties) {
+    mCombinerProperties = combinerProperties;
 }
 
 const std::array<u32, 2>& Emitter::_168() const {
@@ -354,9 +331,7 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_31 = emitterData._31;
 
     m_8C = emitterData._8C;
-    m_90 = emitterData._90;
     mBillboardType = emitterData.billboardType;
-    m_98 = emitterData._98;
 
     std::ranges::copy(emitterData._D8, m_D8.begin());
 
@@ -447,7 +422,11 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .rotVelRand = Math::Vector3i(emitterData.rotVelRand.x, emitterData.rotVelRand.y, emitterData.rotVelRand.z),
     };
 
-    m_134 = emitterData._134;
+    mCombinerProperties = {
+        .blendFunc = emitterData.blendFunc,
+        .depthFunc = emitterData.depthFunc,
+        .combinerFunc = emitterData.colorCombinerFunc
+    };
 
     std::ranges::copy(emitterData._168, m_168.begin());
 }
