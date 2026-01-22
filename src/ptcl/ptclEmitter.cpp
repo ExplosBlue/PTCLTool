@@ -15,7 +15,6 @@ Emitter::Emitter() {
     m_8C = 0.0f;
     mBillboardType = BillboardType::Billboard;
     m_D8 = {0, 0, 0};
-    m_168 = {0, 0};
 }
 
 EmitterType Emitter::type() const {
@@ -221,14 +220,6 @@ void Emitter::setCombinerProperties(const CombinerProperties& combinerProperties
     mCombinerProperties = combinerProperties;
 }
 
-const std::array<u32, 2>& Emitter::_168() const {
-    return m_168;
-}
-
-void Emitter::set_168(const std::array<u32, 2>& _168) {
-    m_168 = _168;
-}
-
 BitFlag<ChildFlag>& Emitter::childFlags() {
     return mChildFlags;
 }
@@ -420,6 +411,7 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .initRotRand = Math::Vector3i(emitterData.initRotRand.x, emitterData.initRotRand.y, emitterData.initRotRand.z),
         .rotVel = Math::Vector3i(emitterData.rotVel.x, emitterData.rotVel.y, emitterData.rotVel.z),
         .rotVelRand = Math::Vector3i(emitterData.rotVelRand.x, emitterData.rotVelRand.y, emitterData.rotVelRand.z),
+        .rotBasis = Math::Vector2f(emitterData.rotBasis.x, emitterData.rotBasis.y)
     };
 
     mCombinerProperties = {
@@ -427,8 +419,6 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .depthFunc = emitterData.depthFunc,
         .combinerFunc = emitterData.colorCombinerFunc
     };
-
-    std::ranges::copy(emitterData._168, m_168.begin());
 }
 
 

@@ -56,6 +56,7 @@ struct RotationProperties {
     Math::Vector3i initRotRand = {};
     Math::Vector3i rotVel = {};
     Math::Vector3i rotVelRand = {};
+    Math::Vector2f rotBasis = {0.0f, 0.0f};
 };
 
 
@@ -281,9 +282,6 @@ public:
     const CombinerProperties &combinerProperties() const;
     void setCombinerProperties(const CombinerProperties &combinerProperties);
 
-    const std::array<u32, 2> &_168() const;
-    void set_168(const std::array<u32, 2> &_168);
-
     const TransformProperties &transformProperties() const;
     void setTransformProperties(const TransformProperties &transformProperties);
 
@@ -346,9 +344,6 @@ private:
     CombinerProperties mCombinerProperties;
 
     TextureHandle mTextureHandle;
-
-    std::array<u32, 2> m_168;
-
 
     // Complex / UnkType fields
     BitFlag<ChildFlag> mChildFlags;

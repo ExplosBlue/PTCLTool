@@ -56,6 +56,13 @@ RotationPropertiesWidget::RotationPropertiesWidget(QWidget* parent) :
         emit propertiesUpdated(mProps);
     });
 
+    // Rotation Pivot
+    mainLayout->addRow("Rotation Pivot Offset", &mRotBasisSpinBox);
+    connect(&mRotBasisSpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
+        mProps.rotBasis = mRotBasisSpinBox.getVector();
+        emit propertiesUpdated(mProps);
+    });
+
     setLayout(mainLayout);
 
 }
@@ -88,6 +95,9 @@ void RotationPropertiesWidget::populateWidgets() {
 
     QSignalBlocker b5(mRotVelRandSpinBox);
     mRotVelRandSpinBox.setVector(idx2degVec(mProps.rotVelRand));
+
+    QSignalBlocker b6(mRotBasisSpinBox);
+    mRotBasisSpinBox.setVector(mProps.rotBasis);
 
     updateAxis();
 }

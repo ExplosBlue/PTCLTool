@@ -271,7 +271,7 @@ struct alignas(4) BinCommonEmitterData {
     binVec3i initRotRand;                       // 0x144
     binVec3i rotVel;                            // 0x150
     binVec3i rotVelRand;                        // 0x15C
-    std::array<u32, 2> _168;                    // 0x168
+    binVec2f rotBasis;                          // 0x168
     binMtx34f transformSRT;                     // 0x170
     binMtx34f transformRT;                      // 0x1A0
     f32 alphaAddInFade;                         // 0x1D0

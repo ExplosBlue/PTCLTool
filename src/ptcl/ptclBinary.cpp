@@ -356,7 +356,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     initRotRand = emitter.rotationProperties().initRotRand;
     rotVel = emitter.rotationProperties().rotVel;
     rotVelRand = emitter.rotationProperties().rotVelRand;
-    std::copy(emitter._168().begin(), emitter._168().end(), _168.data());
+    rotBasis = emitter.rotationProperties().rotBasis;
     transformSRT = emitter.transformProperties().transformSRT;
     transformRT = emitter.transformProperties().transformRT;
     alphaAddInFade = emitter.terminationProperties().alphaAddInFade;
@@ -437,13 +437,9 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item.initRot
         >> item.initRotRand
         >> item.rotVel
-        >> item.rotVelRand;
-
-    for (u32& val : item._168) {
-        in >> val;
-    }
-
-    in >> item.transformSRT
+        >> item.rotVelRand
+        >> item.rotBasis
+        >> item.transformSRT
         >> item.transformRT
         >> item.alphaAddInFade
         >> item.numTexPat
@@ -528,13 +524,9 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item.initRot
         << item.initRotRand
         << item.rotVel
-        << item.rotVelRand;
-
-    for (const u32& val : item._168) {
-        out << val;
-    }
-
-    out << item.transformSRT
+        << item.rotVelRand
+        << item.rotBasis
+        << item.transformSRT
         << item.transformRT
         << item.alphaAddInFade
         << item.numTexPat
@@ -617,7 +609,7 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- initRotRand:       " << initRotRand;
     qDebug() << indentation << "- rotVel:            " << rotVel;
     qDebug() << indentation << "- rotVelRand:        " << rotVelRand;
-    qDebug() << indentation << "- _168:              " << _168.data();
+    qDebug() << indentation << "- rotBasis:          " << rotBasis;
     qDebug() << indentation << "- transformSRT:      " << transformSRT;
     qDebug() << indentation << "- transformRT:       " << transformRT;
     qDebug() << indentation << "- alphaAddInFade:    " << alphaAddInFade;
