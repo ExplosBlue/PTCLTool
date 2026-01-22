@@ -237,6 +237,145 @@ inline QDebug operator<<(QDebug dbg, const ColorCalcType& type) {
 
 // ========================================================================== //
 
+
+enum class BlendFuncType : u32 {
+    Unk0    = 0x0,
+    Unk1    = 0x1,
+    Unk2    = 0x2,
+    Unk3    = 0x3,
+
+    MAX
+};
+
+template<>
+inline QString toString<BlendFuncType>(const BlendFuncType& type) {
+    switch (type) {
+    case BlendFuncType::Unk0:   return "Unk0";
+    case BlendFuncType::Unk1:   return "Unk1";
+    case BlendFuncType::Unk2:   return "Unk2";
+    case BlendFuncType::Unk3:   return "Unk3";
+    case BlendFuncType::MAX:    return "BLEND_FUNC_TYPE_MAX";
+    default: return "UNKNOWN";
+    }
+}
+
+inline QDebug operator<<(QDebug dbg, const BlendFuncType& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
+
+
+// ========================================================================== //
+
+
+enum class DepthFuncType : u32 {
+    Unk0    = 0x0,
+    Unk1    = 0x1,
+    Unk2    = 0x2,
+
+    MAX
+};
+
+template<>
+inline QString toString<DepthFuncType>(const DepthFuncType& type) {
+    switch (type) {
+    case DepthFuncType::Unk0:   return "Unk0";
+    case DepthFuncType::Unk1:   return "Unk1";
+    case DepthFuncType::Unk2:   return "Unk2";
+    case DepthFuncType::MAX:    return "DEPTH_FUNC_TYPE_MAX";
+    default: return "UNKNOWN";
+    }
+}
+
+inline QDebug operator<<(QDebug dbg, const DepthFuncType& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
+
+
+// ========================================================================== //
+
+
+enum class ColorCombinerFuncType : u32 {
+    Unk0    = 0x0,
+    Unk1    = 0x1,
+    Unk2    = 0x2,
+    Unk3    = 0x3,
+    Unk4    = 0x4,
+    Unk5    = 0x5,
+    Unk6    = 0x6,
+    Unk7    = 0x7,
+    Unk8    = 0x8,
+    Unk9    = 0x9,
+    Unk10   = 0xA,
+    Unk11   = 0xB,
+    Unk12   = 0xC,
+    Unk13   = 0xD,
+    Unk14   = 0xE,
+    Unk15   = 0xF,
+    Unk16   = 0x10,
+    Unk17   = 0x11,
+    Unk18   = 0x12,
+    Unk19   = 0x13,
+    Unk20   = 0x14,
+    Unk21   = 0x15,
+    Unk22   = 0x16,
+    Unk23   = 0x17,
+    Unk24   = 0x18,
+    Unk25   = 0x19,
+    Unk26   = 0x1A,
+    Unk27   = 0x1B,
+
+    MAX
+};
+
+template<>
+inline QString toString<ColorCombinerFuncType>(const ColorCombinerFuncType& type) {
+    switch (type) {
+    case ColorCombinerFuncType::Unk0:   return "Unk0";
+    case ColorCombinerFuncType::Unk1:   return "Unk1";
+    case ColorCombinerFuncType::Unk2:   return "Unk2";
+    case ColorCombinerFuncType::Unk3:   return "Unk3";
+    case ColorCombinerFuncType::Unk4:   return "Unk4";
+    case ColorCombinerFuncType::Unk5:   return "Unk5";
+    case ColorCombinerFuncType::Unk6:   return "Unk6";
+    case ColorCombinerFuncType::Unk7:   return "Unk7";
+    case ColorCombinerFuncType::Unk8:   return "Unk8";
+    case ColorCombinerFuncType::Unk9:   return "Unk9";
+    case ColorCombinerFuncType::Unk10:  return "Unk10";
+    case ColorCombinerFuncType::Unk11:  return "Unk11";
+    case ColorCombinerFuncType::Unk12:  return "Unk12";
+    case ColorCombinerFuncType::Unk13:  return "Unk13";
+    case ColorCombinerFuncType::Unk14:  return "Unk14";
+    case ColorCombinerFuncType::Unk15:  return "Unk15";
+    case ColorCombinerFuncType::Unk16:  return "Unk16";
+    case ColorCombinerFuncType::Unk17:  return "Unk17";
+    case ColorCombinerFuncType::Unk18:  return "Unk18";
+    case ColorCombinerFuncType::Unk19:  return "Unk19";
+    case ColorCombinerFuncType::Unk20:  return "Unk20";
+    case ColorCombinerFuncType::Unk21:  return "Unk21";
+    case ColorCombinerFuncType::Unk22:  return "Unk22";
+    case ColorCombinerFuncType::Unk23:  return "Unk23";
+    case ColorCombinerFuncType::Unk24:  return "Unk24";
+    case ColorCombinerFuncType::Unk25:  return "Unk25";
+    case ColorCombinerFuncType::Unk26:  return "Unk26";
+    case ColorCombinerFuncType::Unk27:  return "Unk27";
+    case ColorCombinerFuncType::MAX:    return "COLOR_COMBINER_FUNC_TYPE_MAX";
+    default: return "UNKNOWN";
+    }
+}
+
+inline QDebug operator<<(QDebug dbg, const ColorCombinerFuncType& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
+
+
+// ========================================================================== //
+
 enum class TextureFormat : u8 {
     RGBA8888   = 0x0,
     RGB888     = 0x1,

@@ -31,6 +31,7 @@ set(PROJECT_SOURCES
     src/editor/collapsibleWidget.cpp
     src/editor/colorGradientEditor.cpp
     src/editor/colorPropertiesWidget.cpp
+    src/editor/combinerPropertiesWidget.cpp
     src/editor/emissionPropertiesWidget.cpp
     src/editor/emitterWidget.cpp
     src/editor/emitterSetWidget.cpp
@@ -78,6 +79,7 @@ set(PROJECT_HEADERS
     include/editor/collapsibleWidget.h
     include/editor/colorGradientEditor.h
     include/editor/colorPropertiesWidget.h
+    include/editor/combinerPropertiesWidget.h
     include/editor/emissionPropertiesWidget.h
     include/editor/emitterWidget.h
     include/editor/emitterSetWidget.h
