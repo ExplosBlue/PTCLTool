@@ -21,10 +21,13 @@ RGBAColorWidget::RGBAColorWidget(QWidget* parent) :
 
     using SliderType = std::variant<GradientSlider*, AlphaSlider*>;
 
-    auto addChannelRow = [&](const QString& name, SliderType sliderType, QDoubleSpinBox* spinbox) {
-        auto* row = new QHBoxLayout;
-        row->addWidget(new QLabel(name));
-        row->addWidget(spinbox);
+    auto addChannelRow = [&](const QString& name, SliderType sliderType, QDoubleSpinBox* spinbox, QWidget** outRow = nullptr) {
+        auto* rowWidget = new QWidget(this);
+        auto* rowLayout = new QHBoxLayout(rowWidget);
+
+        rowLayout->addWidget(new QLabel(name));
+        rowLayout->addWidget(spinbox);
+
         spinbox->setDecimals(3);
         spinbox->setRange(0.0, 1.0);
         spinbox->setSingleStep(0.01);
@@ -32,11 +35,15 @@ RGBAColorWidget::RGBAColorWidget(QWidget* parent) :
         connect(spinbox, &QDoubleSpinBox::valueChanged, this, &RGBAColorWidget::updateColorFromSpinBoxes);
 
         std::visit([&](auto* slider) {
-            row->addWidget(slider);
+            rowLayout->addWidget(slider);
             connect(slider, &QSlider::valueChanged, this, &RGBAColorWidget::updateColorFromSliders);
         }, sliderType);
 
-        sliderLayout->addLayout(row);
+        sliderLayout->addWidget(rowWidget);
+
+        if (outRow) {
+            *outRow = rowWidget;
+        }
     };
 
     addChannelRow("R", &mSliderR, &mSpinBoxR);
@@ -45,7 +52,7 @@ RGBAColorWidget::RGBAColorWidget(QWidget* parent) :
     mSliderG.setChannel(GradientSlider::ChannelType::Green);
     addChannelRow("B", &mSliderB, &mSpinBoxB);
     mSliderB.setChannel(GradientSlider::ChannelType::Blue);
-    addChannelRow("A", &mSliderA, &mSpinBoxA);
+    addChannelRow("A", &mSliderA, &mSpinBoxA, &mAlphaRow);
 
     mPreview.setFixedWidth(50);
     mPreview.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -60,6 +67,12 @@ RGBAColorWidget::RGBAColorWidget(QWidget* parent) :
 
     mPreview.setFixedHeight(sliderLayout->sizeHint().height());
     updatePreview();
+}
+
+void RGBAColorWidget::enableAlpha(bool enabled) {
+    if (mAlphaRow) {
+        mAlphaRow->setVisible(enabled);
+    }
 }
 
 void RGBAColorWidget::setColor(const Ptcl::binColor4f& color) {

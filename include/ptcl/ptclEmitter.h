@@ -77,6 +77,8 @@ struct ColorProperties {
     bool colorRandom = false;
     bool colorAnimation = false;
     ColorCalcType colorCalcType;
+
+    binColor3f color0{255.0f, 255.0f, 255.0f};
 };
 
 
@@ -240,9 +242,6 @@ public:
     BillboardType billboardType() const;
     void setBillboardType(BillboardType billboardType);
 
-    const std::array<u32, 3> &_D8() const;
-    void set_D8(const std::array<u32, 3> &_D8);
-
     const BasicProperties &basicProperties() const;
     void setBasicProperties(const BasicProperties &basicProperties);
 
@@ -321,12 +320,9 @@ private:
     u8 m_2E;
     u8 m_31;
 
-
     u32 m_80;
     f32 m_8C;
     BillboardType mBillboardType;
-
-    std::array<u32, 3> m_D8;
 
     BasicProperties mBasicProperties;
     GravityProperties mGravityProperties;

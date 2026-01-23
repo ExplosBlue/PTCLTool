@@ -22,6 +22,8 @@ public:
     Ptcl::binColor4f color() const;
     QColor toQColor() const;
 
+    void enableAlpha(bool enable);
+
 signals:
     void colorChanged();
 
@@ -31,19 +33,22 @@ private slots:
     void openColorDialog();
 
 private:
+    void updatePreview();
+
+private:
     GradientSlider mSliderR;
     GradientSlider mSliderG;
     GradientSlider mSliderB;
     AlphaSlider mSliderA;
 
-    QDoubleSpinBox mSpinBoxR;
-    QDoubleSpinBox mSpinBoxG;
-    QDoubleSpinBox mSpinBoxB;
-    QDoubleSpinBox mSpinBoxA;
+    QDoubleSpinBox mSpinBoxR{};
+    QDoubleSpinBox mSpinBoxG{};
+    QDoubleSpinBox mSpinBoxB{};
+    QDoubleSpinBox mSpinBoxA{};
 
-    ClickableLabel mPreview;
+    ClickableLabel mPreview{};
 
-    void updatePreview();
+    QWidget* mAlphaRow{nullptr};
 };
 
 
