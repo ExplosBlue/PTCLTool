@@ -49,6 +49,21 @@ ColorPropertiesWidget::ColorPropertiesWidget(QWidget* parent) :
         emit propertiesUpdated(mProps);
     });
 
+    // Color0
+    mColor0Widget.enableAlpha(false);
+    connect(&mColor0Widget, &RGBAColorWidget::colorChanged, this, [this]() {
+        const auto& color = mColor0Widget.color();
+
+        Ptcl::binColor3f newColor{
+            color.r * 255.0f,
+            color.g * 255.0f,
+            color.b * 255.0f
+        };
+
+        mProps.color0 = newColor;
+        emit propertiesUpdated(mProps);
+    });
+
     // Main Layout
     auto mainLayout = new QVBoxLayout(this);
     mainLayout->addLayout(colorBehaviorLayout);
@@ -56,8 +71,10 @@ ColorPropertiesWidget::ColorPropertiesWidget(QWidget* parent) :
     mainLayout->addLayout(colorsLayout);
     mainLayout->addWidget(&mColorSections);
     mainLayout->addLayout(colorRepeatLayout);
+    mainLayout->addWidget(new QLabel("Color0"));
+    mainLayout->addWidget(&mColor0Widget);
+    mainLayout->addWidget(new QLabel("Calc Type:"));
     mainLayout->addWidget(&mColorCalcTypeSpinBox);
-
 
     setLayout(mainLayout);
 }
@@ -71,6 +88,7 @@ void ColorPropertiesWidget::populateWidgets() {
     QSignalBlocker b1(mColorSections);
     QSignalBlocker b2(mColorNumRepeatSpinBox);
     QSignalBlocker b3(mColorCalcTypeSpinBox);
+    QSignalBlocker b4(mColor0Widget);
 
     QSignalBlocker bColor0(mColorWidgets[0]);
     QSignalBlocker bColor1(mColorWidgets[1]);
@@ -94,6 +112,14 @@ void ColorPropertiesWidget::populateWidgets() {
     mColorSections.setRepetitionCount(mProps.colorNumRepeat);
     mColorNumRepeatSpinBox.setValue(mProps.colorNumRepeat);
     mColorCalcTypeSpinBox.setCurrentEnum(mProps.colorCalcType);
+
+    Ptcl::binColor4f color0{
+        std::clamp(mProps.color0.r / 255.0f, 0.0f, 1.0f),
+        std::clamp(mProps.color0.g / 255.0f, 0.0f, 1.0f),
+        std::clamp(mProps.color0.b / 255.0f, 0.0f, 1.0f),
+        1.0f
+    };
+    mColor0Widget.setColor(color0);
 
     updateUiFromFlags();
 }

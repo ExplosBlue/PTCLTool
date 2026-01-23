@@ -141,6 +141,28 @@ static_assert(sizeof(binColor4f) == 0x10, "binColor4f is incorrect size.");
 // ========================================================================== //
 
 
+// Size 0x0C
+struct alignas(4) binColor3f {
+    f32 r;   // 0x00
+    f32 g;   // 0x04
+    f32 b;   // 0x08
+
+    binColor3f();
+    binColor3f(f32 r, f32 g, f32 b);
+    binColor3f(const QColor& color);
+
+    friend QDataStream& operator>>(QDataStream& in, binColor3f& item);
+    friend QDataStream& operator<<(QDataStream& out, const binColor3f& item);
+
+    friend QDebug operator<<(QDebug dbg, const binColor3f& item);
+};
+
+static_assert(sizeof(binColor3f) == 0x0C, "binColor3f is incorrect size.");
+
+
+// ========================================================================== //
+
+
 // Size 0x1C
 struct alignas(4) BinHeaderData {
     std::array<char, 4> magic;   // 0x00
@@ -248,7 +270,7 @@ struct alignas(4) BinCommonEmitterData {
     DepthFuncType depthFunc;                    // 0x98
     binVec3f gravity;                           // 0x9C
     std::array<binColor4f, 3> color;            // 0xA8
-    std::array<u32, 3> _D8;                     // 0xD8
+    binColor3f color0;                          // 0xD8
     s32 colorSection1;                          // 0xE4
     s32 colorSection2;                          // 0xE8
     s32 colorSection3;                          // 0xEC

@@ -14,7 +14,6 @@ Emitter::Emitter() {
     m_31 = 0;
     m_8C = 0.0f;
     mBillboardType = BillboardType::Billboard;
-    m_D8 = {0, 0, 0};
 }
 
 EmitterType Emitter::type() const {
@@ -95,14 +94,6 @@ BillboardType Emitter::billboardType() const {
 
 void Emitter::setBillboardType(const BillboardType billboardType) {
     mBillboardType = billboardType;
-}
-
-const std::array<u32, 3>& Emitter::_D8() const {
-    return m_D8;
-}
-
-void Emitter::set_D8(const std::array<u32, 3>& _D8) {
-    m_D8 = _D8;
 }
 
 const BasicProperties& Emitter::basicProperties() const {
@@ -324,8 +315,6 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_8C = emitterData._8C;
     mBillboardType = emitterData.billboardType;
 
-    std::ranges::copy(emitterData._D8, m_D8.begin());
-
     mBasicProperties = {
         .type = emitterData.type,
         .followType = emitterData.followType,
@@ -385,7 +374,8 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .colorNumRepeat = emitterData.colorNumRepeat,
         .colorRandom = emitterData.flag.isSet(EmitterFlag::ColorRandom),
         .colorAnimation = emitterData.flag.isSet(EmitterFlag::ColorAnimation),
-        .colorCalcType = static_cast<ColorCalcType>(emitterData.rotCalcType / 5)
+        .colorCalcType = static_cast<ColorCalcType>(emitterData.rotCalcType / 5),
+        .color0 = emitterData.color0
     };
 
     mAlphaProperties = {

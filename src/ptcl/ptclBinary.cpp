@@ -162,6 +162,37 @@ QDebug operator<<(QDebug dbg, const binColor4f& item) {
 // ========================================================================== //
 
 
+binColor3f::binColor3f() :
+    r(0.0f), g(0.0f), b(0.0f) {
+}
+
+binColor3f::binColor3f(f32 r, f32 g, f32 b) :
+    r(r), g(g), b(b) {
+}
+
+binColor3f::binColor3f(const QColor& color) :
+    r(color.redF()), g(color.greenF()), b(color.blueF()) {
+}
+
+QDataStream& operator>>(QDataStream& in, binColor3f& item) {
+    in >> item.r >> item.g >> item.b;
+    return in;
+}
+
+QDataStream& operator<<(QDataStream& out, const binColor3f& item) {
+    out << item.r << item.g << item.b;
+    return out;
+}
+
+QDebug operator<<(QDebug dbg, const binColor3f& item) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << "{" << item.r << "," << item.g << "," << item.b << "}";
+    return dbg;
+}
+
+
+// ========================================================================== //
+
 QDataStream& operator>>(QDataStream& in, BinHeaderData& item) {
     in.readRawData(item.magic.data(), 4);
     in >> item.version
@@ -331,7 +362,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     depthFunc = emitter.combinerProperties().depthFunc;
     gravity = emitter.gravityProperties().gravity;
     color = emitter.colorProperties().colors;
-    std::copy(emitter._D8().begin(), emitter._D8().end(), _D8.data());
+    color0 = emitter.colorProperties().color0;
     colorSection1 = emitter.colorProperties().colorSection1;
     colorSection2 = emitter.colorProperties().colorSection2;
     colorSection3 = emitter.colorProperties().colorSection3;
@@ -410,13 +441,9 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item.gravity
         >> item.color[0]
         >> item.color[1]
-        >> item.color[2];
-
-    for (u32& val : item._D8) {
-        in >> val;
-    }
-
-    in >> item.colorSection1
+        >> item.color[2]
+        >> item.color0
+        >> item.colorSection1
         >> item.colorSection2
         >> item.colorSection3
         >> item.colorNumRepeat
@@ -497,13 +524,9 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item.gravity
         << item.color[0]
         << item.color[1]
-        << item.color[2];
-
-    for (const u32& val : item._D8) {
-        out << val;
-    }
-
-    out << item.colorSection1
+        << item.color[2]
+        << item.color0
+        << item.colorSection1
         << item.colorSection2
         << item.colorSection3
         << item.colorNumRepeat
@@ -586,7 +609,7 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- depthFunc:         " << depthFunc;
     qDebug() << indentation << "- gravity:           " << gravity;
     qDebug() << indentation << "- color:             " << color.data();
-    qDebug() << indentation << "- _D8:               " << _D8.data();
+    qDebug() << indentation << "- color0:            " << color0;
     qDebug() << indentation << "- colorSection1:     " << colorSection1;
     qDebug() << indentation << "- colorSection2:     " << colorSection2;
     qDebug() << indentation << "- colorSection3:     " << colorSection3;

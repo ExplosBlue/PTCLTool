@@ -63,6 +63,8 @@ private:
     SizedSpinBox<s32> mColorNumRepeatSpinBox{};
     QLabel mRepetitionCountLabel{};
     EnumComboBox<Ptcl::ColorCalcType> mColorCalcTypeSpinBox{};
+
+    RGBAColorWidget mColor0Widget{};
 };
 
 
