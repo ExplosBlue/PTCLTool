@@ -115,6 +115,7 @@ struct VelocityProperties {
     f32 initVel = 0.0f;
     f32 initVelRnd = 0.0f;
     Math::Vector3f spreadVec = {0.0f, 0.0f, 0.0f};
+    f32 airResistance = 1.0f;
 };
 
 
@@ -236,9 +237,6 @@ public:
     u32 _80() const;
     void set_80(u32 _80);
 
-    f32 _8C() const;
-    void set_8C(f32 _8C);
-
     BillboardType billboardType() const;
     void setBillboardType(BillboardType billboardType);
 
@@ -321,7 +319,6 @@ private:
     u8 m_31;
 
     u32 m_80;
-    f32 m_8C;
     BillboardType mBillboardType;
 
     BasicProperties mBasicProperties;

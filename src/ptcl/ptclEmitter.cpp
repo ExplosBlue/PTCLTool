@@ -12,7 +12,6 @@ Emitter::Emitter() {
     m_2D = 0;
     m_2E = 0;
     m_31 = 0;
-    m_8C = 0.0f;
     mBillboardType = BillboardType::Billboard;
 }
 
@@ -78,14 +77,6 @@ u8 Emitter::_31() const {
 
 void Emitter::set_31(const u8 _31) {
     m_31 = _31;
-}
-
-f32 Emitter::_8C() const {
-    return m_8C;
-}
-
-void Emitter::set_8C(const f32 _8C) {
-    m_8C = _8C;
 }
 
 BillboardType Emitter::billboardType() const {
@@ -312,7 +303,6 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     m_2E = emitterData._2E;
     m_31 = emitterData._31;
 
-    m_8C = emitterData._8C;
     mBillboardType = emitterData.billboardType;
 
     mBasicProperties = {
@@ -355,7 +345,8 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .emitterVelDir = Math::Vector3f(emitterData.emitterVelDir.x, emitterData.emitterVelDir.y, emitterData.emitterVelDir.z),
         .initVel = emitterData.initVel,
         .initVelRnd = emitterData.initVelRnd,
-        .spreadVec = Math::Vector3f(emitterData.spreadVec.x, emitterData.spreadVec.y, emitterData.spreadVec.z)
+        .spreadVec = Math::Vector3f(emitterData.spreadVec.x, emitterData.spreadVec.y, emitterData.spreadVec.z),
+        .airResistance = emitterData.airResistance
     };
 
     mVolumeProperties = {
