@@ -29,6 +29,7 @@ private:
     QDoubleSpinBox mInitVelSpinbox{};
     QDoubleSpinBox mVelRandomSpinbox{};
     VectorSpinBox<Math::Vector3f> mSpreadVecSpinbox{};
+    QDoubleSpinBox mAirResistanceSpinbox{};
 };
 
 

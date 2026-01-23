@@ -152,12 +152,6 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     transformPropertiesSection->setContent(&mTransformProperties);
     mMainLayout.addWidget(transformPropertiesSection, 17, 0, 1, 4);
 
-    // _70
-
-    m_8CSpinBox.setMaximum(std::numeric_limits<f32>::max());
-    m_8CSpinBox.setMinimum(std::numeric_limits<f32>::min());
-    addLabledWidget(&m_8CSpinBox, "_8C:", 26, 0, 3);
-
     addLabledWidget(&mBillboardComboBox, "Billboard Type:", 28, 0, 3);
 
     // Color Properties
@@ -222,7 +216,6 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     m_2ESpinBox.setValue(mEmitterPtr->_2E());
     m_31SpinBox.setValue(mEmitterPtr->_31());
 
-    m_8CSpinBox.setValue(mEmitterPtr->_8C());
     mBillboardComboBox.setCurrentEnum((mEmitterPtr->billboardType()));
 
 

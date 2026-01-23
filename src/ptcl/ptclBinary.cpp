@@ -356,7 +356,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     emitRate = emitter.emissionProperties().emitRate;
     ptclLife = emitter.lifespanProperties().ptclLife;
     ptclLifeRnd = emitter.lifespanProperties().ptclLifeRnd;
-    _8C = emitter._8C();
+    airResistance = emitter.velocityProperties().airResistance;
     blendFunc = emitter.combinerProperties().blendFunc;
     billboardType = emitter.billboardType();
     depthFunc = emitter.combinerProperties().depthFunc;
@@ -434,7 +434,7 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item.emitRate
         >> item.ptclLife
         >> item.ptclLifeRnd
-        >> item._8C
+        >> item.airResistance
         >> item.blendFunc
         >> item.billboardType
         >> item.depthFunc
@@ -517,7 +517,7 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item.emitRate
         << item.ptclLife
         << item.ptclLifeRnd
-        << item._8C
+        << item.airResistance
         << item.blendFunc
         << item.billboardType
         << item.depthFunc
@@ -603,7 +603,7 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- emitRate:          " << emitRate;
     qDebug() << indentation << "- ptclLife:          " << ptclLife;
     qDebug() << indentation << "- ptclLifeRnd:       " << ptclLifeRnd;
-    qDebug() << indentation << "- _8C:               " << _8C;
+    qDebug() << indentation << "- airResistance:     " << airResistance;
     qDebug() << indentation << "- blendFunc:         " << blendFunc;
     qDebug() << indentation << "- billboardType:     " << billboardType;
     qDebug() << indentation << "- depthFunc:         " << depthFunc;

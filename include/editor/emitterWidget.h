@@ -57,7 +57,6 @@ private:
     SizedSpinBox<u8> m_2ESpinBox;
     SizedSpinBox<u8> m_31SpinBox;
 
-    QDoubleSpinBox m_8CSpinBox;
     EnumComboBox<Ptcl::BillboardType> mBillboardComboBox;
 
     BasicPropertiesWidget mBasicProperties;
