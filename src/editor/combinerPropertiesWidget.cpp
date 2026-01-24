@@ -534,10 +534,18 @@ CombinerPropertiesWidget::CombinerPropertiesWidget(QWidget* parent) :
 
     auto* mainLayout = new QFormLayout(this);
 
-    mainLayout->addRow("Blend Function", &mBlendFuncComboBox);
+    mFogCheckBox.setText("Enable Fog");
+
+    mainLayout->addRow("Fog:", &mFogCheckBox);
+    mainLayout->addRow("Blend Function:", &mBlendFuncComboBox);
     mainLayout->addRow("Depth Function:", &mDepthFuncComboBox);
     mainLayout->addRow("Combiner Function:", &mCombinerFuncComboBox);
     mainLayout->addWidget(&mCombinerPreview);
+
+    connect(&mFogCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
+        mProps.isFogEnabled = checked;
+        emit propertiesUpdated(mProps);
+    });
 
     connect(&mBlendFuncComboBox, &QComboBox::currentIndexChanged, this, [this]() {
         mProps.blendFunc = mBlendFuncComboBox.currentEnum();
@@ -561,9 +569,11 @@ void CombinerPropertiesWidget::setProperties(const Ptcl::CombinerProperties& pro
     QSignalBlocker b1(mBlendFuncComboBox);
     QSignalBlocker b2(mDepthFuncComboBox);
     QSignalBlocker b3(mCombinerFuncComboBox);
+    QSignalBlocker b4(mFogCheckBox);
 
     mProps = properties;
 
+    mFogCheckBox.setChecked(mProps.isFogEnabled);
     mBlendFuncComboBox.setCurrentEnum(mProps.blendFunc);
     mDepthFuncComboBox.setCurrentEnum(mProps.depthFunc);
     mCombinerFuncComboBox.setCurrentEnum(mProps.combinerFunc);

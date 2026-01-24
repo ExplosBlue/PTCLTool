@@ -195,6 +195,7 @@ struct CombinerProperties {
     BlendFuncType blendFunc = BlendFuncType::Translucent;
     DepthFuncType depthFunc = DepthFuncType::Unk0;
     ColorCombinerFuncType combinerFunc = ColorCombinerFuncType::CombinerConfig0;
+    bool isFogEnabled = false;
 };
 
 
@@ -208,12 +209,12 @@ public:
     Emitter();
 
     Emitter(const Emitter&) = delete;
-    Emitter &operator=(const Emitter&) = delete;
+    Emitter& operator=(const Emitter&) = delete;
 
     EmitterType type() const;
 
     BitFlag<EmitterFlag>& flags();
-    const BitFlag<EmitterFlag> &flags() const;
+    const BitFlag<EmitterFlag>& flags() const;
 
     const QString& name() const;
     void setName(const QString &name);
@@ -243,72 +244,72 @@ public:
     const BasicProperties &basicProperties() const;
     void setBasicProperties(const BasicProperties &basicProperties);
 
-    const GravityProperties &gravityProperties() const;
-    void setGravityProperties(const GravityProperties &gravityProperties);
+    const GravityProperties& gravityProperties() const;
+    void setGravityProperties(const GravityProperties& gravityProperties);
 
-    const LifespanProperties &lifespanProperties() const;
-    void setLifespanProperties(const LifespanProperties &lifespanProperties);
+    const LifespanProperties& lifespanProperties() const;
+    void setLifespanProperties(const LifespanProperties& lifespanProperties);
 
-    const TerminationProperties &terminationProperties() const;
-    void setTerminationProperties(const TerminationProperties &terminationProperties);
+    const TerminationProperties& terminationProperties() const;
+    void setTerminationProperties(const TerminationProperties& terminationProperties);
 
-    const EmissionProperties &emissionProperties() const;
-    void setEmissionProperties(const EmissionProperties &emissionProperties);
+    const EmissionProperties& emissionProperties() const;
+    void setEmissionProperties(const EmissionProperties& emissionProperties);
 
-    const VelocityProperties &velocityProperties() const;
-    void setVelocityProperties(const VelocityProperties &velocityProperties);
+    const VelocityProperties& velocityProperties() const;
+    void setVelocityProperties(const VelocityProperties& velocityProperties);
 
-    const VolumeProperties &volumeProperties() const;
-    void setVolumeProperties(const VolumeProperties &volumeProperties);
+    const VolumeProperties& volumeProperties() const;
+    void setVolumeProperties(const VolumeProperties& volumeProperties);
 
-    const ColorProperties &colorProperties() const;
-    void setColorProperties(const ColorProperties &colorProperties);
+    const ColorProperties& colorProperties() const;
+    void setColorProperties(const ColorProperties& colorProperties);
 
-    const AlphaProperties &alphaProperties() const;
-    void setAlphaProperties(const AlphaProperties &alphaProperties);
+    const AlphaProperties& alphaProperties() const;
+    void setAlphaProperties(const AlphaProperties& alphaProperties);
 
-    const ScaleProperties &scaleProperties() const;
-    void setScaleProperties(const ScaleProperties &scaleProperties);
+    const ScaleProperties& scaleProperties() const;
+    void setScaleProperties(const ScaleProperties& scaleProperties);
 
-    const TextureProperties &textureProperties() const;
-    void setTextureProperties(const TextureProperties &textureProperties);
+    const TextureProperties& textureProperties() const;
+    void setTextureProperties(const TextureProperties& textureProperties);
 
-    const RotationProperties &rotationProperties() const;
-    void setRotationProperties(const RotationProperties &rotationProperties);
+    const RotationProperties& rotationProperties() const;
+    void setRotationProperties(const RotationProperties& rotationProperties);
 
-    const CombinerProperties &combinerProperties() const;
-    void setCombinerProperties(const CombinerProperties &combinerProperties);
+    const CombinerProperties& combinerProperties() const;
+    void setCombinerProperties(const CombinerProperties& combinerProperties);
 
-    const TransformProperties &transformProperties() const;
-    void setTransformProperties(const TransformProperties &transformProperties);
+    const TransformProperties& transformProperties() const;
+    void setTransformProperties(const TransformProperties& transformProperties);
 
-    BitFlag<ChildFlag> &childFlags();
-    BitFlag<FieldFlag> &fieldFlags();
-    BitFlag<FluctuationFlag> &fluctuationFlags();
-    BitFlag<StripeFlag> &stripeFlags();
+    BitFlag<ChildFlag>& childFlags();
+    BitFlag<FieldFlag>& fieldFlags();
+    BitFlag<FluctuationFlag>& fluctuationFlags();
+    BitFlag<StripeFlag>& stripeFlags();
 
-    const BitFlag<ChildFlag> &childFlags() const;
-    const BitFlag<FieldFlag> &fieldFlags() const;
-    const BitFlag<FluctuationFlag> &fluctuationFlags() const;
-    const BitFlag<StripeFlag> &stripeFlags() const;
+    const BitFlag<ChildFlag>& childFlags() const;
+    const BitFlag<FieldFlag>& fieldFlags() const;
+    const BitFlag<FluctuationFlag>& fluctuationFlags() const;
+    const BitFlag<StripeFlag>& stripeFlags() const;
 
     bool hasStripeData() const;
     void setHasStripeData(bool hasStripeData);
 
     ChildData &childData();
 
-    FieldRandomData &fieldRandomData();
-    FieldMagnetData &fieldMagnetData();
-    FieldSpinData &fieldSpinData();
-    FieldCollisionData &fieldCollisionData();
-    FieldConvergenceData &fieldConvergenceData();
-    FieldPosAddData &fieldPosAddData();
+    FieldRandomData& fieldRandomData();
+    FieldMagnetData& fieldMagnetData();
+    FieldSpinData& fieldSpinData();
+    FieldCollisionData& fieldCollisionData();
+    FieldConvergenceData& fieldConvergenceData();
+    FieldPosAddData& fieldPosAddData();
 
-    FluctuationData &fluctuationData();
+    FluctuationData& fluctuationData();
 
-    StripeData &stripeData();
+    StripeData& stripeData();
 
-    void initFromBinary(const BinCommonEmitterData &emitterData);
+    void initFromBinary(const BinCommonEmitterData& emitterData);
 
 private:
     BitFlag<EmitterFlag> mFlag;
