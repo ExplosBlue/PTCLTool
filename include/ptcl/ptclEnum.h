@@ -17,6 +17,7 @@ QString toString(const EnumType&) {
     return {};
 }
 
+
 // ========================================================================== //
 
 
@@ -532,22 +533,13 @@ inline QDebug operator<<(QDebug dbg, const TextureMipFilter& type) {
 
 enum class EmitterFlag : u32 {
     ColorRandom     = 1 << 0,
-    Unk2            = 1 << 1,
-    Unk4            = 1 << 2,
-    Unk8            = 1 << 3,
-    Unk10           = 1 << 4,
-    Unk20           = 1 << 5,
-    Unk40           = 1 << 6,
-    EnableFog       = 1 << 7, // used at 0x00474BAC & 0x00472F68 & 0x004712B4
+    EnableFog       = 1 << 7,
     ColorAnimation  = 1 << 8,
-    Unk200          = 1 << 9,
-    Unk400          = 1 << 10,
-    Unk800          = 1 << 11,
-    Unk1000         = 1 << 12,
 };
 
 
 // ========================================================================== //
+
 
 enum class ChildFlag : u16 {
     Enabled     = 1 << 0,

@@ -200,6 +200,7 @@ const CombinerProperties& Emitter::combinerProperties() const {
 
 void Emitter::setCombinerProperties(const CombinerProperties& combinerProperties) {
     mCombinerProperties = combinerProperties;
+    mCombinerProperties.isFogEnabled ? mFlag.set(EmitterFlag::EnableFog) : mFlag.clear(EmitterFlag::EnableFog);
 }
 
 BitFlag<ChildFlag>& Emitter::childFlags() {
@@ -398,7 +399,8 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mCombinerProperties = {
         .blendFunc = emitterData.blendFunc,
         .depthFunc = emitterData.depthFunc,
-        .combinerFunc = emitterData.colorCombinerFunc
+        .combinerFunc = emitterData.colorCombinerFunc,
+        .isFogEnabled = emitterData.flag.isSet(EmitterFlag::EnableFog)
     };
 }
 

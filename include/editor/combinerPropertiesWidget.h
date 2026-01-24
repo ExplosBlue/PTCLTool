@@ -4,6 +4,7 @@
 #include "editor/enumComboBox.h"
 
 #include <QWidget>
+#include <QCheckBox>
 
 
 // ========================================================================== //
@@ -400,6 +401,7 @@ signals:
 private:
     Ptcl::CombinerProperties mProps{};
 
+    QCheckBox mFogCheckBox{};
     EnumComboBox<Ptcl::BlendFuncType> mBlendFuncComboBox{};
     EnumComboBox<Ptcl::DepthFuncType> mDepthFuncComboBox{};
     EnumComboBox<Ptcl::ColorCombinerFuncType> mCombinerFuncComboBox{};
