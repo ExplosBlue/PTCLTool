@@ -192,9 +192,9 @@ struct TextureProperties {
 
 
 struct CombinerProperties {
-    BlendFuncType blendFunc = BlendFuncType::Unk0;
+    BlendFuncType blendFunc = BlendFuncType::Translucent;
     DepthFuncType depthFunc = DepthFuncType::Unk0;
-    ColorCombinerFuncType combinerFunc = ColorCombinerFuncType::Unk0;
+    ColorCombinerFuncType combinerFunc = ColorCombinerFuncType::CombinerConfig0;
 };
 
 
