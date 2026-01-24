@@ -59,14 +59,27 @@ BasicPropertiesWidget::BasicPropertiesWidget(QWidget* parent) :
     });
 
     // Follow Type
-    mFollowTypeSpinBox.setEnumText(Ptcl::FollowType::All, "Follow emitter exactly");
-    mFollowTypeSpinBox.setEnumText(Ptcl::FollowType::PosOnly, "Follow emitter position");
-    mFollowTypeSpinBox.setEnumText(Ptcl::FollowType::None, "Follow disabled");
-    addLabledWidget(&mFollowTypeSpinBox, "Follow Mode:", 3, 0, 3);
-    connect(&mFollowTypeSpinBox, &QComboBox::currentIndexChanged, this, [this]() {
-        mProps.followType = mFollowTypeSpinBox.currentEnum();
+    mFollowTypeComboBox.setEnumText(Ptcl::FollowType::All, "Follow emitter exactly");
+    mFollowTypeComboBox.setEnumText(Ptcl::FollowType::PosOnly, "Follow emitter position");
+    mFollowTypeComboBox.setEnumText(Ptcl::FollowType::None, "Follow disabled");
+    addLabledWidget(&mFollowTypeComboBox, "Follow Mode:", 3, 0, 3);
+    connect(&mFollowTypeComboBox, &QComboBox::currentIndexChanged, this, [this]() {
+        mProps.followType = mFollowTypeComboBox.currentEnum();
         emit propertiesUpdated(mProps);
     });
+
+    // Billboard Type
+    addLabledWidget(&mBillboardComboBox, "Billboard Type:", 4, 0, 3);
+    connect(&mBillboardComboBox, &QComboBox::currentIndexChanged, this, [this]() {
+        const auto type = mBillboardComboBox.currentEnum();
+
+        mProps.billboardType = type;
+        mProps.isPolygon = (type == Ptcl::BillboardType::PolygonXY || type == Ptcl::BillboardType::PolygonXZ);
+        mProps.isVelLook = (type == Ptcl::BillboardType::VelLook || type == Ptcl::BillboardType::VelLookPolygon);
+        mProps.isEmitterBillboardMtx = mProps.isVelLook;
+        emit propertiesUpdated(mProps);
+    });
+
 }
 
 void BasicPropertiesWidget::setProperties(const Ptcl::BasicProperties& properties) {
@@ -74,7 +87,8 @@ void BasicPropertiesWidget::setProperties(const Ptcl::BasicProperties& propertie
     QSignalBlocker b2(mTypeComboBox);
     QSignalBlocker b3(mRandomSeedMode);
     QSignalBlocker b4(mRandomSeedSpinBox);
-    QSignalBlocker b5(mFollowTypeSpinBox);
+    QSignalBlocker b5(mFollowTypeComboBox);
+    QSignalBlocker b6(mBillboardComboBox);
 
     mProps = properties;
 
@@ -90,7 +104,8 @@ void BasicPropertiesWidget::setProperties(const Ptcl::BasicProperties& propertie
     mRandomSeedSpinBox.setValue(randomSeed.constantSeed());
     mRandomSeedSpinBox.setEnabled(seedMode == PtclSeed::Mode::ConstantSeed);
 
-    mFollowTypeSpinBox.setCurrentEnum(mProps.followType);
+    mFollowTypeComboBox.setCurrentEnum(mProps.followType);
+    mBillboardComboBox.setCurrentEnum(mProps.billboardType);
 }
 
 

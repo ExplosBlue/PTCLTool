@@ -39,7 +39,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
 
     auto addLabledWidget = [&](QWidget* widget, const QString& label, int row, int column, int span = 1) {
         mMainLayout.addWidget(new QLabel(label), row, column);
-        mMainLayout.addWidget(widget,            row, column + 1, 1, span);
+        mMainLayout.addWidget(widget, row, column + 1, 1, span);
     };
 
 
@@ -78,10 +78,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
         mEmitterPtr->setTextureProperties(properties);
     });
 
-    addLabledWidget(&m_2CSpinBox, "_2C:",  6, 0, 3);
     addLabledWidget(&m_2DSpinBox, "_2D:",  7, 0, 3);
-    addLabledWidget(&m_2ESpinBox, "_2E:",  8, 0, 3);
-    addLabledWidget(&m_31SpinBox, "_31:", 10, 0, 3);
 
     // Gravity Properties
     connect(&mGravityProperties, &GravityPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::GravityProperties& properties) {
@@ -153,8 +150,6 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     transformPropertiesSection->setContent(&mTransformProperties);
     mMainLayout.addWidget(transformPropertiesSection, 17, 0, 1, 4);
 
-    addLabledWidget(&mBillboardComboBox, "Billboard Type:", 28, 0, 3);
-
     // Color Properties
     connect(&mColorProperties, &ColorPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ColorProperties& properties) {
         if (!mEmitterPtr) { return; }
@@ -213,13 +208,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mEmitterPtr = emitter;
 
     // More Stuff
-    m_2CSpinBox.setValue(mEmitterPtr->_2C());
     m_2DSpinBox.setValue(mEmitterPtr->_2D());
-    m_2ESpinBox.setValue(mEmitterPtr->_2E());
-    m_31SpinBox.setValue(mEmitterPtr->_31());
-
-    mBillboardComboBox.setCurrentEnum((mEmitterPtr->billboardType()));
-
 
     mBasicProperties.setProperties(mEmitterPtr->basicProperties());
     mGravityProperties.setProperties(mEmitterPtr->gravityProperties());

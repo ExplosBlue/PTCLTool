@@ -8,11 +8,7 @@ namespace Ptcl {
 
 
 Emitter::Emitter() {
-    m_2C = 0;
     m_2D = 0;
-    m_2E = 0;
-    m_31 = 0;
-    mBillboardType = BillboardType::Billboard;
 }
 
 EmitterType Emitter::type() const {
@@ -47,44 +43,12 @@ void Emitter::setTexture(const std::shared_ptr<Texture>& texture) {
     mTextureHandle.set(texture);
 }
 
-u8 Emitter::_2C() const {
-    return m_2C;
-}
-
-void Emitter::set_2C(const u8 _2C) {
-    m_2C = _2C;
-}
-
 u8 Emitter::_2D() const {
     return m_2D;
 }
 
 void Emitter::set_2D(const u8 _2D) {
     m_2D = _2D;
-}
-
-u8 Emitter::_2E() const {
-    return m_2E;
-}
-
-void Emitter::set_2E(const u8 _2E) {
-    m_2E = _2E;
-}
-
-u8 Emitter::_31() const {
-    return m_31;
-}
-
-void Emitter::set_31(const u8 _31) {
-    m_31 = _31;
-}
-
-BillboardType Emitter::billboardType() const {
-    return mBillboardType;
-}
-
-void Emitter::setBillboardType(const BillboardType billboardType) {
-    mBillboardType = billboardType;
 }
 
 const BasicProperties& Emitter::basicProperties() const {
@@ -280,7 +244,6 @@ StripeData& Emitter::stripeData() {
 }
 
 void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
-
     mFlag = emitterData.flag;
 
     mTextureProperties = {
@@ -299,18 +262,17 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .isTexPatAnim = emitterData.isTexPatAnim
     };
 
-    m_2C = emitterData._2C;
     m_2D = emitterData._2D;
-    m_2E = emitterData._2E;
-    m_31 = emitterData._31;
-
-    mBillboardType = emitterData.billboardType;
 
     mBasicProperties = {
         .type = emitterData.type,
         .followType = emitterData.followType,
         // name - must be set after initialization
-        .randomSeed = PtclSeed{emitterData.randomSeed}
+        .randomSeed = PtclSeed{emitterData.randomSeed},
+        .billboardType = emitterData.billboardType,
+        .isPolygon = emitterData.isPolygon,
+        .isVelLook = emitterData.isVelLook,
+        .isEmitterBillboardMtx = emitterData.isEmitterBillboardMtx
     };
 
     mGravityProperties = {

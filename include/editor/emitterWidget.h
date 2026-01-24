@@ -6,7 +6,6 @@
 #include "editor/colorPropertiesWidget.h"
 #include "editor/combinerPropertiesWidget.h"
 #include "editor/emissionPropertiesWidget.h"
-#include "editor/enumComboBox.h"
 #include "editor/gravityPropertiesWidget.h"
 #include "editor/lifespanPropertiesWidget.h"
 #include "editor/rotationPropertiesWidget.h"
@@ -51,13 +50,7 @@ private:
 
     QGridLayout mMainLayout;
 
-
-    SizedSpinBox<u8> m_2CSpinBox;
     SizedSpinBox<u8> m_2DSpinBox;
-    SizedSpinBox<u8> m_2ESpinBox;
-    SizedSpinBox<u8> m_31SpinBox;
-
-    EnumComboBox<Ptcl::BillboardType> mBillboardComboBox;
 
     BasicPropertiesWidget mBasicProperties;
     GravityPropertiesWidget mGravityProperties;

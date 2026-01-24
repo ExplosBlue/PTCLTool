@@ -27,10 +27,15 @@ namespace Ptcl {
 
 
 struct BasicProperties {
-    EmitterType type = EmitterType::Simple;
-    FollowType followType = FollowType::All;
-    QString name = "Emitter";
+    EmitterType type{EmitterType::Simple};
+    FollowType followType{FollowType::All};
+    QString name{"Emitter"};
     PtclSeed randomSeed{};
+
+    BillboardType billboardType{BillboardType::Billboard};
+    bool isPolygon{false};
+    bool isVelLook{false};
+    bool isEmitterBillboardMtx{false};
 };
 
 
@@ -223,23 +228,8 @@ public:
     TextureHandle& textureHandle();
     void setTexture(const std::shared_ptr<Texture>& texture);
 
-    u8 _2C() const;
-    void set_2C(u8 _2C);
-
     u8 _2D() const;
     void set_2D(u8 _2D);
-
-    u8 _2E() const;
-    void set_2E(u8 _2E);
-
-    u8 _31() const;
-    void set_31(u8 _31);
-
-    u32 _80() const;
-    void set_80(u32 _80);
-
-    BillboardType billboardType() const;
-    void setBillboardType(BillboardType billboardType);
 
     const BasicProperties &basicProperties() const;
     void setBasicProperties(const BasicProperties &basicProperties);
@@ -314,13 +304,7 @@ public:
 private:
     BitFlag<EmitterFlag> mFlag;
 
-    u8 m_2C;
     u8 m_2D;
-    u8 m_2E;
-    u8 m_31;
-
-    u32 m_80;
-    BillboardType mBillboardType;
 
     BasicProperties mBasicProperties;
     GravityProperties mGravityProperties;
