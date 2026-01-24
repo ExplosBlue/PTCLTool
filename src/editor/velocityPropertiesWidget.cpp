@@ -23,7 +23,6 @@ VelocityPropertiesWidget::VelocityPropertiesWidget(QWidget* parent) :
     mainLayout->addRow("Spread Vector:", &mSpreadVecSpinbox);
     mainLayout->addRow("Air Resistance:", &mAirResistanceSpinbox);
 
-
     connect(&mFigureVelSpinbox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
         mProps.figureVel = static_cast<f32>(value);
         emit propertiesUpdated(mProps);

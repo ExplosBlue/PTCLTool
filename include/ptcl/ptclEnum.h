@@ -239,10 +239,10 @@ inline QDebug operator<<(QDebug dbg, const ColorCalcType& type) {
 
 
 enum class BlendFuncType : u32 {
-    Unk0    = 0x0,
-    Unk1    = 0x1,
-    Unk2    = 0x2,
-    Unk3    = 0x3,
+    Translucent     = 0x0,
+    Additive        = 0x1,
+    Subtractive     = 0x2,
+    Transparence    = 0x3,
 
     MAX
 };
@@ -250,11 +250,11 @@ enum class BlendFuncType : u32 {
 template<>
 inline QString toString<BlendFuncType>(const BlendFuncType& type) {
     switch (type) {
-    case BlendFuncType::Unk0:   return "Unk0";
-    case BlendFuncType::Unk1:   return "Unk1";
-    case BlendFuncType::Unk2:   return "Unk2";
-    case BlendFuncType::Unk3:   return "Unk3";
-    case BlendFuncType::MAX:    return "BLEND_FUNC_TYPE_MAX";
+    case BlendFuncType::Translucent:    return "Translucent";
+    case BlendFuncType::Additive:       return "Additive";
+    case BlendFuncType::Subtractive:    return "Subtractive";
+    case BlendFuncType::Transparence:   return "Transparence";
+    case BlendFuncType::MAX:            return "BLEND_FUNC_TYPE_MAX";
     default: return "UNKNOWN";
     }
 }
@@ -299,34 +299,34 @@ inline QDebug operator<<(QDebug dbg, const DepthFuncType& type) {
 
 
 enum class ColorCombinerFuncType : u32 {
-    Unk0    = 0x0,
-    Unk1    = 0x1,
-    Unk2    = 0x2,
-    Unk3    = 0x3,
-    Unk4    = 0x4,
-    Unk5    = 0x5,
-    Unk6    = 0x6,
-    Unk7    = 0x7,
-    Unk8    = 0x8,
-    Unk9    = 0x9,
-    Unk10   = 0xA,
-    Unk11   = 0xB,
-    Unk12   = 0xC,
-    Unk13   = 0xD,
-    Unk14   = 0xE,
-    Unk15   = 0xF,
-    Unk16   = 0x10,
-    Unk17   = 0x11,
-    Unk18   = 0x12,
-    Unk19   = 0x13,
-    Unk20   = 0x14,
-    Unk21   = 0x15,
-    Unk22   = 0x16,
-    Unk23   = 0x17,
-    Unk24   = 0x18,
-    Unk25   = 0x19,
-    Unk26   = 0x1A,
-    Unk27   = 0x1B,
+    CombinerConfig0     = 0x0,
+    CombinerConfig1     = 0x1,
+    CombinerConfig2     = 0x2,
+    CombinerConfig3     = 0x3,
+    CombinerConfig4     = 0x4,
+    CombinerConfig5     = 0x5,
+    CombinerConfig6     = 0x6,
+    CombinerConfig7     = 0x7,
+    CombinerConfig8     = 0x8,
+    CombinerConfig9     = 0x9,
+    CombinerConfig10    = 0xA,
+    CombinerConfig11    = 0xB,
+    CombinerConfig12    = 0xC,
+    CombinerConfig13    = 0xD,
+    CombinerConfig14    = 0xE,
+    CombinerConfig15    = 0xF,
+    CombinerConfig16    = 0x10,
+    CombinerConfig17    = 0x11,
+    CombinerConfig18    = 0x12,
+    CombinerConfig19    = 0x13,
+    CombinerConfig20    = 0x14,
+    CombinerConfig21    = 0x15,
+    CombinerConfig22    = 0x16,
+    CombinerConfig23    = 0x17,
+    CombinerConfig24    = 0x18,
+    CombinerConfig25    = 0x19,
+    CombinerConfig26    = 0x1A,
+    CombinerConfig27    = 0x1B,
 
     MAX
 };
@@ -334,34 +334,34 @@ enum class ColorCombinerFuncType : u32 {
 template<>
 inline QString toString<ColorCombinerFuncType>(const ColorCombinerFuncType& type) {
     switch (type) {
-    case ColorCombinerFuncType::Unk0:   return "Unk0";
-    case ColorCombinerFuncType::Unk1:   return "Unk1";
-    case ColorCombinerFuncType::Unk2:   return "Unk2";
-    case ColorCombinerFuncType::Unk3:   return "Unk3";
-    case ColorCombinerFuncType::Unk4:   return "Unk4";
-    case ColorCombinerFuncType::Unk5:   return "Unk5";
-    case ColorCombinerFuncType::Unk6:   return "Unk6";
-    case ColorCombinerFuncType::Unk7:   return "Unk7";
-    case ColorCombinerFuncType::Unk8:   return "Unk8";
-    case ColorCombinerFuncType::Unk9:   return "Unk9";
-    case ColorCombinerFuncType::Unk10:  return "Unk10";
-    case ColorCombinerFuncType::Unk11:  return "Unk11";
-    case ColorCombinerFuncType::Unk12:  return "Unk12";
-    case ColorCombinerFuncType::Unk13:  return "Unk13";
-    case ColorCombinerFuncType::Unk14:  return "Unk14";
-    case ColorCombinerFuncType::Unk15:  return "Unk15";
-    case ColorCombinerFuncType::Unk16:  return "Unk16";
-    case ColorCombinerFuncType::Unk17:  return "Unk17";
-    case ColorCombinerFuncType::Unk18:  return "Unk18";
-    case ColorCombinerFuncType::Unk19:  return "Unk19";
-    case ColorCombinerFuncType::Unk20:  return "Unk20";
-    case ColorCombinerFuncType::Unk21:  return "Unk21";
-    case ColorCombinerFuncType::Unk22:  return "Unk22";
-    case ColorCombinerFuncType::Unk23:  return "Unk23";
-    case ColorCombinerFuncType::Unk24:  return "Unk24";
-    case ColorCombinerFuncType::Unk25:  return "Unk25";
-    case ColorCombinerFuncType::Unk26:  return "Unk26";
-    case ColorCombinerFuncType::Unk27:  return "Unk27";
+    case ColorCombinerFuncType::CombinerConfig0:    return "Combiner Config 0";
+    case ColorCombinerFuncType::CombinerConfig1:    return "Combiner Config 1";
+    case ColorCombinerFuncType::CombinerConfig2:    return "Combiner Config 2";
+    case ColorCombinerFuncType::CombinerConfig3:    return "Combiner Config 3";
+    case ColorCombinerFuncType::CombinerConfig4:    return "Combiner Config 4";
+    case ColorCombinerFuncType::CombinerConfig5:    return "Combiner Config 5";
+    case ColorCombinerFuncType::CombinerConfig6:    return "Combiner Config 6";
+    case ColorCombinerFuncType::CombinerConfig7:    return "Combiner Config 7";
+    case ColorCombinerFuncType::CombinerConfig8:    return "Combiner Config 8";
+    case ColorCombinerFuncType::CombinerConfig9:    return "Combiner Config 9";
+    case ColorCombinerFuncType::CombinerConfig10:   return "Combiner Config 10";
+    case ColorCombinerFuncType::CombinerConfig11:   return "Combiner Config 11";
+    case ColorCombinerFuncType::CombinerConfig12:   return "Combiner Config 12";
+    case ColorCombinerFuncType::CombinerConfig13:   return "Combiner Config 13";
+    case ColorCombinerFuncType::CombinerConfig14:   return "Combiner Config 14";
+    case ColorCombinerFuncType::CombinerConfig15:   return "Combiner Config 15";
+    case ColorCombinerFuncType::CombinerConfig16:   return "Combiner Config 16";
+    case ColorCombinerFuncType::CombinerConfig17:   return "Combiner Config 17";
+    case ColorCombinerFuncType::CombinerConfig18:   return "Combiner Config 18";
+    case ColorCombinerFuncType::CombinerConfig19:   return "Combiner Config 19";
+    case ColorCombinerFuncType::CombinerConfig20:   return "Combiner Config 20";
+    case ColorCombinerFuncType::CombinerConfig21:   return "Combiner Config 21";
+    case ColorCombinerFuncType::CombinerConfig22:   return "Combiner Config 22";
+    case ColorCombinerFuncType::CombinerConfig23:   return "Combiner Config 23";
+    case ColorCombinerFuncType::CombinerConfig24:   return "Combiner Config 24";
+    case ColorCombinerFuncType::CombinerConfig25:   return "Combiner Config 25";
+    case ColorCombinerFuncType::CombinerConfig26:   return "Combiner Config 26";
+    case ColorCombinerFuncType::CombinerConfig27:   return "Combiner Config 27";
     case ColorCombinerFuncType::MAX:    return "COLOR_COMBINER_FUNC_TYPE_MAX";
     default: return "UNKNOWN";
     }
@@ -538,7 +538,7 @@ enum class EmitterFlag : u32 {
     Unk10           = 1 << 4,
     Unk20           = 1 << 5,
     Unk40           = 1 << 6,
-    Unk80           = 1 << 7,
+    EnableFog       = 1 << 7, // used at 0x00474BAC & 0x00472F68 & 0x004712B4
     ColorAnimation  = 1 << 8,
     Unk200          = 1 << 9,
     Unk400          = 1 << 10,
