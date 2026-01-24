@@ -330,12 +330,12 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     textureSize = 0; // To be assigned after construction...
     texturePos = 0; // To be assigned after construction...
     textureHandlePtr = 0;
-    _2C = emitter._2C();
+    isPolygon = emitter.basicProperties().isPolygon;
     _2D = emitter._2D();
-    _2E = emitter._2E();
+    isEmitterBillboardMtx = emitter.basicProperties().isEmitterBillboardMtx;
     isDirectional = emitter.gravityProperties().isDirectional;
     isTexPatAnim = emitter.textureProperties().isTexPatAnim;
-    _31 = emitter._31();
+    isVelLook = emitter.basicProperties().isVelLook;
     volumeTblIndex = emitter.volumeProperties().volumeTblIndex;
     isStopEmitInFade = emitter.terminationProperties().isStopEmitInFade;
     volumeType = emitter.volumeProperties().volumeType;
@@ -358,7 +358,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     ptclLifeRnd = emitter.lifespanProperties().ptclLifeRnd;
     airResistance = emitter.velocityProperties().airResistance;
     blendFunc = emitter.combinerProperties().blendFunc;
-    billboardType = emitter.billboardType();
+    billboardType = emitter.basicProperties().billboardType;
     depthFunc = emitter.combinerProperties().depthFunc;
     gravity = emitter.gravityProperties().gravity;
     color = emitter.colorProperties().colors;
@@ -410,12 +410,12 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item.textureSize
         >> item.texturePos
         >> item.textureHandlePtr
-        >> item._2C
+        >> item.isPolygon
         >> item._2D
-        >> item._2E
+        >> item.isEmitterBillboardMtx
         >> item.isDirectional
         >> item.isTexPatAnim
-        >> item._31
+        >> item.isVelLook
         >> item.volumeTblIndex
         >> item.isStopEmitInFade
         >> item.volumeType
@@ -493,12 +493,12 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item.textureSize
         << item.texturePos
         << item.textureHandlePtr
-        << item._2C
+        << item.isPolygon
         << item._2D
-        << item._2E
+        << item.isEmitterBillboardMtx
         << item.isDirectional
         << item.isTexPatAnim
-        << item._31
+        << item.isVelLook
         << item.volumeTblIndex
         << item.isStopEmitInFade
         << item.volumeType
@@ -576,73 +576,73 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- namePtr:       " << namePtr;
     qDebug() << indentation << "- textureRes:    ";
     textureRes.printData(indentationLevel + 1);
-    qDebug() << indentation << "- textureSize:       " << textureSize;
-    qDebug() << indentation << "- texturePos:        " << texturePos;
-    qDebug() << indentation << "- textureHandlePtr:  " << textureHandlePtr;
-    qDebug() << indentation << "- _2C:               " << _2C;
-    qDebug() << indentation << "- _2D:               " << _2D;
-    qDebug() << indentation << "- _2E:               " << _2E;
-    qDebug() << indentation << "- isDirectional:     " << isDirectional;
-    qDebug() << indentation << "- isTexPatAnim:      " << isTexPatAnim;
-    qDebug() << indentation << "- _31:               " << _31;
-    qDebug() << indentation << "- volumeTblIndex:    " << volumeTblIndex;
-    qDebug() << indentation << "- isStopEmitInFade:  " << isStopEmitInFade;
-    qDebug() << indentation << "- volumeType:        " << volumeType;
-    qDebug() << indentation << "- volumeRadius:      " << volumeRadius;
-    qDebug() << indentation << "- volumeSweepStart:  " << volumeSweepStart;
-    qDebug() << indentation << "- volumeSweepParam:  " << volumeSweepParam;
-    qDebug() << indentation << "- figureVel:         " << figureVel;
-    qDebug() << indentation << "- emitterVelDir:     " << emitterVelDir;
-    qDebug() << indentation << "- initVel:           " << initVel;
-    qDebug() << indentation << "- initVelRnd:        " << initVelRnd;
-    qDebug() << indentation << "- spreadVec:         " << spreadVec;
-    qDebug() << indentation << "- startFrame:        " << startFrame;
-    qDebug() << indentation << "- endFrame:          " << endFrame;
-    qDebug() << indentation << "- lifeStep:          " << lifeStep;
-    qDebug() << indentation << "- lifeStepRnd:       " << lifeStepRnd;
-    qDebug() << indentation << "- emitRate:          " << emitRate;
-    qDebug() << indentation << "- ptclLife:          " << ptclLife;
-    qDebug() << indentation << "- ptclLifeRnd:       " << ptclLifeRnd;
-    qDebug() << indentation << "- airResistance:     " << airResistance;
-    qDebug() << indentation << "- blendFunc:         " << blendFunc;
-    qDebug() << indentation << "- billboardType:     " << billboardType;
-    qDebug() << indentation << "- depthFunc:         " << depthFunc;
-    qDebug() << indentation << "- gravity:           " << gravity;
-    qDebug() << indentation << "- color:             " << color.data();
-    qDebug() << indentation << "- color0:            " << color0;
-    qDebug() << indentation << "- colorSection1:     " << colorSection1;
-    qDebug() << indentation << "- colorSection2:     " << colorSection2;
-    qDebug() << indentation << "- colorSection3:     " << colorSection3;
-    qDebug() << indentation << "- colorNumRepeat:    " << colorNumRepeat;
-    qDebug() << indentation << "- initAlpha:         " << initAlpha;
-    qDebug() << indentation << "- diffAlpha21:       " << diffAlpha21;
-    qDebug() << indentation << "- diffAlpha32:       " << diffAlpha32;
-    qDebug() << indentation << "- alphaSection1:     " << alphaSection1;
-    qDebug() << indentation << "- alphaSection2:     " << alphaSection2;
-    qDebug() << indentation << "- initScale:         " << initScale;
-    qDebug() << indentation << "- diffScale21:       " << diffScale21;
-    qDebug() << indentation << "- diffScale32:       " << diffScale32;
-    qDebug() << indentation << "- scaleSection1:     " << scaleSection1;
-    qDebug() << indentation << "- scaleSection2:     " << scaleSection2;
-    qDebug() << indentation << "- scaleRand:         " << scaleRand;
-    qDebug() << indentation << "- rotCalcType:       " << rotCalcType;
-    qDebug() << indentation << "- followType:        " << followType;
-    qDebug() << indentation << "- colorCombinerFunc: " << colorCombinerFunc;
-    qDebug() << indentation << "- initRot:           " << initRot;
-    qDebug() << indentation << "- initRotRand:       " << initRotRand;
-    qDebug() << indentation << "- rotVel:            " << rotVel;
-    qDebug() << indentation << "- rotVelRand:        " << rotVelRand;
-    qDebug() << indentation << "- rotBasis:          " << rotBasis;
-    qDebug() << indentation << "- transformSRT:      " << transformSRT;
-    qDebug() << indentation << "- transformRT:       " << transformRT;
-    qDebug() << indentation << "- alphaAddInFade:    " << alphaAddInFade;
-    qDebug() << indentation << "- numTexPat:         " << numTexPat;
-    qDebug() << indentation << "- numTexDivX:        " << numTexDivX;
-    qDebug() << indentation << "- numTexDivY:        " << numTexDivY;
-    qDebug() << indentation << "- texUVScale:        " << texUVScale;
-    qDebug() << indentation << "- texPatTbl:         " << texPatTbl.data();
-    qDebug() << indentation << "- texPatFreq:        " << texPatFreq;
-    qDebug() << indentation << "- texPatTblUse:      " << texPatTblUse;
+    qDebug() << indentation << "- textureSize:           " << textureSize;
+    qDebug() << indentation << "- texturePos:            " << texturePos;
+    qDebug() << indentation << "- textureHandlePtr:      " << textureHandlePtr;
+    qDebug() << indentation << "- isPolygon:             " << isPolygon;
+    qDebug() << indentation << "- _2D:                   " << _2D;
+    qDebug() << indentation << "- isEmitterBillboardMtx: " << isEmitterBillboardMtx;
+    qDebug() << indentation << "- isDirectional:         " << isDirectional;
+    qDebug() << indentation << "- isTexPatAnim:          " << isTexPatAnim;
+    qDebug() << indentation << "- isVelLook:             " << isVelLook;
+    qDebug() << indentation << "- volumeTblIndex:        " << volumeTblIndex;
+    qDebug() << indentation << "- isStopEmitInFade:      " << isStopEmitInFade;
+    qDebug() << indentation << "- volumeType:            " << volumeType;
+    qDebug() << indentation << "- volumeRadius:          " << volumeRadius;
+    qDebug() << indentation << "- volumeSweepStart:      " << volumeSweepStart;
+    qDebug() << indentation << "- volumeSweepParam:      " << volumeSweepParam;
+    qDebug() << indentation << "- figureVel:             " << figureVel;
+    qDebug() << indentation << "- emitterVelDir:         " << emitterVelDir;
+    qDebug() << indentation << "- initVel:               " << initVel;
+    qDebug() << indentation << "- initVelRnd:            " << initVelRnd;
+    qDebug() << indentation << "- spreadVec:             " << spreadVec;
+    qDebug() << indentation << "- startFrame:            " << startFrame;
+    qDebug() << indentation << "- endFrame:              " << endFrame;
+    qDebug() << indentation << "- lifeStep:              " << lifeStep;
+    qDebug() << indentation << "- lifeStepRnd:           " << lifeStepRnd;
+    qDebug() << indentation << "- emitRate:              " << emitRate;
+    qDebug() << indentation << "- ptclLife:              " << ptclLife;
+    qDebug() << indentation << "- ptclLifeRnd:           " << ptclLifeRnd;
+    qDebug() << indentation << "- airResistance:         " << airResistance;
+    qDebug() << indentation << "- blendFunc:             " << blendFunc;
+    qDebug() << indentation << "- billboardType:         " << billboardType;
+    qDebug() << indentation << "- depthFunc:             " << depthFunc;
+    qDebug() << indentation << "- gravity:               " << gravity;
+    qDebug() << indentation << "- color:                 " << color.data();
+    qDebug() << indentation << "- color0:                " << color0;
+    qDebug() << indentation << "- colorSection1:         " << colorSection1;
+    qDebug() << indentation << "- colorSection2:         " << colorSection2;
+    qDebug() << indentation << "- colorSection3:         " << colorSection3;
+    qDebug() << indentation << "- colorNumRepeat:        " << colorNumRepeat;
+    qDebug() << indentation << "- initAlpha:             " << initAlpha;
+    qDebug() << indentation << "- diffAlpha21:           " << diffAlpha21;
+    qDebug() << indentation << "- diffAlpha32:           " << diffAlpha32;
+    qDebug() << indentation << "- alphaSection1:         " << alphaSection1;
+    qDebug() << indentation << "- alphaSection2:         " << alphaSection2;
+    qDebug() << indentation << "- initScale:             " << initScale;
+    qDebug() << indentation << "- diffScale21:           " << diffScale21;
+    qDebug() << indentation << "- diffScale32:           " << diffScale32;
+    qDebug() << indentation << "- scaleSection1:         " << scaleSection1;
+    qDebug() << indentation << "- scaleSection2:         " << scaleSection2;
+    qDebug() << indentation << "- scaleRand:             " << scaleRand;
+    qDebug() << indentation << "- rotCalcType:           " << rotCalcType;
+    qDebug() << indentation << "- followType:            " << followType;
+    qDebug() << indentation << "- colorCombinerFunc:     " << colorCombinerFunc;
+    qDebug() << indentation << "- initRot:               " << initRot;
+    qDebug() << indentation << "- initRotRand:           " << initRotRand;
+    qDebug() << indentation << "- rotVel:                " << rotVel;
+    qDebug() << indentation << "- rotVelRand:            " << rotVelRand;
+    qDebug() << indentation << "- rotBasis:              " << rotBasis;
+    qDebug() << indentation << "- transformSRT:          " << transformSRT;
+    qDebug() << indentation << "- transformRT:           " << transformRT;
+    qDebug() << indentation << "- alphaAddInFade:        " << alphaAddInFade;
+    qDebug() << indentation << "- numTexPat:             " << numTexPat;
+    qDebug() << indentation << "- numTexDivX:            " << numTexDivX;
+    qDebug() << indentation << "- numTexDivY:            " << numTexDivY;
+    qDebug() << indentation << "- texUVScale:            " << texUVScale;
+    qDebug() << indentation << "- texPatTbl:             " << texPatTbl.data();
+    qDebug() << indentation << "- texPatFreq:            " << texPatFreq;
+    qDebug() << indentation << "- texPatTblUse:          " << texPatTblUse;
 }
 
 

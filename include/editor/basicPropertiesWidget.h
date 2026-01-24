@@ -30,7 +30,8 @@ private:
     EnumComboBox<Ptcl::EmitterType> mTypeComboBox{};
     QComboBox mRandomSeedMode{};
     SizedSpinBox<u32> mRandomSeedSpinBox{};
-    EnumComboBox<Ptcl::FollowType> mFollowTypeSpinBox{};
+    EnumComboBox<Ptcl::FollowType> mFollowTypeComboBox{};
+    EnumComboBox<Ptcl::BillboardType> mBillboardComboBox{};
 };
 
 
