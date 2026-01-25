@@ -39,6 +39,8 @@ public:
     void setEmitter(Ptcl::Emitter* emitter);
     void setTextureList(const Ptcl::TextureList* textureList);
 
+    void clear();
+
 signals:
     void textureUpdated(int oldIndex, int index);
     void nameUpdated(const QString& name);

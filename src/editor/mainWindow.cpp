@@ -247,6 +247,10 @@ void MainWindow::updateRecentFileList() {
 }
 
 void MainWindow::loadPtclRes(const QString& path) {
+    mEmitterSetWidget.clear();
+    mPtclList.setEnabled(false);
+    mTextureWidget.setEnabled(false);
+
     mPtclRes = std::make_unique<Ptcl::PtclRes>();
     if (!mPtclRes->load(path)) {
         mPtclRes.reset();
@@ -257,11 +261,14 @@ void MainWindow::loadPtclRes(const QString& path) {
     SettingsUtil::SettingsMgr::instance().setLastOpenPath(QFileInfo(path).absolutePath());
     updateRecentFileList();
 
-    mPtclRes->getEmitterSets();
-
     mPtclList.setPtclRes(mPtclRes.get());
     mTextureWidget.setTextures(&mPtclRes->textures());
     mEmitterSetWidget.setTextureList(mPtclRes->textures());
+
+    const auto& sets = mPtclRes->getEmitterSets();
+    if (!sets.empty()) {
+        selectedEmitterSetChanged(0);
+    }
 
     mPtclList.setEnabled(true);
     mTextureWidget.setEnabled(true);

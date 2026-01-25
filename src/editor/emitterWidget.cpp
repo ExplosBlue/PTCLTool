@@ -241,11 +241,18 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mTextureProperties.setProperties(mEmitterPtr->textureProperties(), mEmitterPtr->textureHandle().get());
     mCombinerProperties.setProperties(mEmitterPtr->combinerProperties());
     mCombinerProperties.setCombinerSrc(&mEmitterPtr->textureHandle(), &mEmitterPtr->colorProperties().color0, &mEmitterPtr->colorProperties().colors[0]);
+
+    setEnabled(true);
 }
 
 void EmitterWidget::setTextureList(const Ptcl::TextureList* textureList) {
     mTextureList = textureList;
     mTextureProperties.setTextureList(textureList);
+}
+
+void EmitterWidget::clear() {
+    setEnabled(false);
+    mEmitterPtr = nullptr;
 }
 
 
