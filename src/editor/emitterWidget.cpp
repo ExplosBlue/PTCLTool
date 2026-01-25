@@ -78,8 +78,6 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
         mEmitterPtr->setTextureProperties(properties);
     });
 
-    addLabledWidget(&m_2DSpinBox, "_2D:",  7, 0, 3);
-
     // Gravity Properties
     connect(&mGravityProperties, &GravityPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::GravityProperties& properties) {
         if (!mEmitterPtr) { return; }
@@ -206,9 +204,6 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mIsPopulating = true;
 
     mEmitterPtr = emitter;
-
-    // More Stuff
-    m_2DSpinBox.setValue(mEmitterPtr->_2D());
 
     mBasicProperties.setProperties(mEmitterPtr->basicProperties());
     mGravityProperties.setProperties(mEmitterPtr->gravityProperties());

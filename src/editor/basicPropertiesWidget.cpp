@@ -64,7 +64,11 @@ BasicPropertiesWidget::BasicPropertiesWidget(QWidget* parent) :
     mFollowTypeComboBox.setEnumText(Ptcl::FollowType::None, "Follow disabled");
     addLabledWidget(&mFollowTypeComboBox, "Follow Mode:", 3, 0, 3);
     connect(&mFollowTypeComboBox, &QComboBox::currentIndexChanged, this, [this]() {
-        mProps.followType = mFollowTypeComboBox.currentEnum();
+        const auto type = mFollowTypeComboBox.currentEnum();
+
+        mProps.followType = type;
+        // TODO: Check if this should also be set for Ptcl::FollowType::PosOnly
+        mProps.isFollow = (type == Ptcl::FollowType::All);
         emit propertiesUpdated(mProps);
     });
 

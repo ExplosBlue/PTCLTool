@@ -241,7 +241,7 @@ struct alignas(4) BinCommonEmitterData {
     u32 texturePos;                             // 0x24
     uptr32 textureHandlePtr;                    // 0x28 - placeholder for a 32 bit textureHandle* (should always be 0)
     bool isPolygon;                             // 0x2C
-    u8 _2D;                                     // 0x2D
+    bool isFollow;                              // 0x2D
     bool isEmitterBillboardMtx;                 // 0x2E
     bool isDirectional;                         // 0x2F
     bool isTexPatAnim;                          // 0x30

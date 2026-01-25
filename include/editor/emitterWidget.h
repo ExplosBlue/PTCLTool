@@ -10,7 +10,6 @@
 #include "editor/lifespanPropertiesWidget.h"
 #include "editor/rotationPropertiesWidget.h"
 #include "editor/scalePropertiesWidget.h"
-#include "editor/sizedSpinBox.h"
 #include "editor/terminationPropertiesWidget.h"
 #include "editor/texturePropertiesWidget.h"
 #include "editor/transformPropertiesWidget.h"
@@ -49,8 +48,6 @@ private:
     const Ptcl::TextureList* mTextureList{nullptr};
 
     QGridLayout mMainLayout;
-
-    SizedSpinBox<u8> m_2DSpinBox;
 
     BasicPropertiesWidget mBasicProperties;
     GravityPropertiesWidget mGravityProperties;
