@@ -1,6 +1,7 @@
 #include "editor/textureListWidget.h"
 #include "editor/textureImportDialog.h"
-#include "editor/thumbnailWidget.h"
+#include "editor/components/thumbnailWidget.h"
+
 #include "ptcl/ptcl.h"
 #include "util/settingsUtil.h"
 

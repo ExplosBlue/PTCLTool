@@ -1,6 +1,6 @@
 #pragma once
 
-#include "emitterWidget.h"
+#include "emitterWidget/emitterWidget.h"
 #include "ptcl/ptclEmitterSet.h"
 
 #include <QLabel>

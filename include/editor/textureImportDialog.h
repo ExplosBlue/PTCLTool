@@ -1,8 +1,9 @@
 #pragma once
 
-#include "editor/enumComboBox.h"
-#include "editor/loadingSpinner.h"
-#include "editor/thumbnailWidget.h"
+#include "editor/components/enumComboBox.h"
+#include "editor/components/loadingSpinner.h"
+#include "editor/components/thumbnailWidget.h"
+
 #include "ptcl/ptclEnum.h"
 #include "ptcl/ptclTexture.h"
 #include "util/imageUtil.h"
