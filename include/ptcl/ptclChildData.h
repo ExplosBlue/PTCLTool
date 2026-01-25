@@ -1,12 +1,12 @@
 #pragma once
 
-#include "typedefs.h"
+#include "math/vector.h"
+
 #include "ptcl/ptclBinary.h"
 #include "ptcl/ptclEnum.h"
 #include "ptcl/ptclTexture.h"
-#include "math/vector.h"
 
-#include <array>
+#include "typedefs.h"
 
 
 namespace Ptcl {
@@ -16,85 +16,123 @@ namespace Ptcl {
 
 
 class ChildData {
+
+public:
+    struct BasicProperties {
+        BillboardType billboardType{BillboardType::Billboard};
+    };
+
+    struct TextureProperties {
+        TextureWrap textureWrapT{TextureWrap::ClampToEdge};
+        TextureWrap textureWrapS{TextureWrap::ClampToEdge};
+        TextureFilter textureMagFilter{TextureFilter::Nearest};
+        TextureFilter textureMinFilter{TextureFilter::Nearest};
+        TextureMipFilter textureMipFilter{TextureMipFilter::None};
+        Math::Vector2f texUVScale{1.0f, 1.0f};
+    };
+
+    struct EmissionProperties {
+        s32 emitRate;
+        s32 emitTiming;
+        s32 life;
+        s32 emitStep;
+    };
+
+    struct VelocityProperties {
+        Math::Vector3f randVel;
+        Math::Vector3f gravity;
+        f32 velInheritRate;
+        f32 initPosRand;
+        f32 figurVel;
+        f32 airResist;
+    };
+
+    struct RotationProperties {
+        RotType rotType{RotType::None};
+        Math::Vector3i initRot;
+        Math::Vector3i initRotRand;
+        Math::Vector3i rotVel;
+        Math::Vector3i rotVelRand;
+        Math::Vector2f rotBasis{0.0f, 0.0f};
+    };
+
+    struct ScaleProperties {
+        Math::Vector2f scale;
+        Math::Vector2f scaleTarget;
+        f32 scaleInheritRate;
+        s32 scaleStartFrame;
+    };
+
+    struct ColorProperties {
+        binColor4f color0{0.0f, 0.0f, 0.0f, 1.0f};
+        binColor3f color1{255.0f, 255.0f, 255.0f};
+    };
+
+    struct AlphaProperties {
+        f32 alpha;
+        f32 alphaTarget;
+        f32 alphaInit;
+        s32 alphaStartFrame;
+        s32 alphaBaseFrame;
+    };
+
+    struct CombinerProperties {
+        BlendFuncType blendFunc{BlendFuncType::Translucent};
+        DepthFuncType depthFunc{DepthFuncType::Unk0};
+        ColorCombinerFuncType combinerFunc{ColorCombinerFuncType::CombinerConfig0};
+    };
+
 public:
     ChildData() = default;
 
     ChildData(const ChildData&) = delete;
     ChildData& operator=(const ChildData&) = delete;
 
-    const std::array<u8, 44>& _0() const;
-    void set_0(const std::array<u8, 44>& _0);
-
-    u32 _2C() const;
-    void set_2C(u32 _2C);
-
-    const std::array<u8, 4>& _30() const;
-    void set_30(const std::array<u8, 4>& _30);
-
+    TextureHandle& textureHandle();
     const TextureHandle& textureHandle() const;
     void setTexture(const std::shared_ptr<Texture>& texture);
 
-    TextureWrap textureWrapT() const;
-    void setTextureWrapT(TextureWrap wrap);
+    const BasicProperties &basicProperties() const;
+    void setBasicProperties(const BasicProperties &basicProperties);
 
-    TextureWrap textureWrapS() const;
-    void setTextureWrapS(TextureWrap wrap);
+    const TextureProperties& textureProperties() const;
+    void setTextureProperties(const TextureProperties& textureProperties);
 
-    TextureFilter textureMagFilter() const;
-    void setTextureMagFilter(TextureFilter filter);
+    const EmissionProperties& emissionProperties() const;
+    void setEmissionProperties(const EmissionProperties& emissionProperties);
 
-    TextureFilter textureMinFilter() const;
-    void setTextureMinFilter(TextureFilter filter);
+    const VelocityProperties& velocityProperties() const;
+    void setVelocityProperties(const VelocityProperties& velocityProperties);
 
-    TextureMipFilter textureMipFilter() const;
-    void setTextureMipFilter(TextureMipFilter filter);
+    const ColorProperties& colorProperties() const;
+    void setColorProperties(const ColorProperties& colorProperties);
 
-    const std::array<u8, 16>& _4C() const;
-    void set_4C(const std::array<u8, 16>& _4C);
+    const AlphaProperties& alphaProperties() const;
+    void setAlphaProperties(const AlphaProperties& alphaProperties);
 
-    f32 _5C() const;
-    void set_5C(f32 _5C);
+    const CombinerProperties& combinerProperties() const;
+    void setCombinerProperties(const CombinerProperties& combinerProperties);
 
-    f32 _60() const;
-    void set_60(f32 _60);
+    const RotationProperties& rotationProperties() const;
+    void setRotationProperties(const RotationProperties& rotationProperties);
 
-    f32 _64() const;
-    void set_64(f32 _64);
-
-    const std::array<u8, 84>& _68() const;
-    void set_68(const std::array<u8, 84>& _68);
-
-    const Math::Vector3f& _BC() const;
-    void set_BC(const Math::Vector3f& _BC);
-
-    const std::array<u8, 32>& _C8() const;
-    void set_C8(const std::array<u8, 32>& _C8);
-
-    f32 _E8() const;
-    void set_E8(f32 _E8);
+    const ScaleProperties& scaleProperties() const;
+    void setScaleProperties(const ScaleProperties& scaleProperties);
 
     void initFromBinary(const BinChildData& childData);
 
 private:
-    std::array<u8, 44> m_0;
-    u32 m_2C;
-    std::array<u8, 4> m_30;
+    BasicProperties mBasicProperties{};
+    EmissionProperties mEmissionProperties{};
+    VelocityProperties mVelocityProperties{};
+    TextureProperties mTextureProperties{};
+    ColorProperties mColorProperties{};
+    AlphaProperties mAlphaProperties{};
+    CombinerProperties mCombinerProperties{};
+    RotationProperties mRotationProperties{};
+    ScaleProperties mScaleProperties{};
 
-    TextureHandle mTextureHande;
-    TextureWrap mTextureWrapT;
-    TextureWrap mTextureWrapS;
-    TextureFilter mTextureMagFilter;
-    TextureFilter mTextureMinFilter;
-    TextureMipFilter mTextureMipFilter;
-
-    std::array<u8, 16> m_4C;
-    f32 m_5C;
-    f32 m_60;
-    f32 m_64;
-    std::array<u8, 84> m_68;
-    Math::Vector3f m_BC;
-    std::array<u8, 32> m_C8;
-    f32 m_E8;
+    TextureHandle mTextureHandle{};
 };
 
 

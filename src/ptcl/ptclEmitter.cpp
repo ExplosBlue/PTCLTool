@@ -157,44 +157,12 @@ void Emitter::setCombinerProperties(const CombinerProperties& combinerProperties
     mCombinerProperties.isFogEnabled ? mFlag.set(EmitterFlag::EnableFog) : mFlag.clear(EmitterFlag::EnableFog);
 }
 
-BitFlag<ChildFlag>& Emitter::childFlags() {
-    return mChildFlags;
+const ComplexProperties& Emitter::complexProperties() const {
+    return mComplexProperties;
 }
 
-BitFlag<FieldFlag>& Emitter::fieldFlags() {
-    return mFieldFlags;
-}
-
-BitFlag<FluctuationFlag>& Emitter::fluctuationFlags() {
-    return mFluctuationFlags;
-}
-
-BitFlag<StripeFlag>& Emitter::stripeFlags() {
-    return mStripeFlags;
-}
-
-const BitFlag<ChildFlag>& Emitter::childFlags() const {
-    return mChildFlags;
-}
-
-const BitFlag<FieldFlag>& Emitter::fieldFlags() const {
-    return mFieldFlags;
-}
-
-const BitFlag<FluctuationFlag>& Emitter::fluctuationFlags() const {
-    return mFluctuationFlags;
-}
-
-const BitFlag<StripeFlag>& Emitter::stripeFlags() const {
-    return mStripeFlags;
-}
-
-bool Emitter::hasStripeData() const {
-    return mHasStripeData;
-}
-
-void Emitter::setHasStripeData(const bool hasStripeData) {
-    mHasStripeData = hasStripeData;
+void Emitter::setComplexProperties(const ComplexProperties& complexProperties) {
+    mComplexProperties = complexProperties;
 }
 
 ChildData& Emitter::childData() {
@@ -251,7 +219,6 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .texPatTblUse = emitterData.texPatTblUse,
         .isTexPatAnim = emitterData.isTexPatAnim
     };
-
 
     mBasicProperties = {
         .type = emitterData.type,
@@ -353,6 +320,18 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .depthFunc = emitterData.depthFunc,
         .combinerFunc = emitterData.colorCombinerFunc,
         .isFogEnabled = emitterData.flag.isSet(EmitterFlag::EnableFog)
+    };
+}
+
+void Emitter::initComplexFromBinary(const BinComplexEmitterData& emitterData) {
+    mComplexProperties = {
+        .childFlags = emitterData.childFlag,
+        .fieldFlags = emitterData.fieldFlag,
+        .fluctuationFlags = emitterData.fluctuationFlag,
+        .stripeFlags = emitterData.stripeFlag,
+
+        // TODO: Should this be based on billboard type instead?
+        .hasStripeData = emitterData.stripeDataOffset != 0
     };
 }
 

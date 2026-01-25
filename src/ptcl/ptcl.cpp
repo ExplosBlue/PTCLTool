@@ -122,12 +122,7 @@ bool PtclRes::load(const QString& filePath) {
                         BinComplexEmitterData binComplexEmitterData;
                         stream >> binComplexEmitterData;
 
-                        // Store ComplexData flags
-                        emitter->childFlags() = binComplexEmitterData.childFlag;
-                        emitter->fieldFlags() = binComplexEmitterData.fieldFlag;
-                        emitter->fluctuationFlags() = binComplexEmitterData.fluctuationFlag;
-                        emitter->stripeFlags() = binComplexEmitterData.stripeFlag;
-                        emitter->setHasStripeData(binComplexEmitterData.stripeDataOffset != 0);
+                        emitter->initComplexFromBinary(binComplexEmitterData);
 
                         // ChildData
                         if (binComplexEmitterData.childFlag.isSet(ChildFlag::Enabled)) {
@@ -136,14 +131,14 @@ bool PtclRes::load(const QString& filePath) {
                             emitter->childData().initFromBinary(binChildData);
 
                             // Read texture data
-                            u32 textureOffset = textureTblPos + binChildData.texturePos;
+                            u32 textureOffset = textureTblPos + binChildData.childTexturePos;
 
                             if (textureOffsetMap.find(textureOffset) == textureOffsetMap.end()) {
 
-                                auto height = binChildData.textureRes.height;
-                                auto width = binChildData.textureRes.width;
-                                auto format = binChildData.textureRes.format;
-                                auto size = binChildData.textureSize;
+                                auto height = binChildData.childTextureRes.height;
+                                auto width = binChildData.childTextureRes.width;
+                                auto format = binChildData.childTextureRes.format;
+                                auto size = binChildData.childTextureSize;
 
                                 file.seek(textureOffset);
                                 std::vector<u8> textureData(size);
@@ -415,13 +410,13 @@ bool PtclRes::save(const QString& filePath) {
 
                     // Store texture data
                     if (textureOffsetMap.contains(emitter->childData().textureHandle()->Id())) {
-                        binChildData.texturePos = textureOffsetMap[emitter->childData().textureHandle()->Id()];
-                        binChildData.textureSize = emitter->childData().textureHandle()->textureDataRaw().size();
+                        binChildData.childTexturePos = textureOffsetMap[emitter->childData().textureHandle()->Id()];
+                        binChildData.childTextureSize = emitter->childData().textureHandle()->textureDataRaw().size();
                     } else {
                         qint64 dataSize = static_cast<qint64>(emitter->childData().textureHandle()->textureDataRaw().size());
                         qint64 paddingNeeded = (128 - (dataSize % 128)) % 128;
 
-                        binChildData.texturePos = textureTblCurOffset;
+                        binChildData.childTexturePos = textureTblCurOffset;
                         textureOffsetMap.try_emplace(emitter->childData().textureHandle()->Id(), textureTblCurOffset);
                         appendToTextureTbl(emitter->childData().textureHandle()->textureDataRaw());
 
@@ -430,8 +425,8 @@ bool PtclRes::save(const QString& filePath) {
                             textureTbl.insert(textureTbl.end(), padding.begin(), padding.end());
                         }
 
-                        binChildData.textureSize = emitter->childData().textureHandle()->textureDataRaw().size();
-                        textureTblCurOffset += binChildData.textureSize + paddingNeeded;
+                        binChildData.childTextureSize = emitter->childData().textureHandle()->textureDataRaw().size();
+                        textureTblCurOffset += binChildData.childTextureSize + paddingNeeded;
                     }
                 }
 
@@ -459,34 +454,34 @@ bool PtclRes::save(const QString& filePath) {
                 emitterData.fieldDataOffset = emitterDataSize;
 
                 // FieldData
-                if (emitter->fieldFlags().isSet(FieldFlag::Random)) {
+                if (emitter->complexProperties().fieldFlags.isSet(FieldFlag::Random)) {
                     emitterDataSize += sizeof(BinFieldRandomData);
                 }
-                if (emitter->fieldFlags().isSet(FieldFlag::Magnet)) {
+                if (emitter->complexProperties().fieldFlags.isSet(FieldFlag::Magnet)) {
                     emitterDataSize += sizeof(BinFieldMagnetData);
                 }
-                if (emitter->fieldFlags().isSet(FieldFlag::Spin)) {
+                if (emitter->complexProperties().fieldFlags.isSet(FieldFlag::Spin)) {
                     emitterDataSize += sizeof(BinFieldSpinData);
                 }
-                if (emitter->fieldFlags().isSet(FieldFlag::Collision)) {
+                if (emitter->complexProperties().fieldFlags.isSet(FieldFlag::Collision)) {
                     emitterDataSize += sizeof(BinFieldCollisionData);
                 }
-                if (emitter->fieldFlags().isSet(FieldFlag::Convergence)) {
+                if (emitter->complexProperties().fieldFlags.isSet(FieldFlag::Convergence)) {
                     emitterDataSize += sizeof(BinFieldConvergenceData);
                 }
-                if (emitter->fieldFlags().isSet(FieldFlag::PosAdd)) {
+                if (emitter->complexProperties().fieldFlags.isSet(FieldFlag::PosAdd)) {
                     emitterDataSize += sizeof(BinFieldPosAddData);
                 }
 
                 // FluctuationData
-                if (emitter->fluctuationFlags().isSet(FluctuationFlag::Enabled)) {
+                if (emitter->complexProperties().fluctuationFlags.isSet(FluctuationFlag::Enabled)) {
                     emitterData.fluctuationDataOffset = emitterDataSize;
                     emitterDataSize += sizeof(BinFluctuationData);
                 }
 
                 // StripeData
                 // TODO: Should this be checking billboard type?
-                if (emitter->hasStripeData()) {
+                if (emitter->complexProperties().hasStripeData) {
                     emitterData.stripeDataOffset = emitterDataSize;
                     emitterDataSize += sizeof(BinStripeData);
                 }
@@ -501,30 +496,30 @@ bool PtclRes::save(const QString& filePath) {
                     binEmitterDataList.emplace_back(binChildData);
                 }
 
-                if (emitter->fieldFlags().isSet(FieldFlag::Random)) {
+                if (emitter->complexProperties().fieldFlags.isSet(FieldFlag::Random)) {
                     binEmitterDataList.emplace_back(binRandomData);
                 }
-                if (emitter->fieldFlags().isSet(FieldFlag::Magnet)) {
+                if (emitter->complexProperties().fieldFlags.isSet(FieldFlag::Magnet)) {
                     binEmitterDataList.emplace_back(binMagnetData);
                 }
-                if (emitter->fieldFlags().isSet(FieldFlag::Spin)) {
+                if (emitter->complexProperties().fieldFlags.isSet(FieldFlag::Spin)) {
                     binEmitterDataList.emplace_back(binSpinData);
                 }
-                if (emitter->fieldFlags().isSet(FieldFlag::Collision)) {
+                if (emitter->complexProperties().fieldFlags.isSet(FieldFlag::Collision)) {
                     binEmitterDataList.emplace_back(binCollisionData);
                 }
-                if (emitter->fieldFlags().isSet(FieldFlag::Convergence)) {
+                if (emitter->complexProperties().fieldFlags.isSet(FieldFlag::Convergence)) {
                     binEmitterDataList.emplace_back(binConvergenceData);
                 }
-                if (emitter->fieldFlags().isSet(FieldFlag::PosAdd)) {
+                if (emitter->complexProperties().fieldFlags.isSet(FieldFlag::PosAdd)) {
                     binEmitterDataList.emplace_back(binPosAddData);
                 }
 
-                if (emitter->fluctuationFlags().isSet(FluctuationFlag::Enabled)) {
+                if (emitter->complexProperties().fluctuationFlags.isSet(FluctuationFlag::Enabled)) {
                     binEmitterDataList.emplace_back(binFluctuationData);
                 }
 
-                if (emitter->hasStripeData()) {
+                if (emitter->complexProperties().hasStripeData) {
                     binEmitterDataList.emplace_back(binStripeData);
                 }
             }
@@ -534,8 +529,6 @@ bool PtclRes::save(const QString& filePath) {
         emitterSetsCurOffset += sizeof(BinEmitterSetData);
         binEmitterSetsList.emplace_back(binEmitterSet);
     }
-
-    // TODO: Build texture table
 
     // Write to the file
     QDataStream stream(&file);
@@ -612,7 +605,6 @@ void PtclRes::removeTexture(u32 textureIndex) {
 const TextureList& PtclRes::textures() const {
     return mTextures;
 }
-
 
 TextureList& PtclRes::textures() {
     return mTextures;
