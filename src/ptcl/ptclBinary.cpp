@@ -331,7 +331,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     texturePos = 0; // To be assigned after construction...
     textureHandlePtr = 0;
     isPolygon = emitter.basicProperties().isPolygon;
-    _2D = emitter._2D();
+    isFollow = emitter.basicProperties().isFollow;
     isEmitterBillboardMtx = emitter.basicProperties().isEmitterBillboardMtx;
     isDirectional = emitter.gravityProperties().isDirectional;
     isTexPatAnim = emitter.textureProperties().isTexPatAnim;
@@ -411,7 +411,7 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item.texturePos
         >> item.textureHandlePtr
         >> item.isPolygon
-        >> item._2D
+        >> item.isFollow
         >> item.isEmitterBillboardMtx
         >> item.isDirectional
         >> item.isTexPatAnim
@@ -494,7 +494,7 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item.texturePos
         << item.textureHandlePtr
         << item.isPolygon
-        << item._2D
+        << item.isFollow
         << item.isEmitterBillboardMtx
         << item.isDirectional
         << item.isTexPatAnim
@@ -580,7 +580,7 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- texturePos:            " << texturePos;
     qDebug() << indentation << "- textureHandlePtr:      " << textureHandlePtr;
     qDebug() << indentation << "- isPolygon:             " << isPolygon;
-    qDebug() << indentation << "- _2D:                   " << _2D;
+    qDebug() << indentation << "- isFollow:              " << isFollow;
     qDebug() << indentation << "- isEmitterBillboardMtx: " << isEmitterBillboardMtx;
     qDebug() << indentation << "- isDirectional:         " << isDirectional;
     qDebug() << indentation << "- isTexPatAnim:          " << isTexPatAnim;

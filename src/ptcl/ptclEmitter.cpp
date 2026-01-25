@@ -7,9 +7,7 @@ namespace Ptcl {
 // ========================================================================== //
 
 
-Emitter::Emitter() {
-    m_2D = 0;
-}
+Emitter::Emitter() = default;
 
 EmitterType Emitter::type() const {
     return mBasicProperties.type;
@@ -41,14 +39,6 @@ TextureHandle& Emitter::textureHandle() {
 
 void Emitter::setTexture(const std::shared_ptr<Texture>& texture) {
     mTextureHandle.set(texture);
-}
-
-u8 Emitter::_2D() const {
-    return m_2D;
-}
-
-void Emitter::set_2D(const u8 _2D) {
-    m_2D = _2D;
 }
 
 const BasicProperties& Emitter::basicProperties() const {
@@ -262,7 +252,6 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .isTexPatAnim = emitterData.isTexPatAnim
     };
 
-    m_2D = emitterData._2D;
 
     mBasicProperties = {
         .type = emitterData.type,
@@ -272,7 +261,8 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .billboardType = emitterData.billboardType,
         .isPolygon = emitterData.isPolygon,
         .isVelLook = emitterData.isVelLook,
-        .isEmitterBillboardMtx = emitterData.isEmitterBillboardMtx
+        .isEmitterBillboardMtx = emitterData.isEmitterBillboardMtx,
+        .isFollow = emitterData.isFollow
     };
 
     mGravityProperties = {

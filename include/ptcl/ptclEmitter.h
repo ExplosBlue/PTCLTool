@@ -31,11 +31,11 @@ struct BasicProperties {
     FollowType followType{FollowType::All};
     QString name{"Emitter"};
     PtclSeed randomSeed{};
-
     BillboardType billboardType{BillboardType::Billboard};
     bool isPolygon{false};
     bool isVelLook{false};
     bool isEmitterBillboardMtx{false};
+    bool isFollow{false};
 };
 
 
@@ -228,9 +228,6 @@ public:
     TextureHandle& textureHandle();
     void setTexture(const std::shared_ptr<Texture>& texture);
 
-    u8 _2D() const;
-    void set_2D(u8 _2D);
-
     const BasicProperties &basicProperties() const;
     void setBasicProperties(const BasicProperties &basicProperties);
 
@@ -303,8 +300,6 @@ public:
 
 private:
     BitFlag<EmitterFlag> mFlag;
-
-    u8 m_2D;
 
     BasicProperties mBasicProperties;
     GravityProperties mGravityProperties;
