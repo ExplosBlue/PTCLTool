@@ -56,6 +56,7 @@ EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
 }
 
 void EmitterSetWidget::setEmitterSet(Ptcl::EmitterSet* emitterSet) {
+    setEnabled(true);
     mEmitterSetPtr = emitterSet;
     populateEmitterPicker();
     populateProperties();
@@ -168,6 +169,12 @@ void EmitterSetWidget::populateEmitterPicker() {
     }
 
     mEmitterTabs.blockSignals(false);
+}
+
+void EmitterSetWidget::clear() {
+    setEnabled(false);
+    mEmitterWidget.clear();
+    mEmitterSetPtr = nullptr;
 }
 
 void EmitterSetWidget::populateProperties() {

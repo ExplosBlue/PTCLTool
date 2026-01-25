@@ -24,6 +24,7 @@ public:
     void setEmitterSet(Ptcl::EmitterSet* emitterSet);
     void setEmitterTab(int emitterIndex);
     void setTextureList(const Ptcl::TextureList& textureList);
+    void clear();
 
 signals:
     void textureUpdated(int oldIndex, int index);
