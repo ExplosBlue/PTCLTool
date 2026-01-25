@@ -7,162 +7,155 @@ namespace Ptcl {
 // ========================================================================== //
 
 
-const std::array<u8, 44>& ChildData::_0() const {
-    return m_0;
-}
-
-void ChildData::set_0(const std::array<u8, 44>& _0) {
-    m_0 = _0;
-}
-
-u32 ChildData::_2C() const {
-    return m_2C;
-}
-
-void ChildData::set_2C(u32 _2C) {
-    m_2C = _2C;
-}
-
-const std::array<u8, 4>& ChildData::_30() const {
-    return m_30;
-}
-
-void ChildData::set_30(const std::array<u8, 4>& _30) {
-    m_30 = _30;
+TextureHandle& ChildData::textureHandle() {
+    return mTextureHandle;
 }
 
 const TextureHandle& ChildData::textureHandle() const {
-    return mTextureHande;
+    return mTextureHandle;
 }
 
 void ChildData::setTexture(const std::shared_ptr<Texture>& texture) {
-    mTextureHande.set(texture);
+    mTextureHandle.set(texture);
 }
 
-TextureWrap ChildData::textureWrapT() const {
-    return mTextureWrapT;
+const ChildData::BasicProperties& ChildData::basicProperties() const {
+    return mBasicProperties;
 }
 
-void ChildData::setTextureWrapT(TextureWrap wrap) {
-    mTextureWrapT = wrap;
+void ChildData::setBasicProperties(const BasicProperties& basicProperties) {
+    mBasicProperties = basicProperties;
 }
 
-TextureWrap ChildData::textureWrapS() const {
-    return mTextureWrapS;
+const ChildData::TextureProperties& ChildData::textureProperties() const {
+    return mTextureProperties;
 }
 
-void ChildData::setTextureWrapS(TextureWrap wrap) {
-    mTextureWrapS = wrap;
+void ChildData::setTextureProperties(const TextureProperties& textureProperties) {
+    mTextureProperties = textureProperties;
 }
 
-TextureFilter ChildData::textureMagFilter() const {
-    return mTextureMagFilter;
+const ChildData::EmissionProperties& ChildData::emissionProperties() const {
+    return mEmissionProperties;
 }
 
-void ChildData::setTextureMagFilter(TextureFilter filter) {
-    mTextureMagFilter = filter;
+void ChildData::setEmissionProperties(const EmissionProperties& emissionProperties) {
+    mEmissionProperties = emissionProperties;
 }
 
-TextureFilter ChildData::textureMinFilter() const {
-    return mTextureMinFilter;
+const ChildData::VelocityProperties& ChildData::velocityProperties() const {
+    return mVelocityProperties;
 }
 
-void ChildData::setTextureMinFilter(TextureFilter filter) {
-    mTextureMinFilter = filter;
+void ChildData::setVelocityProperties(const VelocityProperties& velocityProperties) {
+    mVelocityProperties = velocityProperties;
 }
 
-TextureMipFilter ChildData::textureMipFilter() const {
-    return mTextureMipFilter;
+const ChildData::ColorProperties& ChildData::colorProperties() const {
+    return mColorProperties;
 }
 
-void ChildData::setTextureMipFilter(TextureMipFilter filter) {
-    mTextureMipFilter = filter;
+void ChildData::setColorProperties(const ColorProperties& colorProperties) {
+    mColorProperties = colorProperties;
 }
 
-const std::array<u8, 16>& ChildData::_4C() const {
-    return m_4C;
+const ChildData::AlphaProperties& ChildData::alphaProperties() const {
+    return mAlphaProperties;
 }
 
-void ChildData::set_4C(const std::array<u8, 16>& _4C) {
-    m_4C = _4C;
+void ChildData::setAlphaProperties(const AlphaProperties& alphaProperties) {
+    mAlphaProperties = alphaProperties;
 }
 
-f32 ChildData::_5C() const {
-    return m_5C;
+const ChildData::CombinerProperties& ChildData::combinerProperties() const {
+    return mCombinerProperties;
 }
 
-void ChildData::set_5C(const f32 _5C) {
-    m_5C = _5C;
+void ChildData::setCombinerProperties(const CombinerProperties& combinerProperties) {
+    mCombinerProperties = combinerProperties;
 }
 
-f32 ChildData::_60() const {
-    return m_60;
+const ChildData::RotationProperties& ChildData::rotationProperties() const {
+    return mRotationProperties;
 }
 
-void ChildData::set_60(const f32 _60) {
-    m_60 = _60;
+void ChildData::setRotationProperties(const RotationProperties& rotationProperties) {
+    mRotationProperties = rotationProperties;
 }
 
-f32 ChildData::_64() const {
-    return m_64;
+const ChildData::ScaleProperties& ChildData::scaleProperties() const {
+    return mScaleProperties;
 }
 
-void ChildData::set_64(const f32 _64) {
-    m_64 = _64;
-}
-
-const std::array<u8, 84>& ChildData::_68() const {
-    return m_68;
-}
-
-void ChildData::set_68(const std::array<u8, 84>& _68) {
-    m_68 = _68;
-}
-
-const Math::Vector3f& ChildData::_BC() const {
-    return m_BC;
-}
-
-void ChildData::set_BC(const Math::Vector3f& _BC) {
-    m_BC = _BC;
-}
-
-const std::array<u8, 32>& ChildData::_C8() const {
-    return m_C8;
-}
-
-void ChildData::set_C8(const std::array<u8, 32>& _C8) {
-    m_C8 = _C8;
-}
-
-f32 ChildData::_E8() const {
-    return m_E8;
-}
-
-void ChildData::set_E8(const f32 _E8) {
-    m_E8 = _E8;
+void ChildData::setScaleProperties(const ScaleProperties& scaleProperties) {
+    mScaleProperties = scaleProperties;
 }
 
 void ChildData::initFromBinary(const BinChildData& childData) {
-    m_0 = childData._0;
-    m_2C = childData._2C;
-    m_30 = childData._30;
-    // mTexture
-    // mTextureFormat
-    mTextureWrapT = childData.textureRes.wrapT;
-    mTextureWrapS = childData.textureRes.wrapS;
-    mTextureMagFilter = childData.textureRes.magFilter;
-    mTextureMinFilter = static_cast<TextureFilter>(childData.textureRes.minMipFilter & 0x1);
-    mTextureMipFilter = static_cast<TextureMipFilter>((childData.textureRes.minMipFilter >> 1) & 0x3);
 
-    m_4C = childData._4C;
-    m_5C = childData._5C;
-    m_60 = childData._60;
-    m_64 = childData._64;
-    m_68 = childData._68;
-    m_BC = Math::Vector3f(childData._BC.x, childData._BC.y, childData._BC.z);
-    m_C8 = childData._C8;
-    m_E8 = childData._E8;
+    mBasicProperties = {
+        .billboardType = childData.childBillboardType
+    };
+
+    mTextureProperties = {
+        .textureWrapT = childData.childTextureRes.wrapT,
+        .textureWrapS = childData.childTextureRes.wrapS,
+        .textureMagFilter = childData.childTextureRes.magFilter,
+        .textureMinFilter = static_cast<TextureFilter>(childData.childTextureRes.minMipFilter & 0x1),
+        .textureMipFilter = static_cast<TextureMipFilter>((childData.childTextureRes.minMipFilter >> 1) & 0x3),
+        .texUVScale = { childData.childTexUScale, childData.childTexVScale }
+    };
+
+    mEmissionProperties = {
+        .emitRate = childData.childEmitRate,
+        .emitTiming = childData.childEmitTiming,
+        .life = childData.childLife,
+        .emitStep = childData.childEmitStep
+    };
+
+    mVelocityProperties = {
+        .randVel = { childData.childRandVel.x, childData.childRandVel.y, childData.childRandVel.z },
+        .gravity = { childData.childGravity.x, childData.childGravity.y, childData.childGravity.z },
+        .velInheritRate = childData.childVelInheritRate,
+        .initPosRand = childData.childInitPosRand,
+        .figurVel = childData.childFigurVel,
+        .airResist = childData.childAirResist
+    };
+
+    mRotationProperties = {
+        .rotType = childData.childRotType,
+        .initRot = { childData.childInitRot.x, childData.childInitRot.y, childData.childInitRot.z },
+        .initRotRand = { childData.childInitRotRand.x, childData.childInitRotRand.y, childData.childInitRotRand.z },
+        .rotVel = { childData.childRotVel.x, childData.childRotVel.y, childData.childRotVel.z },
+        .rotVelRand = { childData.childRotVelRand.x, childData.childRotVelRand.y, childData.childRotVelRand.z },
+        .rotBasis = { childData.childRotBasis.x, childData.childRotBasis.y }
+    };
+
+    mScaleProperties = {
+        .scale = { childData.childScale.x, childData.childScale.y },
+        .scaleTarget = { childData.childScaleTarget.x, childData.childScaleTarget.y },
+        .scaleInheritRate = childData.childScaleInheritRate,
+        .scaleStartFrame = childData.childScaleStartFrame
+    };
+
+    mColorProperties = {
+        .color0 = childData.childColor0,
+        .color1 = childData.childColor1
+    };
+
+    mAlphaProperties = {
+        .alpha = childData.childAlpha,
+        .alphaTarget = childData.childAlphaTarget,
+        .alphaInit = childData.childAlphaInit,
+        .alphaStartFrame = childData.childAlphaStartFrame,
+        .alphaBaseFrame = childData.childAlphaBaseFrame
+    };
+
+    mCombinerProperties = {
+        .blendFunc = childData.childBlendType,
+        .depthFunc = childData.childDepthType,
+        .combinerFunc = childData.childCombinerType
+    };
 }
 
 

@@ -542,19 +542,19 @@ enum class EmitterFlag : u32 {
 
 
 enum class ChildFlag : u16 {
-    Enabled     = 1 << 0,
-    Unk2        = 1 << 1,
-    Unk4        = 1 << 2,
-    Unk8        = 1 << 3,
-    Unk10       = 1 << 4,
-    Unk20       = 1 << 5,
-    Unk40       = 1 << 6,
-    Unk80       = 1 << 7,
-    Unk100      = 1 << 8,
-    Unk200      = 1 << 9,
-    Unk400      = 1 << 10,
-    ParentField = 1 << 11,
-    Unk1000     = 1 << 12,
+    Enabled                 = 1 << 0,
+    Color0Inherit           = 1 << 1,
+    AlphaInherit            = 1 << 2,
+    ScaleInherit            = 1 << 3,
+    RotateInherit           = 1 << 4,
+    VelInherit              = 1 << 5,
+    IsFollow                = 1 << 6,
+    Unk80                   = 1 << 7,
+    Unk100                  = 1 << 8,
+    Unk200                  = 1 << 9,
+    IsEmitterBillboardMtx   = 1 << 10,
+    ParentField             = 1 << 11,
+    PreChildDraw            = 1 << 12,
 };
 
 

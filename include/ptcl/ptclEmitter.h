@@ -207,6 +207,18 @@ struct CombinerProperties {
 // ========================================================================== //
 
 
+struct ComplexProperties {
+    BitFlag<ChildFlag> childFlags{};
+    BitFlag<FieldFlag> fieldFlags{};
+    BitFlag<FluctuationFlag> fluctuationFlags{};
+    BitFlag<StripeFlag> stripeFlags{};
+    bool hasStripeData{false};
+};
+
+
+// ========================================================================== //
+
+
 class Emitter
 {
 public:
@@ -224,8 +236,8 @@ public:
     const QString& name() const;
     void setName(const QString &name);
 
-    const TextureHandle& textureHandle() const;
     TextureHandle& textureHandle();
+    const TextureHandle& textureHandle() const;
     void setTexture(const std::shared_ptr<Texture>& texture);
 
     const BasicProperties &basicProperties() const;
@@ -270,18 +282,8 @@ public:
     const TransformProperties& transformProperties() const;
     void setTransformProperties(const TransformProperties& transformProperties);
 
-    BitFlag<ChildFlag>& childFlags();
-    BitFlag<FieldFlag>& fieldFlags();
-    BitFlag<FluctuationFlag>& fluctuationFlags();
-    BitFlag<StripeFlag>& stripeFlags();
-
-    const BitFlag<ChildFlag>& childFlags() const;
-    const BitFlag<FieldFlag>& fieldFlags() const;
-    const BitFlag<FluctuationFlag>& fluctuationFlags() const;
-    const BitFlag<StripeFlag>& stripeFlags() const;
-
-    bool hasStripeData() const;
-    void setHasStripeData(bool hasStripeData);
+    const ComplexProperties& complexProperties() const;
+    void setComplexProperties(const ComplexProperties& complexProperties);
 
     ChildData &childData();
 
@@ -297,6 +299,7 @@ public:
     StripeData& stripeData();
 
     void initFromBinary(const BinCommonEmitterData& emitterData);
+    void initComplexFromBinary(const BinComplexEmitterData& emitterData);
 
 private:
     BitFlag<EmitterFlag> mFlag;
@@ -318,13 +321,8 @@ private:
 
     TextureHandle mTextureHandle;
 
-    // Complex / UnkType fields
-    BitFlag<ChildFlag> mChildFlags;
-    BitFlag<FieldFlag> mFieldFlags;
-    BitFlag<FluctuationFlag> mFluctuationFlags;
-    BitFlag<StripeFlag> mStripeFlags;
-
-    bool mHasStripeData;
+    // Complex Properties
+    ComplexProperties mComplexProperties;
 
     ChildData mChildData;
 

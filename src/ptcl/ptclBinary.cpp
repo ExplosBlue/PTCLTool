@@ -651,10 +651,10 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
 
 BinComplexEmitterData::BinComplexEmitterData(const Ptcl::Emitter& emitter) :
     BinCommonEmitterData{emitter} {
-    childFlag = emitter.childFlags();
-    fieldFlag = emitter.fieldFlags();
-    fluctuationFlag = emitter.fluctuationFlags();
-    stripeFlag = emitter.stripeFlags();
+    childFlag = emitter.complexProperties().childFlags;
+    fieldFlag = emitter.complexProperties().fieldFlags;
+    fluctuationFlag = emitter.complexProperties().fluctuationFlags;
+    stripeFlag = emitter.complexProperties().stripeFlags;
 
     childDataOffset = 0;
     fieldDataOffset = 0;
@@ -709,132 +709,139 @@ void BinComplexEmitterData::printData(u32 indentationLevel) {
 
 
 BinChildData::BinChildData(const Ptcl::ChildData& childData) {
-    _0 = childData._0();
-    _2C = childData._2C();
-    _30 = childData._30();
+    childEmitRate = childData.emissionProperties().emitRate;
+    childEmitTiming = childData.emissionProperties().emitTiming;
+    childLife = childData.emissionProperties().life;
+    childEmitStep = childData.emissionProperties().emitStep;
+    childVelInheritRate = childData.velocityProperties().velInheritRate;
+    childFigurVel = childData.velocityProperties().figurVel;
+    childRandVel = childData.velocityProperties().randVel;
+    childInitPosRand = childData.velocityProperties().initPosRand;
+    childBlendType = childData.combinerProperties().blendFunc;
+    childBillboardType = childData.basicProperties().billboardType;
+    childDepthType = childData.combinerProperties().depthFunc;
 
     if (childData.textureHandle().isValid()) {
-        textureRes = {
+        childTextureRes = {
             .width = static_cast<u16>(childData.textureHandle()->textureData().width()),
             .height = static_cast<u16>(childData.textureHandle()->textureData().height()),
             .format = childData.textureHandle()->textureFormat(),
-            .wrapT = childData.textureWrapT(),
-            .wrapS = childData.textureWrapS(),
-            .magFilter = childData.textureMagFilter(),
-            .minMipFilter = static_cast<u8>((static_cast<u8>(childData.textureMinFilter()) & 0x1) | ((static_cast<u8>(childData.textureMipFilter()) & 0x3) << 1)),
+            .wrapT = childData.textureProperties().textureWrapT,
+            .wrapS = childData.textureProperties().textureWrapS,
+            .magFilter = childData.textureProperties().textureMagFilter,
+            .minMipFilter = static_cast<u8>((static_cast<u8>(childData.textureProperties().textureMinFilter) & 0x1) | ((static_cast<u8>(childData.textureProperties().textureMipFilter) & 0x3) << 1)),
         };
     } else {
-        textureRes = {};
+        childTextureRes = {};
     }
 
-    textureSize = 0; // To be assigned after construction...
-    texturePos = 0; // To be assigned after construction...
-    textureHandlePtr = 0;
-    _4C = childData._4C();
-    _5C = childData._5C();
-    _60 = childData._60();
-    _64 = childData._64();
-    _68 = childData._68();
-    _BC = childData._BC();
-    _C8 = childData._C8();
-    _E8 = childData._E8();
+    childTextureSize = 0; // To be assigned after construction...
+    childTexturePos = 0; // To be assigned after construction...
+    childTextureHandlePtr = 0;
+
+    childColor0 = childData.colorProperties().color0;
+    childColor1 = childData.colorProperties().color1;
+    childAlpha = childData.alphaProperties().alpha;
+    childAlphaTarget = childData.alphaProperties().alphaTarget;
+    childAlphaInit = childData.alphaProperties().alphaInit;
+    childScaleInheritRate = childData.scaleProperties().scaleInheritRate;
+    childScale = childData.scaleProperties().scale;
+    childRotType = childData.rotationProperties().rotType;
+    childInitRot = childData.rotationProperties().initRot;
+    childInitRotRand = childData.rotationProperties().initRotRand;
+    childRotVel = childData.rotationProperties().rotVel;
+    childGravity = childData.velocityProperties().gravity;
+    childAlphaStartFrame = childData.alphaProperties().alphaStartFrame;
+    childAlphaBaseFrame = childData.alphaProperties().alphaBaseFrame;
+    childScaleStartFrame = childData.scaleProperties().scaleStartFrame;
+    childScaleTarget = childData.scaleProperties().scaleTarget;
+    childTexUScale = childData.textureProperties().texUVScale.getX();
+    childTexVScale = childData.textureProperties().texUVScale.getY();
+    childCombinerType = childData.combinerProperties().combinerFunc;
+    childAirResist = childData.velocityProperties().airResist;
 }
 
 
 QDataStream& operator>>(QDataStream& in, BinChildData& item) {
-    for (u8& val : item._0) {
-        in >> val;
-    }
-
-    in >> item._2C;
-
-    for (u8& val : item._30) {
-        in >> val;
-    }
-
-    in >> item.textureRes
-        >> item.textureSize
-        >> item.texturePos
-        >> item.textureHandlePtr;
-
-    for (u8& val : item._4C) {
-        in >> val;
-    }
-
-    in >> item._5C
-        >> item._60
-        >> item._64;
-
-    for (u8& val : item._68) {
-        in >> val;
-    }
-
-    in >> item._BC;
-
-    for (u8& val : item._C8) {
-        in >> val;
-    }
-
-    in >> item._E8;
+    in >> item.childEmitRate
+        >> item.childEmitTiming
+        >> item.childLife
+        >> item.childEmitStep
+        >> item.childVelInheritRate
+        >> item.childFigurVel
+        >> item.childRandVel
+        >> item.childInitPosRand
+        >> item.childBlendType
+        >> item.childBillboardType
+        >> item.childDepthType
+        >> item.childTextureRes
+        >> item.childTextureSize
+        >> item.childTexturePos
+        >> item.childTextureHandlePtr
+        >> item.childColor0
+        >> item.childColor1
+        >> item.childAlpha
+        >> item.childAlphaTarget
+        >> item.childAlphaInit
+        >> item.childScaleInheritRate
+        >> item.childScale
+        >> item.childRotType
+        >> item.childInitRot
+        >> item.childInitRotRand
+        >> item.childRotVel
+        >> item.childRotVelRand
+        >> item.childRotBasis
+        >> item.childGravity
+        >> item.childAlphaStartFrame
+        >> item.childAlphaBaseFrame
+        >> item.childScaleStartFrame
+        >> item.childScaleTarget
+        >> item.childTexUScale
+        >> item.childTexVScale
+        >> item.childCombinerType
+        >> item.childAirResist;
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinChildData& item) {
-    for (const u8& val : item._0) {
-        out << val;
-    }
-
-    out << item._2C;
-
-    for (const u8& val : item._30) {
-        out << val;
-    }
-
-    out << item.textureRes
-        << item.textureSize
-        << item.texturePos
-        << item.textureHandlePtr;
-
-    for (const u8& val : item._4C) {
-        out << val;
-    }
-
-    out << item._5C
-        << item._60
-        << item._64;
-
-    for (const u8& val : item._68) {
-        out << val;
-    }
-
-    out << item._BC;
-
-    for (const u8& val : item._C8) {
-        out << val;
-    }
-
-    out << item._E8;
+    out << item.childEmitRate
+        << item.childEmitTiming
+        << item.childLife
+        << item.childEmitStep
+        << item.childVelInheritRate
+        << item.childFigurVel
+        << item.childRandVel
+        << item.childInitPosRand
+        << item.childBlendType
+        << item.childBillboardType
+        << item.childDepthType
+        << item.childTextureRes
+        << item.childTextureSize
+        << item.childTexturePos
+        << item.childTextureHandlePtr
+        << item.childColor0
+        << item.childColor1
+        << item.childAlpha
+        << item.childAlphaTarget
+        << item.childAlphaInit
+        << item.childScaleInheritRate
+        << item.childScale
+        << item.childRotType
+        << item.childInitRot
+        << item.childInitRotRand
+        << item.childRotVel
+        << item.childRotVelRand
+        << item.childRotBasis
+        << item.childGravity
+        << item.childAlphaStartFrame
+        << item.childAlphaBaseFrame
+        << item.childScaleStartFrame
+        << item.childScaleTarget
+        << item.childTexUScale
+        << item.childTexVScale
+        << item.childCombinerType
+        << item.childAirResist;
     return out;
-}
-
-void BinChildData::printData(u32 indentationLevel) {
-    const char* indentation = PrintUtil::createIndentation(indentationLevel);
-
-    qDebug() << indentation << "- _0:             " << _0.data();
-    qDebug() << indentation << "- _2C:             " << _2C;
-    qDebug() << indentation << "- _30:       " << _30.data();
-    textureRes.printData(indentationLevel + 1);
-    qDebug() << indentation << "- textureSize:       " << textureSize;
-    qDebug() << indentation << "- texturePos:       " << texturePos;
-    qDebug() << indentation << "- textureHandlePtr: " << textureHandlePtr;
-    qDebug() << indentation << "- _4C:      " << _4C.data();
-    qDebug() << indentation << "- _5C:             " << _5C;
-    qDebug() << indentation << "- _60:             " << _60;
-    qDebug() << indentation << "- _64:             " << _64;
-    qDebug() << indentation << "- _68:             " << _68.data();
-    qDebug() << indentation << "- _BC:             " << _BC;
-    qDebug() << indentation << "- _C8:             " << _C8.data();
-    qDebug() << indentation << "- _E8:             " << _E8;
 }
 
 

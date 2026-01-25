@@ -350,29 +350,49 @@ static_assert(sizeof(BinComplexEmitterData) == 0x208, "BinComplexEmitterData is 
 
 // Size 0xEC
 struct alignas(4) BinChildData {
-    std::array<u8, 44> _0;      // 0x00
-    u32 _2C;                    // 0x2C
-    std::array<u8, 4> _30;      // 0x30
-    BinTextureRes textureRes;   // 0x34
-    u32 textureSize;            // 0x40
-    u32 texturePos;             // 0x44
-    uptr32 textureHandlePtr;    // 0x48 - placeholder for a 32 bit TextureHandle* (should always be 0)
-    std::array<u8, 16> _4C;     // 0x4C
-    f32 _5C;                    // 0x5C
-    f32 _60;                    // 0x60
-    f32 _64;                    // 0x64
-    std::array<u8, 84> _68;     // 0x68
-    binVec3f _BC;               // 0xBC
-    std::array<u8, 32> _C8;     // 0xC8
-    f32 _E8;                    // 0xE8
+    s32 childEmitRate;                          // 0x00
+    s32 childEmitTiming;                        // 0x04
+    s32 childLife;                              // 0x08
+    s32 childEmitStep;                          // 0x0C
+    f32 childVelInheritRate;                    // 0x10
+    f32 childFigurVel;                          // 0x14
+    binVec3f childRandVel;                      // 0x18
+    f32 childInitPosRand;                       // 0x24
+    BlendFuncType childBlendType;               // 0x28
+    BillboardType childBillboardType;           // 0x2C
+    DepthFuncType childDepthType;               // 0x30
+    BinTextureRes childTextureRes;              // 0x34
+    u32 childTextureSize;                       // 0x40
+    u32 childTexturePos;                        // 0x44
+    uptr32 childTextureHandlePtr;               // 0x48 - placeholder for a 32 bit TextureHandle* (should always be 0)
+    binColor4f childColor0;                     // 0x4C
+    binColor3f childColor1;                     // 0x5C
+    f32 childAlpha;                             // 0x68
+    f32 childAlphaTarget;                       // 0x6C
+    f32 childAlphaInit;                         // 0x70
+    f32 childScaleInheritRate;                  // 0x74
+    binVec2f childScale;                        // 0x78
+    RotType childRotType;                       // 0x80
+    binVec3i childInitRot;                      // 0x84
+    binVec3i childInitRotRand;                  // 0x90
+    binVec3i childRotVel;                       // 0x9C
+    binVec3i childRotVelRand;                   // 0xA8
+    binVec2f childRotBasis;                     // 0xB4
+    binVec3f childGravity;                      // 0xBC
+    s32 childAlphaStartFrame;                   // 0xC8
+    s32 childAlphaBaseFrame;                    // 0xCC
+    s32 childScaleStartFrame;                   // 0xD0
+    binVec2f childScaleTarget;                  // 0xD4
+    f32 childTexUScale;                         // 0xDC
+    f32 childTexVScale;                         // 0xE0
+    ColorCombinerFuncType childCombinerType;    // 0xE4
+    f32 childAirResist;                         // 0xE8
 
     BinChildData() = default;
     BinChildData(const Ptcl::ChildData& childData);
 
     friend QDataStream& operator>>(QDataStream& in, BinChildData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinChildData& item);
-
-    void printData(u32 indentationLevel = 0);
 };
 
 static_assert(sizeof(BinChildData) == 0xEC, "BinChildData is incorrect size.");
