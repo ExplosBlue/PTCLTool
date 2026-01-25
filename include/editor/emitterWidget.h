@@ -31,7 +31,7 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class EmitterWidget : public QWidget {
+class EmitterWidget final : public QWidget {
     Q_OBJECT
 public:
     explicit EmitterWidget(QWidget* parent = nullptr);
@@ -44,27 +44,26 @@ signals:
     void nameUpdated(const QString& name);
 
 private:
-    Ptcl::Emitter* mEmitterPtr;
+    void setupConnections();
+
+private:
+    Ptcl::Emitter* mEmitterPtr{nullptr};
     const Ptcl::TextureList* mTextureList{nullptr};
 
-    QGridLayout mMainLayout;
-
-    BasicPropertiesWidget mBasicProperties;
-    GravityPropertiesWidget mGravityProperties;
-    TransformPropertiesWidget mTransformProperties;
-    LifespanPropertiesWidget mLifespanProperties;
-    TerminationPropertiesWidget mTerminationProperties;
-    EmissionPropertiesWidget mEmissionProperties;
-    VelocityPropertiesWidget mVelocityProperties;
-    VolumePropertiesWidget mVolumeProperties;
-    ColorPropertiesWidget mColorProperties;
-    AlphaPropertiesWidget mAlphaProperties;
-    RotationPropertiesWidget mRotationProperties;
-    ScalePropertiesWidget mScaleProperties;
-    TexturePropertiesWidget mTextureProperties;
-    CombinerPropertiesWidget mCombinerProperties;
-
-    bool mIsPopulating;
+    BasicPropertiesWidget mBasicProperties{};
+    GravityPropertiesWidget mGravityProperties{};
+    TransformPropertiesWidget mTransformProperties{};
+    LifespanPropertiesWidget mLifespanProperties{};
+    TerminationPropertiesWidget mTerminationProperties{};
+    EmissionPropertiesWidget mEmissionProperties{};
+    VelocityPropertiesWidget mVelocityProperties{};
+    VolumePropertiesWidget mVolumeProperties{};
+    ColorPropertiesWidget mColorProperties{};
+    AlphaPropertiesWidget mAlphaProperties{};
+    RotationPropertiesWidget mRotationProperties{};
+    ScalePropertiesWidget mScaleProperties{};
+    TexturePropertiesWidget mTextureProperties{};
+    CombinerPropertiesWidget mCombinerProperties{};
 };
 
 
