@@ -1,0 +1,578 @@
+#include "editor/components/animGraph.h"
+
+#include <QApplication>
+#include <QFormLayout>
+#include <QPainter>
+#include <QPainterPath>
+#include <QMouseEvent>
+
+
+// ========================================================================== //
+
+
+GraphHandleEditor::GraphHandleEditor(QWidget* parent) :
+    QWidget{parent} {
+    setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);
+
+    setAttribute(Qt::WA_TranslucentBackground);
+    setAttribute(Qt::WA_NoSystemBackground);
+    setAutoFillBackground(false);
+
+    setAttribute(Qt::WA_StyledBackground, true);
+
+    mPosition = new QDoubleSpinBox(this);
+    mValue = new QDoubleSpinBox(this);
+
+    mPosition->setRange(0.0f, 100.0f);
+    mPosition->setDecimals(2);
+    mPosition->setSuffix("%");
+
+    mValue->setDecimals(3);
+
+    auto* layout = new QFormLayout(this);
+    layout->setContentsMargins(6, 4 + sArrowHeight, 6, 4);
+    layout->addRow("Time:", mPosition);
+    layout->addRow("Value:", mValue);
+
+    connect(mPosition, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this] {
+        emit valuesEdited(static_cast<f32>(mPosition->value()), static_cast<f32>(mValue->value()));
+    });
+
+    connect(mValue, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this] {
+        emit valuesEdited(static_cast<f32>(mPosition->value()), static_cast<f32>(mValue->value()));
+    });
+}
+
+void GraphHandleEditor::paintEvent(QPaintEvent* event) {
+    Q_UNUSED(event);
+
+    QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing);
+
+    const QRect r = rect();
+
+    // Main body rect (below arrow)
+    QRect bodyRect = r.adjusted(0, sArrowHeight, 0, 0);
+
+    // Colors from palette so it matches theme
+    const QColor bg = palette().window().color();
+    const QColor border = palette().shadow().color();
+
+    // Build path
+    QPainterPath path;
+
+    // Arrow tip (top center)
+    const f32 cx = static_cast<f32>(r.width()) * 0.5f;
+    path.moveTo(cx - sArrowWidth * 0.5f, sArrowHeight);
+    path.lineTo(cx, 0);
+    path.lineTo(cx + sArrowWidth * 0.5f, sArrowHeight);
+
+    // Body rectangle
+    path.addRoundedRect(bodyRect.adjusted(0, 0, -1, -1), 4.0, 4.0);
+
+    // Fill
+    p.setBrush(bg);
+    p.setPen(Qt::NoPen);
+    p.drawPath(path);
+
+    // Border
+    p.setBrush(Qt::NoBrush);
+    p.setPen(QPen(border, 1));
+    p.drawPath(path);
+}
+
+void GraphHandleEditor::setValues(f32 position, f32 value) {
+    QSignalBlocker b1(mPosition);
+    QSignalBlocker b2(mValue);
+
+    mPosition->setValue(position);
+    mValue->setValue(value);
+}
+
+void GraphHandleEditor::setValueRange(f32 min, f32 max) {
+    mValue->setRange(min, max);
+}
+
+void GraphHandleEditor::setHandleType(HandleType type) {
+    mType = type;
+
+    mPosition->setDisabled(mType == HandleType::Locked);
+}
+
+// ========================================================================== //
+
+
+AnimGraph::AnimGraph(QWidget* parent) :
+    QWidget{parent} {
+    setMinimumSize(200, 200);
+}
+
+void AnimGraph::setControlPoints(const PointList& points) {
+    mPoints = points;
+    update();
+};
+
+const AnimGraph::PointList& AnimGraph::getPoints() const {
+    return mPoints;
+}
+
+void AnimGraph::setLineColor(const QColor& color) {
+    mLineColor = color;
+    update();
+};
+
+void AnimGraph::setValueRange(f32 min, f32 max) {
+    if (min >= max) {
+        return;
+    }
+
+    mCustomRange.min = min;
+    mCustomRange.max = max;
+    mCustomRange.tickStep = chooseTickStep(max - min);
+
+    mHasCustomRange = true;
+    update();
+}
+
+void AnimGraph::setTickStepSize(f32 stepSize) {
+    mTickStepSize = stepSize;
+}
+
+f32 AnimGraph::chooseTickStep(f32 range) const {
+    constexpr s32 maxTicks = 5;
+
+    f32 step = mTickStepSize;
+    while (range > step * static_cast<f32>(maxTicks - 1)) {
+        step *= 2.0f;
+    }
+    return step;
+}
+
+void AnimGraph::setValueSnap(f32 snap) {
+    mValueSnap = snap;
+}
+
+void AnimGraph::setTimeSnap(f32 snap) {
+    mTimeSnap = snap;
+}
+
+AnimGraph::GraphRange AnimGraph::computeGraphRange() const {
+    f32 minV = std::numeric_limits<f32>::max();
+    f32 maxV = std::numeric_limits<f32>::lowest();
+
+    for (GraphPoint pt : mPoints) {
+        minV = std::min(minV, pt.value);
+        maxV = std::max(maxV, pt.value);
+    }
+
+    if (minV == maxV) {
+        minV -= 1.0f;
+        maxV += 1.0f;
+    }
+
+    // Padding
+    const f32 padding = (maxV - minV) * 0.1f;
+    const f32 paddedMin = minV - padding;
+    const f32 paddedMax = maxV + padding;
+
+    const f32 step = chooseTickStep(paddedMax - paddedMin);
+
+    f32 snappedMin = std::floor(paddedMin / step) * step;
+    f32 snappedMax = std::ceil (paddedMax / step) * step;
+
+    return { snappedMin, snappedMax, step };
+}
+
+void AnimGraph::drawAxisLabels(QPainter& painter, s32 width, s32 height, s32 xDivs, const GraphRange& range) {
+    painter.save();
+
+    QFont font = painter.font();
+    font.setPointSize(font.pointSize() - 1);
+    painter.setFont(font);
+
+    const QFontMetrics fm(font);
+    const s32 margin = 4;
+    const s32 labelHeight = 16;
+
+    // TODO: choose better color
+    painter.setPen(QColor(80, 80, 80));
+
+    const f32 widthF = static_cast<f32>(width);
+    const f32 heightF = static_cast<f32>(height);
+
+    for (s32 i = 0; i <= xDivs; ++i) {
+        const f32 t = f32(i) / f32(xDivs);
+        const s32 x = s32(t * widthF);
+        const s32 value = s32(t * 100.0f);
+
+        const QString text = QString::number(value);
+        const s32 textW = fm.horizontalAdvance(text);
+
+        painter.drawText(x - textW / 2, height + labelHeight - margin, text);
+    }
+
+    const s32 tickCount = static_cast<s32>((range.max - range.min) / range.tickStep);
+    for (s32 tick = 0; tick <= tickCount; ++tick) {
+        const f32 i = range.min + static_cast<f32>(tick) * range.tickStep;
+
+        const f32 t = (range.max - i) / (range.max - range.min);
+        const s32 y = s32(t * heightF);
+
+        const QString text = QString::number(i, 'f', 1);
+        const s32 textW = fm.horizontalAdvance(text);
+        const s32 textH = fm.height();
+
+        painter.drawText(-textW - margin, y + textH / 2, text);
+    }
+
+    painter.restore();
+}
+
+void AnimGraph::drawGrid(QPainter& painter, s32 width, s32 height, const GraphRange& range) {
+    painter.save();
+
+    constexpr s32 xMajorDivs = 10;
+    constexpr s32 xMinorDivs = 3;
+
+    const f32 widthF = static_cast<f32>(width);
+    const f32 heightF = static_cast<f32>(height);
+
+    // Background
+    painter.fillRect(0, 0, width, height, sColorGridBg);
+
+    // X Minor Grid
+    painter.setPen(QPen(sColorGridlineMinor, 1));
+    for (int i = 0; i <= xMajorDivs * xMinorDivs; ++i) {
+        const f32 t = f32(i) / f32(xMajorDivs * xMinorDivs);
+        const s32 x = s32(t * widthF);
+        painter.drawLine(x, 0, x, height);
+    }
+
+    // X Major Grid
+    painter.setPen(QPen(sColorGridlineMajor, 1));
+    for (int i = 0; i <= xMajorDivs; ++i) {
+        const f32 t = f32(i) / f32(xMajorDivs);
+        const s32 x = s32(t * widthF);
+        painter.drawLine(x, 0, x, height);
+    }
+
+    // Y Major Grid
+    painter.setPen(QPen(sColorGridlineMajor, 1));
+    const s32 tickCount = static_cast<s32>((range.max - range.min) / range.tickStep);
+    for (s32 tick = 0; tick <= tickCount; ++tick) {
+        const f32 i = range.min + static_cast<f32>(tick) * range.tickStep;
+        const f32 t = (range.max - i) / (range.max - range.min);
+        const s32 y = s32(t * heightF);
+        painter.drawLine(0, y, width, y);
+    }
+
+    painter.restore();
+}
+
+s32 AnimGraph::hitTestPoint(const QPoint& mousePos) const {
+    const s32 contentW = width() - sPaddingLeft - sPaddingRight;
+    const s32 contentH = height() - sPaddingTop - sPaddingBottom;
+
+    const GraphRange range = currentGraphRange();
+    const QPoint local = mousePos - QPoint(sPaddingLeft, sPaddingTop);
+
+    for (s32 i = 0; i < mPoints.size(); ++i) {
+        const auto& pt = mPoints[i];
+        const QPoint center = mapToScreen(pt, contentW, contentH, range);
+
+        if (getHitRect(center, pt.handleType).contains(local)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void AnimGraph::showHandleEditor(s32 index) {
+    if (index < 0 || index >= mPoints.size()) {
+        return;
+    }
+
+    if (!mHandleEditor) {
+        mHandleEditor = new GraphHandleEditor(this);
+        connect(mHandleEditor, &GraphHandleEditor::valuesEdited, this, [this](f32 pos, f32 val) {
+            if (mSelectedIdx >= 0) {
+                moveHandle(mSelectedIdx, pos, val);
+                update();
+            }
+        });
+    }
+
+    const s32 contentW = width() - sPaddingLeft - sPaddingRight;
+    const s32 contentH = height() - sPaddingTop - sPaddingBottom;
+
+    const GraphRange range = currentGraphRange();
+    const QPoint handlePos = mapToScreen(mPoints[index], contentW, contentH, range) + QPoint(sPaddingLeft, sPaddingTop);
+
+    mHandleEditor->setValueRange(-1000.0f, 1000.0f);
+    mHandleEditor->setValues(mPoints[index].position, mPoints[index].value);
+    mHandleEditor->setHandleType(mPoints[index].handleType);
+
+    mHandleEditor->adjustSize();
+    const s32 anchorX = mHandleEditor->width() / 2;
+    const s32 anchorY = 0;
+
+    const QPoint globalPos = mapToGlobal(handlePos + QPoint(-anchorX, anchorY));
+    mHandleEditor->move(globalPos);
+    mHandleEditor->show();
+}
+
+void AnimGraph::hideHandleEditor() {
+    if (mHandleEditor) {
+        mHandleEditor->hide();
+    }
+}
+
+void AnimGraph::moveHandle(s32 handleIndex, f32 newPos, f32 newValue) {
+    // TODO: allow constraints to be defined per instance?
+    switch (handleIndex) {
+    case 0:
+        // Lock start handle pos
+        mPoints[0].position = 0.0f;
+        mPoints[0].value = newValue;
+        break;
+    case 1:
+        mPoints[1].position = newPos;
+        mPoints[1].value = newValue;
+        // Keep handle 1 and 2 in sync
+        mPoints[2].value = newValue;
+        break;
+    case 2:
+        mPoints[2].position = newPos;
+        mPoints[2].value = newValue;
+        // Keep handle 1 and 2 in sync
+        mPoints[1].value = newValue;
+        break;
+    case 3:
+        // Lock end handle pos
+        mPoints[3].position = 100.0f;
+        mPoints[3].value = newValue;
+        break;
+    }
+
+    enforceOrdering();
+
+    emit pointEdited(handleIndex, mPoints[handleIndex]);
+}
+
+void AnimGraph::enforceOrdering() {
+    mPoints[0].position = 0.0f;
+    mPoints[3].position = 100.0f;
+
+    mPoints[1].position = std::clamp(mPoints[1].position, 0.0f, mPoints[2].position);
+    mPoints[2].position = std::clamp(mPoints[2].position, mPoints[1].position, 100.0f);
+}
+
+AnimGraph::GraphRange AnimGraph::currentGraphRange() const {
+    if (mHasFrozenRange) {
+        return mFrozenRange;
+    }
+
+    if (mHasCustomRange) {
+        return mCustomRange;
+    }
+
+    return computeGraphRange();
+}
+
+void AnimGraph::mousePressEvent(QMouseEvent* event) {
+    if (event->button() != Qt::LeftButton) {
+        return;
+    }
+
+    mSelectedIdx = hitTestPoint(event->pos());
+    if (mSelectedIdx == -1) {
+        hideHandleEditor();
+        return;
+    }
+
+    mPressPos = event->pos();
+    mPendingClick = true;
+    mIsDragging = false;
+
+    mFrozenRange = currentGraphRange();
+    mHasFrozenRange = true;
+
+    update();
+}
+
+void AnimGraph::mouseReleaseEvent(QMouseEvent* event) {
+    mHasFrozenRange = false;
+
+    if (mSelectedIdx >= 0) {
+        if (mPendingClick || mDragOccured) {
+            showHandleEditor(mSelectedIdx);
+        }
+    }
+
+    mPendingClick = false;
+    mIsDragging = false;
+    mDragOccured = false;
+
+    update();
+}
+
+void AnimGraph::mouseMoveEvent(QMouseEvent* event) {
+    if (mSelectedIdx < 0) {
+        return;
+    }
+
+    const s32 dragThreshold = QApplication::startDragDistance();
+
+    if (!mIsDragging) {
+        if ((event->pos() - mPressPos).manhattanLength() < dragThreshold) {
+            return;
+        }
+
+        mIsDragging = true;
+        mDragOccured = true;
+        mPendingClick = false;
+        hideHandleEditor();
+    }
+
+    const s32 contentW = width() - sPaddingLeft - sPaddingRight;
+    const s32 contentH = height() - sPaddingTop - sPaddingBottom;
+
+    const GraphRange range = currentGraphRange();
+    const QPoint local = event->pos() - QPoint(sPaddingLeft, sPaddingTop);
+
+    const f32 contentWF = static_cast<f32>(contentW);
+    const f32 contentHF = static_cast<f32>(contentH);
+
+    const f32 x = static_cast<f32>(local.x());
+    const f32 y = static_cast<f32>(local.y());
+
+    f32 t = std::clamp(x / contentWF, 0.0f, 1.0f);
+    f32 value = range.max - std::clamp(y / contentHF, 0.0f, 1.0f) * (range.max - range.min);
+
+    // Grid snap
+    if (!(event->modifiers() & Qt::ShiftModifier)) {
+        const f32 time = t * 100.0f;
+
+        const f32 snappedTime = std::round(time / mTimeSnap) * mTimeSnap;
+        const f32 snappedValue = std::round(value / mValueSnap) * mValueSnap;
+
+        t = std::clamp(snappedTime / 100.0f, 0.0f, 1.0f);
+        value = std::clamp(snappedValue, range.min, range.max);
+    }
+
+
+    moveHandle(mSelectedIdx, t * 100.0f, value);
+
+    if (mHandleEditor) {
+        mHandleEditor->setValues(mPoints[mSelectedIdx].position, mPoints[mSelectedIdx].value);
+    }
+
+    update();
+}
+
+QPoint AnimGraph::mapToScreen(const GraphPoint& point, s32 contentW, s32 contentH, const GraphRange& range) {
+    s32 x = static_cast<s32>(point.position * static_cast<f32>(contentW) * 0.01f);
+    s32 y = s32(((range.max - point.value) / (range.max - range.min)) * static_cast<f32>(contentH));
+
+    return { x, y };
+}
+
+QRect AnimGraph::getHitRect(const QPoint& center, HandleType type) const {
+    static constexpr s32 r = sHandleRadius + 2;
+
+    switch (type) {
+        case HandleType::Locked:
+            return {center.x() - r, center.y() - r, r * 2, r * 2};
+        case HandleType::HoldStart:
+            return {center.x() - r, center.y() - r, r, r * 2};
+        case HandleType::HoldEnd:
+            return {center.x(), center.y() - r, r, r * 2};
+    }
+    return {};
+}
+
+void AnimGraph::drawHandle(QPainter& painter, const QPoint& pos, HandleType type, bool isSelected) const {
+    const QColor color = isSelected ? sColorHandleActive : sColorHandle;
+
+    painter.setPen(QPen(color, 2));
+    painter.setBrush(Qt::NoBrush);
+
+    static constexpr s32 r = sHandleRadius;
+
+    switch (type) {
+        case HandleType::Locked:
+            painter.drawEllipse(pos, r, r);
+            break;
+        case HandleType::HoldStart: {
+            QPainterPath path;
+            path.moveTo(pos);
+            path.arcTo(QRectF(pos.x() - r, pos.y() - r, r * 2, r * 2), 90, 180);
+            path.closeSubpath();
+            painter.drawPath(path);
+            break;
+        }
+        case HandleType::HoldEnd: {
+            QPainterPath path;
+            path.moveTo(pos);
+            path.arcTo(QRectF(pos.x() - r, pos.y() - r, r * 2, r * 2), -90, 180);
+            path.closeSubpath();
+            painter.drawPath(path);
+            break;
+        }
+    }
+}
+
+void AnimGraph::paintEvent(QPaintEvent* event) {
+    Q_UNUSED(event);
+
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    const s32 contentX = sPaddingLeft;
+    const s32 contentY = sPaddingTop;
+    const s32 contentW = width() - sPaddingLeft - sPaddingRight;
+    const s32 contentH = height() - sPaddingTop - sPaddingBottom;
+
+    painter.save();
+    painter.translate(contentX, contentY);
+
+    const GraphRange range = currentGraphRange();
+
+    painter.save();
+    painter.setClipRect(0, 0, contentW, contentH);
+    drawGrid(painter, contentW, contentH, range);
+    painter.restore();
+
+    drawAxisLabels(painter, contentW, contentH, 10, range);
+
+    QVector<QPoint> poly;
+    poly.reserve(static_cast<qsizetype>(mPoints.size()));
+    for (auto & mPoint : mPoints) {
+        poly.push_back(mapToScreen(mPoint, contentW, contentH, range));
+    }
+
+    for (s32 i = 0; i + 1 < mPoints.size(); ++i) {
+        const QPoint& start = poly[i];
+        const QPoint& end = poly[i + 1];
+
+        QPen pen(mLineColor, 2);
+
+        if (mPoints[i].handleType == HandleType::HoldStart &&
+            mPoints[i + 1].handleType == HandleType::HoldEnd) {
+            pen.setStyle(Qt::DashDotLine);
+        } else {
+            pen.setStyle(Qt::SolidLine);
+        }
+
+        painter.setPen(pen);
+        painter.drawLine(start, end);
+    }
+
+    for (s32 i = 0; i < poly.size(); ++i) {
+        drawHandle(painter, poly[i], mPoints[i].handleType, i == mSelectedIdx);
+    }
+
+    painter.restore();
+}
+
+// ========================================================================== //

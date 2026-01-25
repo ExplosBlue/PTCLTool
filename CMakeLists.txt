@@ -23,35 +23,35 @@ endif()
 set(PROJECT_SOURCES
     src/main.cpp
     src/editor/mainWindow.cpp
-    src/editor/alphaSlider.cpp
-    src/editor/alphaPropertiesWidget.cpp
-    src/editor/animGraph.cpp
-    src/editor/basicPropertiesWidget.cpp
-    src/editor/clickableLabel.cpp
-    src/editor/collapsibleWidget.cpp
-    src/editor/colorGradientEditor.cpp
-    src/editor/colorPropertiesWidget.cpp
-    src/editor/combinerPropertiesWidget.cpp
-    src/editor/emissionPropertiesWidget.cpp
-    src/editor/emitterWidget.cpp
     src/editor/emitterSetWidget.cpp
-    src/editor/gradientSlider.cpp
-    src/editor/gravityPropertiesWidget.cpp
-    src/editor/lifespanPropertiesWidget.cpp
-    src/editor/loadingSpinner.cpp
     src/editor/ptclListWidget.cpp
-    src/editor/rgbaColorWidget.cpp
-    src/editor/rotationPropertiesWidget.cpp
-    src/editor/scalePropertiesWidget.cpp
-    src/editor/terminationPropertiesWidget.cpp
-    src/editor/textureImportDialog.cpp
     src/editor/textureListWidget.cpp
-    src/editor/texturePropertiesWidget.cpp
+    src/editor/textureImportDialog.cpp
     src/editor/textureSelectDialog.cpp
-    src/editor/thumbnailWidget.cpp
-    src/editor/transformPropertiesWidget.cpp
-    src/editor/velocityPropertiesWidget.cpp
-    src/editor/volumePropertiesWidget.cpp
+    src/editor/components/alphaSlider.cpp
+    src/editor/components/animGraph.cpp
+    src/editor/components/clickableLabel.cpp
+    src/editor/components/collapsibleWidget.cpp
+    src/editor/components/colorGradientEditor.cpp
+    src/editor/components/gradientSlider.cpp
+    src/editor/components/loadingSpinner.cpp
+    src/editor/components/rgbaColorWidget.cpp
+    src/editor/components/thumbnailWidget.cpp
+    src/editor/emitterWidget/alphaPropertiesWidget.cpp
+    src/editor/emitterWidget/basicPropertiesWidget.cpp
+    src/editor/emitterWidget/colorPropertiesWidget.cpp
+    src/editor/emitterWidget/combinerPropertiesWidget.cpp
+    src/editor/emitterWidget/emissionPropertiesWidget.cpp
+    src/editor/emitterWidget/emitterWidget.cpp
+    src/editor/emitterWidget/gravityPropertiesWidget.cpp
+    src/editor/emitterWidget/lifespanPropertiesWidget.cpp
+    src/editor/emitterWidget/rotationPropertiesWidget.cpp
+    src/editor/emitterWidget/scalePropertiesWidget.cpp
+    src/editor/emitterWidget/terminationPropertiesWidget.cpp
+    src/editor/emitterWidget/texturePropertiesWidget.cpp
+    src/editor/emitterWidget/transformPropertiesWidget.cpp
+    src/editor/emitterWidget/velocityPropertiesWidget.cpp
+    src/editor/emitterWidget/volumePropertiesWidget.cpp
     src/etc1/rg_etc1.cpp
     src/ptcl/ptcl.cpp
     src/ptcl/ptclBinary.cpp
@@ -71,38 +71,38 @@ set(PROJECT_SOURCES
 set(PROJECT_HEADERS
     include/typedefs.h
     include/editor/mainWindow.h
-    include/editor/alphaSlider.h
-    include/editor/alphaPropertiesWidget.h
-    include/editor/animGraph.h
-    include/editor/basicPropertiesWidget.h
-    include/editor/clickableLabel.h
-    include/editor/collapsibleWidget.h
-    include/editor/colorGradientEditor.h
-    include/editor/colorPropertiesWidget.h
-    include/editor/combinerPropertiesWidget.h
-    include/editor/emissionPropertiesWidget.h
-    include/editor/emitterWidget.h
     include/editor/emitterSetWidget.h
-    include/editor/enumComboBox.h
-    include/editor/gradientSlider.h
-    include/editor/gravityPropertiesWidget.h
-    include/editor/lifespanPropertiesWidget.h
-    include/editor/loadingSpinner.h
     include/editor/ptclListWidget.h
-    include/editor/rgbaColorWidget.h
-    include/editor/rotationPropertiesWidget.h
-    include/editor/scalePropertiesWidget.h
-    include/editor/sizedSpinBox.h
-    include/editor/terminationPropertiesWidget.h
     include/editor/textureImportDialog.h
     include/editor/textureListWidget.h
-    include/editor/texturePropertiesWidget.h
     include/editor/textureSelectDialog.h
-    include/editor/thumbnailWidget.h
-    include/editor/transformPropertiesWidget.h
-    include/editor/vectorSpinBox.h
-    include/editor/velocityPropertiesWidget.h
-    include/editor/volumePropertiesWidget.h
+    include/editor/components/alphaSlider.h
+    include/editor/components/animGraph.h
+    include/editor/components/clickableLabel.h
+    include/editor/components/collapsibleWidget.h
+    include/editor/components/colorGradientEditor.h
+    include/editor/components/enumComboBox.h
+    include/editor/components/gradientSlider.h
+    include/editor/components/loadingSpinner.h
+    include/editor/components/rgbaColorWidget.h
+    include/editor/components/sizedSpinBox.h
+    include/editor/components/thumbnailWidget.h
+    include/editor/components/vectorSpinBox.h
+    include/editor/emitterWidget/alphaPropertiesWidget.h
+    include/editor/emitterWidget/basicPropertiesWidget.h
+    include/editor/emitterWidget/colorPropertiesWidget.h
+    include/editor/emitterWidget/combinerPropertiesWidget.h
+    include/editor/emitterWidget/emissionPropertiesWidget.h
+    include/editor/emitterWidget/emitterWidget.h
+    include/editor/emitterWidget/gravityPropertiesWidget.h
+    include/editor/emitterWidget/lifespanPropertiesWidget.h
+    include/editor/emitterWidget/rotationPropertiesWidget.h
+    include/editor/emitterWidget/scalePropertiesWidget.h
+    include/editor/emitterWidget/terminationPropertiesWidget.h
+    include/editor/emitterWidget/texturePropertiesWidget.h
+    include/editor/emitterWidget/transformPropertiesWidget.h
+    include/editor/emitterWidget/velocityPropertiesWidget.h
+    include/editor/emitterWidget/volumePropertiesWidget.h
     include/etc1/rg_etc1.h
     include/math/matrix.h
     include/math/util.h
