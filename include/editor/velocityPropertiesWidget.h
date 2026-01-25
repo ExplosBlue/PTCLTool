@@ -16,13 +16,13 @@ class VelocityPropertiesWidget final : public QWidget {
 public:
     explicit VelocityPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::VelocityProperties& properties);
+    void setProperties(const Ptcl::Emitter::VelocityProperties& properties);
 
 signals:
-    void propertiesUpdated(const Ptcl::VelocityProperties& properties);
+    void propertiesUpdated(const Ptcl::Emitter::VelocityProperties& properties);
 
 private:
-    Ptcl::VelocityProperties mProps{};
+    Ptcl::Emitter::VelocityProperties mProps{};
 
     QDoubleSpinBox mFigureVelSpinbox{};
     VectorSpinBox<Math::Vector3f> mVelDirSpinbox{};

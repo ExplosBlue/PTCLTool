@@ -18,13 +18,13 @@ class BasicPropertiesWidget final : public QWidget {
 public:
     explicit BasicPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::BasicProperties& properties);
+    void setProperties(const Ptcl::Emitter::BasicProperties& properties);
 
 signals:
-    void propertiesUpdated(const Ptcl::BasicProperties& properties);
+    void propertiesUpdated(const Ptcl::Emitter::BasicProperties& properties);
 
 private:
-    Ptcl::BasicProperties mProps{};
+    Ptcl::Emitter::BasicProperties mProps{};
 
     QLineEdit mNameLineEdit{};
     EnumComboBox<Ptcl::EmitterType> mTypeComboBox{};

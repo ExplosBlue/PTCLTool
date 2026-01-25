@@ -117,7 +117,7 @@ void ScalePropertiesWidget::updateGraphs() {
     updateGraph(mGraphY, &Math::Vector2f::getY);
 }
 
-void ScalePropertiesWidget::setProperties(const Ptcl::ScaleProperties& properties) {
+void ScalePropertiesWidget::setProperties(const Ptcl::Emitter::ScaleProperties& properties) {
     mProps = properties;
 
     updateGraphs();

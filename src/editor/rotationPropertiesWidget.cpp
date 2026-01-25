@@ -67,7 +67,7 @@ RotationPropertiesWidget::RotationPropertiesWidget(QWidget* parent) :
 
 }
 
-void RotationPropertiesWidget::setProperties(const Ptcl::RotationProperties& properties) {
+void RotationPropertiesWidget::setProperties(const Ptcl::Emitter::RotationProperties& properties) {
     mProps = properties;
     populateWidgets();
 }

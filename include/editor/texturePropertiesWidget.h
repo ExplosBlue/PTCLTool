@@ -37,13 +37,13 @@ public:
 public:
     explicit TexturePropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::TextureProperties& properties, const std::shared_ptr<Ptcl::Texture>& texture);
+    void setProperties(const Ptcl::Emitter::TextureProperties& properties, const std::shared_ptr<Ptcl::Texture>& texture);
 
     void populateWidgets();
     void setTextureList(const Ptcl::TextureList* textureList);
 
 signals:
-    void propertiesUpdated(const Ptcl::TextureProperties& properties);
+    void propertiesUpdated(const Ptcl::Emitter::TextureProperties& properties);
     void textureUpdated(const std::shared_ptr<Ptcl::Texture>& oldTexture, const std::shared_ptr<Ptcl::Texture>& newTexture);
 
 private slots:
@@ -62,7 +62,7 @@ private:
     s32 maxFrameCount() const;
 
 private:
-    Ptcl::TextureProperties mProps{};
+    Ptcl::Emitter::TextureProperties mProps{};
     std::shared_ptr<Ptcl::Texture> mTexture{};
 
     const Ptcl::TextureList* mTextureList{nullptr};

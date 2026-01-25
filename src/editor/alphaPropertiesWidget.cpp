@@ -58,7 +58,7 @@ AlphaPropertiesWidget::AlphaPropertiesWidget(QWidget* parent) :
     });
 }
 
-void AlphaPropertiesWidget::setProperties(const Ptcl::AlphaProperties& properties) {
+void AlphaPropertiesWidget::setProperties(const Ptcl::Emitter::AlphaProperties& properties) {
     mProps = properties;
 
     QSignalBlocker blocker(mGraphA);

@@ -44,7 +44,7 @@ LifespanPropertiesWidget::LifespanPropertiesWidget(QWidget* parent) :
     });
 }
 
-void LifespanPropertiesWidget::setProperties(const Ptcl::LifespanProperties& properties) {
+void LifespanPropertiesWidget::setProperties(const Ptcl::Emitter::LifespanProperties& properties) {
     QSignalBlocker b1(mInfiniteLifeCheckBox);
     QSignalBlocker b2(mLifeSpanSpinBox);
     QSignalBlocker b3(mLifeSpanRndSpinBox);

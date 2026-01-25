@@ -224,7 +224,7 @@ TexturePropertiesWidget::TexturePropertiesWidget(QWidget* parent) :
 
 }
 
-void TexturePropertiesWidget::setProperties(const Ptcl::TextureProperties& properties, const std::shared_ptr<Ptcl::Texture>& texture) {
+void TexturePropertiesWidget::setProperties(const Ptcl::Emitter::TextureProperties& properties, const std::shared_ptr<Ptcl::Texture>& texture) {
     mProps = properties;
     mTexture = texture;
     populateWidgets();

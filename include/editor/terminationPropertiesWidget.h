@@ -16,13 +16,13 @@ class TerminationPropertiesWidget final : public QWidget {
 public:
     explicit TerminationPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::TerminationProperties& properties);
+    void setProperties(const Ptcl::Emitter::TerminationProperties& properties);
 
 signals:
-    void propertiesUpdated(const Ptcl::TerminationProperties& properties);
+    void propertiesUpdated(const Ptcl::Emitter::TerminationProperties& properties);
 
 private:
-    Ptcl::TerminationProperties mProps{};
+    Ptcl::Emitter::TerminationProperties mProps{};
 
     QCheckBox mIsStopEmitCheckBox;
     QDoubleSpinBox mAlphaAddInSpinBox;

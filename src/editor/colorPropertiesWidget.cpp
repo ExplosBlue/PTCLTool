@@ -79,7 +79,7 @@ ColorPropertiesWidget::ColorPropertiesWidget(QWidget* parent) :
     setLayout(mainLayout);
 }
 
-void ColorPropertiesWidget::setProperties(const Ptcl::ColorProperties& properties) {
+void ColorPropertiesWidget::setProperties(const Ptcl::Emitter::ColorProperties& properties) {
     mProps = properties;
     populateWidgets();
 }

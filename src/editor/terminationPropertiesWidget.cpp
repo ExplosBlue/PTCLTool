@@ -27,7 +27,7 @@ TerminationPropertiesWidget::TerminationPropertiesWidget(QWidget* parent) :
     });
 }
 
-void TerminationPropertiesWidget::setProperties(const Ptcl::TerminationProperties& properties) {
+void TerminationPropertiesWidget::setProperties(const Ptcl::Emitter::TerminationProperties& properties) {
     QSignalBlocker b1(mIsStopEmitCheckBox);
     QSignalBlocker b2(mAlphaAddInSpinBox);
 

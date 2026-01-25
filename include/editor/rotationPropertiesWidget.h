@@ -17,17 +17,17 @@ class RotationPropertiesWidget final : public QWidget {
 public:
     explicit RotationPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::RotationProperties& properties);
+    void setProperties(const Ptcl::Emitter::RotationProperties& properties);
 
 signals:
-    void propertiesUpdated(const Ptcl::RotationProperties& properties);
+    void propertiesUpdated(const Ptcl::Emitter::RotationProperties& properties);
 
 private:
     void populateWidgets();
     void updateAxis();
 
 private:
-    Ptcl::RotationProperties mProps{};
+    Ptcl::Emitter::RotationProperties mProps{};
 
     EnumComboBox<Ptcl::RotType> mRotTypeSpinBox{};
     VectorSpinBox<Math::Vector3f> mInitRotSpinBox{};

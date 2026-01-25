@@ -390,16 +390,16 @@ class CombinerPropertiesWidget final : public QWidget {
 public:
     explicit CombinerPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::CombinerProperties& properties);
+    void setProperties(const Ptcl::Emitter::CombinerProperties& properties);
     void setCombinerSrc(const Ptcl::TextureHandle* texture, const Ptcl::binColor3f* constant, const Ptcl::binColor4f* primary);
 
     void updateCombinerPreview();
 
 signals:
-    void propertiesUpdated(const Ptcl::CombinerProperties& properties);
+    void propertiesUpdated(const Ptcl::Emitter::CombinerProperties& properties);
 
 private:
-    Ptcl::CombinerProperties mProps{};
+    Ptcl::Emitter::CombinerProperties mProps{};
 
     QCheckBox mFogCheckBox{};
     EnumComboBox<Ptcl::BlendFuncType> mBlendFuncComboBox{};

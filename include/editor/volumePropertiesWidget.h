@@ -17,10 +17,10 @@ class VolumePropertiesWidget : public QWidget {
 public:
     explicit VolumePropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::VolumeProperties& properties);
+    void setProperties(const Ptcl::Emitter::VolumeProperties& properties);
 
 signals:
-    void propertiesUpdated(const Ptcl::VolumeProperties& properties);
+    void propertiesUpdated(const Ptcl::Emitter::VolumeProperties& properties);
 
 private:
     void setupUi();
@@ -36,7 +36,7 @@ private:
     };
 
 private:
-    Ptcl::VolumeProperties mProps{};
+    Ptcl::Emitter::VolumeProperties mProps{};
 
     std::vector<VolumeField> mFields;
     std::unordered_map<QWidget*, QLabel*> mFieldLabels;

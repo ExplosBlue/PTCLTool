@@ -15,13 +15,13 @@ class AlphaPropertiesWidget final : public QWidget {
 public:
     explicit AlphaPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::AlphaProperties& properties);
+    void setProperties(const Ptcl::Emitter::AlphaProperties& properties);
 
 signals:
-    void propertiesUpdated(const Ptcl::AlphaProperties& properties);
+    void propertiesUpdated(const Ptcl::Emitter::AlphaProperties& properties);
 
 private:
-    Ptcl::AlphaProperties mProps{};
+    Ptcl::Emitter::AlphaProperties mProps{};
 
     AnimGraph mGraphA{};
 };

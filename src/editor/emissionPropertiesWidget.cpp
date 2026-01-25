@@ -76,7 +76,7 @@ EmissionPropertiesWidget::EmissionPropertiesWidget(QWidget* parent) :
     });
 }
 
-void EmissionPropertiesWidget::setProperties(const Ptcl::EmissionProperties& properties) {
+void EmissionPropertiesWidget::setProperties(const Ptcl::Emitter::EmissionProperties& properties) {
     QSignalBlocker b1(mStartFrameSpinBox);
     QSignalBlocker b2(mEndFrameSpinBox);
     QSignalBlocker b3(mLifeStepSpinBox);

@@ -16,13 +16,13 @@ class EmissionPropertiesWidget final : public QWidget {
 public:
     explicit EmissionPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::EmissionProperties& properties);
+    void setProperties(const Ptcl::Emitter::EmissionProperties& properties);
 
 signals:
-    void propertiesUpdated(const Ptcl::EmissionProperties& properties);
+    void propertiesUpdated(const Ptcl::Emitter::EmissionProperties& properties);
 
 private:
-    Ptcl::EmissionProperties mProps{};
+    Ptcl::Emitter::EmissionProperties mProps{};
 
     QSpinBox mStartFrameSpinBox;
     QSpinBox mEndFrameSpinBox;

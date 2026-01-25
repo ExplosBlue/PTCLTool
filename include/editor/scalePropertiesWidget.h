@@ -14,17 +14,17 @@ class ScalePropertiesWidget final : public QWidget {
 public:
     explicit ScalePropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::ScaleProperties& properties);
+    void setProperties(const Ptcl::Emitter::ScaleProperties& properties);
 
 signals:
-    void propertiesUpdated(const Ptcl::ScaleProperties& properties);
+    void propertiesUpdated(const Ptcl::Emitter::ScaleProperties& properties);
 
 private:
     void updateAnimPoint(s32 pointIndex, const AnimGraph::GraphPoint& point, f32 (Math::Vector2f::*get)() const);
     void updateGraphs();
 
 private:
-    Ptcl::ScaleProperties mProps{};
+    Ptcl::Emitter::ScaleProperties mProps{};
 
     AnimGraph mGraphX{};
     AnimGraph mGraphY{};

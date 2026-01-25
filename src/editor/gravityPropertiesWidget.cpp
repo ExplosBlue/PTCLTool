@@ -27,7 +27,7 @@ GravityPropertiesWidget::GravityPropertiesWidget(QWidget* parent) :
     });
 }
 
-void GravityPropertiesWidget::setProperties(const Ptcl::GravityProperties& properties) {
+void GravityPropertiesWidget::setProperties(const Ptcl::Emitter::GravityProperties& properties) {
     QSignalBlocker b1(mIsDirectionalCheckBox);
     QSignalBlocker b2(mGravitySpinBox);
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "math/matrix.h"
+
 #include "ptcl/ptclBinary.h"
 #include "ptcl/ptclChildData.h"
 #include "ptcl/ptclEnum.h"
@@ -8,14 +10,12 @@
 #include "ptcl/ptclStripeData.h"
 #include "ptcl/ptclSeed.h"
 #include "ptcl/ptclTexture.h"
-#include "typedefs.h"
-#include "util/bitflagUtil.h"
-#include "math/matrix.h"
 
-#include <QMatrix3x4>
+#include "typedefs.h"
+
+#include "util/bitflagUtil.h"
+
 #include <QString>
-#include <QVector2D>
-#include <QVector3D>
 
 #include <array>
 
@@ -26,201 +26,142 @@ namespace Ptcl {
 // ========================================================================== //
 
 
-struct BasicProperties {
-    EmitterType type{EmitterType::Simple};
-    FollowType followType{FollowType::All};
-    QString name{"Emitter"};
-    PtclSeed randomSeed{};
-    BillboardType billboardType{BillboardType::Billboard};
-    bool isPolygon{false};
-    bool isVelLook{false};
-    bool isEmitterBillboardMtx{false};
-    bool isFollow{false};
-};
+class Emitter {
 
-
-// ========================================================================== //
-
-
-struct ScaleProperties {
-    Math::Vector2f initScale = {1.0f, 1.0f};
-    Math::Vector2f diffScale21 = {0.0f, 0.0f};
-    Math::Vector2f diffScale32 = {0.0f, 0.0f};
-    s32 scaleSection1 = 0;
-    s32 scaleSection2 = 0;
-    f32 scaleRand = 0.0f;
-};
-
-
-// ========================================================================== //
-
-
-struct RotationProperties {
-    RotType rotType = RotType::None;
-    Math::Vector3i initRot = {};
-    Math::Vector3i initRotRand = {};
-    Math::Vector3i rotVel = {};
-    Math::Vector3i rotVelRand = {};
-    Math::Vector2f rotBasis = {0.0f, 0.0f};
-};
-
-
-// ========================================================================== //
-
-
-struct ColorProperties {
-    std::array<binColor4f, 3> colors {
-        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
-        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
-        binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+public:
+    struct BasicProperties {
+        EmitterType type{EmitterType::Simple};
+        FollowType followType{FollowType::All};
+        QString name{"Emitter"};
+        PtclSeed randomSeed{};
+        BillboardType billboardType{BillboardType::Billboard};
+        bool isPolygon{false};
+        bool isVelLook{false};
+        bool isEmitterBillboardMtx{false};
+        bool isFollow{false};
     };
-    s32 colorSection1 = 20;
-    s32 colorSection2 = 60;
-    s32 colorSection3 = 80;
-    s32 colorNumRepeat = 1;
 
-    bool colorRandom = false;
-    bool colorAnimation = false;
-    ColorCalcType colorCalcType;
+    struct ScaleProperties {
+        Math::Vector2f initScale{1.0f, 1.0f};
+        Math::Vector2f diffScale21{0.0f, 0.0f};
+        Math::Vector2f diffScale32{0.0f, 0.0f};
+        s32 scaleSection1{0};
+        s32 scaleSection2{0};
+        f32 scaleRand{0.0f};
+    };
 
-    binColor3f color0{255.0f, 255.0f, 255.0f};
-};
+    struct RotationProperties {
+        RotType rotType{RotType::None};
+        Math::Vector3i initRot{};
+        Math::Vector3i initRotRand{};
+        Math::Vector3i rotVel{};
+        Math::Vector3i rotVelRand{};
+        Math::Vector2f rotBasis{0.0f, 0.0f};
+    };
 
+    struct ColorProperties {
+        std::array<binColor4f, 3> colors{
+            binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+            binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+            binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+        };
+        s32 colorSection1{20};
+        s32 colorSection2{60};
+        s32 colorSection3{80};
+        s32 colorNumRepeat{1};
 
-// ========================================================================== //
+        bool colorRandom{false};
+        bool colorAnimation{false};
+        ColorCalcType colorCalcType{ColorCalcType::None};
 
+        binColor3f color0{255.0f, 255.0f, 255.0f};
+    };
 
-struct AlphaProperties {
-    f32 initAlpha = 0.0f;
-    f32 diffAlpha21 = 0.0f;
-    f32 diffAlpha32 = 0.0f;
-    s32 alphaSection1 = 0;
-    s32 alphaSection2 = 0;
-};
+    struct AlphaProperties {
+        f32 initAlpha{0.0f};
+        f32 diffAlpha21{0.0f};
+        f32 diffAlpha32{0.0f};
+        s32 alphaSection1{0};
+        s32 alphaSection2{0};
+    };
 
+    struct VolumeProperties {
+        u8 volumeTblIndex{0};
+        VolumeType volumeType{VolumeType::Point};
+        Math::Vector3f volumeRadius{1.0f, 1.0f, 1.0f};
+        s32 volumeSweepStart{0};
+        s32 volumeSweepParam{0};
+    };
 
-// ========================================================================== //
+    struct VelocityProperties {
+        f32 figureVel{0.0f};
+        Math::Vector3f emitterVelDir{0.0f, 0.0f, 0.0f};
+        f32 initVel{0.0f};
+        f32 initVelRnd{0.0f};
+        Math::Vector3f spreadVec{0.0f, 0.0f, 0.0f};
+        f32 airResistance{1.0f};
+    };
 
+    struct EmissionProperties {
+        s32 startFrame{0};
+        s32 endFrame{1};
+        s32 lifeStep{10};
+        s32 lifeStepRnd{1};
+        s32 emitRate{1};
+    };
 
-struct VolumeProperties {
-    u8 volumeTblIndex = 0;
-    VolumeType volumeType = VolumeType::Point;
-    Math::Vector3f volumeRadius = {1.0f, 1.0f, 1.0f};
-    s32 volumeSweepStart = 0;
-    s32 volumeSweepParam = 0;
-};
+    struct TerminationProperties {
+        bool isStopEmitInFade{false};
+        f32 alphaAddInFade{0.0f};
+    };
 
+    struct LifespanProperties {
+        s32 ptclLife{100};
+        s32 ptclLifeRnd{0};
+    };
 
-// ========================================================================== //
+    struct TransformProperties {
+        Math::Matrix34f transformSRT{};
+        Math::Matrix34f transformRT{};
+    };
 
+    struct GravityProperties {
+        bool isDirectional{false};
+        Math::Vector3f gravity{0.0f, -1.0f, 0.0f};
+    };
 
-struct VelocityProperties {
-    f32 figureVel = 0.0f;
-    Math::Vector3f emitterVelDir = {0.0f, 0.0f, 0.0f};
-    f32 initVel = 0.0f;
-    f32 initVelRnd = 0.0f;
-    Math::Vector3f spreadVec = {0.0f, 0.0f, 0.0f};
-    f32 airResistance = 1.0f;
-};
+    struct TextureProperties {
+        TextureWrap textureWrapT{TextureWrap::ClampToEdge};
+        TextureWrap textureWrapS{TextureWrap::ClampToEdge};
+        TextureFilter textureMagFilter{TextureFilter::Nearest};
+        TextureFilter textureMinFilter{TextureFilter::Nearest};
+        TextureMipFilter textureMipFilter{TextureMipFilter::None};
 
+        u16 numTexPat{0};
+        u8 numTexDivX{1};
+        u8 numTexDivY{1};
+        Math::Vector2f texUVScale{1.0f, 1.0f};
+        std::array<u8, 16> texPatTbl{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        u16 texPatFreq{0};
+        u16 texPatTblUse{0};
+        bool isTexPatAnim{false};
+    };
 
-// ========================================================================== //
+    struct CombinerProperties {
+        BlendFuncType blendFunc{BlendFuncType::Translucent};
+        DepthFuncType depthFunc{DepthFuncType::Unk0};
+        ColorCombinerFuncType combinerFunc{ColorCombinerFuncType::CombinerConfig0};
+        bool isFogEnabled{false};
+    };
 
+    struct ComplexProperties {
+        BitFlag<ChildFlag> childFlags{};
+        BitFlag<FieldFlag> fieldFlags{};
+        BitFlag<FluctuationFlag> fluctuationFlags{};
+        BitFlag<StripeFlag> stripeFlags{};
+        bool hasStripeData{false};
+    };
 
-struct EmissionProperties {
-    s32 startFrame = 0;
-    s32 endFrame = 1;
-    s32 lifeStep = 10;
-    s32 lifeStepRnd = 1;
-    s32 emitRate = 1;
-};
-
-
-// ========================================================================== //
-
-
-struct TerminationProperties {
-    bool isStopEmitInFade = false;
-    f32 alphaAddInFade = 0.0f;
-};
-
-
-// ========================================================================== //
-
-
-struct LifespanProperties {
-    s32 ptclLife = 100;
-    s32 ptclLifeRnd = 0;
-};
-
-
-// ========================================================================== //
-
-
-struct TransformProperties {
-    Math::Matrix34f transformSRT{};
-    Math::Matrix34f transformRT{};
-};
-
-
-// ========================================================================== //
-
-
-struct GravityProperties {
-    bool isDirectional = false;
-    Math::Vector3f gravity{0.0f, -1.0f, 0.0f};
-};
-
-
-// ========================================================================== //
-
-
-struct TextureProperties {
-    TextureWrap textureWrapT = TextureWrap::ClampToEdge;
-    TextureWrap textureWrapS = TextureWrap::ClampToEdge;
-    TextureFilter textureMagFilter = TextureFilter::Nearest;
-    TextureFilter textureMinFilter = TextureFilter::Nearest;
-    TextureMipFilter textureMipFilter = TextureMipFilter::None;
-
-    u16 numTexPat = 0;
-    u8 numTexDivX = 1;
-    u8 numTexDivY = 1;
-    Math::Vector2f texUVScale{1.0f, 1.0f};
-    std::array<u8, 16> texPatTbl{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    u16 texPatFreq = 0;
-    u16 texPatTblUse = 0;
-    bool isTexPatAnim = false;
-};
-
-
-// ========================================================================== //
-
-
-struct CombinerProperties {
-    BlendFuncType blendFunc = BlendFuncType::Translucent;
-    DepthFuncType depthFunc = DepthFuncType::Unk0;
-    ColorCombinerFuncType combinerFunc = ColorCombinerFuncType::CombinerConfig0;
-    bool isFogEnabled = false;
-};
-
-
-// ========================================================================== //
-
-
-struct ComplexProperties {
-    BitFlag<ChildFlag> childFlags{};
-    BitFlag<FieldFlag> fieldFlags{};
-    BitFlag<FluctuationFlag> fluctuationFlags{};
-    BitFlag<StripeFlag> stripeFlags{};
-    bool hasStripeData{false};
-};
-
-
-// ========================================================================== //
-
-
-class Emitter
-{
 public:
     void extracted();
     Emitter();
@@ -302,40 +243,40 @@ public:
     void initComplexFromBinary(const BinComplexEmitterData& emitterData);
 
 private:
-    BitFlag<EmitterFlag> mFlag;
+    BitFlag<EmitterFlag> mFlag{};
 
-    BasicProperties mBasicProperties;
-    GravityProperties mGravityProperties;
-    TransformProperties mTransformProperties;
-    LifespanProperties mLifespanProperties;
-    TerminationProperties mTerminationProperties;
-    EmissionProperties mEmissionProperties;
-    VelocityProperties mVelocityProperties;
-    VolumeProperties mVolumeProperties;
-    ColorProperties mColorProperties;
-    AlphaProperties mAlphaProperties;
-    ScaleProperties mScaleProperties;
-    RotationProperties mRotationProperties;
-    TextureProperties mTextureProperties;
-    CombinerProperties mCombinerProperties;
+    BasicProperties mBasicProperties{};
+    GravityProperties mGravityProperties{};
+    TransformProperties mTransformProperties{};
+    LifespanProperties mLifespanProperties{};
+    TerminationProperties mTerminationProperties{};
+    EmissionProperties mEmissionProperties{};
+    VelocityProperties mVelocityProperties{};
+    VolumeProperties mVolumeProperties{};
+    ColorProperties mColorProperties{};
+    AlphaProperties mAlphaProperties{};
+    ScaleProperties mScaleProperties{};
+    RotationProperties mRotationProperties{};
+    TextureProperties mTextureProperties{};
+    CombinerProperties mCombinerProperties{};
 
-    TextureHandle mTextureHandle;
+    TextureHandle mTextureHandle{};
 
     // Complex Properties
-    ComplexProperties mComplexProperties;
+    ComplexProperties mComplexProperties{};
 
-    ChildData mChildData;
+    ChildData mChildData{};
 
-    FieldRandomData mFieldRandomData;
-    FieldMagnetData mFieldMagnetData;
-    FieldSpinData mFieldSpinData;
-    FieldCollisionData mFieldCollisionData;
-    FieldConvergenceData mFieldConvergenceData;
-    FieldPosAddData mFieldPosAddData;
+    FieldRandomData mFieldRandomData{};
+    FieldMagnetData mFieldMagnetData{};
+    FieldSpinData mFieldSpinData{};
+    FieldCollisionData mFieldCollisionData{};
+    FieldConvergenceData mFieldConvergenceData{};
+    FieldPosAddData mFieldPosAddData{};
 
-    FluctuationData mFluctuationData;
+    FluctuationData mFluctuationData{};
 
-    StripeData mStripeData;
+    StripeData mStripeData{};
 };
 
 

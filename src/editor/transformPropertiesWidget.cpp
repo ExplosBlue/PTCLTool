@@ -29,7 +29,7 @@ TransformPropertiesWidget::TransformPropertiesWidget(QWidget* parent) :
     });
 }
 
-void TransformPropertiesWidget::setProperties(const Ptcl::TransformProperties& properties) {
+void TransformPropertiesWidget::setProperties(const Ptcl::Emitter::TransformProperties& properties) {
     QSignalBlocker b1(mTranslationSpinBox);
     QSignalBlocker b2(mRotationSpinBox);
     QSignalBlocker b3(mScaleSpinBox);
