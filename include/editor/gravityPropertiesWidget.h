@@ -15,13 +15,13 @@ class GravityPropertiesWidget final : public QWidget {
 public:
     explicit GravityPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::GravityProperties& properties);
+    void setProperties(const Ptcl::Emitter::GravityProperties& properties);
 
 signals:
-    void propertiesUpdated(const Ptcl::GravityProperties& properties);
+    void propertiesUpdated(const Ptcl::Emitter::GravityProperties& properties);
 
 private:
-    Ptcl::GravityProperties mProps{};
+    Ptcl::Emitter::GravityProperties mProps{};
 
     QCheckBox mIsDirectionalCheckBox{};
     VectorSpinBox<Math::Vector3f> mGravitySpinBox{};

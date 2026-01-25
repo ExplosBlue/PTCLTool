@@ -565,7 +565,7 @@ CombinerPropertiesWidget::CombinerPropertiesWidget(QWidget* parent) :
     });
 }
 
-void CombinerPropertiesWidget::setProperties(const Ptcl::CombinerProperties& properties) {
+void CombinerPropertiesWidget::setProperties(const Ptcl::Emitter::CombinerProperties& properties) {
     QSignalBlocker b1(mBlendFuncComboBox);
     QSignalBlocker b2(mDepthFuncComboBox);
     QSignalBlocker b3(mCombinerFuncComboBox);

@@ -146,7 +146,7 @@ void VolumePropertiesWidget::setupSignals() {
     });
 }
 
-void VolumePropertiesWidget::setProperties(const Ptcl::VolumeProperties& properties) {
+void VolumePropertiesWidget::setProperties(const Ptcl::Emitter::VolumeProperties& properties) {
     mProps = properties;
     populateWidgets();
 }

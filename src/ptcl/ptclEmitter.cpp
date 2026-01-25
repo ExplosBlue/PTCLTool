@@ -41,7 +41,7 @@ void Emitter::setTexture(const std::shared_ptr<Texture>& texture) {
     mTextureHandle.set(texture);
 }
 
-const BasicProperties& Emitter::basicProperties() const {
+const Emitter::BasicProperties& Emitter::basicProperties() const {
     return mBasicProperties;
 }
 
@@ -49,7 +49,7 @@ void Emitter::setBasicProperties(const BasicProperties& basicProperties) {
     mBasicProperties = basicProperties;
 }
 
-const GravityProperties& Emitter::gravityProperties() const {
+const Emitter::GravityProperties& Emitter::gravityProperties() const {
     return mGravityProperties;
 }
 
@@ -57,7 +57,7 @@ void Emitter::setGravityProperties(const GravityProperties& gravityProperties) {
     mGravityProperties = gravityProperties;
 }
 
-const TransformProperties& Emitter::transformProperties() const {
+const Emitter::TransformProperties& Emitter::transformProperties() const {
     return mTransformProperties;
 }
 
@@ -65,7 +65,7 @@ void Emitter::setTransformProperties(const TransformProperties& transformPropert
     mTransformProperties = transformProperties;
 }
 
-const LifespanProperties& Emitter::lifespanProperties() const {
+const Emitter::LifespanProperties& Emitter::lifespanProperties() const {
     return mLifespanProperties;
 }
 
@@ -73,7 +73,7 @@ void Emitter::setLifespanProperties(const LifespanProperties& lifespanProperties
     mLifespanProperties = lifespanProperties;
 }
 
-const TerminationProperties& Emitter::terminationProperties() const {
+const Emitter::TerminationProperties& Emitter::terminationProperties() const {
     return mTerminationProperties;
 }
 
@@ -81,7 +81,7 @@ void Emitter::setTerminationProperties(const TerminationProperties& terminationP
     mTerminationProperties = terminationProperties;
 }
 
-const EmissionProperties& Emitter::emissionProperties() const {
+const Emitter::EmissionProperties& Emitter::emissionProperties() const {
     return mEmissionProperties;
 }
 
@@ -89,7 +89,7 @@ void Emitter::setEmissionProperties(const EmissionProperties& emissionProperties
     mEmissionProperties = emissionProperties;
 }
 
-const VelocityProperties& Emitter::velocityProperties() const {
+const Emitter::VelocityProperties& Emitter::velocityProperties() const {
     return mVelocityProperties;
 }
 
@@ -97,7 +97,7 @@ void Emitter::setVelocityProperties(const VelocityProperties& velocityProperties
     mVelocityProperties = velocityProperties;
 }
 
-const VolumeProperties& Emitter::volumeProperties() const {
+const Emitter::VolumeProperties& Emitter::volumeProperties() const {
     return mVolumeProperties;
 }
 
@@ -105,7 +105,7 @@ void Emitter::setVolumeProperties(const VolumeProperties& volumeProperties) {
     mVolumeProperties = volumeProperties;
 }
 
-const ColorProperties& Emitter::colorProperties() const {
+const Emitter::ColorProperties& Emitter::colorProperties() const {
     return mColorProperties;
 }
 
@@ -116,7 +116,7 @@ void Emitter::setColorProperties(const ColorProperties& colorProperties) {
     mColorProperties.colorAnimation ? mFlag.set(EmitterFlag::ColorAnimation) : mFlag.clear(EmitterFlag::ColorAnimation);
 }
 
-const AlphaProperties& Emitter::alphaProperties() const {
+const Emitter::AlphaProperties& Emitter::alphaProperties() const {
     return mAlphaProperties;
 }
 
@@ -124,7 +124,7 @@ void Emitter::setAlphaProperties(const AlphaProperties& alphaProperties) {
     mAlphaProperties = alphaProperties;
 }
 
-const ScaleProperties& Emitter::scaleProperties() const {
+const Emitter::ScaleProperties& Emitter::scaleProperties() const {
     return mScaleProperties;
 }
 
@@ -132,7 +132,7 @@ void Emitter::setScaleProperties(const ScaleProperties& scaleProperties) {
     mScaleProperties = scaleProperties;
 }
 
-const TextureProperties& Emitter::textureProperties() const {
+const Emitter::TextureProperties& Emitter::textureProperties() const {
     return mTextureProperties;
 }
 
@@ -140,7 +140,7 @@ void Emitter::setTextureProperties(const TextureProperties& textureProperties) {
     mTextureProperties = textureProperties;
 }
 
-const RotationProperties& Emitter::rotationProperties() const {
+const Emitter::RotationProperties& Emitter::rotationProperties() const {
     return mRotationProperties;
 }
 
@@ -148,7 +148,7 @@ void Emitter::setRotationProperties(const RotationProperties& rotationProperties
     mRotationProperties = rotationProperties;
 }
 
-const CombinerProperties& Emitter::combinerProperties() const {
+const Emitter::CombinerProperties& Emitter::combinerProperties() const {
     return mCombinerProperties;
 }
 
@@ -157,7 +157,7 @@ void Emitter::setCombinerProperties(const CombinerProperties& combinerProperties
     mCombinerProperties.isFogEnabled ? mFlag.set(EmitterFlag::EnableFog) : mFlag.clear(EmitterFlag::EnableFog);
 }
 
-const ComplexProperties& Emitter::complexProperties() const {
+const Emitter::ComplexProperties& Emitter::complexProperties() const {
     return mComplexProperties;
 }
 

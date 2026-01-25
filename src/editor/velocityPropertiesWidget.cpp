@@ -54,7 +54,7 @@ VelocityPropertiesWidget::VelocityPropertiesWidget(QWidget* parent) :
     });
 }
 
-void VelocityPropertiesWidget::setProperties(const Ptcl::VelocityProperties& properties) {
+void VelocityPropertiesWidget::setProperties(const Ptcl::Emitter::VelocityProperties& properties) {
     QSignalBlocker b1(mFigureVelSpinbox);
     QSignalBlocker b2(mVelDirSpinbox);
     QSignalBlocker b3(mInitVelSpinbox);

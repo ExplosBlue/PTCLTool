@@ -36,11 +36,11 @@ class ColorPropertiesWidget final : public QWidget {
 public:
     explicit ColorPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::ColorProperties& properties);
+    void setProperties(const Ptcl::Emitter::ColorProperties& properties);
     void populateWidgets();
 
 signals:
-    void propertiesUpdated(const Ptcl::ColorProperties& properties);
+    void propertiesUpdated(const Ptcl::Emitter::ColorProperties& properties);
 
 private slots:
     void handleColorChanged();
@@ -54,7 +54,7 @@ private:
     void setColorLabels(const std::array<QString, 3>& labels);
 
 private:
-    Ptcl::ColorProperties mProps{};
+    Ptcl::Emitter::ColorProperties mProps{};
 
     QComboBox mColorBehavior{};
     std::array<QLabel, 3> mColorLabels;

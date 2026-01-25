@@ -86,7 +86,7 @@ BasicPropertiesWidget::BasicPropertiesWidget(QWidget* parent) :
 
 }
 
-void BasicPropertiesWidget::setProperties(const Ptcl::BasicProperties& properties) {
+void BasicPropertiesWidget::setProperties(const Ptcl::Emitter::BasicProperties& properties) {
     QSignalBlocker b1(mNameLineEdit);
     QSignalBlocker b2(mTypeComboBox);
     QSignalBlocker b3(mRandomSeedMode);

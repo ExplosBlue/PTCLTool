@@ -16,13 +16,13 @@ class LifespanPropertiesWidget final : public QWidget {
 public:
     explicit LifespanPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::LifespanProperties& properties);
+    void setProperties(const Ptcl::Emitter::LifespanProperties& properties);
 
 signals:
-    void propertiesUpdated(const Ptcl::LifespanProperties& properties);
+    void propertiesUpdated(const Ptcl::Emitter::LifespanProperties& properties);
 
 private:
-    Ptcl::LifespanProperties mProps{};
+    Ptcl::Emitter::LifespanProperties mProps{};
 
     QCheckBox mInfiniteLifeCheckBox;
     QSpinBox mLifeSpanSpinBox;

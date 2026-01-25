@@ -13,16 +13,16 @@ class TransformPropertiesWidget final : public QWidget {
 public:
     explicit TransformPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::TransformProperties& properties);
+    void setProperties(const Ptcl::Emitter::TransformProperties& properties);
 
 signals:
-    void propertiesUpdated(const Ptcl::TransformProperties& properties);
+    void propertiesUpdated(const Ptcl::Emitter::TransformProperties& properties);
 
 private:
     void rebuildMatrices();
 
 private:
-    Ptcl::TransformProperties mProps{};
+    Ptcl::Emitter::TransformProperties mProps{};
 
     VectorSpinBox<Math::Vector3f> mScaleSpinBox;
     VectorSpinBox<Math::Vector3f> mRotationSpinBox;
