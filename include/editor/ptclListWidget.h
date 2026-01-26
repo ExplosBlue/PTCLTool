@@ -41,10 +41,22 @@ public:
 signals:
     void selectedEmitterSetChanged(u32 index);
     void selectedEmitterChanged(u32 setIndex, u32 emitterIndex);
+    void selectedChildData(u32 setIndex, u32 emitterIndex);
 
 private slots:
     void selectionChanged(const QItemSelection& selection);
     void filterList(const QString& text);
+
+private:
+    enum class NodeType {
+        EmitterSet,
+        Emitter,
+        ChildData
+    };
+
+    static constexpr s32 sRoleNodeType = Qt::UserRole;
+    static constexpr s32 sRoleSetIdx = Qt::UserRole + 1;
+    static constexpr s32 sRoleEmitterIdx = Qt::UserRole + 2;
 
 private:
     void populateList();

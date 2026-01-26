@@ -22,7 +22,6 @@ namespace PtclEditor {
 
 class EmitterWidget::TexturePropertiesWidget final : public QWidget {
     Q_OBJECT
-
 public:
     enum class AnimMode {
         FixedSpeed = 0,

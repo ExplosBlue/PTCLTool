@@ -43,6 +43,8 @@ void MainWindow::setupUi() {
     mPtclList.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     connect(&mPtclList, &PtclList::selectedEmitterSetChanged, this, &MainWindow::selectedEmitterSetChanged);
     connect(&mPtclList, &PtclList::selectedEmitterChanged, this, &MainWindow::selectedEmitterChanged);
+    connect(&mPtclList, &PtclList::selectedChildData, this, &MainWindow::selectedChildData);
+
 
     // EmitterSet Widget
     mEmitterSetWidget.setEnabled(false);
@@ -296,6 +298,11 @@ void MainWindow::selectedEmitterChanged(u32 setIndex, u32 emitterIndex) {
     }
 
     mEmitterSetWidget.setEmitterTab(emitterIndex);
+}
+
+
+void MainWindow::selectedChildData(u32 setIndex, u32 emitterIndex) {
+    // TODO:
 }
 
 
