@@ -95,18 +95,18 @@ void PtclList::populateList() {
             QString emitterName = QString("Emitter %1: %2").arg(emitterIndex).arg(emitter->name());
             auto* emitterItem = new QStandardItem(emitterName);
             emitterItem->setEditable(false);
-            setItem->setData(static_cast<s32>(NodeType::Emitter), sRoleNodeType);
-            setItem->setData(setIndex, sRoleSetIdx);
-            setItem->setData(emitterIndex, sRoleEmitterIdx);
+            emitterItem->setData(static_cast<s32>(NodeType::Emitter), sRoleNodeType);
+            emitterItem->setData(setIndex, sRoleSetIdx);
+            emitterItem->setData(emitterIndex, sRoleEmitterIdx);
 
             // Complex Data
             if (emitter->type() == Ptcl::EmitterType::Complex || emitter->type() == Ptcl::EmitterType::UnkType2) {
                 // ChildData
                 auto* childItem = new QStandardItem("ChildData");
                 childItem->setEditable(false);
-                setItem->setData(static_cast<s32>(NodeType::ChildData), sRoleNodeType);
-                setItem->setData(setIndex, sRoleSetIdx);
-                setItem->setData(emitterIndex, sRoleEmitterIdx);
+                childItem->setData(static_cast<s32>(NodeType::ChildData), sRoleNodeType);
+                childItem->setData(setIndex, sRoleSetIdx);
+                childItem->setData(emitterIndex, sRoleEmitterIdx);
                 emitterItem->appendRow(childItem);
                 // TODO: Others...
             }

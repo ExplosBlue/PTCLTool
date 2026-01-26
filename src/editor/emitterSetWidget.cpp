@@ -74,6 +74,13 @@ void EmitterSetWidget::setTextureList(const Ptcl::TextureList& textureList) {
     mEmitterWidget.setTextureList(&textureList);
 };
 
+void EmitterSetWidget::showStandardEditor() {
+    mEmitterWidget.showStandardEditor();
+}
+
+void EmitterSetWidget::showChildEditor() {
+    mEmitterWidget.showChildEditor();
+}
 
 void EmitterSetWidget::selectedEmitterChanged(u32 index) {
     if (!mEmitterSetPtr) {

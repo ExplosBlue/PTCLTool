@@ -226,7 +226,7 @@ public:
     const ComplexProperties& complexProperties() const;
     void setComplexProperties(const ComplexProperties& complexProperties);
 
-    ChildData &childData();
+    ChildData& childData();
 
     FieldRandomData& fieldRandomData();
     FieldMagnetData& fieldMagnetData();
