@@ -36,6 +36,7 @@ protected:
 private slots:
     void selectedEmitterSetChanged(u32 index);
     void selectedEmitterChanged(u32 setIndex, u32 emitterIndex);
+    void selectedChildData(u32 setIndex, u32 emitterIndex);
 
     void openFile();
     void saveFile();
