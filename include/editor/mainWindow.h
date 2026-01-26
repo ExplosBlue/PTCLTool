@@ -34,9 +34,9 @@ protected:
     void dropEvent(QDropEvent* event) final;
 
 private slots:
-    void selectedEmitterSetChanged(u32 index);
-    void selectedEmitterChanged(u32 setIndex, u32 emitterIndex);
-    void selectedChildData(u32 setIndex, u32 emitterIndex);
+    void selectedEmitterSetChanged(s32 index);
+    void selectedEmitterChanged(s32 setIndex, s32 emitterIndex);
+    void selectedChildData(s32 setIndex, s32 emitterIndex);
 
     void openFile();
     void saveFile();
@@ -46,6 +46,7 @@ private slots:
 private:
     void updateRecentFileList();
     void loadPtclRes(const QString& path);
+    void selectEmitterSet(s32 setIndex);
 
     void setupUi();
     void setupMenus();
@@ -53,7 +54,7 @@ private:
 private:
     std::unique_ptr<Ptcl::PtclRes> mPtclRes;
 
-    u32 mCurEmitterSetIdx;
+    s32 mCurEmitterSetIdx;
 
     QAction mOpenAction;
     QAction mSaveAction;

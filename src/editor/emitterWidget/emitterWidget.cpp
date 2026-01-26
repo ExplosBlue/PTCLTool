@@ -43,99 +43,62 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     mTextureProperties = new TexturePropertiesWidget(this);
     mCombinerProperties = new CombinerPropertiesWidget(this);
 
-    auto* mainLayout = new QVBoxLayout(this);
+    mStackedWidget = new QStackedWidget(this);
 
-    auto* containerWidget = new QWidget;
-    containerWidget->setLayout(mainLayout);
-
-    containerWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-    containerWidget->setMinimumWidth(400);
+    // Standard Widget
+    auto* standardWidget = new QWidget(this);
+    auto* mainLayout = new QVBoxLayout(standardWidget);
+    standardWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+    standardWidget->setMinimumWidth(400);
 
     auto* scrollArea = new QScrollArea(this);
-    scrollArea->setWidget(containerWidget);
+    scrollArea->setWidget(standardWidget);
     scrollArea->setWidgetResizable(true);
-
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
+    mStackedWidget->addWidget(scrollArea);
+
+    // Child editor
+    mChildEditorWidget = new ChildEditorWidget(this);
+    mStackedWidget->addWidget(mChildEditorWidget);
+
+    mStackedWidget->setCurrentIndex(0);
+
     auto* outerLayout = new QVBoxLayout(this);
-    outerLayout->addWidget(scrollArea);
+    outerLayout->addWidget(mStackedWidget);
     outerLayout->setContentsMargins(0, 0, 0, 0);
     setLayout(outerLayout);
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    // Basic Properties
-    auto basicPropertiesSection = new CollapsibleWidget("Basic properties", this);
-    basicPropertiesSection->setContent(mBasicProperties);
-    mainLayout->addWidget(basicPropertiesSection);
-
-    // Lifespan Properties
-    auto lifespanPropertiesSection = new CollapsibleWidget("Lifespan properties", this);
-    lifespanPropertiesSection->setContent(mLifespanProperties);
-    mainLayout->addWidget(lifespanPropertiesSection);
-
-    // Termination Properties
-    auto terminationPropertiesSection = new CollapsibleWidget("Termination properties", this);
-    terminationPropertiesSection->setContent(mTerminationProperties);
-    mainLayout->addWidget(terminationPropertiesSection);
-
-    // Gravity Properties
-    auto gravityPropertiesSection = new CollapsibleWidget("Gravity properties", this);
-    gravityPropertiesSection->setContent(mGravityProperties);
-    mainLayout->addWidget(gravityPropertiesSection);
-
-    // Emission Properties
-    auto emissionPropertiesSection = new CollapsibleWidget("Emission properties", this);
-    emissionPropertiesSection->setContent(mEmissionProperties);
-    mainLayout->addWidget(emissionPropertiesSection);
-
-    // Volume Properties
-    auto volumePropertiesSection = new CollapsibleWidget("Volume properties", this);
-    volumePropertiesSection->setContent(mVolumeProperties);
-    mainLayout->addWidget(volumePropertiesSection);
-
-    // Velocity Properties
-    auto velocityPropertiesSection = new CollapsibleWidget("Velocity properties", this);
-    velocityPropertiesSection->setContent(mVelocityProperties);
-    mainLayout->addWidget(velocityPropertiesSection);
-
-    // Texture Properties
-    auto texPropertiesSection = new CollapsibleWidget("Texture properties", this);
-    texPropertiesSection->setContent(mTextureProperties);
-    mainLayout->addWidget(texPropertiesSection);
-
-    // Color Properties
-    auto colorPropertiesSection = new CollapsibleWidget("Color properties", this);
-    colorPropertiesSection->setContent(mColorProperties);
-    mainLayout->addWidget(colorPropertiesSection);
-
-    // Combiner Properties
-    auto combinerPropertiesSection = new CollapsibleWidget("Combiner properties", this);
-    combinerPropertiesSection->setContent(mCombinerProperties);
-    mainLayout->addWidget(combinerPropertiesSection);
-
-    // Alpha Properties
-    auto alphaPropertiesSection = new CollapsibleWidget("Alpha properties", this);
-    alphaPropertiesSection->setContent(mAlphaProperties);
-    mainLayout->addWidget(alphaPropertiesSection);
-
-    // Transform Properties
-    auto transformPropertiesSection = new CollapsibleWidget("Transform properties", this);
-    transformPropertiesSection->setContent(mTransformProperties);
-    mainLayout->addWidget(transformPropertiesSection);
-
-    // Rotation Properties
-    auto rotationPropertiesSection = new CollapsibleWidget("Rotation properties", this);
-    rotationPropertiesSection->setContent(mRotationProperties);
-    mainLayout->addWidget(rotationPropertiesSection);
-
-    // Scale Properties
-    auto scalePropertiesSection = new CollapsibleWidget("Scale properties", this);
-    scalePropertiesSection->setContent(mScaleProperties);
-    mainLayout->addWidget(scalePropertiesSection);
-
+    setupStandardLayout(mainLayout);
     setupConnections();
+}
+
+void EmitterWidget::setupStandardLayout(QVBoxLayout* mainLayout) {
+    auto addSection = [mainLayout](const QString& title, QWidget* widget) {
+        auto* section = new CollapsibleWidget(title);
+        section->setContent(widget);
+        mainLayout->addWidget(section);
+    };
+
+    addSection("Basic properties", mBasicProperties);
+    addSection("Lifespan properties", mLifespanProperties);
+    addSection("Termination properties", mTerminationProperties);
+    addSection("Gravity properties", mGravityProperties);
+    addSection("Emission properties", mEmissionProperties);
+    addSection("Volume properties", mVolumeProperties);
+    addSection("Velocity properties", mVelocityProperties);
+    addSection("Texture properties", mTextureProperties);
+    addSection("Color properties", mColorProperties);
+    addSection("Combiner properties", mCombinerProperties);
+    addSection("Alpha properties", mAlphaProperties);
+    addSection("Transform properties", mTransformProperties);
+    addSection("Rotation properties", mRotationProperties);
+    addSection("Scale properties", mScaleProperties);
+
+    mainLayout->addStretch();
 }
 
 void EmitterWidget::setupConnections() {
@@ -254,6 +217,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     QSignalBlocker b12(mTextureProperties);
     QSignalBlocker b13(mCombinerProperties);
     QSignalBlocker b14(mBasicProperties);
+    QSignalBlocker b15(mChildEditorWidget);
 
     mEmitterPtr = emitter;
 
@@ -273,12 +237,24 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mCombinerProperties->setProperties(mEmitterPtr->combinerProperties());
     mCombinerProperties->setCombinerSrc(&mEmitterPtr->textureHandle(), &mEmitterPtr->colorProperties().color0, &mEmitterPtr->colorProperties().colors[0]);
 
+    mChildEditorWidget->setChildData(&mEmitterPtr->childData());
+
     setEnabled(true);
 }
 
 void EmitterWidget::setTextureList(const Ptcl::TextureList* textureList) {
     mTextureList = textureList;
     mTextureProperties->setTextureList(textureList);
+}
+
+void EmitterWidget::showStandardEditor() {
+    mStackedWidget->setCurrentIndex(0);
+}
+
+void EmitterWidget::showChildEditor() {
+    if (mStackedWidget) {
+        mStackedWidget->setCurrentWidget(mChildEditorWidget);
+    }
 }
 
 void EmitterWidget::clear() {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "editor/childEditor/childEditorWidget.h"
+
 #include "ptcl/ptclEmitter.h"
 #include "ptcl/ptcl.h"
 
@@ -9,6 +11,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QStackedWidget>
 #include <QWidget>
 
 
@@ -25,6 +28,8 @@ public:
 
     void setEmitter(Ptcl::Emitter* emitter);
     void setTextureList(const Ptcl::TextureList* textureList);
+    void showStandardEditor();
+    void showChildEditor();
 
     void clear();
 
@@ -33,6 +38,7 @@ signals:
     void nameUpdated(const QString& name);
 
 private:
+    void setupStandardLayout(QVBoxLayout* mainLayout);
     void setupConnections();
 
 private:
@@ -69,6 +75,9 @@ private:
     ScalePropertiesWidget* mScaleProperties{nullptr};
     TexturePropertiesWidget* mTextureProperties{nullptr};
     CombinerPropertiesWidget* mCombinerProperties{nullptr};
+
+    QStackedWidget* mStackedWidget{nullptr};
+    ChildEditorWidget* mChildEditorWidget{nullptr};
 };
 
 

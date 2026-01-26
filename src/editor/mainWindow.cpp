@@ -276,18 +276,7 @@ void MainWindow::loadPtclRes(const QString& path) {
     mTextureWidget.setEnabled(true);
 }
 
-void MainWindow::selectedEmitterSetChanged(u32 index) {
-    mCurEmitterSetIdx = index;
-    auto &emitterSet = mPtclRes->getEmitterSets()[index];
-
-    mEmitterSetWidget.setEmitterSet(emitterSet.get());
-
-    if (!mEmitterSetWidget.isEnabled()) {
-        mEmitterSetWidget.setEnabled(true);
-    }
-}
-
-void MainWindow::selectedEmitterChanged(u32 setIndex, u32 emitterIndex) {
+void MainWindow::selectEmitterSet(s32 setIndex) {
     mCurEmitterSetIdx = setIndex;
     auto &emitterSet = mPtclRes->getEmitterSets()[setIndex];
 
@@ -296,13 +285,22 @@ void MainWindow::selectedEmitterChanged(u32 setIndex, u32 emitterIndex) {
     if (!mEmitterSetWidget.isEnabled()) {
         mEmitterSetWidget.setEnabled(true);
     }
-
-    mEmitterSetWidget.setEmitterTab(emitterIndex);
 }
 
+void MainWindow::selectedEmitterSetChanged(s32 index) {
+    selectEmitterSet(index);
+}
 
-void MainWindow::selectedChildData(u32 setIndex, u32 emitterIndex) {
-    // TODO:
+void MainWindow::selectedEmitterChanged(s32 setIndex, s32 emitterIndex) {
+    selectEmitterSet(setIndex);
+    mEmitterSetWidget.setEmitterTab(emitterIndex);
+    mEmitterSetWidget.showStandardEditor();
+}
+
+void MainWindow::selectedChildData(s32 setIndex, s32 emitterIndex) {
+    selectEmitterSet(setIndex);
+    mEmitterSetWidget.setEmitterTab(emitterIndex);
+    mEmitterSetWidget.showChildEditor();
 }
 
 

@@ -37,6 +37,7 @@ set(PROJECT_SOURCES
     src/editor/components/loadingSpinner.cpp
     src/editor/components/rgbaColorWidget.cpp
     src/editor/components/thumbnailWidget.cpp
+    src/editor/childEditor/childEditorWidget.cpp
     src/editor/emitterWidget/alphaPropertiesWidget.cpp
     src/editor/emitterWidget/basicPropertiesWidget.cpp
     src/editor/emitterWidget/colorPropertiesWidget.cpp
@@ -88,6 +89,7 @@ set(PROJECT_HEADERS
     include/editor/components/sizedSpinBox.h
     include/editor/components/thumbnailWidget.h
     include/editor/components/vectorSpinBox.h
+    include/editor/childEditor/childEditorWidget.h
     include/editor/emitterWidget/alphaPropertiesWidget.h
     include/editor/emitterWidget/basicPropertiesWidget.h
     include/editor/emitterWidget/colorPropertiesWidget.h
@@ -129,6 +131,7 @@ set(PROJECT_HEADERS
 qt_add_executable(EffectTool
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES} ${PROJECT_HEADERS}
+    include/editor/childEditor/basicPropertiesWidget.h src/editor/childEditor/basicPropertiesWidget.cpp
 )
 
 qt_add_resources(EffectTool "icons"
