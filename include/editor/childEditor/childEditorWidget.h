@@ -34,12 +34,14 @@ private:
 
 private:
     class BasicPropertiesWidget;
+    class EmissionPropertiesWidget;
 
 private:
     Ptcl::ChildData* mDataPtr{nullptr};
     // const Ptcl::TextureList* mTextureList{nullptr};
 
     BasicPropertiesWidget* mBasicProperties{nullptr};
+    EmissionPropertiesWidget* mEmissionProperties{nullptr};
 };
 
 

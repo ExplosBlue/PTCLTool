@@ -717,6 +717,7 @@ BinChildData::BinChildData(const Ptcl::ChildData& childData) {
     childFigurVel = childData.velocityProperties().figurVel;
     childRandVel = childData.velocityProperties().randVel;
     childInitPosRand = childData.velocityProperties().initPosRand;
+
     childBlendType = childData.combinerProperties().blendFunc;
     childBillboardType = childData.basicProperties().billboardType;
     childDepthType = childData.combinerProperties().depthFunc;
@@ -750,6 +751,8 @@ BinChildData::BinChildData(const Ptcl::ChildData& childData) {
     childInitRot = childData.rotationProperties().initRot;
     childInitRotRand = childData.rotationProperties().initRotRand;
     childRotVel = childData.rotationProperties().rotVel;
+    childRotVelRand = childData.rotationProperties().rotVelRand;
+    childRotBasis = childData.rotationProperties().rotBasis;
     childGravity = childData.velocityProperties().gravity;
     childAlphaStartFrame = childData.alphaProperties().alphaStartFrame;
     childAlphaBaseFrame = childData.alphaProperties().alphaBaseFrame;
