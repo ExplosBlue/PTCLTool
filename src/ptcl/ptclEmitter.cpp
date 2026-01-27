@@ -165,6 +165,10 @@ void Emitter::setComplexProperties(const ComplexProperties& complexProperties) {
     mComplexProperties = complexProperties;
 }
 
+void Emitter::setChildFlags(const BitFlag<ChildFlag>& childFlags) {
+    mComplexProperties.childFlags = childFlags;
+}
+
 ChildData& Emitter::childData() {
     return mChildData;
 }

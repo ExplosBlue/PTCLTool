@@ -27,14 +27,6 @@ void ChildData::setBasicProperties(const BasicProperties& basicProperties) {
     mBasicProperties = basicProperties;
 }
 
-const ChildData::TextureProperties& ChildData::textureProperties() const {
-    return mTextureProperties;
-}
-
-void ChildData::setTextureProperties(const TextureProperties& textureProperties) {
-    mTextureProperties = textureProperties;
-}
-
 const ChildData::EmissionProperties& ChildData::emissionProperties() const {
     return mEmissionProperties;
 }
@@ -49,6 +41,14 @@ const ChildData::VelocityProperties& ChildData::velocityProperties() const {
 
 void ChildData::setVelocityProperties(const VelocityProperties& velocityProperties) {
     mVelocityProperties = velocityProperties;
+}
+
+const ChildData::TextureProperties& ChildData::textureProperties() const {
+    return mTextureProperties;
+}
+
+void ChildData::setTextureProperties(const TextureProperties& textureProperties) {
+    mTextureProperties = textureProperties;
 }
 
 const ChildData::ColorProperties& ChildData::colorProperties() const {
@@ -97,15 +97,6 @@ void ChildData::initFromBinary(const BinChildData& childData) {
         .billboardType = childData.childBillboardType
     };
 
-    mTextureProperties = {
-        .textureWrapT = childData.childTextureRes.wrapT,
-        .textureWrapS = childData.childTextureRes.wrapS,
-        .textureMagFilter = childData.childTextureRes.magFilter,
-        .textureMinFilter = static_cast<TextureFilter>(childData.childTextureRes.minMipFilter & 0x1),
-        .textureMipFilter = static_cast<TextureMipFilter>((childData.childTextureRes.minMipFilter >> 1) & 0x3),
-        .texUVScale = { childData.childTexUScale, childData.childTexVScale }
-    };
-
     mEmissionProperties = {
         .emitRate = childData.childEmitRate,
         .emitTiming = childData.childEmitTiming,
@@ -136,6 +127,15 @@ void ChildData::initFromBinary(const BinChildData& childData) {
         .scaleTarget = { childData.childScaleTarget.x, childData.childScaleTarget.y },
         .scaleInheritRate = childData.childScaleInheritRate,
         .scaleStartFrame = childData.childScaleStartFrame
+    };
+
+    mTextureProperties = {
+        .textureWrapT = childData.childTextureRes.wrapT,
+        .textureWrapS = childData.childTextureRes.wrapS,
+        .textureMagFilter = childData.childTextureRes.magFilter,
+        .textureMinFilter = static_cast<TextureFilter>(childData.childTextureRes.minMipFilter & 0x1),
+        .textureMipFilter = static_cast<TextureMipFilter>((childData.childTextureRes.minMipFilter >> 1) & 0x3),
+        .texUVScale = { childData.childTexUScale, childData.childTexVScale }
     };
 
     mColorProperties = {

@@ -226,6 +226,8 @@ public:
     const ComplexProperties& complexProperties() const;
     void setComplexProperties(const ComplexProperties& complexProperties);
 
+    void setChildFlags(const BitFlag<ChildFlag>& childFlags);
+
     ChildData& childData();
 
     FieldRandomData& fieldRandomData();

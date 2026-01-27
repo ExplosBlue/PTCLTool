@@ -2,15 +2,11 @@
 
 #include "ptcl/ptclChildData.h"
 
-#include <QComboBox>
-#include <QDoubleSpinBox>
-#include <QGridLayout>
-#include <QLabel>
-#include <QLineEdit>
+#include <QCheckBox>
 #include <QSpinBox>
 #include <QStackedWidget>
+#include <QVBoxLayout>
 #include <QWidget>
-
 
 namespace PtclEditor {
 
@@ -23,10 +19,13 @@ class ChildEditorWidget final : public QWidget {
 public:
     explicit ChildEditorWidget(QWidget* parent = nullptr);
 
-    void setChildData(Ptcl::ChildData* childData);
+    void setChildData(Ptcl::ChildData* childData, const BitFlag<Ptcl::ChildFlag>& childFlag);
     // void setTextureList(const Ptcl::TextureList* textureList);
 
     void clear();
+
+signals:
+    void flagsUpdated(const BitFlag<Ptcl::ChildFlag>& childFlag);
 
 private:
     void setupLayout(QVBoxLayout* mainLayout);
@@ -35,13 +34,18 @@ private:
 private:
     class BasicPropertiesWidget;
     class EmissionPropertiesWidget;
+    class VelocityPropertiesWidget;
 
 private:
     Ptcl::ChildData* mDataPtr{nullptr};
-    // const Ptcl::TextureList* mTextureList{nullptr};
+    BitFlag<Ptcl::ChildFlag> mChildFlag{};
 
+    // const Ptcl::TextureList* mTextureList{nullptr};
+    QCheckBox mEnabledCheckbox{};
+    QWidget* mSectionsContainer{};
     BasicPropertiesWidget* mBasicProperties{nullptr};
     EmissionPropertiesWidget* mEmissionProperties{nullptr};
+    VelocityPropertiesWidget* mVelocityProperties{nullptr};
 };
 
 
