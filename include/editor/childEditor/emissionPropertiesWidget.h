@@ -24,12 +24,18 @@ signals:
     void propertiesUpdated(const Ptcl::ChildData::EmissionProperties& properties);
 
 private:
+    void setupConnections();
+
+private:
     Ptcl::ChildData::EmissionProperties mProps{};
 
     QSpinBox mEmitRateSpinBox{};
     QSpinBox mEmitTimingSpinBox{};
     QSpinBox mLifeSpinBox{};
     QSpinBox mEmitStepSpinBox{};
+    QCheckBox mInfiniteLifeCheckBox{};
+
+    static constexpr s32 sLifeInfinite = std::numeric_limits<s32>::max();
 };
 
 
