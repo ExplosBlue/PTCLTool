@@ -22,15 +22,6 @@ public:
         BillboardType billboardType{BillboardType::Billboard};
     };
 
-    struct TextureProperties {
-        TextureWrap textureWrapT{TextureWrap::ClampToEdge};
-        TextureWrap textureWrapS{TextureWrap::ClampToEdge};
-        TextureFilter textureMagFilter{TextureFilter::Nearest};
-        TextureFilter textureMinFilter{TextureFilter::Nearest};
-        TextureMipFilter textureMipFilter{TextureMipFilter::None};
-        Math::Vector2f texUVScale{1.0f, 1.0f};
-    };
-
     struct EmissionProperties {
         s32 emitRate;
         s32 emitTiming;
@@ -61,6 +52,15 @@ public:
         Math::Vector2f scaleTarget;
         f32 scaleInheritRate;
         s32 scaleStartFrame;
+    };
+
+    struct TextureProperties {
+        TextureWrap textureWrapT{TextureWrap::ClampToEdge};
+        TextureWrap textureWrapS{TextureWrap::ClampToEdge};
+        TextureFilter textureMagFilter{TextureFilter::Nearest};
+        TextureFilter textureMinFilter{TextureFilter::Nearest};
+        TextureMipFilter textureMipFilter{TextureMipFilter::None};
+        Math::Vector2f texUVScale{1.0f, 1.0f};
     };
 
     struct ColorProperties {
@@ -95,14 +95,14 @@ public:
     const BasicProperties &basicProperties() const;
     void setBasicProperties(const BasicProperties &basicProperties);
 
-    const TextureProperties& textureProperties() const;
-    void setTextureProperties(const TextureProperties& textureProperties);
-
     const EmissionProperties& emissionProperties() const;
     void setEmissionProperties(const EmissionProperties& emissionProperties);
 
     const VelocityProperties& velocityProperties() const;
     void setVelocityProperties(const VelocityProperties& velocityProperties);
+
+    const TextureProperties& textureProperties() const;
+    void setTextureProperties(const TextureProperties& textureProperties);
 
     const ColorProperties& colorProperties() const;
     void setColorProperties(const ColorProperties& colorProperties);

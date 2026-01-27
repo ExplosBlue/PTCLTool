@@ -37,7 +37,9 @@ set(PROJECT_SOURCES
     src/editor/components/loadingSpinner.cpp
     src/editor/components/rgbaColorWidget.cpp
     src/editor/components/thumbnailWidget.cpp
+    src/editor/childEditor/basicPropertiesWidget.cpp
     src/editor/childEditor/childEditorWidget.cpp
+    src/editor/childEditor/emissionPropertiesWidget.cpp
     src/editor/emitterWidget/alphaPropertiesWidget.cpp
     src/editor/emitterWidget/basicPropertiesWidget.cpp
     src/editor/emitterWidget/colorPropertiesWidget.cpp
@@ -53,6 +55,7 @@ set(PROJECT_SOURCES
     src/editor/emitterWidget/transformPropertiesWidget.cpp
     src/editor/emitterWidget/velocityPropertiesWidget.cpp
     src/editor/emitterWidget/volumePropertiesWidget.cpp
+    src/editor/childEditor/velocityPropertiesWidget.cpp
     src/etc1/rg_etc1.cpp
     src/ptcl/ptcl.cpp
     src/ptcl/ptclBinary.cpp
@@ -89,7 +92,9 @@ set(PROJECT_HEADERS
     include/editor/components/sizedSpinBox.h
     include/editor/components/thumbnailWidget.h
     include/editor/components/vectorSpinBox.h
+    include/editor/childEditor/basicPropertiesWidget.h
     include/editor/childEditor/childEditorWidget.h
+    include/editor/childEditor/emissionPropertiesWidget.h
     include/editor/emitterWidget/alphaPropertiesWidget.h
     include/editor/emitterWidget/basicPropertiesWidget.h
     include/editor/emitterWidget/colorPropertiesWidget.h
@@ -105,6 +110,7 @@ set(PROJECT_HEADERS
     include/editor/emitterWidget/transformPropertiesWidget.h
     include/editor/emitterWidget/velocityPropertiesWidget.h
     include/editor/emitterWidget/volumePropertiesWidget.h
+    include/editor/childEditor/velocityPropertiesWidget.h
     include/etc1/rg_etc1.h
     include/math/matrix.h
     include/math/util.h
@@ -131,8 +137,6 @@ set(PROJECT_HEADERS
 qt_add_executable(EffectTool
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES} ${PROJECT_HEADERS}
-    include/editor/childEditor/basicPropertiesWidget.h src/editor/childEditor/basicPropertiesWidget.cpp
-    include/editor/childEditor/emissionPropertiesWidget.h src/editor/childEditor/emissionPropertiesWidget.cpp
 )
 
 qt_add_resources(EffectTool "icons"

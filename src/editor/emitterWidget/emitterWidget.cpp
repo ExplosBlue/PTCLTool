@@ -200,6 +200,12 @@ void EmitterWidget::setupConnections() {
         if (!mEmitterPtr) { return; }
         mEmitterPtr->setScaleProperties(properties);
     });
+
+    // Child Editor Widget
+    connect(mChildEditorWidget, &ChildEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::ChildFlag>& childFlags) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setChildFlags(childFlags);
+    });
 }
 
 void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
@@ -237,7 +243,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mCombinerProperties->setProperties(mEmitterPtr->combinerProperties());
     mCombinerProperties->setCombinerSrc(&mEmitterPtr->textureHandle(), &mEmitterPtr->colorProperties().color0, &mEmitterPtr->colorProperties().colors[0]);
 
-    mChildEditorWidget->setChildData(&mEmitterPtr->childData());
+    mChildEditorWidget->setChildData(&mEmitterPtr->childData(), mEmitterPtr->complexProperties().childFlags);
 
     setEnabled(true);
 }
