@@ -177,7 +177,7 @@ inline QDebug operator<<(QDebug dbg, const FollowType& type) {
 // ========================================================================== //
 
 
-enum class RotType : u8 {
+enum class RotType : u32 {
     None    = 0x0,
     RotX    = 0x1,
     RotY    = 0x2,

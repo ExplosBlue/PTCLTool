@@ -132,6 +132,7 @@ qt_add_executable(EffectTool
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES} ${PROJECT_HEADERS}
     include/editor/childEditor/basicPropertiesWidget.h src/editor/childEditor/basicPropertiesWidget.cpp
+    include/editor/childEditor/emissionPropertiesWidget.h src/editor/childEditor/emissionPropertiesWidget.cpp
 )
 
 qt_add_resources(EffectTool "icons"

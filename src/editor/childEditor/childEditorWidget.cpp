@@ -1,6 +1,7 @@
 #include "editor/components/collapsibleWidget.h"
 #include "editor/childEditor/childEditorWidget.h"
 #include "editor/childEditor/basicPropertiesWidget.h"
+#include "editor/childEditor/emissionPropertiesWidget.h"
 
 #include <QScrollArea>
 
@@ -15,6 +16,7 @@ ChildEditorWidget::ChildEditorWidget(QWidget* parent) :
     QWidget{parent} {
 
     mBasicProperties = new BasicPropertiesWidget(this);
+    mEmissionProperties = new EmissionPropertiesWidget(this);
 
     // Standard Widget
     auto* standardWidget = new QWidget(this);
@@ -47,6 +49,7 @@ void ChildEditorWidget::setupLayout(QVBoxLayout* mainLayout) {
     };
 
     addSection("Basic properties", mBasicProperties);
+    addSection("Emission properties", mEmissionProperties);
 
     mainLayout->addStretch();
 }
@@ -57,6 +60,12 @@ void ChildEditorWidget::setupConnections() {
         if (!mDataPtr) { return; }
         mDataPtr->setBasicProperties(properties);
     });
+
+    // Emission Properties
+    connect(mEmissionProperties, &EmissionPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ChildData::EmissionProperties& properties) {
+        if (!mDataPtr) { return; }
+        mDataPtr->setEmissionProperties(properties);
+    });
 }
 
 void ChildEditorWidget::setChildData(Ptcl::ChildData* childData) {
@@ -65,6 +74,7 @@ void ChildEditorWidget::setChildData(Ptcl::ChildData* childData) {
     mDataPtr = childData;
 
     mBasicProperties->setProperties(mDataPtr->basicProperties());
+    mEmissionProperties->setProperties(mDataPtr->emissionProperties());
 
     setEnabled(true);
 }
