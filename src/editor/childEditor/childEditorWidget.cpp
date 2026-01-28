@@ -3,6 +3,7 @@
 #include "editor/childEditor/basicPropertiesWidget.h"
 #include "editor/childEditor/emissionPropertiesWidget.h"
 #include "editor/childEditor/rotationPropertiesWidget.h"
+#include "editor/childEditor/scalePropertiesWidget.h"
 #include "editor/childEditor/velocityPropertiesWidget.h"
 
 #include <QScrollArea>
@@ -21,6 +22,7 @@ ChildEditorWidget::ChildEditorWidget(QWidget* parent) :
     mEmissionProperties = new EmissionPropertiesWidget(this);
     mVelocityProperties = new VelocityPropertiesWidget(this);
     mRotationProperties = new RotationPropertiesWidget(this);
+    mScaleProperties = new ScalePropertiesWidget(this);
 
     // Standard Widget
     auto* standardWidget = new QWidget(this);
@@ -72,6 +74,7 @@ void ChildEditorWidget::setupLayout(QVBoxLayout* mainLayout) {
     addSection("Emission properties", mEmissionProperties);
     addSection("Velocity properties", mVelocityProperties);
     addSection("Rotation properties", mRotationProperties);
+    addSection("Scale properties", mScaleProperties);
 
     sectionsLayout->addStretch();
 
@@ -124,6 +127,18 @@ void ChildEditorWidget::setupConnections() {
         inherit ? mChildFlag.set(Ptcl::ChildFlag::RotateInherit) : mChildFlag.clear(Ptcl::ChildFlag::RotateInherit);
         emit flagsUpdated(mChildFlag);
     });
+
+    // Scale Properties
+    connect(mScaleProperties, &ScalePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ChildData::ScaleProperties& properties) {
+        if (!mDataPtr) { return; }
+        mDataPtr->setScaleProperties(properties);
+    });
+
+    connect(mScaleProperties, &ScalePropertiesWidget::inheritScaleUpdated, this, [this](bool inherit) {
+        if (!mDataPtr) { return; }
+        inherit ? mChildFlag.set(Ptcl::ChildFlag::ScaleInherit) : mChildFlag.clear(Ptcl::ChildFlag::ScaleInherit);
+        emit flagsUpdated(mChildFlag);
+    });
 }
 
 void ChildEditorWidget::setChildData(Ptcl::ChildData* childData, const BitFlag<Ptcl::ChildFlag>& childFlag) {
@@ -136,6 +151,7 @@ void ChildEditorWidget::setChildData(Ptcl::ChildData* childData, const BitFlag<P
     mEmissionProperties->setProperties(mDataPtr->emissionProperties());
     mVelocityProperties->setProperties(mDataPtr->velocityProperties(), mChildFlag.isSet(Ptcl::ChildFlag::VelInherit));
     mRotationProperties->setProperties(mDataPtr->rotationProperties(), mChildFlag.isSet(Ptcl::ChildFlag::RotateInherit));
+    mScaleProperties->setProperties(mDataPtr->scaleProperties(), mChildFlag.isSet(Ptcl::ChildFlag::ScaleInherit));
 
     const bool isEnabled = mChildFlag.isSet(Ptcl::ChildFlag::Enabled);
     mEnabledCheckbox.setChecked(isEnabled);

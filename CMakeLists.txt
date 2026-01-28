@@ -138,6 +138,7 @@ qt_add_executable(EffectTool
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES} ${PROJECT_HEADERS}
     include/editor/childEditor/rotationPropertiesWidget.h src/editor/childEditor/rotationPropertiesWidget.cpp
+    include/editor/childEditor/scalePropertiesWidget.h src/editor/childEditor/scalePropertiesWidget.cpp
 )
 
 qt_add_resources(EffectTool "icons"
