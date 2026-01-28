@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ptcl/ptcl.h"
 #include "ptcl/ptclChildData.h"
 
 #include <QCheckBox>
@@ -20,12 +21,13 @@ public:
     explicit ChildEditorWidget(QWidget* parent = nullptr);
 
     void setChildData(Ptcl::ChildData* childData, const BitFlag<Ptcl::ChildFlag>& childFlag);
-    // void setTextureList(const Ptcl::TextureList* textureList);
+    void setTextureList(const Ptcl::TextureList* textureList);
 
     void clear();
 
 signals:
     void flagsUpdated(const BitFlag<Ptcl::ChildFlag>& childFlag);
+    void textureUpdated(const std::shared_ptr<Ptcl::Texture>& oldTexture, const std::shared_ptr<Ptcl::Texture>& newTexture);
 
 private:
     void setupLayout(QVBoxLayout* mainLayout);
@@ -37,12 +39,14 @@ private:
     class VelocityPropertiesWidget;
     class RotationPropertiesWidget;
     class ScalePropertiesWidget;
+    class TexturePropertiesWidget;
 
 private:
     Ptcl::ChildData* mDataPtr{nullptr};
     BitFlag<Ptcl::ChildFlag> mChildFlag{};
 
-    // const Ptcl::TextureList* mTextureList{nullptr};
+    const Ptcl::TextureList* mTextureList{nullptr};
+
     QCheckBox mEnabledCheckbox{};
     QWidget* mSectionsContainer{};
     BasicPropertiesWidget* mBasicProperties{nullptr};
@@ -50,6 +54,7 @@ private:
     VelocityPropertiesWidget* mVelocityProperties{nullptr};
     RotationPropertiesWidget* mRotationProperties{nullptr};
     ScalePropertiesWidget* mScaleProperties{nullptr};
+    TexturePropertiesWidget* mTextureProperties{nullptr};
 };
 
 
