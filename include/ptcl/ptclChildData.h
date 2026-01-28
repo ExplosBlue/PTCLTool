@@ -23,35 +23,35 @@ public:
     };
 
     struct EmissionProperties {
-        s32 emitRate;
-        s32 emitTiming;
-        s32 life;
-        s32 emitStep;
+        s32 emitRate{1};
+        s32 emitTiming{0};
+        s32 life{10};
+        s32 emitStep{1};
     };
 
     struct VelocityProperties {
-        Math::Vector3f randVel;
-        Math::Vector3f gravity;
-        f32 velInheritRate;
-        f32 initPosRand;
-        f32 figurVel;
-        f32 airResist;
+        Math::Vector3f randVel{0.0f, 0.0f, 0.0f};
+        Math::Vector3f gravity{0.0f, 0.0f, 0.0f};
+        f32 velInheritRate{1.0f};
+        f32 initPosRand{0.0f};
+        f32 figurVel{0.0f};
+        f32 airResist{1.0f};
     };
 
     struct RotationProperties {
         RotType rotType{RotType::None};
-        Math::Vector3i initRot;
-        Math::Vector3i initRotRand;
-        Math::Vector3i rotVel;
-        Math::Vector3i rotVelRand;
+        Math::Vector3i initRot{0, 0, 0};
+        Math::Vector3i initRotRand{0, 0, 0};
+        Math::Vector3i rotVel{0, 0, 0};
+        Math::Vector3i rotVelRand{0, 0, 0};
         Math::Vector2f rotBasis{0.0f, 0.0f};
     };
 
     struct ScaleProperties {
-        Math::Vector2f scale;
-        Math::Vector2f scaleTarget;
-        f32 scaleInheritRate;
-        s32 scaleStartFrame;
+        Math::Vector2f scale{1.0f, 1.0f};
+        Math::Vector2f scaleTarget{1.0f, 1.0f};
+        f32 scaleInheritRate{1.0f};
+        s32 scaleStartFrame{0};
     };
 
     struct TextureProperties {
@@ -69,11 +69,11 @@ public:
     };
 
     struct AlphaProperties {
-        f32 alpha;
-        f32 alphaTarget;
-        f32 alphaInit;
-        s32 alphaStartFrame;
-        s32 alphaBaseFrame;
+        f32 alpha{1.0f};
+        f32 alphaTarget{1.0f};
+        f32 alphaInit{1.0f};
+        s32 alphaStartFrame{1};
+        s32 alphaBaseFrame{1};
     };
 
     struct CombinerProperties {

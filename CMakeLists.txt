@@ -39,6 +39,7 @@ set(PROJECT_SOURCES
     src/editor/components/thumbnailWidget.cpp
     src/editor/childEditor/basicPropertiesWidget.cpp
     src/editor/childEditor/childEditorWidget.cpp
+    src/editor/childEditor/colorPropertiesWidget.cpp
     src/editor/childEditor/emissionPropertiesWidget.cpp
     src/editor/childEditor/rotationPropertiesWidget.cpp
     src/editor/childEditor/scalePropertiesWidget.cpp
@@ -97,6 +98,7 @@ set(PROJECT_HEADERS
     include/editor/components/vectorSpinBox.h
     include/editor/childEditor/basicPropertiesWidget.h
     include/editor/childEditor/childEditorWidget.h
+    include/editor/childEditor/colorPropertiesWidget.h
     include/editor/childEditor/emissionPropertiesWidget.h
     include/editor/childEditor/rotationPropertiesWidget.h
     include/editor/childEditor/scalePropertiesWidget.h
