@@ -1,6 +1,7 @@
 #include "editor/components/collapsibleWidget.h"
 #include "editor/childEditor/childEditorWidget.h"
 #include "editor/childEditor/basicPropertiesWidget.h"
+#include "editor/childEditor/colorPropertiesWidget.h"
 #include "editor/childEditor/emissionPropertiesWidget.h"
 #include "editor/childEditor/rotationPropertiesWidget.h"
 #include "editor/childEditor/scalePropertiesWidget.h"
@@ -25,6 +26,7 @@ ChildEditorWidget::ChildEditorWidget(QWidget* parent) :
     mRotationProperties = new RotationPropertiesWidget(this);
     mScaleProperties = new ScalePropertiesWidget(this);
     mTextureProperties = new TexturePropertiesWidget(this);
+    mColorProperties = new ColorPropertiesWidget(this);
 
     // Standard Widget
     auto* standardWidget = new QWidget(this);
@@ -78,6 +80,7 @@ void ChildEditorWidget::setupLayout(QVBoxLayout* mainLayout) {
     addSection("Rotation properties", mRotationProperties);
     addSection("Scale properties", mScaleProperties);
     addSection("Texture Properties", mTextureProperties);
+    addSection("Color Properties", mColorProperties);
 
     sectionsLayout->addStretch();
 
@@ -156,6 +159,19 @@ void ChildEditorWidget::setupConnections() {
         emit textureUpdated(oldTexture, newTexture);
         // mCombinerProperties->updateCombinerPreview();
     });
+
+    // Color Properties
+    connect(mColorProperties, &ColorPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ChildData::ColorProperties& properties) {
+        if (!mDataPtr) { return; }
+        mDataPtr->setColorProperties(properties);
+        // mCombinerProperties->updateCombinerPreview();
+    });
+
+    connect(mColorProperties, &ColorPropertiesWidget::inheritColorUpdated, this, [this](bool inherit) {
+        if (!mDataPtr) { return; }
+        inherit ? mChildFlag.set(Ptcl::ChildFlag::Color0Inherit) : mChildFlag.clear(Ptcl::ChildFlag::Color0Inherit);
+        emit flagsUpdated(mChildFlag);
+    });
 }
 
 void ChildEditorWidget::setChildData(Ptcl::ChildData* childData, const BitFlag<Ptcl::ChildFlag>& childFlag) {
@@ -170,6 +186,7 @@ void ChildEditorWidget::setChildData(Ptcl::ChildData* childData, const BitFlag<P
     mRotationProperties->setProperties(mDataPtr->rotationProperties(), mChildFlag.isSet(Ptcl::ChildFlag::RotateInherit));
     mScaleProperties->setProperties(mDataPtr->scaleProperties(), mChildFlag.isSet(Ptcl::ChildFlag::ScaleInherit));
     mTextureProperties->setProperties(mDataPtr->textureProperties(), mDataPtr->textureHandle().get());
+    mColorProperties->setProperties(mDataPtr->colorProperties(), mChildFlag.isSet(Ptcl::ChildFlag::Color0Inherit));
 
     const bool isEnabled = mChildFlag.isSet(Ptcl::ChildFlag::Enabled);
     mEnabledCheckbox.setChecked(isEnabled);

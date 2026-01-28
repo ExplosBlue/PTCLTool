@@ -40,6 +40,7 @@ private:
     class RotationPropertiesWidget;
     class ScalePropertiesWidget;
     class TexturePropertiesWidget;
+    class ColorPropertiesWidget;
 
 private:
     Ptcl::ChildData* mDataPtr{nullptr};
@@ -55,6 +56,7 @@ private:
     RotationPropertiesWidget* mRotationProperties{nullptr};
     ScalePropertiesWidget* mScaleProperties{nullptr};
     TexturePropertiesWidget* mTextureProperties{nullptr};
+    ColorPropertiesWidget* mColorProperties{nullptr};
 };
 
 
