@@ -206,6 +206,16 @@ void EmitterWidget::setupConnections() {
         if (!mEmitterPtr) { return; }
         mEmitterPtr->setChildFlags(childFlags);
     });
+
+    connect(mChildEditorWidget, &ChildEditorWidget::textureUpdated, this, [this](const std::shared_ptr<Ptcl::Texture>& oldTexture, const std::shared_ptr<Ptcl::Texture>& newTexture) {
+        s32 oldIndex = -1;
+        s32 newIndex = -1;
+        for (size_t i = 0; i < mTextureList->size(); ++i) {
+            if ((*mTextureList)[i] == oldTexture) { oldIndex = static_cast<s32>(i); }
+            if ((*mTextureList)[i] == newTexture) { newIndex = static_cast<s32>(i); }
+        }
+        emit textureUpdated(oldIndex, newIndex);
+    });
 }
 
 void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
@@ -251,6 +261,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
 void EmitterWidget::setTextureList(const Ptcl::TextureList* textureList) {
     mTextureList = textureList;
     mTextureProperties->setTextureList(textureList);
+    mChildEditorWidget->setTextureList(textureList);
 }
 
 void EmitterWidget::showStandardEditor() {

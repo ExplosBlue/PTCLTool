@@ -82,7 +82,6 @@ void ChildEditorWidget::RotationPropertiesWidget::setupConnections() {
     });
 }
 
-
 void ChildEditorWidget::RotationPropertiesWidget::setProperties(const Ptcl::ChildData::RotationProperties& properties, bool inheritRotation) {
     QSignalBlocker b1(mRotTypeSpinBox);
     QSignalBlocker b2(mInitRotSpinBox);

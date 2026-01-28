@@ -40,6 +40,9 @@ set(PROJECT_SOURCES
     src/editor/childEditor/basicPropertiesWidget.cpp
     src/editor/childEditor/childEditorWidget.cpp
     src/editor/childEditor/emissionPropertiesWidget.cpp
+    src/editor/childEditor/rotationPropertiesWidget.cpp
+    src/editor/childEditor/scalePropertiesWidget.cpp
+    src/editor/childEditor/texturePropertiesWidget.cpp
     src/editor/emitterWidget/alphaPropertiesWidget.cpp
     src/editor/emitterWidget/basicPropertiesWidget.cpp
     src/editor/emitterWidget/colorPropertiesWidget.cpp
@@ -95,6 +98,9 @@ set(PROJECT_HEADERS
     include/editor/childEditor/basicPropertiesWidget.h
     include/editor/childEditor/childEditorWidget.h
     include/editor/childEditor/emissionPropertiesWidget.h
+    include/editor/childEditor/rotationPropertiesWidget.h
+    include/editor/childEditor/scalePropertiesWidget.h
+    include/editor/childEditor/texturePropertiesWidget.h
     include/editor/emitterWidget/alphaPropertiesWidget.h
     include/editor/emitterWidget/basicPropertiesWidget.h
     include/editor/emitterWidget/colorPropertiesWidget.h
@@ -137,8 +143,6 @@ set(PROJECT_HEADERS
 qt_add_executable(EffectTool
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES} ${PROJECT_HEADERS}
-    include/editor/childEditor/rotationPropertiesWidget.h src/editor/childEditor/rotationPropertiesWidget.cpp
-    include/editor/childEditor/scalePropertiesWidget.h src/editor/childEditor/scalePropertiesWidget.cpp
 )
 
 qt_add_resources(EffectTool "icons"

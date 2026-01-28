@@ -4,6 +4,7 @@
 #include "editor/childEditor/emissionPropertiesWidget.h"
 #include "editor/childEditor/rotationPropertiesWidget.h"
 #include "editor/childEditor/scalePropertiesWidget.h"
+#include "editor/childEditor/texturePropertiesWidget.h"
 #include "editor/childEditor/velocityPropertiesWidget.h"
 
 #include <QScrollArea>
@@ -23,6 +24,7 @@ ChildEditorWidget::ChildEditorWidget(QWidget* parent) :
     mVelocityProperties = new VelocityPropertiesWidget(this);
     mRotationProperties = new RotationPropertiesWidget(this);
     mScaleProperties = new ScalePropertiesWidget(this);
+    mTextureProperties = new TexturePropertiesWidget(this);
 
     // Standard Widget
     auto* standardWidget = new QWidget(this);
@@ -75,6 +77,7 @@ void ChildEditorWidget::setupLayout(QVBoxLayout* mainLayout) {
     addSection("Velocity properties", mVelocityProperties);
     addSection("Rotation properties", mRotationProperties);
     addSection("Scale properties", mScaleProperties);
+    addSection("Texture Properties", mTextureProperties);
 
     sectionsLayout->addStretch();
 
@@ -139,6 +142,20 @@ void ChildEditorWidget::setupConnections() {
         inherit ? mChildFlag.set(Ptcl::ChildFlag::ScaleInherit) : mChildFlag.clear(Ptcl::ChildFlag::ScaleInherit);
         emit flagsUpdated(mChildFlag);
     });
+
+    // Texture Properties
+    connect(mTextureProperties, &TexturePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ChildData::TextureProperties& properties) {
+        if (!mDataPtr) { return; }
+        mDataPtr->setTextureProperties(properties);
+    });
+
+    connect(mTextureProperties, &TexturePropertiesWidget::textureUpdated, this, [this](const std::shared_ptr<Ptcl::Texture>& oldTexture, const std::shared_ptr<Ptcl::Texture>& newTexture) {
+        if (!mDataPtr) { return; }
+        mDataPtr->setTexture(newTexture);
+
+        emit textureUpdated(oldTexture, newTexture);
+        // mCombinerProperties->updateCombinerPreview();
+    });
 }
 
 void ChildEditorWidget::setChildData(Ptcl::ChildData* childData, const BitFlag<Ptcl::ChildFlag>& childFlag) {
@@ -152,12 +169,18 @@ void ChildEditorWidget::setChildData(Ptcl::ChildData* childData, const BitFlag<P
     mVelocityProperties->setProperties(mDataPtr->velocityProperties(), mChildFlag.isSet(Ptcl::ChildFlag::VelInherit));
     mRotationProperties->setProperties(mDataPtr->rotationProperties(), mChildFlag.isSet(Ptcl::ChildFlag::RotateInherit));
     mScaleProperties->setProperties(mDataPtr->scaleProperties(), mChildFlag.isSet(Ptcl::ChildFlag::ScaleInherit));
+    mTextureProperties->setProperties(mDataPtr->textureProperties(), mDataPtr->textureHandle().get());
 
     const bool isEnabled = mChildFlag.isSet(Ptcl::ChildFlag::Enabled);
     mEnabledCheckbox.setChecked(isEnabled);
     mSectionsContainer->setEnabled(isEnabled);
 
     setEnabled(true);
+}
+
+void ChildEditorWidget::setTextureList(const Ptcl::TextureList* textureList) {
+    mTextureList = textureList;
+    mTextureProperties->setTextureList(textureList);
 }
 
 void ChildEditorWidget::clear() {
