@@ -35,6 +35,7 @@ private:
     class BasicPropertiesWidget;
     class EmissionPropertiesWidget;
     class VelocityPropertiesWidget;
+    class RotationPropertiesWidget;
 
 private:
     Ptcl::ChildData* mDataPtr{nullptr};
@@ -46,6 +47,7 @@ private:
     BasicPropertiesWidget* mBasicProperties{nullptr};
     EmissionPropertiesWidget* mEmissionProperties{nullptr};
     VelocityPropertiesWidget* mVelocityProperties{nullptr};
+    RotationPropertiesWidget* mRotationProperties{nullptr};
 };
 
 

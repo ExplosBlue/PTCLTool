@@ -45,7 +45,7 @@ void ChildEditorWidget::VelocityPropertiesWidget::setupConnections() {
         emit propertiesUpdated(mProps);
     });
 
-    // Inherit Rate
+    // Inherit Velocity
     connect(&mInheritVelCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
         QSignalBlocker b1(mVelInheritSpinBox);
         mVelInheritSpinBox.setEnabled(checked);
