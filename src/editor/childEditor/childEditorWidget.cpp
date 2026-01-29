@@ -100,7 +100,7 @@ void ChildEditorWidget::setupConnections() {
         if (!mDataPtr) { return; }
 
         mSectionsContainer->setEnabled(checked);
-        checked ? mChildFlag.set(Ptcl::ChildFlag::Enabled) : mChildFlag.clear(Ptcl::ChildFlag::Enabled);
+        mChildFlag.set(Ptcl::ChildFlag::Enabled, checked);
         emit flagsUpdated(mChildFlag);
     });
 
@@ -112,25 +112,25 @@ void ChildEditorWidget::setupConnections() {
 
     connect(mBasicProperties, &BasicPropertiesWidget::isFollowUpdated, this, [this](bool follow) {
         if (!mDataPtr) { return; }
-        follow ? mChildFlag.set(Ptcl::ChildFlag::IsFollow) : mChildFlag.clear(Ptcl::ChildFlag::IsFollow);
+        mChildFlag.set(Ptcl::ChildFlag::IsFollow, follow);
         emit flagsUpdated(mChildFlag);
     });
 
     connect(mBasicProperties, &BasicPropertiesWidget::isParentFieldUpdated, this, [this](bool field) {
         if (!mDataPtr) { return; }
-        field ? mChildFlag.set(Ptcl::ChildFlag::ParentField) : mChildFlag.clear(Ptcl::ChildFlag::ParentField);
+        mChildFlag.set(Ptcl::ChildFlag::ParentField, field);
         emit flagsUpdated(mChildFlag);
     });
 
     connect(mBasicProperties, &BasicPropertiesWidget::isPolygonUpdated, this, [this](bool polygon) {
         if (!mDataPtr) { return; }
-        polygon ? mChildFlag.set(Ptcl::ChildFlag::IsPolygon) : mChildFlag.clear(Ptcl::ChildFlag::IsPolygon);
+        mChildFlag.set(Ptcl::ChildFlag::IsPolygon, polygon);
         emit flagsUpdated(mChildFlag);
     });
 
     connect(mBasicProperties, &BasicPropertiesWidget::isPreDrawUpdated, this, [this](bool preDraw) {
         if (!mDataPtr) { return; }
-        preDraw ? mChildFlag.set(Ptcl::ChildFlag::PreChildDraw) : mChildFlag.clear(Ptcl::ChildFlag::PreChildDraw);
+        mChildFlag.set(Ptcl::ChildFlag::PreChildDraw, preDraw);
         emit flagsUpdated(mChildFlag);
     });
 
@@ -148,7 +148,7 @@ void ChildEditorWidget::setupConnections() {
 
     connect(mVelocityProperties, &VelocityPropertiesWidget::inheritVelUpdated, this, [this](bool inherit) {
         if (!mDataPtr) { return; }
-        inherit ? mChildFlag.set(Ptcl::ChildFlag::VelInherit) : mChildFlag.clear(Ptcl::ChildFlag::VelInherit);
+        mChildFlag.set(Ptcl::ChildFlag::VelInherit, inherit);
         emit flagsUpdated(mChildFlag);
     });
 
@@ -160,7 +160,7 @@ void ChildEditorWidget::setupConnections() {
 
     connect(mRotationProperties, &RotationPropertiesWidget::inheritRotationUpdated, this, [this](bool inherit) {
         if (!mDataPtr) { return; }
-        inherit ? mChildFlag.set(Ptcl::ChildFlag::RotateInherit) : mChildFlag.clear(Ptcl::ChildFlag::RotateInherit);
+        mChildFlag.set(Ptcl::ChildFlag::RotateInherit, inherit);
         emit flagsUpdated(mChildFlag);
     });
 
@@ -172,7 +172,7 @@ void ChildEditorWidget::setupConnections() {
 
     connect(mScaleProperties, &ScalePropertiesWidget::inheritScaleUpdated, this, [this](bool inherit) {
         if (!mDataPtr) { return; }
-        inherit ? mChildFlag.set(Ptcl::ChildFlag::ScaleInherit) : mChildFlag.clear(Ptcl::ChildFlag::ScaleInherit);
+        mChildFlag.set(Ptcl::ChildFlag::ScaleInherit, inherit);
         emit flagsUpdated(mChildFlag);
     });
 
@@ -199,7 +199,7 @@ void ChildEditorWidget::setupConnections() {
 
     connect(mColorProperties, &ColorPropertiesWidget::inheritColorUpdated, this, [this](bool inherit) {
         if (!mDataPtr) { return; }
-        inherit ? mChildFlag.set(Ptcl::ChildFlag::Color0Inherit) : mChildFlag.clear(Ptcl::ChildFlag::Color0Inherit);
+        mChildFlag.set(Ptcl::ChildFlag::Color0Inherit, inherit);
         emit flagsUpdated(mChildFlag);
         setCombinerPropertiesSrc();
     });
@@ -212,7 +212,7 @@ void ChildEditorWidget::setupConnections() {
 
     connect(mAlphaProperties, &AlphaPropertiesWidget::inheritAlphaUpdated, this, [this](bool inherit) {
         if (!mDataPtr) { return; }
-        inherit ? mChildFlag.set(Ptcl::ChildFlag::AlphaInherit) : mChildFlag.clear(Ptcl::ChildFlag::AlphaInherit);
+        mChildFlag.set(Ptcl::ChildFlag::AlphaInherit, inherit);
         emit flagsUpdated(mChildFlag);
     });
 
