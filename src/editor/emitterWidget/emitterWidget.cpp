@@ -175,6 +175,7 @@ void EmitterWidget::setupConnections() {
         if (!mEmitterPtr) { return; }
         mEmitterPtr->setColorProperties(properties);
         mCombinerProperties->updateCombinerPreview();
+        mChildEditorWidget->setParentColor0(mEmitterPtr->colorProperties().colors[0]);
     });
 
     // Combiner Properties
@@ -254,6 +255,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mCombinerProperties->setCombinerSrc(&mEmitterPtr->textureHandle(), &mEmitterPtr->colorProperties().color0, &mEmitterPtr->colorProperties().colors[0]);
 
     mChildEditorWidget->setChildData(&mEmitterPtr->childData(), mEmitterPtr->complexProperties().childFlags);
+    mChildEditorWidget->setParentColor0(mEmitterPtr->colorProperties().colors[0]);
 
     setEnabled(true);
 }

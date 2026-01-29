@@ -22,6 +22,7 @@ public:
 
     void setChildData(Ptcl::ChildData* childData, const BitFlag<Ptcl::ChildFlag>& childFlag);
     void setTextureList(const Ptcl::TextureList* textureList);
+    void setParentColor0(const Ptcl::binColor4f& parentColor0);
 
     void clear();
 
@@ -32,6 +33,7 @@ signals:
 private:
     void setupLayout(QVBoxLayout* mainLayout);
     void setupConnections();
+    void setCombinerPropertiesSrc();
 
 private:
     class BasicPropertiesWidget;
@@ -42,12 +44,14 @@ private:
     class TexturePropertiesWidget;
     class ColorPropertiesWidget;
     class AlphaPropertiesWidget;
+    class CombinerPropertiesWidget;
 
 private:
     Ptcl::ChildData* mDataPtr{nullptr};
     BitFlag<Ptcl::ChildFlag> mChildFlag{};
 
     const Ptcl::TextureList* mTextureList{nullptr};
+    Ptcl::binColor4f mParentColor0{};
 
     QCheckBox mEnabledCheckbox{};
     QWidget* mSectionsContainer{};
@@ -59,6 +63,7 @@ private:
     TexturePropertiesWidget* mTextureProperties{nullptr};
     ColorPropertiesWidget* mColorProperties{nullptr};
     AlphaPropertiesWidget* mAlphaProperties{nullptr};
+    CombinerPropertiesWidget* mCombinerProperties{nullptr};
 };
 
 

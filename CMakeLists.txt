@@ -33,6 +33,7 @@ set(PROJECT_SOURCES
     src/editor/components/clickableLabel.cpp
     src/editor/components/collapsibleWidget.cpp
     src/editor/components/colorGradientEditor.cpp
+    src/editor/components/combinerPreviewWidget.cpp
     src/editor/components/gradientSlider.cpp
     src/editor/components/loadingSpinner.cpp
     src/editor/components/rgbaColorWidget.cpp
@@ -41,6 +42,7 @@ set(PROJECT_SOURCES
     src/editor/childEditor/basicPropertiesWidget.cpp
     src/editor/childEditor/childEditorWidget.cpp
     src/editor/childEditor/colorPropertiesWidget.cpp
+    src/editor/childEditor/combinerPropertiesWidget.cpp
     src/editor/childEditor/emissionPropertiesWidget.cpp
     src/editor/childEditor/rotationPropertiesWidget.cpp
     src/editor/childEditor/scalePropertiesWidget.cpp
@@ -90,6 +92,7 @@ set(PROJECT_HEADERS
     include/editor/components/clickableLabel.h
     include/editor/components/collapsibleWidget.h
     include/editor/components/colorGradientEditor.h
+    include/editor/components/combinerPreviewWidget.h
     include/editor/components/enumComboBox.h
     include/editor/components/gradientSlider.h
     include/editor/components/loadingSpinner.h
@@ -101,6 +104,7 @@ set(PROJECT_HEADERS
     include/editor/childEditor/basicPropertiesWidget.h
     include/editor/childEditor/childEditorWidget.h
     include/editor/childEditor/colorPropertiesWidget.h
+    include/editor/childEditor/combinerPropertiesWidget.h
     include/editor/childEditor/emissionPropertiesWidget.h
     include/editor/childEditor/rotationPropertiesWidget.h
     include/editor/childEditor/scalePropertiesWidget.h

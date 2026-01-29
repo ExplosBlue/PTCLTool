@@ -1,6 +1,7 @@
-#include "editor/emitterWidget/combinerPropertiesWidget.h"
+#include "editor/childEditor/combinerPropertiesWidget.h"
 
 #include <QFormLayout>
+
 
 namespace PtclEditor {
 
@@ -8,23 +9,15 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-EmitterWidget::CombinerPropertiesWidget::CombinerPropertiesWidget(QWidget* parent) :
+ChildEditorWidget::CombinerPropertiesWidget::CombinerPropertiesWidget(QWidget* parent) :
     QWidget{parent} {
 
     auto* mainLayout = new QFormLayout(this);
 
-    mFogCheckBox.setText("Enable Fog");
-
-    mainLayout->addRow("Fog:", &mFogCheckBox);
     mainLayout->addRow("Blend Function:", &mBlendFuncComboBox);
     mainLayout->addRow("Depth Function:", &mDepthFuncComboBox);
     mainLayout->addRow("Combiner Function:", &mCombinerFuncComboBox);
     mainLayout->addWidget(&mCombinerPreview);
-
-    connect(&mFogCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
-        mProps.isFogEnabled = checked;
-        emit propertiesUpdated(mProps);
-    });
 
     connect(&mBlendFuncComboBox, &QComboBox::currentIndexChanged, this, [this]() {
         mProps.blendFunc = mBlendFuncComboBox.currentEnum();
@@ -44,26 +37,24 @@ EmitterWidget::CombinerPropertiesWidget::CombinerPropertiesWidget(QWidget* paren
     });
 }
 
-void EmitterWidget::CombinerPropertiesWidget::setProperties(const Ptcl::Emitter::CombinerProperties& properties) {
+void ChildEditorWidget::CombinerPropertiesWidget::setProperties(const Ptcl::ChildData::CombinerProperties& properties) {
     QSignalBlocker b1(mBlendFuncComboBox);
     QSignalBlocker b2(mDepthFuncComboBox);
     QSignalBlocker b3(mCombinerFuncComboBox);
-    QSignalBlocker b4(mFogCheckBox);
 
     mProps = properties;
 
-    mFogCheckBox.setChecked(mProps.isFogEnabled);
     mBlendFuncComboBox.setCurrentEnum(mProps.blendFunc);
     mDepthFuncComboBox.setCurrentEnum(mProps.depthFunc);
     mCombinerFuncComboBox.setCurrentEnum(mProps.combinerFunc);
     mCombinerPreview.setConfig(static_cast<s32>(mProps.combinerFunc));
 }
 
-void EmitterWidget::CombinerPropertiesWidget::setCombinerSrc(const Ptcl::TextureHandle* texture, const Ptcl::binColor3f* constant, const Ptcl::binColor4f* primary) {
+void ChildEditorWidget::CombinerPropertiesWidget::setCombinerSrc(const Ptcl::TextureHandle* texture, const Ptcl::binColor3f* constant, const Ptcl::binColor4f* primary) {
     mCombinerPreview.setCombinerSrc(texture, constant, primary);
 }
 
-void EmitterWidget::CombinerPropertiesWidget::updateCombinerPreview() {
+void ChildEditorWidget::CombinerPropertiesWidget::updateCombinerPreview() {
     mCombinerPreview.updateStages();
 }
 
