@@ -39,14 +39,14 @@ template<>
 inline QString toString<BillboardType>(const BillboardType& type) {
     switch (type) {
     case BillboardType::Billboard:          return "Billboard";
-    case BillboardType::PolygonXY:          return "PolygonXY";
-    case BillboardType::PolygonXZ:          return "PolygonXZ";
-    case BillboardType::VelLook:            return "VelLook";
-    case BillboardType::VelLookPolygon:     return "VelLookPolygon";
+    case BillboardType::PolygonXY:          return "XY-plane polygon";
+    case BillboardType::PolygonXZ:          return "XZ-plane polygon";
+    case BillboardType::VelLook:            return "Directional Y-billboard";
+    case BillboardType::VelLookPolygon:     return "Directional polygon";
     case BillboardType::Stripe:             return "Stripe";
     case BillboardType::ComplexStripe:      return "ComplexStripe";
     case BillboardType::Primitive:          return "Primitive";
-    case BillboardType::BillboardY:         return "BillboardY";
+    case BillboardType::BillboardY:         return "Y-Axis Billboard";
     case BillboardType::MAX:                return "BILLBOARD_TYPE_MAX";
     default: return "UNKNOWN";
     }
@@ -551,7 +551,7 @@ enum class ChildFlag : u16 {
     IsFollow                = 1 << 6,
     Unk80                   = 1 << 7,
     Unk100                  = 1 << 8,
-    Unk200                  = 1 << 9,
+    IsPolygon               = 1 << 9,
     IsEmitterBillboardMtx   = 1 << 10,
     ParentField             = 1 << 11,
     PreChildDraw            = 1 << 12,

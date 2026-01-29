@@ -110,6 +110,24 @@ void ChildEditorWidget::setupConnections() {
         mDataPtr->setBasicProperties(properties);
     });
 
+    connect(mBasicProperties, &BasicPropertiesWidget::isFollowUpdated, this, [this](bool follow) {
+        if (!mDataPtr) { return; }
+        follow ? mChildFlag.set(Ptcl::ChildFlag::IsFollow) : mChildFlag.clear(Ptcl::ChildFlag::IsFollow);
+        emit flagsUpdated(mChildFlag);
+    });
+
+    connect(mBasicProperties, &BasicPropertiesWidget::isParentFieldUpdated, this, [this](bool field) {
+        if (!mDataPtr) { return; }
+        field ? mChildFlag.set(Ptcl::ChildFlag::ParentField) : mChildFlag.clear(Ptcl::ChildFlag::ParentField);
+        emit flagsUpdated(mChildFlag);
+    });
+
+    connect(mBasicProperties, &BasicPropertiesWidget::isPolygonUpdated, this, [this](bool polygon) {
+        if (!mDataPtr) { return; }
+        polygon ? mChildFlag.set(Ptcl::ChildFlag::IsPolygon) : mChildFlag.clear(Ptcl::ChildFlag::IsPolygon);
+        emit flagsUpdated(mChildFlag);
+    });
+
     // Emission Properties
     connect(mEmissionProperties, &EmissionPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ChildData::EmissionProperties& properties) {
         if (!mDataPtr) { return; }
@@ -213,7 +231,7 @@ void ChildEditorWidget::setChildData(Ptcl::ChildData* childData, const BitFlag<P
     mDataPtr = childData;
     mChildFlag = childFlag;
 
-    mBasicProperties->setProperties(mDataPtr->basicProperties());
+    mBasicProperties->setProperties(mDataPtr->basicProperties(), mChildFlag.isSet(Ptcl::ChildFlag::IsFollow), mChildFlag.isSet(Ptcl::ChildFlag::ParentField));
     mEmissionProperties->setProperties(mDataPtr->emissionProperties());
     mVelocityProperties->setProperties(mDataPtr->velocityProperties(), mChildFlag.isSet(Ptcl::ChildFlag::VelInherit));
     mRotationProperties->setProperties(mDataPtr->rotationProperties(), mChildFlag.isSet(Ptcl::ChildFlag::RotateInherit));
