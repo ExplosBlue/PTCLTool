@@ -1,5 +1,6 @@
 #include "editor/components/collapsibleWidget.h"
 #include "editor/childEditor/childEditorWidget.h"
+#include "editor/childEditor/combinerPropertiesWidget.h"
 #include "editor/childEditor/alphaPropertiesWidget.h"
 #include "editor/childEditor/basicPropertiesWidget.h"
 #include "editor/childEditor/colorPropertiesWidget.h"
@@ -29,6 +30,7 @@ ChildEditorWidget::ChildEditorWidget(QWidget* parent) :
     mTextureProperties = new TexturePropertiesWidget(this);
     mColorProperties = new ColorPropertiesWidget(this);
     mAlphaProperties = new AlphaPropertiesWidget(this);
+    mCombinerProperties = new CombinerPropertiesWidget(this);
 
     // Standard Widget
     auto* standardWidget = new QWidget(this);
@@ -84,6 +86,7 @@ void ChildEditorWidget::setupLayout(QVBoxLayout* mainLayout) {
     addSection("Texture Properties", mTextureProperties);
     addSection("Color Properties", mColorProperties);
     addSection("Alpha Properties", mAlphaProperties);
+    addSection("Combiner Properties", mCombinerProperties);
 
     sectionsLayout->addStretch();
 
@@ -160,20 +163,21 @@ void ChildEditorWidget::setupConnections() {
         mDataPtr->setTexture(newTexture);
 
         emit textureUpdated(oldTexture, newTexture);
-        // mCombinerProperties->updateCombinerPreview();
+        mCombinerProperties->updateCombinerPreview();
     });
 
     // Color Properties
     connect(mColorProperties, &ColorPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ChildData::ColorProperties& properties) {
         if (!mDataPtr) { return; }
         mDataPtr->setColorProperties(properties);
-        // mCombinerProperties->updateCombinerPreview();
+        mCombinerProperties->updateCombinerPreview();
     });
 
     connect(mColorProperties, &ColorPropertiesWidget::inheritColorUpdated, this, [this](bool inherit) {
         if (!mDataPtr) { return; }
         inherit ? mChildFlag.set(Ptcl::ChildFlag::Color0Inherit) : mChildFlag.clear(Ptcl::ChildFlag::Color0Inherit);
         emit flagsUpdated(mChildFlag);
+        setCombinerPropertiesSrc();
     });
 
     // Alpha Properties
@@ -187,10 +191,24 @@ void ChildEditorWidget::setupConnections() {
         inherit ? mChildFlag.set(Ptcl::ChildFlag::AlphaInherit) : mChildFlag.clear(Ptcl::ChildFlag::AlphaInherit);
         emit flagsUpdated(mChildFlag);
     });
+
+    // Combiner Properties
+    connect(mCombinerProperties, &CombinerPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ChildData::CombinerProperties& properties) {
+        if (!mDataPtr) { return; }
+        mDataPtr->setCombinerProperties(properties);
+    });
 }
 
 void ChildEditorWidget::setChildData(Ptcl::ChildData* childData, const BitFlag<Ptcl::ChildFlag>& childFlag) {
     QSignalBlocker b1(mBasicProperties);
+    QSignalBlocker b2(mEmissionProperties);
+    QSignalBlocker b3(mVelocityProperties);
+    QSignalBlocker b4(mRotationProperties);
+    QSignalBlocker b5(mScaleProperties);
+    QSignalBlocker b6(mTextureProperties);
+    QSignalBlocker b7(mColorProperties);
+    QSignalBlocker b8(mAlphaProperties);
+    QSignalBlocker b9(mCombinerProperties);
 
     mDataPtr = childData;
     mChildFlag = childFlag;
@@ -203,6 +221,8 @@ void ChildEditorWidget::setChildData(Ptcl::ChildData* childData, const BitFlag<P
     mTextureProperties->setProperties(mDataPtr->textureProperties(), mDataPtr->textureHandle().get());
     mColorProperties->setProperties(mDataPtr->colorProperties(), mChildFlag.isSet(Ptcl::ChildFlag::Color0Inherit));
     mAlphaProperties->setProperties(mDataPtr->alphaProperties(), mChildFlag.isSet(Ptcl::ChildFlag::AlphaInherit));
+    mCombinerProperties->setProperties(mDataPtr->combinerProperties());
+    setCombinerPropertiesSrc();
 
     const bool isEnabled = mChildFlag.isSet(Ptcl::ChildFlag::Enabled);
     mEnabledCheckbox.setChecked(isEnabled);
@@ -214,6 +234,20 @@ void ChildEditorWidget::setChildData(Ptcl::ChildData* childData, const BitFlag<P
 void ChildEditorWidget::setTextureList(const Ptcl::TextureList* textureList) {
     mTextureList = textureList;
     mTextureProperties->setTextureList(textureList);
+}
+
+void ChildEditorWidget::setParentColor0(const Ptcl::binColor4f& parentColor0) {
+    mParentColor0 = parentColor0;
+    mCombinerProperties->updateCombinerPreview();
+};
+
+void ChildEditorWidget::setCombinerPropertiesSrc() {
+    if (mChildFlag.isSet(Ptcl::ChildFlag::Color0Inherit)) {
+        mCombinerProperties->setCombinerSrc(&mDataPtr->textureHandle(), &mDataPtr->colorProperties().color1, &mParentColor0);
+    } else {
+        mCombinerProperties->setCombinerSrc(&mDataPtr->textureHandle(), &mDataPtr->colorProperties().color1, &mDataPtr->colorProperties().color0);
+    }
+    mCombinerProperties->updateCombinerPreview();
 }
 
 void ChildEditorWidget::clear() {
