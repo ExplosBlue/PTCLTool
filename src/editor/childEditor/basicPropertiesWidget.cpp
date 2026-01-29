@@ -18,11 +18,15 @@ ChildEditorWidget::BasicPropertiesWidget::BasicPropertiesWidget(QWidget* parent)
     mFollowCheckBox.setText("Follow Parent Emitter");
     mParentFieldCheckBox.setText("Apply Parent's Field");
 
+    mDrawOrderComboBox.addItem("Above Parent", QVariant::fromValue(DrawOrder::AboveParent));
+    mDrawOrderComboBox.addItem("Below Parent", QVariant::fromValue(DrawOrder::BelowParent));
+
     auto* mainLayout = new QFormLayout(this);
 
     mainLayout->addRow("Billboard Type:", &mBillboardComboBox);
     mainLayout->addRow("Follow Type:", &mFollowCheckBox);
     mainLayout->addRow("Field Type:", &mParentFieldCheckBox);
+    mainLayout->addRow("Draw Order:", &mDrawOrderComboBox);
 
     setupConnections();
 }
@@ -53,20 +57,32 @@ void ChildEditorWidget::BasicPropertiesWidget::setupConnections() {
 
         emit propertiesUpdated(mProps);
     });
+
+    // Draw Order
+    connect(&mDrawOrderComboBox, &QComboBox::currentIndexChanged, this, [this]() {
+        const auto order = mDrawOrderComboBox.currentData().value<DrawOrder>();
+        const bool isPreDraw = (order == DrawOrder::BelowParent);
+        emit isPreDrawUpdated(isPreDraw);
+    });
 }
 
-void ChildEditorWidget::BasicPropertiesWidget::setProperties(const Ptcl::ChildData::BasicProperties& properties, bool isFollow, bool isParentField) {
+void ChildEditorWidget::BasicPropertiesWidget::setProperties(const Ptcl::ChildData::BasicProperties& properties, bool isFollow, bool isParentField, bool isPreDraw) {
     QSignalBlocker b1(mBillboardComboBox);
     QSignalBlocker b2(mFollowCheckBox);
     QSignalBlocker b3(mParentFieldCheckBox);
+    QSignalBlocker b4(mDrawOrderComboBox);
 
     mProps = properties;
 
-    const s32 index = mBillboardComboBox.findData(QVariant::fromValue(mProps.billboardType));
-    mBillboardComboBox.setCurrentIndex(index);
+    const s32 billboardIndex = mBillboardComboBox.findData(QVariant::fromValue(mProps.billboardType));
+    mBillboardComboBox.setCurrentIndex(billboardIndex);
 
     mFollowCheckBox.setChecked(isFollow);
     mParentFieldCheckBox.setChecked(isParentField);
+
+    const auto drawOrder = isPreDraw ? DrawOrder::BelowParent : DrawOrder::AboveParent;
+    const s32 drawIndex = mDrawOrderComboBox.findData(QVariant::fromValue(drawOrder));
+    mDrawOrderComboBox.setCurrentIndex(drawIndex);
 }
 
 void ChildEditorWidget::BasicPropertiesWidget::populateBillboardType() {

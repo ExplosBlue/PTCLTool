@@ -18,13 +18,14 @@ class ChildEditorWidget::BasicPropertiesWidget final : public QWidget {
 public:
     explicit BasicPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::ChildData::BasicProperties& properties, bool isFollow, bool isParentField);
+    void setProperties(const Ptcl::ChildData::BasicProperties& properties, bool isFollow, bool isParentField, bool isPreDraw);
 
 signals:
     void propertiesUpdated(const Ptcl::ChildData::BasicProperties& properties);
     void isFollowUpdated(bool isFollow);
     void isParentFieldUpdated(bool isField);
     void isPolygonUpdated(bool isPolygon);
+    void isPreDrawUpdated(bool isPreDraw);
 
 private:
     void setupConnections();
@@ -40,10 +41,16 @@ private:
         Ptcl::BillboardType::BillboardY,
     };
 
+    enum class DrawOrder {
+        AboveParent,
+        BelowParent
+    };
+
 private:
     Ptcl::ChildData::BasicProperties mProps{};
 
     QComboBox mBillboardComboBox{};
+    QComboBox mDrawOrderComboBox{};
     QCheckBox mFollowCheckBox{};
     QCheckBox mParentFieldCheckBox{};
 };
