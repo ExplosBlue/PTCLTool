@@ -984,9 +984,9 @@ QDataStream& operator<<(QDataStream& out, const BinFieldPosAddData& item) {
 
 
 BinFluctuationData::BinFluctuationData(const Ptcl::FluctuationData& fluctuationData) {
-    fluctuationScale = fluctuationData.scale();
-    fluctuationFreq = fluctuationData.freq();
-    fluctuationPhaseRnd = fluctuationData.phaseRnd();
+    fluctuationScale = fluctuationData.fluctuationScale;
+    fluctuationFreq = fluctuationData.fluctuationFreq;
+    fluctuationPhaseRnd = fluctuationData.fluctuationPhaseRnd;
 }
 
 QDataStream& operator>>(QDataStream& in, BinFluctuationData& item) {

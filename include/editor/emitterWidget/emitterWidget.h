@@ -1,6 +1,7 @@
 #pragma once
 
 #include "editor/childEditor/childEditorWidget.h"
+#include "editor/fluctuationEditorWidget.h"
 
 #include "ptcl/ptclEmitter.h"
 #include "ptcl/ptcl.h"
@@ -30,6 +31,7 @@ public:
     void setTextureList(const Ptcl::TextureList* textureList);
     void showStandardEditor();
     void showChildEditor();
+    void showFluctuationEditor();
 
     void clear();
 
@@ -78,6 +80,7 @@ private:
 
     QStackedWidget* mStackedWidget{nullptr};
     ChildEditorWidget* mChildEditorWidget{nullptr};
+    FluctuationEditorWidget* mFluctuationEditorWidget{nullptr};
 };
 
 

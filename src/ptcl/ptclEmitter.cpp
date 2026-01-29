@@ -169,6 +169,10 @@ void Emitter::setChildFlags(const BitFlag<ChildFlag>& childFlags) {
     mComplexProperties.childFlags = childFlags;
 }
 
+void Emitter::setFluctuationFlags(const BitFlag<FluctuationFlag>& fluxFlags) {
+    mComplexProperties.fluctuationFlags = fluxFlags;
+}
+
 ChildData& Emitter::childData() {
     return mChildData;
 }
@@ -197,8 +201,20 @@ FieldPosAddData& Emitter::fieldPosAddData() {
     return mFieldPosAddData;
 }
 
-FluctuationData& Emitter::fluctuationData() {
+const FluctuationData& Emitter::fluctuationData() const {
     return mFluctuationData;
+}
+
+void Emitter::setFluctuationData(const FluctuationData& fluctuationData) {
+    mFluctuationData = fluctuationData;
+}
+
+void Emitter::initFluctuationData(const BinFluctuationData& fluctuationData) {
+    mFluctuationData = {
+        .fluctuationScale = fluctuationData.fluctuationScale,
+        .fluctuationFreq = fluctuationData.fluctuationFreq,
+        .fluctuationPhaseRnd = fluctuationData.fluctuationPhaseRnd
+    };
 }
 
 StripeData& Emitter::stripeData() {

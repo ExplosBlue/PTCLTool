@@ -6,7 +6,7 @@
 #include "ptcl/ptclChildData.h"
 #include "ptcl/ptclEnum.h"
 #include "ptcl/ptclFieldData.h"
-#include "ptcl/ptclFluctuationData.h"
+#include "ptclFluctuationData.h"
 #include "ptcl/ptclStripeData.h"
 #include "ptcl/ptclSeed.h"
 #include "ptcl/ptclTexture.h"
@@ -227,6 +227,7 @@ public:
     void setComplexProperties(const ComplexProperties& complexProperties);
 
     void setChildFlags(const BitFlag<ChildFlag>& childFlags);
+    void setFluctuationFlags(const BitFlag<FluctuationFlag>& fluxFlags);
 
     ChildData& childData();
 
@@ -237,7 +238,9 @@ public:
     FieldConvergenceData& fieldConvergenceData();
     FieldPosAddData& fieldPosAddData();
 
-    FluctuationData& fluctuationData();
+    const FluctuationData& fluctuationData() const;
+    void setFluctuationData(const FluctuationData& fluctuationData);
+    void initFluctuationData(const BinFluctuationData& fluctuationData);
 
     StripeData& stripeData();
 

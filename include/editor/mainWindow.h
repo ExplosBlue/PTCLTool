@@ -34,10 +34,6 @@ protected:
     void dropEvent(QDropEvent* event) final;
 
 private slots:
-    void selectedEmitterSetChanged(s32 index);
-    void selectedEmitterChanged(s32 setIndex, s32 emitterIndex);
-    void selectedChildData(s32 setIndex, s32 emitterIndex);
-
     void openFile();
     void saveFile();
 
@@ -49,6 +45,7 @@ private:
     void selectEmitterSet(s32 setIndex);
 
     void setupUi();
+    void setupConnections();
     void setupMenus();
 
 private:

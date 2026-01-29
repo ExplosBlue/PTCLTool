@@ -18,8 +18,9 @@ namespace PtclEditor {
 
 
 MainWindow::MainWindow(QWidget* parent) :
-    QMainWindow(parent), mPtclList(this), mEmitterSetWidget(this), mTextureWidget(this) {
+    QMainWindow{parent}, mPtclList{this}, mEmitterSetWidget{this}, mTextureWidget{this} {
     setupUi();
+    setupConnections();
     updateRecentFileList();
 }
 
@@ -41,37 +42,10 @@ void MainWindow::setupUi() {
     // Ptcl List
     mPtclList.setEnabled(false);
     mPtclList.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
-    connect(&mPtclList, &PtclList::selectedEmitterSetChanged, this, &MainWindow::selectedEmitterSetChanged);
-    connect(&mPtclList, &PtclList::selectedEmitterChanged, this, &MainWindow::selectedEmitterChanged);
-    connect(&mPtclList, &PtclList::selectedChildData, this, &MainWindow::selectedChildData);
-
 
     // EmitterSet Widget
     mEmitterSetWidget.setEnabled(false);
     mEmitterSetWidget.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    connect(&mEmitterSetWidget, &EmitterSetWidget::textureUpdated, this, [this](s32 oldIndex, s32 newIndex) {
-        if (oldIndex >= 0) { mTextureWidget.updateItemAt(oldIndex); }
-        if (newIndex >= 0) { mTextureWidget.updateItemAt(newIndex); }
-    });
-
-    connect(&mEmitterSetWidget, &EmitterSetWidget::nameUpdated, this, [=, this](const QString& name) {
-        mPtclList.refresh();
-    });
-
-    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterAdded, this, [=, this]() {
-        // TODO: this should insert a singluar list element instead of refreshing everything
-        mPtclList.refresh();
-    });
-
-    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterRemoved, this, [=, this]() {
-        // TODO: this should remove a singluar list element instead of refreshing everything
-        mPtclList.refresh();
-    });
-
-    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterNameUpdated, this, [=, this]() {
-        // TODO: this should update a singluar list element instead of refreshing everything
-        mPtclList.refresh();
-    });
 
     // Texture Widget
     mTextureWidget.setEnabled(false);
@@ -83,6 +57,56 @@ void MainWindow::setupUi() {
 
     restoreGeometry(settings.windowGeometry());
     restoreState(settings.windowState());
+}
+
+void MainWindow::setupConnections() {
+    // Ptcl List
+    connect(&mPtclList, &PtclList::selectedEmitterSetChanged, this, [this](s32 index) {
+        selectEmitterSet(index);
+    });
+
+    connect(&mPtclList, &PtclList::selectedEmitterChanged, this, [this](s32 setIndex, s32 emitterIndex) {
+        selectEmitterSet(setIndex);
+        mEmitterSetWidget.setEmitterTab(emitterIndex);
+        mEmitterSetWidget.showStandardEditor();
+    });
+
+    connect(&mPtclList, &PtclList::selectedChildData, this, [this](s32 setIndex, s32 emitterIndex) {
+        selectEmitterSet(setIndex);
+        mEmitterSetWidget.setEmitterTab(emitterIndex);
+        mEmitterSetWidget.showChildEditor();
+    });
+
+    connect(&mPtclList, &PtclList::selectedFluctuation, this, [this](s32 setIndex, s32 emitterIndex) {
+        selectEmitterSet(setIndex);
+        mEmitterSetWidget.setEmitterTab(emitterIndex);
+        mEmitterSetWidget.showFluctuationEditor();
+    });
+
+    // EmitterSet Widget
+    connect(&mEmitterSetWidget, &EmitterSetWidget::textureUpdated, this, [this](s32 oldIndex, s32 newIndex) {
+        if (oldIndex >= 0) { mTextureWidget.updateItemAt(oldIndex); }
+        if (newIndex >= 0) { mTextureWidget.updateItemAt(newIndex); }
+    });
+
+    connect(&mEmitterSetWidget, &EmitterSetWidget::nameUpdated, this, [this](const QString& name) {
+        mPtclList.refresh();
+    });
+
+    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterAdded, this, [this]() {
+        // TODO: this should insert a singluar list element instead of refreshing everything
+        mPtclList.refresh();
+    });
+
+    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterRemoved, this, [this]() {
+        // TODO: this should remove a singluar list element instead of refreshing everything
+        mPtclList.refresh();
+    });
+
+    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterNameUpdated, this, [this]() {
+        // TODO: this should update a singluar list element instead of refreshing everything
+        mPtclList.refresh();
+    });
 }
 
 void MainWindow::setupMenus() {
@@ -269,7 +293,7 @@ void MainWindow::loadPtclRes(const QString& path) {
 
     const auto& sets = mPtclRes->getEmitterSets();
     if (!sets.empty()) {
-        selectedEmitterSetChanged(0);
+        selectEmitterSet(0);
     }
 
     mPtclList.setEnabled(true);
@@ -285,22 +309,6 @@ void MainWindow::selectEmitterSet(s32 setIndex) {
     if (!mEmitterSetWidget.isEnabled()) {
         mEmitterSetWidget.setEnabled(true);
     }
-}
-
-void MainWindow::selectedEmitterSetChanged(s32 index) {
-    selectEmitterSet(index);
-}
-
-void MainWindow::selectedEmitterChanged(s32 setIndex, s32 emitterIndex) {
-    selectEmitterSet(setIndex);
-    mEmitterSetWidget.setEmitterTab(emitterIndex);
-    mEmitterSetWidget.showStandardEditor();
-}
-
-void MainWindow::selectedChildData(s32 setIndex, s32 emitterIndex) {
-    selectEmitterSet(setIndex);
-    mEmitterSetWidget.setEmitterTab(emitterIndex);
-    mEmitterSetWidget.showChildEditor();
 }
 
 

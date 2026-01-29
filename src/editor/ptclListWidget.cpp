@@ -108,6 +108,15 @@ void PtclList::populateList() {
                 childItem->setData(setIndex, sRoleSetIdx);
                 childItem->setData(emitterIndex, sRoleEmitterIdx);
                 emitterItem->appendRow(childItem);
+
+                // Fluctuation
+                auto* fluxItem = new QStandardItem("Fluctuation");
+                fluxItem->setEditable(false);
+                fluxItem->setData(static_cast<s32>(NodeType::Fluctuation), sRoleNodeType);
+                fluxItem->setData(setIndex, sRoleSetIdx);
+                fluxItem->setData(emitterIndex, sRoleEmitterIdx);
+                emitterItem->appendRow(fluxItem);
+
                 // TODO: Others...
             }
             setItem->appendRow(emitterItem);
@@ -149,6 +158,9 @@ void PtclList::selectionChanged(const QItemSelection& selection) {
         break;
     case NodeType::ChildData:
         emit selectedChildData(setIndex, emitterIndex);
+        break;
+    case NodeType::Fluctuation:
+        emit selectedFluctuation(setIndex, emitterIndex);
         break;
     }
 }
