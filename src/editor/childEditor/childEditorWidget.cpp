@@ -1,5 +1,6 @@
 #include "editor/components/collapsibleWidget.h"
 #include "editor/childEditor/childEditorWidget.h"
+#include "editor/childEditor/alphaPropertiesWidget.h"
 #include "editor/childEditor/basicPropertiesWidget.h"
 #include "editor/childEditor/colorPropertiesWidget.h"
 #include "editor/childEditor/emissionPropertiesWidget.h"
@@ -27,6 +28,7 @@ ChildEditorWidget::ChildEditorWidget(QWidget* parent) :
     mScaleProperties = new ScalePropertiesWidget(this);
     mTextureProperties = new TexturePropertiesWidget(this);
     mColorProperties = new ColorPropertiesWidget(this);
+    mAlphaProperties = new AlphaPropertiesWidget(this);
 
     // Standard Widget
     auto* standardWidget = new QWidget(this);
@@ -81,6 +83,7 @@ void ChildEditorWidget::setupLayout(QVBoxLayout* mainLayout) {
     addSection("Scale properties", mScaleProperties);
     addSection("Texture Properties", mTextureProperties);
     addSection("Color Properties", mColorProperties);
+    addSection("Alpha Properties", mAlphaProperties);
 
     sectionsLayout->addStretch();
 
@@ -172,6 +175,18 @@ void ChildEditorWidget::setupConnections() {
         inherit ? mChildFlag.set(Ptcl::ChildFlag::Color0Inherit) : mChildFlag.clear(Ptcl::ChildFlag::Color0Inherit);
         emit flagsUpdated(mChildFlag);
     });
+
+    // Alpha Properties
+    connect(mAlphaProperties, &AlphaPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ChildData::AlphaProperties& properties) {
+        if (!mDataPtr) { return; }
+        mDataPtr->setAlphaProperties(properties);
+    });
+
+    connect(mAlphaProperties, &AlphaPropertiesWidget::inheritAlphaUpdated, this, [this](bool inherit) {
+        if (!mDataPtr) { return; }
+        inherit ? mChildFlag.set(Ptcl::ChildFlag::AlphaInherit) : mChildFlag.clear(Ptcl::ChildFlag::AlphaInherit);
+        emit flagsUpdated(mChildFlag);
+    });
 }
 
 void ChildEditorWidget::setChildData(Ptcl::ChildData* childData, const BitFlag<Ptcl::ChildFlag>& childFlag) {
@@ -187,6 +202,7 @@ void ChildEditorWidget::setChildData(Ptcl::ChildData* childData, const BitFlag<P
     mScaleProperties->setProperties(mDataPtr->scaleProperties(), mChildFlag.isSet(Ptcl::ChildFlag::ScaleInherit));
     mTextureProperties->setProperties(mDataPtr->textureProperties(), mDataPtr->textureHandle().get());
     mColorProperties->setProperties(mDataPtr->colorProperties(), mChildFlag.isSet(Ptcl::ChildFlag::Color0Inherit));
+    mAlphaProperties->setProperties(mDataPtr->alphaProperties(), mChildFlag.isSet(Ptcl::ChildFlag::AlphaInherit));
 
     const bool isEnabled = mChildFlag.isSet(Ptcl::ChildFlag::Enabled);
     mEnabledCheckbox.setChecked(isEnabled);

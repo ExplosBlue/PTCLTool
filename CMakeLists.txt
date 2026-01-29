@@ -37,6 +37,7 @@ set(PROJECT_SOURCES
     src/editor/components/loadingSpinner.cpp
     src/editor/components/rgbaColorWidget.cpp
     src/editor/components/thumbnailWidget.cpp
+    src/editor/childEditor/alphaPropertiesWidget.cpp
     src/editor/childEditor/basicPropertiesWidget.cpp
     src/editor/childEditor/childEditorWidget.cpp
     src/editor/childEditor/colorPropertiesWidget.cpp
@@ -96,6 +97,7 @@ set(PROJECT_HEADERS
     include/editor/components/sizedSpinBox.h
     include/editor/components/thumbnailWidget.h
     include/editor/components/vectorSpinBox.h
+    include/editor/childEditor/alphaPropertiesWidget.h
     include/editor/childEditor/basicPropertiesWidget.h
     include/editor/childEditor/childEditorWidget.h
     include/editor/childEditor/colorPropertiesWidget.h

@@ -41,6 +41,7 @@ private:
     class ScalePropertiesWidget;
     class TexturePropertiesWidget;
     class ColorPropertiesWidget;
+    class AlphaPropertiesWidget;
 
 private:
     Ptcl::ChildData* mDataPtr{nullptr};
@@ -57,6 +58,7 @@ private:
     ScalePropertiesWidget* mScaleProperties{nullptr};
     TexturePropertiesWidget* mTextureProperties{nullptr};
     ColorPropertiesWidget* mColorProperties{nullptr};
+    AlphaPropertiesWidget* mAlphaProperties{nullptr};
 };
 
 
