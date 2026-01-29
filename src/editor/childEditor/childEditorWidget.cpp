@@ -128,6 +128,12 @@ void ChildEditorWidget::setupConnections() {
         emit flagsUpdated(mChildFlag);
     });
 
+    connect(mBasicProperties, &BasicPropertiesWidget::isPreDrawUpdated, this, [this](bool preDraw) {
+        if (!mDataPtr) { return; }
+        preDraw ? mChildFlag.set(Ptcl::ChildFlag::PreChildDraw) : mChildFlag.clear(Ptcl::ChildFlag::PreChildDraw);
+        emit flagsUpdated(mChildFlag);
+    });
+
     // Emission Properties
     connect(mEmissionProperties, &EmissionPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::ChildData::EmissionProperties& properties) {
         if (!mDataPtr) { return; }
@@ -231,7 +237,7 @@ void ChildEditorWidget::setChildData(Ptcl::ChildData* childData, const BitFlag<P
     mDataPtr = childData;
     mChildFlag = childFlag;
 
-    mBasicProperties->setProperties(mDataPtr->basicProperties(), mChildFlag.isSet(Ptcl::ChildFlag::IsFollow), mChildFlag.isSet(Ptcl::ChildFlag::ParentField));
+    mBasicProperties->setProperties(mDataPtr->basicProperties(), mChildFlag.isSet(Ptcl::ChildFlag::IsFollow), mChildFlag.isSet(Ptcl::ChildFlag::ParentField), mChildFlag.isSet(Ptcl::ChildFlag::PreChildDraw));
     mEmissionProperties->setProperties(mDataPtr->emissionProperties());
     mVelocityProperties->setProperties(mDataPtr->velocityProperties(), mChildFlag.isSet(Ptcl::ChildFlag::VelInherit));
     mRotationProperties->setProperties(mDataPtr->rotationProperties(), mChildFlag.isSet(Ptcl::ChildFlag::RotateInherit));
