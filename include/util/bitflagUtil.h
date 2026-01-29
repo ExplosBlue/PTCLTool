@@ -20,9 +20,14 @@ private:
 public:
     explicit BitFlag() = default;
 
-    void set(T flag) {
+    void enable(T flag) {
         mFlag |= static_cast<BaseType>(flag);
     }
+
+    void set(T flag, bool enabled) {
+        return enabled ? enable(flag) : clear(flag);
+    }
+
     void clear(T flag) {
         mFlag &= ~static_cast<BaseType>(flag);
     };

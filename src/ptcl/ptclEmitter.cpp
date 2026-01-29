@@ -112,8 +112,8 @@ const Emitter::ColorProperties& Emitter::colorProperties() const {
 void Emitter::setColorProperties(const ColorProperties& colorProperties) {
     mColorProperties = colorProperties;
     // Sync color flags with mFlag
-    mColorProperties.colorRandom ? mFlag.set(EmitterFlag::ColorRandom) : mFlag.clear(EmitterFlag::ColorRandom);
-    mColorProperties.colorAnimation ? mFlag.set(EmitterFlag::ColorAnimation) : mFlag.clear(EmitterFlag::ColorAnimation);
+    mFlag.set(EmitterFlag::ColorRandom, mColorProperties.colorRandom);
+    mFlag.set(EmitterFlag::ColorAnimation, mColorProperties.colorAnimation);
 }
 
 const Emitter::AlphaProperties& Emitter::alphaProperties() const {
@@ -154,7 +154,7 @@ const Emitter::CombinerProperties& Emitter::combinerProperties() const {
 
 void Emitter::setCombinerProperties(const CombinerProperties& combinerProperties) {
     mCombinerProperties = combinerProperties;
-    mCombinerProperties.isFogEnabled ? mFlag.set(EmitterFlag::EnableFog) : mFlag.clear(EmitterFlag::EnableFog);
+    mFlag.set(EmitterFlag::EnableFog, mCombinerProperties.isFogEnabled);
 }
 
 const Emitter::ComplexProperties& Emitter::complexProperties() const {
