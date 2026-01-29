@@ -26,6 +26,7 @@ public:
     void setTextureList(const Ptcl::TextureList& textureList);
     void showStandardEditor();
     void showChildEditor();
+    void showFluctuationEditor();
 
     void clear();
 

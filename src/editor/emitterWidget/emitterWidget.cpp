@@ -63,6 +63,10 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     mChildEditorWidget = new ChildEditorWidget(this);
     mStackedWidget->addWidget(mChildEditorWidget);
 
+    // Fluctuation editor
+    mFluctuationEditorWidget = new FluctuationEditorWidget(this);
+    mStackedWidget->addWidget(mFluctuationEditorWidget);
+
     mStackedWidget->setCurrentIndex(0);
 
     auto* outerLayout = new QVBoxLayout(this);
@@ -217,6 +221,17 @@ void EmitterWidget::setupConnections() {
         }
         emit textureUpdated(oldIndex, newIndex);
     });
+
+    // Fluctuation Editor Widget
+    connect(mFluctuationEditorWidget, &FluctuationEditorWidget::dataUpdated, this, [this](const Ptcl::FluctuationData& data) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setFluctuationData(data);
+    });
+
+    connect(mFluctuationEditorWidget, &FluctuationEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::FluctuationFlag>& fluxFlags) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setFluctuationFlags(fluxFlags);
+    });
 }
 
 void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
@@ -257,6 +272,8 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mChildEditorWidget->setChildData(&mEmitterPtr->childData(), mEmitterPtr->complexProperties().childFlags);
     mChildEditorWidget->setParentColor0(mEmitterPtr->colorProperties().colors[0]);
 
+    mFluctuationEditorWidget->setData(mEmitterPtr->fluctuationData(), mEmitterPtr->complexProperties().fluctuationFlags);
+
     setEnabled(true);
 }
 
@@ -273,6 +290,12 @@ void EmitterWidget::showStandardEditor() {
 void EmitterWidget::showChildEditor() {
     if (mStackedWidget) {
         mStackedWidget->setCurrentWidget(mChildEditorWidget);
+    }
+}
+
+void EmitterWidget::showFluctuationEditor() {
+    if (mStackedWidget) {
+        mStackedWidget->setCurrentWidget(mFluctuationEditorWidget);
     }
 }
 

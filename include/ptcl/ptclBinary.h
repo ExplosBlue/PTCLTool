@@ -513,7 +513,7 @@ static_assert(sizeof(BinFieldPosAddData) == 0xC, "BinFieldPosAddData is incorrec
 struct alignas(4) BinFluctuationData {
     f32 fluctuationScale;       // 0x00
     f32 fluctuationFreq;        // 0x04
-    u32 fluctuationPhaseRnd;    // 0x08
+    s32 fluctuationPhaseRnd;    // 0x08
 
     BinFluctuationData() = default;
     BinFluctuationData(const Ptcl::FluctuationData& fluctuationData);

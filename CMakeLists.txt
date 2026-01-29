@@ -24,6 +24,7 @@ set(PROJECT_SOURCES
     src/main.cpp
     src/editor/mainWindow.cpp
     src/editor/emitterSetWidget.cpp
+    src/editor/fluctuationEditorWidget.cpp
     src/editor/ptclListWidget.cpp
     src/editor/textureListWidget.cpp
     src/editor/textureImportDialog.cpp
@@ -70,7 +71,6 @@ set(PROJECT_SOURCES
     src/ptcl/ptclEmitter.cpp
     src/ptcl/ptclEmitterSet.cpp
     src/ptcl/ptclFieldData.cpp
-    src/ptcl/ptclFluctuationData.cpp
     src/ptcl/ptclSeed.cpp
     src/ptcl/ptclStripeData.cpp
     src/ptcl/ptclTexture.cpp
@@ -83,6 +83,7 @@ set(PROJECT_HEADERS
     include/typedefs.h
     include/editor/mainWindow.h
     include/editor/emitterSetWidget.h
+    include/editor/fluctuationEditorWidget.h
     include/editor/ptclListWidget.h
     include/editor/textureImportDialog.h
     include/editor/textureListWidget.h

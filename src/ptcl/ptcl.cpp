@@ -193,7 +193,7 @@ bool PtclRes::load(const QString& filePath) {
                         if (binComplexEmitterData.fluctuationFlag.isSet(FluctuationFlag::Enabled)) {
                             BinFluctuationData binFluctuationData;
                             stream >> binFluctuationData;
-                            emitter->fluctuationData().initFromBinary(binFluctuationData);
+                            emitter->initFluctuationData(binFluctuationData);
                         }
 
                         // StripeData
