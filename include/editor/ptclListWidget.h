@@ -43,6 +43,7 @@ signals:
     void selectedEmitterChanged(u32 setIndex, u32 emitterIndex);
     void selectedChildData(u32 setIndex, u32 emitterIndex);
     void selectedFluctuation(u32 setIndex, u32 emitterIndex);
+    void selectedField(u32 setIndex, u32 emitterIndex);
 
 private slots:
     void selectionChanged(const QItemSelection& selection);
@@ -53,7 +54,8 @@ private:
         EmitterSet,
         Emitter,
         ChildData,
-        Fluctuation
+        Fluctuation,
+        Field
     };
 
     static constexpr s32 sRoleNodeType = Qt::UserRole;

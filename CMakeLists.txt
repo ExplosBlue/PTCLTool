@@ -48,6 +48,7 @@ set(PROJECT_SOURCES
     src/editor/childEditor/rotationPropertiesWidget.cpp
     src/editor/childEditor/scalePropertiesWidget.cpp
     src/editor/childEditor/texturePropertiesWidget.cpp
+    src/editor/childEditor/velocityPropertiesWidget.cpp
     src/editor/emitterWidget/alphaPropertiesWidget.cpp
     src/editor/emitterWidget/basicPropertiesWidget.cpp
     src/editor/emitterWidget/colorPropertiesWidget.cpp
@@ -63,7 +64,8 @@ set(PROJECT_SOURCES
     src/editor/emitterWidget/transformPropertiesWidget.cpp
     src/editor/emitterWidget/velocityPropertiesWidget.cpp
     src/editor/emitterWidget/volumePropertiesWidget.cpp
-    src/editor/childEditor/velocityPropertiesWidget.cpp
+    src/editor/fieldEditor/fieldEditorWidget.cpp
+    src/editor/fieldEditor/randomDataWidget.cpp
     src/etc1/rg_etc1.cpp
     src/ptcl/ptcl.cpp
     src/ptcl/ptclBinary.cpp
@@ -126,6 +128,8 @@ set(PROJECT_HEADERS
     include/editor/emitterWidget/velocityPropertiesWidget.h
     include/editor/emitterWidget/volumePropertiesWidget.h
     include/editor/childEditor/velocityPropertiesWidget.h
+    include/editor/fieldEditor/fieldEditorWidget.h
+    include/editor/fieldEditor/randomDataWidget.h
     include/etc1/rg_etc1.h
     include/math/matrix.h
     include/math/util.h

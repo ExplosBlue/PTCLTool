@@ -7,8 +7,6 @@ namespace Ptcl {
 // ========================================================================== //
 
 
-Emitter::Emitter() = default;
-
 EmitterType Emitter::type() const {
     return mBasicProperties.type;
 }
@@ -173,32 +171,12 @@ void Emitter::setFluctuationFlags(const BitFlag<FluctuationFlag>& fluxFlags) {
     mComplexProperties.fluctuationFlags = fluxFlags;
 }
 
+void Emitter::setFieldFlags(const BitFlag<FieldFlag>& fieldFlags) {
+    mComplexProperties.fieldFlags = fieldFlags;
+}
+
 ChildData& Emitter::childData() {
     return mChildData;
-}
-
-FieldRandomData& Emitter::fieldRandomData() {
-    return mFieldRandomData;
-}
-
-FieldMagnetData& Emitter::fieldMagnetData() {
-    return mFieldMagnetData;
-}
-
-FieldSpinData& Emitter::fieldSpinData() {
-    return mFieldSpinData;
-}
-
-FieldCollisionData& Emitter::fieldCollisionData() {
-    return mFieldCollisionData;
-}
-
-FieldConvergenceData& Emitter::fieldConvergenceData() {
-    return mFieldConvergenceData;
-}
-
-FieldPosAddData& Emitter::fieldPosAddData() {
-    return mFieldPosAddData;
 }
 
 const FluctuationData& Emitter::fluctuationData() const {
@@ -215,6 +193,14 @@ void Emitter::initFluctuationData(const BinFluctuationData& fluctuationData) {
         .fluctuationFreq = fluctuationData.fluctuationFreq,
         .fluctuationPhaseRnd = fluctuationData.fluctuationPhaseRnd
     };
+}
+
+FieldData& Emitter::fieldData() {
+    return mFieldData;
+}
+
+void Emitter::setFieldData(const FieldData& fieldData) {
+    mFieldData = fieldData;
 }
 
 StripeData& Emitter::stripeData() {

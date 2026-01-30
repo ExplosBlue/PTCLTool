@@ -2,6 +2,7 @@
 
 #include "editor/childEditor/childEditorWidget.h"
 #include "editor/fluctuationEditorWidget.h"
+#include "editor/fieldEditor/fieldEditorWidget.h"
 
 #include "ptcl/ptclEmitter.h"
 #include "ptcl/ptcl.h"
@@ -32,6 +33,7 @@ public:
     void showStandardEditor();
     void showChildEditor();
     void showFluctuationEditor();
+    void showFieldEditor();
 
     void clear();
 
@@ -81,6 +83,7 @@ private:
     QStackedWidget* mStackedWidget{nullptr};
     ChildEditorWidget* mChildEditorWidget{nullptr};
     FluctuationEditorWidget* mFluctuationEditorWidget{nullptr};
+    FieldEditorWidget* mFieldEditorWidget{nullptr};
 };
 
 

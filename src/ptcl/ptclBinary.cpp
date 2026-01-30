@@ -1,6 +1,7 @@
 #include "ptcl/ptclBinary.h"
 #include "ptcl/ptclEmitter.h"
 #include "util/printUtil.h"
+#include "ptcl/ptclFieldData.h"
 
 
 namespace Ptcl {
@@ -851,9 +852,9 @@ QDataStream& operator<<(QDataStream& out, const BinChildData& item) {
 // ========================================================================== //
 
 
-BinFieldRandomData::BinFieldRandomData(const Ptcl::FieldRandomData& fieldRandomData) {
-    fieldRandomBlank = fieldRandomData.randomBlank();
-    fieldRandomVelAdd = fieldRandomData.randomVelAdd();
+BinFieldRandomData::BinFieldRandomData(const Ptcl::FieldData::FieldRandomData& fieldRandomData) {
+    fieldRandomBlank = fieldRandomData.randomBlank;
+    fieldRandomVelAdd = fieldRandomData.randomVelAdd;
 }
 
 QDataStream& operator>>(QDataStream& in, BinFieldRandomData& item) {
@@ -872,10 +873,10 @@ QDataStream& operator<<(QDataStream& out, const BinFieldRandomData& item) {
 // ========================================================================== //
 
 
-BinFieldMagnetData::BinFieldMagnetData(const Ptcl::FieldMagnetData& fieldMagnetData) {
-    fieldMagnetPower = fieldMagnetData.magnetPower();
-    fieldMagnetPos = fieldMagnetData.magnetPos();
-    fieldMagnetFlag = fieldMagnetData.magnetFlag();
+BinFieldMagnetData::BinFieldMagnetData(const Ptcl::FieldData::FieldMagnetData& fieldMagnetData) {
+    fieldMagnetPower = fieldMagnetData.magnetPower;
+    fieldMagnetPos = fieldMagnetData.magnetPos;
+    fieldMagnetFlag = fieldMagnetData.magnetFlag;
 }
 
 QDataStream& operator>>(QDataStream& in, BinFieldMagnetData& item) {
@@ -896,9 +897,9 @@ QDataStream& operator<<(QDataStream& out, const BinFieldMagnetData& item) {
 // ========================================================================== //
 
 
-BinFieldSpinData::BinFieldSpinData(const Ptcl::FieldSpinData& fieldSpinData) {
-    fieldSpinRotate = fieldSpinData.spinRotate();
-    fieldSpinAxis = fieldSpinData.spinAxis();
+BinFieldSpinData::BinFieldSpinData(const Ptcl::FieldData::FieldSpinData& fieldSpinData) {
+    fieldSpinRotate = fieldSpinData.spinRotate;
+    fieldSpinAxis = fieldSpinData.spinAxis;
 }
 
 QDataStream& operator>>(QDataStream& in, BinFieldSpinData& item) {
@@ -917,11 +918,11 @@ QDataStream& operator<<(QDataStream& out, const BinFieldSpinData& item) {
 // ========================================================================== //
 
 
-BinFieldCollisionData::BinFieldCollisionData(const Ptcl::FieldCollisionData& fieldCollisionData) {
-    fieldCollisionType = fieldCollisionData.collisionType();
-    fieldCollisionIsWorld = fieldCollisionData.collisionIsWorld();
-    fieldCollisionCoord = fieldCollisionData.collisionCoord();
-    fieldCollisionCoef = fieldCollisionData.collisionCoef();
+BinFieldCollisionData::BinFieldCollisionData(const Ptcl::FieldData::FieldCollisionData& fieldCollisionData) {
+    fieldCollisionType = fieldCollisionData.collisionType;
+    fieldCollisionIsWorld = fieldCollisionData.collisionIsWorld;
+    fieldCollisionCoord = fieldCollisionData.collisionCoord;
+    fieldCollisionCoef = fieldCollisionData.collisionCoef;
 }
 
 QDataStream& operator>>(QDataStream& in, BinFieldCollisionData& item) {
@@ -944,9 +945,9 @@ QDataStream& operator<<(QDataStream& out, const BinFieldCollisionData& item) {
 // ========================================================================== //
 
 
-BinFieldConvergenceData::BinFieldConvergenceData(const Ptcl::FieldConvergenceData& fieldConvergenceData) {
-    fieldConvergenceType = fieldConvergenceData.convergenceType();
-    fieldConvergencePos = fieldConvergenceData.convergencePos();
+BinFieldConvergenceData::BinFieldConvergenceData(const Ptcl::FieldData::FieldConvergenceData& fieldConvergenceData) {
+    fieldConvergenceType = fieldConvergenceData.convergenceType;
+    fieldConvergencePos = fieldConvergenceData.convergencePos;
 }
 
 QDataStream& operator>>(QDataStream& in, BinFieldConvergenceData& item) {
@@ -965,8 +966,8 @@ QDataStream& operator<<(QDataStream& out, const BinFieldConvergenceData& item) {
 // ========================================================================== //
 
 
-BinFieldPosAddData::BinFieldPosAddData(const Ptcl::FieldPosAddData& fieldPosAddData) {
-    fieldPosAdd = fieldPosAddData.posAdd();
+BinFieldPosAddData::BinFieldPosAddData(const Ptcl::FieldData::FieldPosAddData& fieldPosAddData) {
+    fieldPosAdd = fieldPosAddData.posAdd;
 }
 
 QDataStream& operator>>(QDataStream& in, BinFieldPosAddData& item) {

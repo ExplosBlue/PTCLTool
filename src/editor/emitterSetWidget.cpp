@@ -86,6 +86,10 @@ void EmitterSetWidget::showFluctuationEditor() {
     mEmitterWidget.showFluctuationEditor();
 }
 
+void EmitterSetWidget::showFieldEditor() {
+    mEmitterWidget.showFieldEditor();
+}
+
 void EmitterSetWidget::selectedEmitterChanged(u32 index) {
     if (!mEmitterSetPtr) {
         return;

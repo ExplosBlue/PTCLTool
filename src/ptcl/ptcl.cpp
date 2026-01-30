@@ -158,36 +158,38 @@ bool PtclRes::load(const QString& filePath) {
                         }
 
                         // FieldData
+                        Ptcl::FieldData fieldData;
                         if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::Random)) {
                             BinFieldRandomData binRandomData;
                             stream >> binRandomData;
-                            emitter->fieldRandomData().initFromBinary(binRandomData);
+                            fieldData.initRandomData(binRandomData);
                         }
                         if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::Magnet)) {
                             BinFieldMagnetData binMagnetData;
                             stream >> binMagnetData;
-                            emitter->fieldMagnetData().initFromBinary(binMagnetData);
+                            fieldData.initMagnetData(binMagnetData);
                         }
                         if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::Spin)) {
                             BinFieldSpinData binSpinData;
                             stream >> binSpinData;
-                            emitter->fieldSpinData().initFromBinary(binSpinData);
+                            fieldData.initSpinData(binSpinData);
                         }
                         if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::Collision)) {
                             BinFieldCollisionData binCollisionData;
                             stream >> binCollisionData;
-                            emitter->fieldCollisionData().initFromBinary(binCollisionData);
+                            fieldData.initCollisionData(binCollisionData);
                         }
                         if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::Convergence)) {
                             BinFieldConvergenceData binConvergenceData;
                             stream >> binConvergenceData;
-                            emitter->fieldConvergenceData().initFromBinary(binConvergenceData);
+                            fieldData.initConvergenceData(binConvergenceData);
                         }
                         if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::PosAdd)) {
                             BinFieldPosAddData binPosAddData;
                             stream >> binPosAddData;
-                            emitter->fieldPosAddData().initFromBinary(binPosAddData);
+                            fieldData.initPosAddData(binPosAddData);
                         }
+                        emitter->setFieldData(fieldData);
 
                         // FluctuationData
                         if (binComplexEmitterData.fluctuationFlag.isSet(FluctuationFlag::Enabled)) {
@@ -391,12 +393,14 @@ bool PtclRes::save(const QString& filePath) {
 
                 BinChildData binChildData(emitter->childData());
 
-                BinFieldRandomData binRandomData(emitter->fieldRandomData());
-                BinFieldMagnetData binMagnetData(emitter->fieldMagnetData());
-                BinFieldSpinData binSpinData(emitter->fieldSpinData());
-                BinFieldCollisionData binCollisionData(emitter->fieldCollisionData());
-                BinFieldConvergenceData binConvergenceData(emitter->fieldConvergenceData());
-                BinFieldPosAddData binPosAddData(emitter->fieldPosAddData());
+                const auto& fieldData = emitter->fieldData();
+
+                BinFieldRandomData binRandomData(fieldData.randomData());
+                BinFieldMagnetData binMagnetData(fieldData.magnetData());
+                BinFieldSpinData binSpinData(fieldData.spinData());
+                BinFieldCollisionData binCollisionData(fieldData.collisionData());
+                BinFieldConvergenceData binConvergenceData(fieldData.convergenceData());
+                BinFieldPosAddData binPosAddData(fieldData.posAddData());
 
                 BinFluctuationData binFluctuationData(emitter->fluctuationData());
 

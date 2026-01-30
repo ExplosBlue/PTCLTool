@@ -1,174 +1,98 @@
 #include "ptcl/ptclFieldData.h"
-
+#include "ptcl/ptclBinary.h"
 
 namespace Ptcl {
 
-
-// ========================================================================== //
-
-
-s32 FieldRandomData::randomBlank() const {
-    return mRandomBlank;
+const FieldData::FieldRandomData& FieldData::randomData() const {
+    return mRandomData;
 }
 
-void FieldRandomData::setRandomBlank(const s32 randomBlank) {
-    mRandomBlank = randomBlank;
+void FieldData::setRandomData(const FieldRandomData& randomData) {
+    mRandomData = randomData;
 }
 
-const Math::Vector3f& FieldRandomData::randomVelAdd() const {
-    return mRandomVelAdd;
+void FieldData::initRandomData(const BinFieldRandomData& randomData) {
+    mRandomData = {
+        .randomBlank = randomData.fieldRandomBlank,
+        .randomVelAdd = Math::Vector3f(randomData.fieldRandomVelAdd.x, randomData.fieldRandomVelAdd.y, randomData.fieldRandomVelAdd.z)
+    };
 }
 
-void FieldRandomData::setRandomVelAdd(const Math::Vector3f& randomVelAdd) {
-    mRandomVelAdd = randomVelAdd;
+const FieldData::FieldMagnetData& FieldData::magnetData() const {
+    return mMagnetData;
 }
 
-void FieldRandomData::initFromBinary(const BinFieldRandomData& fieldRandomData) {
-    mRandomBlank = fieldRandomData.fieldRandomBlank;
-    mRandomVelAdd = Math::Vector3f(fieldRandomData.fieldRandomVelAdd.x, fieldRandomData.fieldRandomVelAdd.y, fieldRandomData.fieldRandomVelAdd.z);
+void FieldData::setMagnetData(const FieldMagnetData& magnetData) {
+    mMagnetData = magnetData;
 }
 
-
-// ========================================================================== //
-
-
-f32 FieldMagnetData::magnetPower() const {
-    return mMagnetPower;
+void FieldData::initMagnetData(const BinFieldMagnetData& magnetData) {
+    mMagnetData = {
+        .magnetPower = magnetData.fieldMagnetPower,
+        .magnetPos = Math::Vector3f(magnetData.fieldMagnetPos.x, magnetData.fieldMagnetPos.y, magnetData.fieldMagnetPos.z),
+        .magnetFlag = magnetData.fieldMagnetFlag,
+    };
 }
 
-void FieldMagnetData::setMagnetPower(const f32 magnetPower) {
-    mMagnetPower = magnetPower;
+const FieldData::FieldSpinData& FieldData::spinData() const {
+    return mSpinData;
 }
 
-const Math::Vector3f& FieldMagnetData::magnetPos() const {
-    return mMagnetPos;
+void FieldData::setSpinData(const FieldSpinData& spinData) {
+    mSpinData = spinData;
 }
 
-void FieldMagnetData::setMagnetPos(const Math::Vector3f& magnetPos) {
-    mMagnetPos = magnetPos;
+void FieldData::initSpinData(const BinFieldSpinData& spinData) {
+    mSpinData = {
+        .spinRotate = spinData.fieldSpinRotate,
+        .spinAxis = spinData.fieldSpinAxis
+    };
 }
 
-u32 FieldMagnetData::magnetFlag() const {
-    return mMagnetFlag;
+const FieldData::FieldCollisionData& FieldData::collisionData() const {
+    return mCollisionData;
 }
 
-void FieldMagnetData::setMagnetFlag(const u32 magnetFlag) {
-    mMagnetFlag = magnetFlag;
+void FieldData::setCollisionData(const FieldCollisionData& collisionData) {
+    mCollisionData = collisionData;
 }
 
-void FieldMagnetData::initFromBinary(const BinFieldMagnetData& fieldMagnetData) {
-    mMagnetPower = fieldMagnetData.fieldMagnetPower;
-    mMagnetPos = Math::Vector3f(fieldMagnetData.fieldMagnetPos.x, fieldMagnetData.fieldMagnetPos.y, fieldMagnetData.fieldMagnetPos.z);
-    mMagnetFlag = fieldMagnetData.fieldMagnetFlag;
+void FieldData::initCollisionData(const BinFieldCollisionData& collisionData) {
+    mCollisionData = {
+        .collisionType = collisionData.fieldCollisionType,
+        .collisionIsWorld = collisionData.fieldCollisionIsWorld,
+        .collisionCoord = collisionData.fieldCollisionCoord,
+        .collisionCoef = collisionData.fieldCollisionCoef
+    };
 }
 
-
-// ========================================================================== //
-
-
-s32 FieldSpinData::spinRotate() const {
-    return mSpinRotate;
+const FieldData::FieldConvergenceData& FieldData::convergenceData() const {
+    return mConvergenceData;
 }
 
-void FieldSpinData::setSpinRotate(const s32 spinRotate) {
-    mSpinRotate = spinRotate;
+void FieldData::setConvergenceData(const FieldConvergenceData& convergenceData) {
+    mConvergenceData = convergenceData;
 }
 
-s32 FieldSpinData::spinAxis() const {
-    return mSpinAxis;
+void FieldData::initConvergenceData(const BinFieldConvergenceData& convergenceData) {
+    mConvergenceData = {
+        .convergenceType = convergenceData.fieldConvergenceType,
+        .convergencePos = Math::Vector3f(convergenceData.fieldConvergencePos.x, convergenceData.fieldConvergencePos.y, convergenceData.fieldConvergencePos.z)
+    };
 }
 
-void FieldSpinData::setSpinAxis(const s32 spinAxis) {
-    mSpinAxis = spinAxis;
+const FieldData::FieldPosAddData& FieldData::posAddData() const {
+    return mPosAddData;
 }
 
-void FieldSpinData::initFromBinary(const BinFieldSpinData& fieldSpinData) {
-    mSpinRotate = fieldSpinData.fieldSpinRotate;
-    mSpinAxis = fieldSpinData.fieldSpinAxis;
+void FieldData::setPosAddData(const FieldPosAddData& posAddData) {
+    mPosAddData = posAddData;
 }
 
-
-// ========================================================================== //
-
-
-u16 FieldCollisionData::collisionType() const {
-    return mCollisionType;
-}
-
-void FieldCollisionData::setCollisionType(const u16 collisionType) {
-    mCollisionType = collisionType;
-}
-
-u16 FieldCollisionData::collisionIsWorld() const {
-    return mCollisionIsWorld;
-}
-
-void FieldCollisionData::setCollisionIsWorld(const u16 collisionIsWorld) {
-    mCollisionIsWorld = collisionIsWorld;
-}
-
-f32 FieldCollisionData::collisionCoord() const {
-    return mCollisionCoord;
-}
-
-void FieldCollisionData::setCollisionCoord(const f32 collisionCoord) {
-    mCollisionCoord = collisionCoord;
-}
-
-f32 FieldCollisionData::collisionCoef() const {
-    return mCollisionCoef;
-}
-
-void FieldCollisionData::setCollisionCoef(const f32 collisionCoef) {
-    mCollisionCoef = collisionCoef;
-}
-
-void FieldCollisionData::initFromBinary(const BinFieldCollisionData& fieldCollisionData) {
-    mCollisionType = fieldCollisionData.fieldCollisionType;
-    mCollisionIsWorld = fieldCollisionData.fieldCollisionIsWorld;
-    mCollisionCoord = fieldCollisionData.fieldCollisionCoord;
-    mCollisionCoef = fieldCollisionData.fieldCollisionCoef;
-}
-
-
-// ========================================================================== //
-
-
-FieldConvergenceType FieldConvergenceData::convergenceType() const {
-    return mConvergenceType;
-}
-
-void FieldConvergenceData::setConvergenceType(const FieldConvergenceType convergenceType) {
-    mConvergenceType = convergenceType;
-}
-
-const Math::Vector3f& FieldConvergenceData::convergencePos() const {
-    return mConvergencePos;
-}
-
-void FieldConvergenceData::setConvergencePos(const Math::Vector3f& convergencePos) {
-    mConvergencePos = convergencePos;
-}
-
-void FieldConvergenceData::initFromBinary(const BinFieldConvergenceData& fieldConvergenceData) {
-    mConvergenceType = fieldConvergenceData.fieldConvergenceType;
-    mConvergencePos = Math::Vector3f(fieldConvergenceData.fieldConvergencePos.x, fieldConvergenceData.fieldConvergencePos.y, fieldConvergenceData.fieldConvergencePos.z);
-}
-
-
-// ========================================================================== //
-
-
-const Math::Vector3f& FieldPosAddData::posAdd() const {
-    return mPosAdd;
-}
-
-void FieldPosAddData::setPosAdd(const Math::Vector3f& posAdd) {
-    mPosAdd = posAdd;
-}
-
-void FieldPosAddData::initFromBinary(const BinFieldPosAddData& fieldPosAddData) {
-    mPosAdd = Math::Vector3f(fieldPosAddData.fieldPosAdd.x, fieldPosAddData.fieldPosAdd.y, fieldPosAddData.fieldPosAdd.z);
+void FieldData::initPosAddData(const BinFieldPosAddData& posAddData) {
+    mPosAddData = {
+        .posAdd = Math::Vector3f(posAddData.fieldPosAdd.x, posAddData.fieldPosAdd.y, posAddData.fieldPosAdd.z)
+    };
 }
 
 

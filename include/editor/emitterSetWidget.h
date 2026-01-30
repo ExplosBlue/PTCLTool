@@ -27,6 +27,7 @@ public:
     void showStandardEditor();
     void showChildEditor();
     void showFluctuationEditor();
+    void showFieldEditor();
 
     void clear();
 
