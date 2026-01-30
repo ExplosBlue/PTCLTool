@@ -83,6 +83,12 @@ void MainWindow::setupConnections() {
         mEmitterSetWidget.showFluctuationEditor();
     });
 
+    connect(&mPtclList, &PtclList::selectedField, this, [this](s32 setIndex, s32 emitterIndex) {
+        selectEmitterSet(setIndex);
+        mEmitterSetWidget.setEmitterTab(emitterIndex);
+        mEmitterSetWidget.showFieldEditor();
+    });
+
     // EmitterSet Widget
     connect(&mEmitterSetWidget, &EmitterSetWidget::textureUpdated, this, [this](s32 oldIndex, s32 newIndex) {
         if (oldIndex >= 0) { mTextureWidget.updateItemAt(oldIndex); }

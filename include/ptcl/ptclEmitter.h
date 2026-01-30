@@ -163,8 +163,7 @@ public:
     };
 
 public:
-    void extracted();
-    Emitter();
+    Emitter() = default;
 
     Emitter(const Emitter&) = delete;
     Emitter& operator=(const Emitter&) = delete;
@@ -228,19 +227,16 @@ public:
 
     void setChildFlags(const BitFlag<ChildFlag>& childFlags);
     void setFluctuationFlags(const BitFlag<FluctuationFlag>& fluxFlags);
+    void setFieldFlags(const BitFlag<FieldFlag>& fieldFlags);
 
     ChildData& childData();
-
-    FieldRandomData& fieldRandomData();
-    FieldMagnetData& fieldMagnetData();
-    FieldSpinData& fieldSpinData();
-    FieldCollisionData& fieldCollisionData();
-    FieldConvergenceData& fieldConvergenceData();
-    FieldPosAddData& fieldPosAddData();
 
     const FluctuationData& fluctuationData() const;
     void setFluctuationData(const FluctuationData& fluctuationData);
     void initFluctuationData(const BinFluctuationData& fluctuationData);
+
+    FieldData& fieldData();
+    void setFieldData(const FieldData& fieldData);
 
     StripeData& stripeData();
 
@@ -267,19 +263,11 @@ private:
 
     TextureHandle mTextureHandle{};
 
-    // Complex Properties
     ComplexProperties mComplexProperties{};
 
     ChildData mChildData{};
-
-    FieldRandomData mFieldRandomData{};
-    FieldMagnetData mFieldMagnetData{};
-    FieldSpinData mFieldSpinData{};
-    FieldCollisionData mFieldCollisionData{};
-    FieldConvergenceData mFieldConvergenceData{};
-    FieldPosAddData mFieldPosAddData{};
-
     FluctuationData mFluctuationData{};
+    FieldData mFieldData{};
 
     StripeData mStripeData{};
 };
