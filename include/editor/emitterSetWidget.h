@@ -22,7 +22,7 @@ public:
     explicit EmitterSetWidget(QWidget* parent = nullptr);
 
     void setEmitterSet(Ptcl::EmitterSet* emitterSet);
-    void setEmitterTab(int emitterIndex);
+    void selectEmitter(s32 emitterIndex);
     void setTextureList(const Ptcl::TextureList& textureList);
     void showStandardEditor();
     void showChildEditor();
@@ -38,6 +38,7 @@ signals:
 
     void emitterAdded();
     void emitterRemoved();
+    void emitterTypeChanged();
 
 private slots:
     void selectedEmitterChanged(u32 index);

@@ -13,20 +13,24 @@ namespace PtclEditor {
 EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
     QWidget(parent) {
     // Emitter Widget
-    connect(&mEmitterWidget, &EmitterWidget::textureUpdated, this, [=, this](int oldIndex, int index) {
+    connect(&mEmitterWidget, &EmitterWidget::textureUpdated, this, [this](int oldIndex, int index) {
         emit textureUpdated(oldIndex, index);
     });
 
-    connect(&mEmitterWidget, &EmitterWidget::nameUpdated, this, [=, this](const QString& name) {
+    connect(&mEmitterWidget, &EmitterWidget::nameUpdated, this, [this](const QString& name) {
         int currIndex = mEmitterTabs.currentIndex();
         mEmitterTabs.setTabText(currIndex, name);
         emit emitterNameUpdated(currIndex, name);
     });
 
+    connect(&mEmitterWidget, &EmitterWidget::emitterTypeChanged, this, [this]() {
+        emit emitterTypeChanged();
+    });
+
     // Name Edit
     mNameLineEdit.setPlaceholderText("EmitterSetName");
     mNameLineEdit.setValidator(new EmitterNameValidator(&mNameLineEdit));
-    connect(&mNameLineEdit, &QLineEdit::textEdited, this, [=, this](const QString& text) {
+    connect(&mNameLineEdit, &QLineEdit::textEdited, this, [this](const QString& text) {
         if (!mEmitterSetPtr) {
             return;
         }
@@ -62,7 +66,7 @@ void EmitterSetWidget::setEmitterSet(Ptcl::EmitterSet* emitterSet) {
     populateProperties();
 }
 
-void EmitterSetWidget::setEmitterTab(int emitterIndex) {
+void EmitterSetWidget::selectEmitter(s32 emitterIndex) {
     if (emitterIndex < 0 || emitterIndex >= mEmitterTabs.count() - 1) {
         return; // Invalid or "+" tab
     }

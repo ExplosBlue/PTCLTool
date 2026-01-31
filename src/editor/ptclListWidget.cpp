@@ -101,29 +101,7 @@ void PtclList::populateList() {
 
             // Complex Data
             if (emitter->type() == Ptcl::EmitterType::Complex || emitter->type() == Ptcl::EmitterType::UnkType2) {
-                // ChildData
-                auto* childItem = new QStandardItem("ChildData");
-                childItem->setEditable(false);
-                childItem->setData(static_cast<s32>(NodeType::ChildData), sRoleNodeType);
-                childItem->setData(setIndex, sRoleSetIdx);
-                childItem->setData(emitterIndex, sRoleEmitterIdx);
-                emitterItem->appendRow(childItem);
-
-                // Fluctuation
-                auto* fluxItem = new QStandardItem("Fluctuation");
-                fluxItem->setEditable(false);
-                fluxItem->setData(static_cast<s32>(NodeType::Fluctuation), sRoleNodeType);
-                fluxItem->setData(setIndex, sRoleSetIdx);
-                fluxItem->setData(emitterIndex, sRoleEmitterIdx);
-                emitterItem->appendRow(fluxItem);
-
-                // Field
-                auto* fieldItem = new QStandardItem("Field");
-                fieldItem->setEditable(false);
-                fieldItem->setData(static_cast<s32>(NodeType::Field), sRoleNodeType);
-                fieldItem->setData(setIndex, sRoleSetIdx);
-                fieldItem->setData(emitterIndex, sRoleEmitterIdx);
-                emitterItem->appendRow(fieldItem);
+                addComplexNodes(emitterItem, setIndex, emitterIndex);
             }
             setItem->appendRow(emitterItem);
         }
@@ -171,6 +149,48 @@ void PtclList::selectionChanged(const QItemSelection& selection) {
     case NodeType::Field:
         emit selectedField(setIndex, emitterIndex);
         break;
+    }
+}
+
+void PtclList::addComplexNodes(QStandardItem* emitterItem, u32 setIndex, u32 emitterIndex) {
+    // ChildData
+    auto* childItem = new QStandardItem("ChildData");
+    childItem->setEditable(false);
+    childItem->setData(static_cast<s32>(NodeType::ChildData), sRoleNodeType);
+    childItem->setData(setIndex, sRoleSetIdx);
+    childItem->setData(emitterIndex, sRoleEmitterIdx);
+    emitterItem->appendRow(childItem);
+
+    // Fluctuation
+    auto* fluxItem = new QStandardItem("Fluctuation");
+    fluxItem->setEditable(false);
+    fluxItem->setData(static_cast<s32>(NodeType::Fluctuation), sRoleNodeType);
+    fluxItem->setData(setIndex, sRoleSetIdx);
+    fluxItem->setData(emitterIndex, sRoleEmitterIdx);
+    emitterItem->appendRow(fluxItem);
+
+    // Field
+    auto* fieldItem = new QStandardItem("Field");
+    fieldItem->setEditable(false);
+    fieldItem->setData(static_cast<s32>(NodeType::Field), sRoleNodeType);
+    fieldItem->setData(setIndex, sRoleSetIdx);
+    fieldItem->setData(emitterIndex, sRoleEmitterIdx);
+    emitterItem->appendRow(fieldItem);
+}
+
+void PtclList::updateEmitter(u32 setIdx, u32 emitterIdx) {
+    const QStandardItem* setItem = mListModel.item(setIdx);
+    QStandardItem* emitterItem = setItem->child(emitterIdx);
+
+    const auto& sets = mResPtr->getEmitterSets();
+    const auto& set = sets[setIdx];
+    const auto* emitter = set->emitters()[emitterIdx].get();
+
+    if (emitter->type() == Ptcl::EmitterType::Simple) {
+        // Remove Child, Flux and Field rows
+        emitterItem->removeRows(0, 3);
+    } else if (!emitterItem->hasChildren()){
+        addComplexNodes(emitterItem, setIdx, emitterIdx);
     }
 }
 

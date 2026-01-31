@@ -40,6 +40,7 @@ public:
 signals:
     void textureUpdated(int oldIndex, int index);
     void nameUpdated(const QString& name);
+    void emitterTypeChanged();
 
 private:
     void setupStandardLayout(QVBoxLayout* mainLayout);
