@@ -66,24 +66,22 @@ void MainWindow::setupConnections() {
     });
 
     connect(&mPtclList, &PtclList::selectedEmitterChanged, this, [this](s32 setIndex, s32 emitterIndex) {
+        selectEmitter(setIndex, emitterIndex);
         mEmitterSetWidget.showStandardEditor();
     });
 
     connect(&mPtclList, &PtclList::selectedChildData, this, [this](s32 setIndex, s32 emitterIndex) {
-        selectEmitterSet(setIndex);
-        mEmitterSetWidget.selectEmitter(emitterIndex);
+        selectEmitter(setIndex, emitterIndex);
         mEmitterSetWidget.showChildEditor();
     });
 
     connect(&mPtclList, &PtclList::selectedFluctuation, this, [this](s32 setIndex, s32 emitterIndex) {
-        selectEmitterSet(setIndex);
-        mEmitterSetWidget.selectEmitter(emitterIndex);
+        selectEmitter(setIndex, emitterIndex);
         mEmitterSetWidget.showFluctuationEditor();
     });
 
     connect(&mPtclList, &PtclList::selectedField, this, [this](s32 setIndex, s32 emitterIndex) {
-        selectEmitterSet(setIndex);
-        mEmitterSetWidget.selectEmitter(emitterIndex);
+        selectEmitter(setIndex, emitterIndex);
         mEmitterSetWidget.showFieldEditor();
     });
 
@@ -93,8 +91,8 @@ void MainWindow::setupConnections() {
         if (newIndex >= 0) { mTextureWidget.updateItemAt(newIndex); }
     });
 
-    connect(&mEmitterSetWidget, &EmitterSetWidget::nameUpdated, this, [this](const QString& name) {
-        mPtclList.refresh();
+    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterSetNamedChanged, this, [this]() {
+        mPtclList.updateEmitterSetName(mCurEmitterSetIdx);
     });
 
     connect(&mEmitterSetWidget, &EmitterSetWidget::emitterAdded, this, [this]() {
@@ -107,9 +105,8 @@ void MainWindow::setupConnections() {
         mPtclList.refresh();
     });
 
-    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterNameUpdated, this, [this]() {
-        // TODO: this should update a singluar list element instead of refreshing everything
-        mPtclList.refresh();
+    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterNameChanged, this, [this]() {
+        mPtclList.updateEmitterName(mCurEmitterSetIdx, mCurEmitterIdx);
     });
 
     connect(&mEmitterSetWidget, &EmitterSetWidget::emitterTypeChanged, this, [this]() {

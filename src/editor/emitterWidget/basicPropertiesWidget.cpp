@@ -23,9 +23,10 @@ EmitterWidget::BasicPropertiesWidget::BasicPropertiesWidget(QWidget* parent) :
     // Emitter Name
     mNameLineEdit.setValidator(new EmitterNameValidator(&mNameLineEdit));
     addLabledWidget(&mNameLineEdit, "Emitter Name:", 0, 0, 3);
-    connect(&mNameLineEdit, &QLineEdit::textChanged, this, [=, this](const QString& text) {
+    connect(&mNameLineEdit, &QLineEdit::textChanged, this, [this](const QString& text) {
         mProps.name = text;
         emit propertiesUpdated(mProps);
+        emit emitterNameChanged();
     });
 
     // Emitter Type
@@ -41,7 +42,7 @@ EmitterWidget::BasicPropertiesWidget::BasicPropertiesWidget(QWidget* parent) :
     mRandomSeedMode.addItem("Random Per EmitterSet", static_cast<s32>(PtclSeed::Mode::RandomPerSet));
     mRandomSeedMode.addItem("Constant Seed", static_cast<s32>(PtclSeed::Mode::ConstantSeed));
     addLabledWidget(&mRandomSeedMode, "Random Seed Mode:", 2, 0);
-    connect(&mRandomSeedMode, &QComboBox::currentIndexChanged, this, [=, this]() {
+    connect(&mRandomSeedMode, &QComboBox::currentIndexChanged, this, [this]() {
         auto& seed = mProps.randomSeed;
         auto mode = static_cast<PtclSeed::Mode>(mRandomSeedMode.currentData().toUInt());
 
@@ -54,7 +55,7 @@ EmitterWidget::BasicPropertiesWidget::BasicPropertiesWidget(QWidget* parent) :
     mRandomSeedSpinBox.setDisabled(false);
     mRandomSeedSpinBox.setRange(1, 0xFFFFFFFE);
     addLabledWidget(&mRandomSeedSpinBox, "Random Seed:", 2, 2);
-    connect(&mRandomSeedSpinBox, &SizedSpinBoxBase::valueChanged, this, [=, this](int value) {
+    connect(&mRandomSeedSpinBox, &SizedSpinBoxBase::valueChanged, this, [this](int value) {
         auto& seed = mProps.randomSeed;
         if (seed.mode() == PtclSeed::Mode::ConstantSeed) {
             seed.setConstantSeed(static_cast<u32>(value));

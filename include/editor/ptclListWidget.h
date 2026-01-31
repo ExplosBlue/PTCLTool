@@ -36,7 +36,9 @@ public:
 
     void setPtclRes(Ptcl::PtclRes* ptclRes);
 
-    void updateEmitter(u32 sexIndex, u32 emitterIndex);
+    void updateEmitter(s32 setIndex, s32 emitterIndex);
+    void updateEmitterName(s32 setIndex, s32 emitterIndex);
+    void updateEmitterSetName(s32 setIndex);
     void refresh();
 
 signals:
@@ -65,7 +67,7 @@ private:
 
 private:
     void populateList();
-    void addComplexNodes(QStandardItem* emitterItem, u32 setIndex, u32 emitterIndex);
+    void addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emitterIndex);
 
 private:
     Ptcl::PtclRes* mResPtr;
