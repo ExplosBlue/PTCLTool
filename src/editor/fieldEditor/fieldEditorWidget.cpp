@@ -1,5 +1,6 @@
 #include "editor/components/collapsibleWidget.h"
 #include "editor/fieldEditor/fieldEditorWidget.h"
+#include "editor/fieldEditor/magnetDataWidget.h"
 #include "editor/fieldEditor/randomDataWidget.h"
 
 #include <QScrollArea>
@@ -15,6 +16,7 @@ FieldEditorWidget::FieldEditorWidget(QWidget* parent) :
     QWidget{parent} {
 
     mRandomDataWidget = new RandomDataWidget(this);
+    mMagnetDataWidget = new MagnetDataWidget(this);
 
     // Standard Widget
     auto* standardWidget = new QWidget(this);
@@ -52,6 +54,7 @@ void FieldEditorWidget::setupLayout(QVBoxLayout* mainLayout) {
     };
 
     addSection("Randomness", mRandomDataWidget);
+    addSection("Magnetic Force", mMagnetDataWidget);
 
     sectionsLayout->addStretch();
 
@@ -71,15 +74,30 @@ void FieldEditorWidget::setupConnections() {
         mFieldFlag.set(Ptcl::FieldFlag::Random, isEnabled);
         emit flagsUpdated(mFieldFlag);
     });
+
+    // Magnet
+    connect(mMagnetDataWidget, &MagnetDataWidget::dataUpdated, this, [this](const Ptcl::FieldData::FieldMagnetData& data) {
+        if (!mDataPtr) { return; }
+        mDataPtr->setMagnetData(data);
+    });
+
+    connect(mMagnetDataWidget, &MagnetDataWidget::isEnabledUpdated, this, [this](bool isEnabled) {
+        if (!mDataPtr) { return; }
+        mFieldFlag.set(Ptcl::FieldFlag::Magnet, isEnabled);
+        emit flagsUpdated(mFieldFlag);
+    });
+
 }
 
 void FieldEditorWidget::setData(Ptcl::FieldData* fieldData, const BitFlag<Ptcl::FieldFlag>& fieldFlag) {
     QSignalBlocker b1(mRandomDataWidget);
+    QSignalBlocker b2(mMagnetDataWidget);
 
     mDataPtr = fieldData;
     mFieldFlag = fieldFlag;
 
     mRandomDataWidget->setData(mDataPtr->randomData(), mFieldFlag.isSet(Ptcl::FieldFlag::Random));
+    mMagnetDataWidget->setData(mDataPtr->magnetData(), mFieldFlag.isSet(Ptcl::FieldFlag::Magnet));
 }
 
 
