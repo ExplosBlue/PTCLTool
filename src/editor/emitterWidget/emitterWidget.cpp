@@ -121,6 +121,10 @@ void EmitterWidget::setupConnections() {
         emit emitterTypeChanged();
     });
 
+    connect(mBasicProperties, &BasicPropertiesWidget::emitterNameChanged, this, [this]() {
+        if (!mEmitterPtr) { return; }
+        emit emitterNameChanged();
+    });
 
     // Texture Properties
     connect(mTextureProperties, &TexturePropertiesWidget::textureUpdated, this, [this](const std::shared_ptr<Ptcl::Texture>& oldTexture, const std::shared_ptr<Ptcl::Texture>& newTexture) {

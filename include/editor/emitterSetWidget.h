@@ -33,12 +33,12 @@ public:
 
 signals:
     void textureUpdated(int oldIndex, int index);
-    void nameUpdated(const QString& name);
-    void emitterNameUpdated(u32 emitterIndex, const QString& name);
 
     void emitterAdded();
     void emitterRemoved();
     void emitterTypeChanged();
+    void emitterNameChanged();
+    void emitterSetNamedChanged();
 
 private slots:
     void selectedEmitterChanged(u32 index);

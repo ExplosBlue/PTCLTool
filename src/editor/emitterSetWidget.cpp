@@ -17,10 +17,10 @@ EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
         emit textureUpdated(oldIndex, index);
     });
 
-    connect(&mEmitterWidget, &EmitterWidget::nameUpdated, this, [this](const QString& name) {
-        int currIndex = mEmitterTabs.currentIndex();
-        mEmitterTabs.setTabText(currIndex, name);
-        emit emitterNameUpdated(currIndex, name);
+    connect(&mEmitterWidget, &EmitterWidget::emitterNameChanged, this, [this]() {
+        const s32 currIndex = mEmitterTabs.currentIndex();
+        mEmitterTabs.setTabText(currIndex, mEmitterSetPtr->emitters()[currIndex]->name());
+        emit emitterNameChanged();
     });
 
     connect(&mEmitterWidget, &EmitterWidget::emitterTypeChanged, this, [this]() {
@@ -35,7 +35,7 @@ EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
             return;
         }
         mEmitterSetPtr->setName(text);
-        emit nameUpdated(text);
+        emit emitterSetNamedChanged();
     });
 
     // Name layout

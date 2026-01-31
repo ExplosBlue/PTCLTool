@@ -85,6 +85,7 @@ void PtclList::populateList() {
         QString setName = QString("%1: %2").arg(setIndex).arg(set->name());
         auto* setItem = new QStandardItem(setName);
         setItem->setEditable(false);
+        setItem->setSelectable(false);
         setItem->setData(static_cast<s32>(NodeType::EmitterSet), sRoleNodeType);
         setItem->setData(setIndex, sRoleSetIdx);
 
@@ -152,7 +153,7 @@ void PtclList::selectionChanged(const QItemSelection& selection) {
     }
 }
 
-void PtclList::addComplexNodes(QStandardItem* emitterItem, u32 setIndex, u32 emitterIndex) {
+void PtclList::addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emitterIndex) {
     // ChildData
     auto* childItem = new QStandardItem("ChildData");
     childItem->setEditable(false);
@@ -178,20 +179,42 @@ void PtclList::addComplexNodes(QStandardItem* emitterItem, u32 setIndex, u32 emi
     emitterItem->appendRow(fieldItem);
 }
 
-void PtclList::updateEmitter(u32 setIdx, u32 emitterIdx) {
-    const QStandardItem* setItem = mListModel.item(setIdx);
-    QStandardItem* emitterItem = setItem->child(emitterIdx);
+void PtclList::updateEmitter(s32 setIndex, s32 emitterIndex) {
+    const QStandardItem* setItem = mListModel.item(setIndex);
+    QStandardItem* emitterItem = setItem->child(emitterIndex);
 
     const auto& sets = mResPtr->getEmitterSets();
-    const auto& set = sets[setIdx];
-    const auto* emitter = set->emitters()[emitterIdx].get();
+    const auto& set = sets[setIndex];
+    const auto* emitter = set->emitters()[emitterIndex].get();
 
     if (emitter->type() == Ptcl::EmitterType::Simple) {
         // Remove Child, Flux and Field rows
         emitterItem->removeRows(0, 3);
     } else if (!emitterItem->hasChildren()){
-        addComplexNodes(emitterItem, setIdx, emitterIdx);
+        addComplexNodes(emitterItem, setIndex, emitterIndex);
     }
+}
+
+void PtclList::updateEmitterName(s32 setIndex, s32 emitterIndex) {
+    const QStandardItem* setItem = mListModel.item(setIndex);
+    QStandardItem* emitterItem = setItem->child(emitterIndex);
+
+    const auto& sets = mResPtr->getEmitterSets();
+    const auto& set = sets[setIndex];
+    const auto* emitter = set->emitters()[emitterIndex].get();
+
+    QString emitterName = QString("Emitter %1: %2").arg(emitterIndex).arg(emitter->name());
+    emitterItem->setText(emitterName);
+}
+
+void PtclList::updateEmitterSetName(s32 setIndex) {
+    QStandardItem* setItem = mListModel.item(setIndex);
+
+    const auto& sets = mResPtr->getEmitterSets();
+    const auto& set = sets[setIndex];
+
+    QString setName = QString("%1: %2").arg(setIndex).arg(set->name());
+    setItem->setText(setName);
 }
 
 
