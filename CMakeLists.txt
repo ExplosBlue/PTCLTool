@@ -67,6 +67,7 @@ set(PROJECT_SOURCES
     src/editor/fieldEditor/fieldEditorWidget.cpp
     src/editor/fieldEditor/magnetDataWidget.cpp
     src/editor/fieldEditor/randomDataWidget.cpp
+    src/editor/fieldEditor/spinDataWidget.cpp
     src/etc1/rg_etc1.cpp
     src/ptcl/ptcl.cpp
     src/ptcl/ptclBinary.cpp
@@ -132,6 +133,7 @@ set(PROJECT_HEADERS
     include/editor/fieldEditor/fieldEditorWidget.h
     include/editor/fieldEditor/magnetDataWidget.h
     include/editor/fieldEditor/randomDataWidget.h
+    include/editor/fieldEditor/spinDataWidget.h
     include/etc1/rg_etc1.h
     include/math/matrix.h
     include/math/util.h

@@ -601,6 +601,39 @@ enum class FieldMagnetFlag : u32 {
 
 // ========================================================================== //
 
+enum class FieldSpinAxis : u32 {
+    AxisX   = 0x0,
+    AxisY   = 0x1,
+    AxisZ   = 0x2,
+
+    MAX
+};
+
+template<>
+inline QString toString<FieldSpinAxis>(const FieldSpinAxis& type) {
+    switch (type) {
+    case FieldSpinAxis::AxisX: return "X-Axis";
+    case FieldSpinAxis::AxisY:  return "Y-Axis";
+    case FieldSpinAxis::AxisZ:  return "Z-Axis";
+    case FieldSpinAxis::MAX:    return "SPIN_AXIS_MAX";
+    default: return "Unknown";
+    }
+}
+
+inline FieldSpinAxis& assignFromInt(FieldSpinAxis& type, int value) {
+    type = static_cast<FieldSpinAxis>(value);
+    return type;
+}
+
+inline QDebug operator<<(QDebug dbg, const FieldSpinAxis& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
+
+
+// ========================================================================== //
+
 
 enum class FieldConvergenceType : u32 {
     AssignedPos = 0x1,

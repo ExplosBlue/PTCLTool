@@ -30,6 +30,7 @@ private:
 private:
     class RandomDataWidget;
     class MagnetDataWidget;
+    class SpinDataWidget;
 
 private:
     Ptcl::FieldData* mDataPtr{nullptr};
@@ -38,6 +39,7 @@ private:
     QWidget* mSectionsContainer{};
     RandomDataWidget* mRandomDataWidget{nullptr};
     MagnetDataWidget* mMagnetDataWidget{nullptr};
+    SpinDataWidget* mSpinDataWidget{nullptr};
 
 };
 
