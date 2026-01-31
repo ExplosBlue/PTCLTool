@@ -65,6 +65,7 @@ set(PROJECT_SOURCES
     src/editor/emitterWidget/velocityPropertiesWidget.cpp
     src/editor/emitterWidget/volumePropertiesWidget.cpp
     src/editor/fieldEditor/fieldEditorWidget.cpp
+    src/editor/fieldEditor/magnetDataWidget.cpp
     src/editor/fieldEditor/randomDataWidget.cpp
     src/etc1/rg_etc1.cpp
     src/ptcl/ptcl.cpp
@@ -129,6 +130,7 @@ set(PROJECT_HEADERS
     include/editor/emitterWidget/volumePropertiesWidget.h
     include/editor/childEditor/velocityPropertiesWidget.h
     include/editor/fieldEditor/fieldEditorWidget.h
+    include/editor/fieldEditor/magnetDataWidget.h
     include/editor/fieldEditor/randomDataWidget.h
     include/etc1/rg_etc1.h
     include/math/matrix.h

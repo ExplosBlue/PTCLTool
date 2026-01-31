@@ -1,8 +1,8 @@
 #pragma once
 
 #include "typedefs.h"
+#include "util/bitflagUtil.h"
 #include "ptcl/ptclEnum.h"
-
 #include "math/vector.h"
 
 
@@ -28,9 +28,13 @@ public:
     };
 
     struct FieldMagnetData {
-        f32 magnetPower;
-        Math::Vector3f magnetPos;
-        u32 magnetFlag;
+        f32 magnetPower{0.0f};
+        Math::Vector3f magnetPos{0.0f, 0.0f, 0.0f};
+        BitFlag<FieldMagnetFlag> magnetFlag{
+            Ptcl::FieldMagnetFlag::AxisTargetX,
+            Ptcl::FieldMagnetFlag::AxisTargetY,
+            Ptcl::FieldMagnetFlag::AxisTargetZ
+        };
     };
 
     struct FieldSpinData {

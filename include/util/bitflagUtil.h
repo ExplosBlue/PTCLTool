@@ -18,7 +18,13 @@ private:
     using BaseType = std::underlying_type_t<T>;
 
 public:
-    explicit BitFlag() = default;
+    BitFlag() = default;
+
+    explicit BitFlag(std::initializer_list<T> flags) {
+        for (T f : flags) {
+            enable(f);
+        }
+    };
 
     void enable(T flag) {
         mFlag |= static_cast<BaseType>(flag);

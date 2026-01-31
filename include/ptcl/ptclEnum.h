@@ -592,6 +592,16 @@ enum class StripeFlag : u16 {
 // ========================================================================== //
 
 
+enum class FieldMagnetFlag : u32 {
+    AxisTargetX = 1 << 0,
+    AxisTargetY = 1 << 1,
+    AxisTargetZ = 1 << 2,
+};
+
+
+// ========================================================================== //
+
+
 enum class FieldConvergenceType : u32 {
     AssignedPos = 0x1,
     EmitterPos  = 0x2

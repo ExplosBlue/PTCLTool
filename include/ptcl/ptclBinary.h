@@ -415,9 +415,9 @@ static_assert(sizeof(BinFieldRandomData) == 0x10, "BinFieldRandomData is incorre
 
 // Size 0x14
 struct alignas(4) BinFieldMagnetData {
-    f32 fieldMagnetPower;       // 0x00
-    binVec3f fieldMagnetPos;    // 0x04
-    u32 fieldMagnetFlag;        // 0x10
+    f32 fieldMagnetPower;                       // 0x00
+    binVec3f fieldMagnetPos;                    // 0x04
+    BitFlag<FieldMagnetFlag> fieldMagnetFlag;   // 0x10
 
     BinFieldMagnetData() = default;
     BinFieldMagnetData(const Ptcl::FieldData::FieldMagnetData& fieldMagnetData);
