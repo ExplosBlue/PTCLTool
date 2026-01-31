@@ -60,7 +60,7 @@ void FieldData::setCollisionData(const FieldCollisionData& collisionData) {
 void FieldData::initCollisionData(const BinFieldCollisionData& collisionData) {
     mCollisionData = {
         .collisionType = collisionData.fieldCollisionType,
-        .collisionIsWorld = collisionData.fieldCollisionIsWorld,
+        .collisionIsWorld = collisionData.fieldCollisionIsWorld > 0,
         .collisionCoord = collisionData.fieldCollisionCoord,
         .collisionCoef = collisionData.fieldCollisionCoef
     };

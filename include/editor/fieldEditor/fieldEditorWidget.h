@@ -31,6 +31,7 @@ private:
     class RandomDataWidget;
     class MagnetDataWidget;
     class SpinDataWidget;
+    class CollisionDataWidget;
 
 private:
     Ptcl::FieldData* mDataPtr{nullptr};
@@ -40,6 +41,7 @@ private:
     RandomDataWidget* mRandomDataWidget{nullptr};
     MagnetDataWidget* mMagnetDataWidget{nullptr};
     SpinDataWidget* mSpinDataWidget{nullptr};
+    CollisionDataWidget* mCollisionDataWidget{nullptr};
 
 };
 

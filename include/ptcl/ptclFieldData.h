@@ -43,10 +43,10 @@ public:
     };
 
     struct FieldCollisionData {
-        u16 collisionType;
-        u16 collisionIsWorld;
-        f32 collisionCoord;
-        f32 collisionCoef;
+        FieldCollisionType collisionType{FieldCollisionType::Die};
+        bool collisionIsWorld{false};
+        f32 collisionCoord{0.0f};
+        f32 collisionCoef{0.0f};
     };
 
     struct FieldConvergenceData {
