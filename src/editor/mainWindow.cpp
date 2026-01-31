@@ -298,7 +298,7 @@ void MainWindow::loadPtclRes(const QString& path) {
 
     const auto& sets = mPtclRes->getEmitterSets();
     if (!sets.empty()) {
-        selectEmitterSet(0);
+        selectEmitter(0, 0);
     }
 
     mPtclList.setEnabled(true);
