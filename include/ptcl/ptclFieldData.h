@@ -31,15 +31,15 @@ public:
         f32 magnetPower{0.0f};
         Math::Vector3f magnetPos{0.0f, 0.0f, 0.0f};
         BitFlag<FieldMagnetFlag> magnetFlag{
-            Ptcl::FieldMagnetFlag::AxisTargetX,
-            Ptcl::FieldMagnetFlag::AxisTargetY,
-            Ptcl::FieldMagnetFlag::AxisTargetZ
+            FieldMagnetFlag::AxisTargetX,
+            FieldMagnetFlag::AxisTargetY,
+            FieldMagnetFlag::AxisTargetZ
         };
     };
 
     struct FieldSpinData {
-        s32 spinRotate;
-        s32 spinAxis;
+        s32 spinRotate{0};
+        FieldSpinAxis spinAxis{FieldSpinAxis::AxisX};
     };
 
     struct FieldCollisionData {

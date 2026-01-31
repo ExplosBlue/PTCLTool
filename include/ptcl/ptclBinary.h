@@ -433,8 +433,8 @@ static_assert(sizeof(BinFieldMagnetData) == 0x14, "BinFieldMagnetData is incorre
 
 // Size 0x08
 struct alignas(4) BinFieldSpinData {
-    s32 fieldSpinRotate;    // 0x00
-    s32 fieldSpinAxis;      // 0x04
+    s32 fieldSpinRotate;            // 0x00
+    FieldSpinAxis fieldSpinAxis;    // 0x04
 
     BinFieldSpinData() = default;
     BinFieldSpinData(const Ptcl::FieldData::FieldSpinData& fieldSpinData);
