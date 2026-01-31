@@ -668,15 +668,18 @@ inline QDebug operator<<(QDebug dbg, const FieldCollisionType& type) {
 
 
 enum class FieldConvergenceType : u32 {
-    AssignedPos = 0x1,
-    EmitterPos  = 0x2
+    AssignedPos = 0x0,
+    EmitterPos  = 0x1,
+
+    MAX
 };
 
 template<>
 inline QString toString<FieldConvergenceType>(const FieldConvergenceType& type) {
     switch (type) {
-    case FieldConvergenceType::AssignedPos: return "AssignedPos";
-    case FieldConvergenceType::EmitterPos:  return "EmitterPos";
+    case FieldConvergenceType::AssignedPos: return "Assigned Position";
+    case FieldConvergenceType::EmitterPos:  return "Emitter Position";
+    case Ptcl::FieldConvergenceType::MAX: return "CONVERGENCE_TYPE_MAX";
     default: return "Unknown";
     }
 }

@@ -32,6 +32,7 @@ private:
     class MagnetDataWidget;
     class SpinDataWidget;
     class CollisionDataWidget;
+    class ConvergenceDataWidget;
 
 private:
     Ptcl::FieldData* mDataPtr{nullptr};
@@ -42,7 +43,7 @@ private:
     MagnetDataWidget* mMagnetDataWidget{nullptr};
     SpinDataWidget* mSpinDataWidget{nullptr};
     CollisionDataWidget* mCollisionDataWidget{nullptr};
-
+    ConvergenceDataWidget* mConvergenceDataWidget{nullptr};
 };
 
 
