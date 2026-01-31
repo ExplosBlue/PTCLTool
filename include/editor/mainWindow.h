@@ -43,6 +43,7 @@ private:
     void updateRecentFileList();
     void loadPtclRes(const QString& path);
     void selectEmitterSet(s32 setIndex);
+    void selectEmitter(s32 setIndex, s32 emitterIndex);
 
     void setupUi();
     void setupConnections();
@@ -52,6 +53,7 @@ private:
     std::unique_ptr<Ptcl::PtclRes> mPtclRes;
 
     s32 mCurEmitterSetIdx;
+    s32 mCurEmitterIdx;
 
     QAction mOpenAction;
     QAction mSaveAction;

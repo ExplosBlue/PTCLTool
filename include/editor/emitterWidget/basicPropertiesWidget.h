@@ -26,6 +26,7 @@ public:
 
 signals:
     void propertiesUpdated(const Ptcl::Emitter::BasicProperties& properties);
+    void emitterTypeChanged();
 
 private:
     Ptcl::Emitter::BasicProperties mProps{};

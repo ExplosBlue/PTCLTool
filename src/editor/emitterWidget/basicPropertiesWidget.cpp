@@ -33,6 +33,7 @@ EmitterWidget::BasicPropertiesWidget::BasicPropertiesWidget(QWidget* parent) :
     connect(&mTypeComboBox, &QComboBox::currentIndexChanged, this, [this]() {
         mProps.type = mTypeComboBox.currentEnum();
         emit propertiesUpdated(mProps);
+        emit emitterTypeChanged();
     });
 
     // Random Seed Mode

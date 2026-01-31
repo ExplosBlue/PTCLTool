@@ -66,26 +66,24 @@ void MainWindow::setupConnections() {
     });
 
     connect(&mPtclList, &PtclList::selectedEmitterChanged, this, [this](s32 setIndex, s32 emitterIndex) {
-        selectEmitterSet(setIndex);
-        mEmitterSetWidget.setEmitterTab(emitterIndex);
         mEmitterSetWidget.showStandardEditor();
     });
 
     connect(&mPtclList, &PtclList::selectedChildData, this, [this](s32 setIndex, s32 emitterIndex) {
         selectEmitterSet(setIndex);
-        mEmitterSetWidget.setEmitterTab(emitterIndex);
+        mEmitterSetWidget.selectEmitter(emitterIndex);
         mEmitterSetWidget.showChildEditor();
     });
 
     connect(&mPtclList, &PtclList::selectedFluctuation, this, [this](s32 setIndex, s32 emitterIndex) {
         selectEmitterSet(setIndex);
-        mEmitterSetWidget.setEmitterTab(emitterIndex);
+        mEmitterSetWidget.selectEmitter(emitterIndex);
         mEmitterSetWidget.showFluctuationEditor();
     });
 
     connect(&mPtclList, &PtclList::selectedField, this, [this](s32 setIndex, s32 emitterIndex) {
         selectEmitterSet(setIndex);
-        mEmitterSetWidget.setEmitterTab(emitterIndex);
+        mEmitterSetWidget.selectEmitter(emitterIndex);
         mEmitterSetWidget.showFieldEditor();
     });
 
@@ -112,6 +110,10 @@ void MainWindow::setupConnections() {
     connect(&mEmitterSetWidget, &EmitterSetWidget::emitterNameUpdated, this, [this]() {
         // TODO: this should update a singluar list element instead of refreshing everything
         mPtclList.refresh();
+    });
+
+    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterTypeChanged, this, [this]() {
+        mPtclList.updateEmitter(mCurEmitterSetIdx, mCurEmitterIdx);
     });
 }
 
@@ -315,6 +317,12 @@ void MainWindow::selectEmitterSet(s32 setIndex) {
     if (!mEmitterSetWidget.isEnabled()) {
         mEmitterSetWidget.setEnabled(true);
     }
+}
+
+void MainWindow::selectEmitter(s32 setIndex, s32 emitterIndex) {
+    selectEmitterSet(setIndex);
+    mEmitterSetWidget.selectEmitter(emitterIndex);
+    mCurEmitterIdx = emitterIndex;
 }
 
 
