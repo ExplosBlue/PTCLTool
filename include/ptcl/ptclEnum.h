@@ -635,6 +635,38 @@ inline QDebug operator<<(QDebug dbg, const FieldSpinAxis& type) {
 // ========================================================================== //
 
 
+enum class FieldCollisionType : u16 {
+    Die     = 0x0,
+    Bounce  = 0x1,
+
+    MAX
+};
+
+template<>
+inline QString toString<FieldCollisionType>(const FieldCollisionType& type) {
+    switch (type) {
+    case FieldCollisionType::Die: return "Die";
+    case FieldCollisionType::Bounce:  return "Bounce";
+    case Ptcl::FieldCollisionType::MAX: return "COLLISION_TYPE_MAX";
+    default: return "Unknown";
+    }
+}
+
+inline FieldCollisionType& assignFromInt(FieldCollisionType& type, int value) {
+    type = static_cast<FieldCollisionType>(value);
+    return type;
+}
+
+inline QDebug operator<<(QDebug dbg, const FieldCollisionType& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
+
+
+// ========================================================================== //
+
+
 enum class FieldConvergenceType : u32 {
     AssignedPos = 0x1,
     EmitterPos  = 0x2

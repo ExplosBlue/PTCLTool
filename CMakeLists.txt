@@ -64,6 +64,7 @@ set(PROJECT_SOURCES
     src/editor/emitterWidget/transformPropertiesWidget.cpp
     src/editor/emitterWidget/velocityPropertiesWidget.cpp
     src/editor/emitterWidget/volumePropertiesWidget.cpp
+    src/editor/fieldEditor/collisionDataWidget.cpp
     src/editor/fieldEditor/fieldEditorWidget.cpp
     src/editor/fieldEditor/magnetDataWidget.cpp
     src/editor/fieldEditor/randomDataWidget.cpp
@@ -114,6 +115,7 @@ set(PROJECT_HEADERS
     include/editor/childEditor/rotationPropertiesWidget.h
     include/editor/childEditor/scalePropertiesWidget.h
     include/editor/childEditor/texturePropertiesWidget.h
+    include/editor/childEditor/velocityPropertiesWidget.h
     include/editor/emitterWidget/alphaPropertiesWidget.h
     include/editor/emitterWidget/basicPropertiesWidget.h
     include/editor/emitterWidget/colorPropertiesWidget.h
@@ -129,7 +131,7 @@ set(PROJECT_HEADERS
     include/editor/emitterWidget/transformPropertiesWidget.h
     include/editor/emitterWidget/velocityPropertiesWidget.h
     include/editor/emitterWidget/volumePropertiesWidget.h
-    include/editor/childEditor/velocityPropertiesWidget.h
+    include/editor/fieldEditor/collisionDataWidget.h
     include/editor/fieldEditor/fieldEditorWidget.h
     include/editor/fieldEditor/magnetDataWidget.h
     include/editor/fieldEditor/randomDataWidget.h

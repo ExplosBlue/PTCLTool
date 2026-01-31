@@ -451,10 +451,10 @@ static_assert(sizeof(BinFieldSpinData) == 0x8, "BinFieldSpinData is incorrect si
 
 // Size 0x0C
 struct alignas(4) BinFieldCollisionData {
-    u16 fieldCollisionType;     // 0x00
-    u16 fieldCollisionIsWorld;  // 0x02
-    f32 fieldCollisionCoord;    // 0x04
-    f32 fieldCollisionCoef;     // 0x08
+    FieldCollisionType fieldCollisionType;  // 0x00
+    u16 fieldCollisionIsWorld;              // 0x02
+    f32 fieldCollisionCoord;                // 0x04
+    f32 fieldCollisionCoef;                 // 0x08
 
     BinFieldCollisionData() = default;
     BinFieldCollisionData(const Ptcl::FieldData::FieldCollisionData& fieldCollisionData);
