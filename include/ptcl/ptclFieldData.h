@@ -55,7 +55,7 @@ public:
     };
 
     struct FieldPosAddData {
-        Math::Vector3f posAdd;
+        Math::Vector3f posAdd{0.0f, 0.0f, 0.0f};
     };
 
 public:

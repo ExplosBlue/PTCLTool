@@ -33,6 +33,7 @@ private:
     class SpinDataWidget;
     class CollisionDataWidget;
     class ConvergenceDataWidget;
+    class PosAddDataWidget;
 
 private:
     Ptcl::FieldData* mDataPtr{nullptr};
@@ -44,6 +45,7 @@ private:
     SpinDataWidget* mSpinDataWidget{nullptr};
     CollisionDataWidget* mCollisionDataWidget{nullptr};
     ConvergenceDataWidget* mConvergenceDataWidget{nullptr};
+    PosAddDataWidget* mPosAddDataWidget{nullptr};
 };
 
 

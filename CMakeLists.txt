@@ -68,6 +68,7 @@ set(PROJECT_SOURCES
     src/editor/fieldEditor/convergenceDataWidget.cpp
     src/editor/fieldEditor/fieldEditorWidget.cpp
     src/editor/fieldEditor/magnetDataWidget.cpp
+    src/editor/fieldEditor/posAddDataWidget.cpp
     src/editor/fieldEditor/randomDataWidget.cpp
     src/editor/fieldEditor/spinDataWidget.cpp
     src/etc1/rg_etc1.cpp
@@ -136,6 +137,7 @@ set(PROJECT_HEADERS
     include/editor/fieldEditor/convergenceDataWidget.h
     include/editor/fieldEditor/fieldEditorWidget.h
     include/editor/fieldEditor/magnetDataWidget.h
+    include/editor/fieldEditor/posAddDataWidget.h
     include/editor/fieldEditor/randomDataWidget.h
     include/editor/fieldEditor/spinDataWidget.h
     include/etc1/rg_etc1.h

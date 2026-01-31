@@ -3,6 +3,7 @@
 #include "editor/fieldEditor/convergenceDataWidget.h"
 #include "editor/fieldEditor/fieldEditorWidget.h"
 #include "editor/fieldEditor/magnetDataWidget.h"
+#include "editor/fieldEditor/posAddDataWidget.h"
 #include "editor/fieldEditor/randomDataWidget.h"
 #include "editor/fieldEditor/spinDataWidget.h"
 
@@ -23,6 +24,7 @@ FieldEditorWidget::FieldEditorWidget(QWidget* parent) :
     mSpinDataWidget = new SpinDataWidget(this);
     mCollisionDataWidget = new CollisionDataWidget(this);
     mConvergenceDataWidget = new ConvergenceDataWidget(this);
+    mPosAddDataWidget = new PosAddDataWidget(this);
 
     // Standard Widget
     auto* standardWidget = new QWidget(this);
@@ -64,6 +66,7 @@ void FieldEditorWidget::setupLayout(QVBoxLayout* mainLayout) {
     addSection("Spin Force", mSpinDataWidget);
     addSection("Collision Plane", mCollisionDataWidget);
     addSection("Convergence", mConvergenceDataWidget);
+    addSection("Add to Position", mPosAddDataWidget);
 
     sectionsLayout->addStretch();
 
@@ -131,6 +134,18 @@ void FieldEditorWidget::setupConnections() {
         mFieldFlag.set(Ptcl::FieldFlag::Convergence, isEnabled);
         emit flagsUpdated(mFieldFlag);
     });
+
+    // PosAdd
+    connect(mPosAddDataWidget, &PosAddDataWidget::dataUpdated, this, [this](const Ptcl::FieldData::FieldPosAddData& data) {
+        if (!mDataPtr) { return; }
+        mDataPtr->setPosAddData(data);
+    });
+
+    connect(mPosAddDataWidget, &PosAddDataWidget::isEnabledUpdated, this, [this](bool isEnabled) {
+        if (!mDataPtr) { return; }
+        mFieldFlag.set(Ptcl::FieldFlag::PosAdd, isEnabled);
+        emit flagsUpdated(mFieldFlag);
+    });
 }
 
 void FieldEditorWidget::setData(Ptcl::FieldData* fieldData, const BitFlag<Ptcl::FieldFlag>& fieldFlag) {
@@ -139,6 +154,7 @@ void FieldEditorWidget::setData(Ptcl::FieldData* fieldData, const BitFlag<Ptcl::
     QSignalBlocker b3(mSpinDataWidget);
     QSignalBlocker b4(mCollisionDataWidget);
     QSignalBlocker b5(mConvergenceDataWidget);
+    QSignalBlocker b6(mPosAddDataWidget);
 
     mDataPtr = fieldData;
     mFieldFlag = fieldFlag;
@@ -148,6 +164,7 @@ void FieldEditorWidget::setData(Ptcl::FieldData* fieldData, const BitFlag<Ptcl::
     mSpinDataWidget->setData(mDataPtr->spinData(), mFieldFlag.isSet(Ptcl::FieldFlag::Spin));
     mCollisionDataWidget->setData(mDataPtr->collisionData(), mFieldFlag.isSet(Ptcl::FieldFlag::Collision));
     mConvergenceDataWidget->setData(mDataPtr->convergenceData(), mFieldFlag.isSet(Ptcl::FieldFlag::Convergence));
+    mPosAddDataWidget->setData(mDataPtr->posAddData(), mFieldFlag.isSet(Ptcl::FieldFlag::PosAdd));
 }
 
 
