@@ -26,7 +26,7 @@ FieldEditorWidget::CollisionDataWidget::CollisionDataWidget(QWidget* parent) :
     controlsLayout->addRow("Bounce Rate:", &mCoefSpinBox);
 
     auto* mainLayout = new QFormLayout(this);
-    mainLayout->addRow("Randomness:", &mEnabledCheckBox);
+    mainLayout->addRow("Collision:", &mEnabledCheckBox);
     mainLayout->addRow(mControlsWidget);
 
     setupConnections();

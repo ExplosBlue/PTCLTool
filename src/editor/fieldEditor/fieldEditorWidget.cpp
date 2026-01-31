@@ -1,5 +1,6 @@
 #include "editor/components/collapsibleWidget.h"
 #include "editor/fieldEditor/collisionDataWidget.h"
+#include "editor/fieldEditor/convergenceDataWidget.h"
 #include "editor/fieldEditor/fieldEditorWidget.h"
 #include "editor/fieldEditor/magnetDataWidget.h"
 #include "editor/fieldEditor/randomDataWidget.h"
@@ -21,6 +22,7 @@ FieldEditorWidget::FieldEditorWidget(QWidget* parent) :
     mMagnetDataWidget = new MagnetDataWidget(this);
     mSpinDataWidget = new SpinDataWidget(this);
     mCollisionDataWidget = new CollisionDataWidget(this);
+    mConvergenceDataWidget = new ConvergenceDataWidget(this);
 
     // Standard Widget
     auto* standardWidget = new QWidget(this);
@@ -61,6 +63,7 @@ void FieldEditorWidget::setupLayout(QVBoxLayout* mainLayout) {
     addSection("Magnetic Force", mMagnetDataWidget);
     addSection("Spin Force", mSpinDataWidget);
     addSection("Collision Plane", mCollisionDataWidget);
+    addSection("Convergence", mConvergenceDataWidget);
 
     sectionsLayout->addStretch();
 
@@ -116,13 +119,26 @@ void FieldEditorWidget::setupConnections() {
         mFieldFlag.set(Ptcl::FieldFlag::Collision, isEnabled);
         emit flagsUpdated(mFieldFlag);
     });
+
+    // Convergence
+    connect(mConvergenceDataWidget, &ConvergenceDataWidget::dataUpdated, this, [this](const Ptcl::FieldData::FieldConvergenceData& data) {
+        if (!mDataPtr) { return; }
+        mDataPtr->setConvergenceData(data);
+    });
+
+    connect(mConvergenceDataWidget, &ConvergenceDataWidget::isEnabledUpdated, this, [this](bool isEnabled) {
+        if (!mDataPtr) { return; }
+        mFieldFlag.set(Ptcl::FieldFlag::Convergence, isEnabled);
+        emit flagsUpdated(mFieldFlag);
+    });
 }
 
 void FieldEditorWidget::setData(Ptcl::FieldData* fieldData, const BitFlag<Ptcl::FieldFlag>& fieldFlag) {
     QSignalBlocker b1(mRandomDataWidget);
     QSignalBlocker b2(mMagnetDataWidget);
     QSignalBlocker b3(mSpinDataWidget);
-    QSignalBlocker b5(mCollisionDataWidget);
+    QSignalBlocker b4(mCollisionDataWidget);
+    QSignalBlocker b5(mConvergenceDataWidget);
 
     mDataPtr = fieldData;
     mFieldFlag = fieldFlag;
@@ -131,6 +147,7 @@ void FieldEditorWidget::setData(Ptcl::FieldData* fieldData, const BitFlag<Ptcl::
     mMagnetDataWidget->setData(mDataPtr->magnetData(), mFieldFlag.isSet(Ptcl::FieldFlag::Magnet));
     mSpinDataWidget->setData(mDataPtr->spinData(), mFieldFlag.isSet(Ptcl::FieldFlag::Spin));
     mCollisionDataWidget->setData(mDataPtr->collisionData(), mFieldFlag.isSet(Ptcl::FieldFlag::Collision));
+    mConvergenceDataWidget->setData(mDataPtr->convergenceData(), mFieldFlag.isSet(Ptcl::FieldFlag::Convergence));
 }
 
 

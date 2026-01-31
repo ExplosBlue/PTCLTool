@@ -22,7 +22,7 @@ FieldEditorWidget::SpinDataWidget::SpinDataWidget(QWidget* parent) :
     controlsLayout->addRow("Spin Axis:", &mSpinAxisSpinBox);
 
     auto* mainLayout = new QFormLayout(this);
-    mainLayout->addRow("Randomness:", &mEnabledCheckBox);
+    mainLayout->addRow("Spin:", &mEnabledCheckBox);
     mainLayout->addRow(mControlsWidget);
 
     setupConnections();

@@ -65,6 +65,7 @@ set(PROJECT_SOURCES
     src/editor/emitterWidget/velocityPropertiesWidget.cpp
     src/editor/emitterWidget/volumePropertiesWidget.cpp
     src/editor/fieldEditor/collisionDataWidget.cpp
+    src/editor/fieldEditor/convergenceDataWidget.cpp
     src/editor/fieldEditor/fieldEditorWidget.cpp
     src/editor/fieldEditor/magnetDataWidget.cpp
     src/editor/fieldEditor/randomDataWidget.cpp
@@ -132,6 +133,7 @@ set(PROJECT_HEADERS
     include/editor/emitterWidget/velocityPropertiesWidget.h
     include/editor/emitterWidget/volumePropertiesWidget.h
     include/editor/fieldEditor/collisionDataWidget.h
+    include/editor/fieldEditor/convergenceDataWidget.h
     include/editor/fieldEditor/fieldEditorWidget.h
     include/editor/fieldEditor/magnetDataWidget.h
     include/editor/fieldEditor/randomDataWidget.h

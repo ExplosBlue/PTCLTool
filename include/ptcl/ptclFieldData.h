@@ -50,8 +50,8 @@ public:
     };
 
     struct FieldConvergenceData {
-        FieldConvergenceType convergenceType;
-        Math::Vector3f convergencePos;
+        FieldConvergenceType convergenceType{FieldConvergenceType::AssignedPos};
+        Math::Vector3f convergencePos{0.0f, 0.0f, 0.0f};
     };
 
     struct FieldPosAddData {
