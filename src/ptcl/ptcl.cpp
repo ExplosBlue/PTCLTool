@@ -199,11 +199,11 @@ bool PtclRes::load(const QString& filePath) {
                         }
 
                         // StripeData
-                        // TODO: Should this be checking billboard type?
-                        if (binComplexEmitterData.stripeDataOffset != 0) {
+                        const auto billboardType = binCommonEmitterData.billboardType;
+                        if (billboardType == BillboardType::Stripe || billboardType == BillboardType::ComplexStripe) {
                             BinStripeData binStripeData;
                             stream >> binStripeData;
-                            emitter->stripeData().initFromBinary(binStripeData);
+                            emitter->initStripeData(binStripeData);
                         }
                     }
                 }
@@ -484,8 +484,7 @@ bool PtclRes::save(const QString& filePath) {
                 }
 
                 // StripeData
-                // TODO: Should this be checking billboard type?
-                if (emitter->complexProperties().hasStripeData) {
+                if (emitter->hasStripeData()) {
                     emitterData.stripeDataOffset = emitterDataSize;
                     emitterDataSize += sizeof(BinStripeData);
                 }
@@ -523,7 +522,7 @@ bool PtclRes::save(const QString& filePath) {
                     binEmitterDataList.emplace_back(binFluctuationData);
                 }
 
-                if (emitter->complexProperties().hasStripeData) {
+                if (emitter->hasStripeData()) {
                     binEmitterDataList.emplace_back(binStripeData);
                 }
             }

@@ -649,7 +649,7 @@ inline QString toString<FieldCollisionType>(const FieldCollisionType& type) {
     switch (type) {
     case FieldCollisionType::Die: return "Die";
     case FieldCollisionType::Bounce:  return "Bounce";
-    case Ptcl::FieldCollisionType::MAX: return "COLLISION_TYPE_MAX";
+    case FieldCollisionType::MAX: return "COLLISION_TYPE_MAX";
     default: return "Unknown";
     }
 }
@@ -681,7 +681,7 @@ inline QString toString<FieldConvergenceType>(const FieldConvergenceType& type) 
     switch (type) {
     case FieldConvergenceType::AssignedPos: return "Assigned Position";
     case FieldConvergenceType::EmitterPos:  return "Emitter Position";
-    case Ptcl::FieldConvergenceType::MAX: return "CONVERGENCE_TYPE_MAX";
+    case FieldConvergenceType::MAX: return "CONVERGENCE_TYPE_MAX";
     default: return "Unknown";
     }
 }
@@ -692,6 +692,40 @@ inline FieldConvergenceType& assignFromInt(FieldConvergenceType& type, int value
 }
 
 inline QDebug operator<<(QDebug dbg, const FieldConvergenceType& type) {
+    QDebugStateSaver stateSaver(dbg);
+    dbg.nospace() << toString(type);
+    return dbg;
+}
+
+
+// ========================================================================== //
+
+
+enum class StripeType : u32 {
+    Beam          = 0x0,
+    RibbonCamera  = 0x1,
+    RibbonEmitter = 0x2,
+
+    MAX
+};
+
+template<>
+inline QString toString<StripeType>(const StripeType& type) {
+    switch (type) {
+    case StripeType::Beam: return "Beam";
+    case StripeType::RibbonCamera:  return "RibbonCamera";
+    case StripeType::RibbonEmitter:  return "RibbonEmitter";
+    case StripeType::MAX: return "STRIPE_TYPE_MAX";
+    default: return "Unknown";
+    }
+}
+
+inline StripeType& assignFromInt(StripeType& type, int value) {
+    type = static_cast<StripeType>(value);
+    return type;
+}
+
+inline QDebug operator<<(QDebug dbg, const StripeType& type) {
     QDebugStateSaver stateSaver(dbg);
     dbg.nospace() << toString(type);
     return dbg;

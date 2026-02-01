@@ -79,7 +79,6 @@ set(PROJECT_SOURCES
     src/ptcl/ptclEmitterSet.cpp
     src/ptcl/ptclFieldData.cpp
     src/ptcl/ptclSeed.cpp
-    src/ptcl/ptclStripeData.cpp
     src/ptcl/ptclTexture.cpp
     src/util/imageUtil.cpp
     src/util/nameValidator.cpp

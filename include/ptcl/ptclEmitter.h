@@ -159,7 +159,6 @@ public:
         BitFlag<FieldFlag> fieldFlags{};
         BitFlag<FluctuationFlag> fluctuationFlags{};
         BitFlag<StripeFlag> stripeFlags{};
-        bool hasStripeData{false};
     };
 
 public:
@@ -238,7 +237,11 @@ public:
     FieldData& fieldData();
     void setFieldData(const FieldData& fieldData);
 
-    StripeData& stripeData();
+    const StripeData& stripeData() const;
+    void setStripeData(const StripeData& stripeData);
+    void initStripeData(const BinStripeData& stripeData);
+
+    bool hasStripeData() const;
 
     void initFromBinary(const BinCommonEmitterData& emitterData);
     void initComplexFromBinary(const BinComplexEmitterData& emitterData);

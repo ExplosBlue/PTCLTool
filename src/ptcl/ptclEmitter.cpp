@@ -203,8 +203,30 @@ void Emitter::setFieldData(const FieldData& fieldData) {
     mFieldData = fieldData;
 }
 
-StripeData& Emitter::stripeData() {
+const StripeData& Emitter::stripeData() const {
     return mStripeData;
+}
+
+void Emitter::setStripeData(const StripeData& stripeData) {
+    mStripeData = stripeData;
+}
+
+void Emitter::initStripeData(const BinStripeData& stripeData) {
+    mStripeData = {
+        .type = stripeData.stripeType,
+        .numHistory = stripeData.stripeNumHistory,
+        .startAlpha = stripeData.stripeStartAlpha,
+        .endAlpha = stripeData.stripeEndAlpha,
+        .uvScrollSpeed = {stripeData.uvScrollSpeed.x, stripeData.uvScrollSpeed.y},
+        .historyStep = stripeData.stripeHistoryStep,
+        .dirInterpolate = stripeData.stripeDirInterpolate
+    };
+}
+
+bool Emitter::hasStripeData() const {
+    const auto bType = mBasicProperties.billboardType;
+    const bool isBillboardStripe = bType == BillboardType::Stripe || bType == BillboardType::ComplexStripe;
+    return mBasicProperties.type != EmitterType::Simple && isBillboardStripe;
 }
 
 void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
@@ -334,10 +356,7 @@ void Emitter::initComplexFromBinary(const BinComplexEmitterData& emitterData) {
         .childFlags = emitterData.childFlag,
         .fieldFlags = emitterData.fieldFlag,
         .fluctuationFlags = emitterData.fluctuationFlag,
-        .stripeFlags = emitterData.stripeFlag,
-
-        // TODO: Should this be based on billboard type instead?
-        .hasStripeData = emitterData.stripeDataOffset != 0
+        .stripeFlags = emitterData.stripeFlag
     };
 }
 

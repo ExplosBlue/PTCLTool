@@ -1,9 +1,8 @@
 #pragma once
 
-#include "ptcl/ptclBinary.h"
+#include "math/vector.h"
+#include "ptcl/ptclEnum.h"
 #include "typedefs.h"
-
-#include <array>
 
 
 namespace Ptcl {
@@ -12,21 +11,15 @@ namespace Ptcl {
 // ========================================================================== //
 
 
-class StripeData
+struct StripeData
 {
-public:
-    StripeData() = default;
-
-    StripeData(const StripeData&) = delete;
-    StripeData& operator=(const StripeData&) = delete;
-
-    const std::array<u8, 32>& _0() const;
-    void set_0(const std::array<u8, 32>& _0);
-
-    void initFromBinary(const BinStripeData& stripeData);
-
-private:
-    std::array<u8, 32> m_0;
+    StripeType type{};
+    s32 numHistory{};
+    f32 startAlpha{};
+    f32 endAlpha{};
+    Math::Vector2f uvScrollSpeed{};
+    s32 historyStep{};
+    f32 dirInterpolate{};
 };
 
 

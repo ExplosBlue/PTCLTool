@@ -1009,22 +1009,34 @@ QDataStream& operator<<(QDataStream& out, const BinFluctuationData& item) {
 
 
 BinStripeData::BinStripeData(const Ptcl::StripeData& stripeData) {
-    _0 = stripeData._0();
+    stripeType = stripeData.type;
+    stripeNumHistory = stripeData.numHistory;
+    stripeStartAlpha = stripeData.startAlpha;
+    stripeEndAlpha = stripeData.endAlpha;
+    uvScrollSpeed = stripeData.uvScrollSpeed;
+    stripeHistoryStep = stripeData.historyStep;
+    stripeDirInterpolate = stripeData.dirInterpolate;
 }
 
 QDataStream& operator>>(QDataStream& in, BinStripeData& item) {
-    for (u8& val : item._0) {
-        in >> val;
-    }
-
+    in >> item.stripeType
+        >> item.stripeNumHistory
+        >> item.stripeStartAlpha
+        >> item.stripeEndAlpha
+        >> item.uvScrollSpeed
+        >> item.stripeHistoryStep
+        >> item.stripeDirInterpolate;
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinStripeData& item) {
-    for (const u8& val : item._0) {
-        out << val;
-    }
-
+    out << item.stripeType
+        << item.stripeNumHistory
+        << item.stripeStartAlpha
+        << item.stripeEndAlpha
+        << item.uvScrollSpeed
+        << item.stripeHistoryStep
+        << item.stripeDirInterpolate;
     return out;
 }
 
