@@ -18,9 +18,15 @@ private:
     using BaseType = std::underlying_type_t<T>;
 
 public:
-    BitFlag() = default;
+    constexpr BitFlag() = default;
 
-    explicit BitFlag(std::initializer_list<T> flags) {
+    constexpr explicit BitFlag(T flag) :
+        mFlag(static_cast<BaseType>(flag)) {}
+
+    constexpr explicit BitFlag(BaseType raw) :
+        mFlag(raw) {}
+
+    constexpr BitFlag(std::initializer_list<T> flags) {
         for (T f : flags) {
             enable(f);
         }
@@ -30,17 +36,67 @@ public:
         mFlag |= static_cast<BaseType>(flag);
     }
 
+    void clear(T flag) {
+        mFlag &= ~static_cast<BaseType>(flag);
+    };
+
     void set(T flag, bool enabled) {
         return enabled ? enable(flag) : clear(flag);
     }
 
-    void clear(T flag) {
-        mFlag &= ~static_cast<BaseType>(flag);
+    void reset() {
+        mFlag = 0;
     };
 
     bool isSet(T flag) const {
         return (mFlag & static_cast<BaseType>(flag)) != 0;
     };
+
+    bool any() const {
+        return mFlag == 0;
+    }
+
+    bool all(BitFlag other) const {
+        return (mFlag & other.mFlag) == other.mFlag;
+    }
+
+    bool any(BitFlag other) const {
+        return (mFlag & other.mFlag) != 0;
+    }
+
+    BitFlag& operator |=(BitFlag rhs) {
+        mFlag |= rhs.mFlag;
+    }
+
+    BitFlag& operator &=(BitFlag rhs) {
+        mFlag &= rhs.mFlag;
+    }
+
+    friend BitFlag operator|(BitFlag lhs, BitFlag rhs) {
+        lhs |= rhs;
+        return lhs;
+    }
+
+    friend BitFlag operator&(BitFlag lhs, BitFlag rhs) {
+        lhs &= rhs;
+        return lhs;
+    }
+
+    friend bool operator==(BitFlag lhs, BitFlag rhs) {
+        return lhs.mFlag == rhs.mFlag;
+    }
+
+    friend bool operator!=(BitFlag lhs, BitFlag rhs) {
+        return lhs.mFlag != rhs.mFlag;
+    }
+
+    explicit operator bool() const {
+        return any();
+    }
+
+    BaseType value() const {
+        return mFlag;
+    }
 
     friend QDataStream& operator>>(QDataStream& in, BitFlag<T>& bitflag) {
         BaseType data;
