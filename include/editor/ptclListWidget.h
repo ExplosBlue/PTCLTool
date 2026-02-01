@@ -1,11 +1,14 @@
 #pragma once
 
+#include "util/bitflagUtil.h"
 #include "ptcl/ptcl.h"
 
 #include <QLineEdit>
+#include <QMenu>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 #include <QTreeView>
+#include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -16,14 +19,45 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
+enum class NodeType {
+    EmitterSet,
+    Emitter,
+    ChildData,
+    Fluctuation,
+    Field
+};
+
+enum class EmitterFilterFlag {
+    Simple  = 1 << 0,
+    Complex = 1 << 1,
+    Compact = 1 << 2,
+};
+
+using EmitterFilter = BitFlag<EmitterFilterFlag>;
+
+static constexpr s32 sRoleNodeType      = Qt::UserRole;
+static constexpr s32 sRoleSetIdx        = Qt::UserRole + 1;
+static constexpr s32 sRoleEmitterIdx    = Qt::UserRole + 2;
+static constexpr s32 sRoleEnabled       = Qt::UserRole + 3;
+static constexpr s32 sRoleEmitterType   = Qt::UserRole + 4;
+
+
+// ========================================================================== //
+
+
 class EmitterFilterProxyModel : public QSortFilterProxyModel {
     Q_OBJECT
 public:
     explicit EmitterFilterProxyModel(QObject* parent = nullptr);
 
+    void setEmitterFilter(const EmitterFilter& filter);
+
 protected:
     bool filterAcceptsRow(s32 sourceRow, const QModelIndex& sourceParent) const override;
     QVariant data(const QModelIndex& index, s32 role) const override;
+
+private:
+    EmitterFilter mEmitterFilter{EmitterFilterFlag::Simple, EmitterFilterFlag::Complex, EmitterFilterFlag::Compact};
 };
 
 
@@ -32,21 +66,6 @@ protected:
 
 class PtclList : public QWidget {
     Q_OBJECT
-
-public:
-    enum class NodeType {
-        EmitterSet,
-        Emitter,
-        ChildData,
-        Fluctuation,
-        Field
-    };
-
-    static constexpr s32 sRoleNodeType = Qt::UserRole;
-    static constexpr s32 sRoleSetIdx = Qt::UserRole + 1;
-    static constexpr s32 sRoleEmitterIdx = Qt::UserRole + 2;
-    static constexpr s32 sRoleEnabled = Qt::UserRole + 3;
-
 public:
     explicit PtclList(QWidget* parent = nullptr);
 
@@ -70,6 +89,8 @@ private slots:
 
 private:
     void populateList();
+    void setupFilterMenu();
+
     void addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emitterIndex);
     void ensureComplexNode(QStandardItem* emitterItem, NodeType type, const QString& label, s32 setIndex, s32 emitterIndex, bool enabled);
 
@@ -81,6 +102,9 @@ private:
     QStandardItemModel mListModel{};
     QTreeView  mTreeView{};
     QLineEdit mSearchBox{};
+    QToolButton mFilterButton{};
+    QMenu mFilterMenu{};
+
     QVBoxLayout mMainLayout{};
 
     EmitterFilterProxyModel mProxyModel{};

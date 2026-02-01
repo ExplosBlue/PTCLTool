@@ -12,12 +12,49 @@ namespace PtclEditor {
 EmitterFilterProxyModel::EmitterFilterProxyModel(QObject* parent) :
     QSortFilterProxyModel{parent} {}
 
+void EmitterFilterProxyModel::setEmitterFilter(const EmitterFilter& filter) {
+    if (mEmitterFilter == filter) {
+        return;
+    }
+
+    beginFilterChange();
+    mEmitterFilter = filter;
+    endFilterChange();
+}
+
 bool EmitterFilterProxyModel::filterAcceptsRow(s32 sourceRow, const QModelIndex& sourceParent) const {
     QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
     if (!index.isValid()) {
         return false;
     }
 
+    // Type Filter
+    const auto nodeType = static_cast<NodeType>(sourceModel()->data(index, sRoleNodeType).toUInt());
+
+    if (nodeType == NodeType::Emitter) {
+        const auto emitterType = static_cast<Ptcl::EmitterType>(sourceModel()->data(index, sRoleEmitterType).toUInt());
+        bool allowed = false;
+
+        switch (emitterType) {
+        case Ptcl::EmitterType::Simple:
+            allowed = mEmitterFilter.isSet(EmitterFilterFlag::Simple);
+            break;
+        case Ptcl::EmitterType::Complex:
+            allowed = mEmitterFilter.isSet(EmitterFilterFlag::Complex);
+            break;
+        case Ptcl::EmitterType::Compact:
+            allowed = mEmitterFilter.isSet(EmitterFilterFlag::Compact);
+            break;
+        default:
+            break;
+        }
+
+        if (!allowed) {
+            return false;
+        }
+    }
+
+    // Search filter
     const auto re = filterRegularExpression();
 
     if (sourceModel()->data(index).toString().contains(re)) {
@@ -50,10 +87,10 @@ QVariant EmitterFilterProxyModel::data(const QModelIndex& index, s32 role) const
         return QSortFilterProxyModel::data(index, role);
     }
 
-    const auto type = static_cast<PtclList::NodeType>(sourceModel()->data(srcIndex, PtclList::sRoleNodeType).toUInt());
+    const auto type = static_cast<NodeType>(sourceModel()->data(srcIndex, sRoleNodeType).toUInt());
 
     if (role == Qt::FontRole) {
-        if (type == PtclList::NodeType::EmitterSet) {
+        if (type == NodeType::EmitterSet) {
             auto font = QSortFilterProxyModel::data(index, role).value<QFont>();
             font.setBold(true);
             return font;
@@ -61,13 +98,13 @@ QVariant EmitterFilterProxyModel::data(const QModelIndex& index, s32 role) const
     }
 
     const bool isComplexNode = (
-        type == PtclList::NodeType::ChildData ||
-        type == PtclList::NodeType::Fluctuation ||
-        type == PtclList::NodeType::Field
+        type == NodeType::ChildData ||
+        type == NodeType::Fluctuation ||
+        type == NodeType::Field
     );
 
     if (isComplexNode && role == Qt::ForegroundRole) {
-        const bool enabled = index.data(PtclList::sRoleEnabled).toBool();
+        const bool enabled = index.data(sRoleEnabled).toBool();
         if (!enabled) {
             auto color = QSortFilterProxyModel::data(index, role).value<QColor>();
             if (!color.isValid()) {
@@ -92,21 +129,69 @@ PtclList::PtclList(QWidget* parent) :
         mTreeView.expandAll();
     });
 
+    // Filter Button
+    mFilterButton.setIcon(QIcon(":/res/icons/filter.png"));
+    mFilterButton.setPopupMode(QToolButton::InstantPopup);
+    mFilterButton.setMenu(&mFilterMenu);
+
+    setupFilterMenu();
+
     // Proxy Model
     mProxyModel.setSourceModel(&mListModel);
     mProxyModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
-    mProxyModel.setRecursiveFilteringEnabled(true);
+    mProxyModel.setRecursiveFilteringEnabled(false);
 
     // Tree View
     mTreeView.setModel(&mProxyModel);
     mTreeView.setHeaderHidden(true);
     connect(mTreeView.selectionModel(), &QItemSelectionModel::selectionChanged, this, &PtclList::selectionChanged);
 
+    // Search Layout
+    auto* searchLayout = new QHBoxLayout;
+    searchLayout->addWidget(&mSearchBox);
+    searchLayout->addWidget(&mFilterButton);
+
     // Main layout
     mMainLayout.addWidget(&mTreeView);
-    mMainLayout.addWidget(&mSearchBox);
+    mMainLayout.addLayout(searchLayout);
 
     setLayout(&mMainLayout);
+}
+
+void PtclList::setupFilterMenu() {
+    auto* simpleAction = mFilterMenu.addAction("Simple Emitters");
+    auto* complexAction = mFilterMenu.addAction("Complex Emitters");
+    auto* compactAction = mFilterMenu.addAction("Compact Emitters");
+    mFilterMenu.addSeparator();
+    auto* allAction = mFilterMenu.addAction("Show All");
+
+    for (auto* act : { simpleAction, complexAction, compactAction }) {
+        act->setCheckable(true);
+        act->setChecked(true);
+    }
+
+    connect(allAction, &QAction::triggered, this, [simpleAction, complexAction, compactAction, this] {
+        simpleAction->setChecked(true);
+        complexAction->setChecked(true);
+        compactAction->setChecked(true);
+        mProxyModel.setEmitterFilter({
+            EmitterFilterFlag::Simple,
+            EmitterFilterFlag::Complex,
+            EmitterFilterFlag::Compact
+        });
+    });
+
+    auto updateFilter = [simpleAction, complexAction, compactAction, this] {
+        EmitterFilter filter{};
+        if (simpleAction->isChecked()) { filter.enable(EmitterFilterFlag::Simple); }
+        if (complexAction->isChecked()) { filter.enable(EmitterFilterFlag::Complex); }
+        if (compactAction->isChecked()) { filter.enable(EmitterFilterFlag::Compact); }
+        mProxyModel.setEmitterFilter(filter);
+    };
+
+    connect(simpleAction, &QAction::toggled, this, updateFilter);
+    connect(complexAction, &QAction::toggled, this, updateFilter);
+    connect(compactAction, &QAction::toggled, this, updateFilter);
 }
 
 void PtclList::setPtclRes(Ptcl::PtclRes* ptclRes) {
@@ -152,9 +237,10 @@ void PtclList::populateList() {
             emitterItem->setData(static_cast<s32>(NodeType::Emitter), sRoleNodeType);
             emitterItem->setData(setIndex, sRoleSetIdx);
             emitterItem->setData(emitterIndex, sRoleEmitterIdx);
+            emitterItem->setData(static_cast<u32>(emitter->type()), sRoleEmitterType);
 
             // Complex Data
-            if (emitter->type() == Ptcl::EmitterType::Complex || emitter->type() == Ptcl::EmitterType::UnkType2) {
+            if (emitter->type() == Ptcl::EmitterType::Complex || emitter->type() == Ptcl::EmitterType::Compact) {
                 addComplexNodes(emitterItem, setIndex, emitterIndex);
             }
             setItem->appendRow(emitterItem);
@@ -287,6 +373,7 @@ void PtclList::updateEmitter(s32 setIndex, s32 emitterIndex) {
     }
 
     const auto& emitter = mResPtr->getEmitterSets()[setIndex]->emitters()[emitterIndex];
+    emitterItem->setData(static_cast<u32>(emitter->type()), sRoleEmitterType);
 
     if (emitter->type() == Ptcl::EmitterType::Simple) {
         emitterItem->removeRows(0, emitterItem->rowCount());

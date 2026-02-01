@@ -32,6 +32,8 @@ This project includes the following third-party libraries:
 
 Each library is included under its respective license in the `third_party/` directory.
 
+- Icons are provided by **[icons8](https://icons8.com/)**
+
 
 ## License
 
