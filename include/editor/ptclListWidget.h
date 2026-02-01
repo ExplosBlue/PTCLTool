@@ -23,6 +23,7 @@ public:
 
 protected:
     bool filterAcceptsRow(s32 sourceRow, const QModelIndex& sourceParent) const override;
+    QVariant data(const QModelIndex& index, s32 role) const override;
 };
 
 
@@ -31,6 +32,21 @@ protected:
 
 class PtclList : public QWidget {
     Q_OBJECT
+
+public:
+    enum class NodeType {
+        EmitterSet,
+        Emitter,
+        ChildData,
+        Fluctuation,
+        Field
+    };
+
+    static constexpr s32 sRoleNodeType = Qt::UserRole;
+    static constexpr s32 sRoleSetIdx = Qt::UserRole + 1;
+    static constexpr s32 sRoleEmitterIdx = Qt::UserRole + 2;
+    static constexpr s32 sRoleEnabled = Qt::UserRole + 3;
+
 public:
     explicit PtclList(QWidget* parent = nullptr);
 
@@ -53,21 +69,11 @@ private slots:
     void filterList(const QString& text);
 
 private:
-    enum class NodeType {
-        EmitterSet,
-        Emitter,
-        ChildData,
-        Fluctuation,
-        Field
-    };
-
-    static constexpr s32 sRoleNodeType = Qt::UserRole;
-    static constexpr s32 sRoleSetIdx = Qt::UserRole + 1;
-    static constexpr s32 sRoleEmitterIdx = Qt::UserRole + 2;
-
-private:
     void populateList();
     void addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emitterIndex);
+    void ensureComplexNode(QStandardItem* emitterItem, NodeType type, const QString& label, s32 setIndex, s32 emitterIndex, bool enabled);
+
+    static QStandardItem* findChildByType(QStandardItem* parent, NodeType type);
 
 private:
     Ptcl::PtclRes* mResPtr{nullptr};

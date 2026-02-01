@@ -27,6 +27,10 @@ EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
         emit emitterTypeChanged();
     });
 
+    connect(&mEmitterWidget, &EmitterWidget::complexFlagsChanged, this, [this]() {
+        emit emitterComplexFlagsChanged();
+    });
+
     // Name Edit
     mNameLineEdit.setPlaceholderText("EmitterSetName");
     mNameLineEdit.setValidator(new EmitterNameValidator(&mNameLineEdit));

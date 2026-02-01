@@ -39,6 +39,7 @@ signals:
     void emitterTypeChanged();
     void emitterNameChanged();
     void emitterSetNamedChanged();
+    void emitterComplexFlagsChanged();
 
 private slots:
     void selectedEmitterChanged(u32 index);
