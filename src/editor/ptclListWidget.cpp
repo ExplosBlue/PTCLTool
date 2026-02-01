@@ -52,6 +52,14 @@ QVariant EmitterFilterProxyModel::data(const QModelIndex& index, s32 role) const
 
     const auto type = static_cast<PtclList::NodeType>(sourceModel()->data(srcIndex, PtclList::sRoleNodeType).toUInt());
 
+    if (role == Qt::FontRole) {
+        if (type == PtclList::NodeType::EmitterSet) {
+            auto font = QSortFilterProxyModel::data(index, role).value<QFont>();
+            font.setBold(true);
+            return font;
+        }
+    }
+
     const bool isComplexNode = (
         type == PtclList::NodeType::ChildData ||
         type == PtclList::NodeType::Fluctuation ||
@@ -138,7 +146,7 @@ void PtclList::populateList() {
         for (u32 emitterIndex = 0; emitterIndex < set->emitters().size(); ++emitterIndex) {
             auto* emitter = set->emitters()[emitterIndex].get();
 
-            QString emitterName = QString("Emitter %1: %2").arg(emitterIndex).arg(emitter->name());
+            QString emitterName = QString("%1: %2").arg(emitterIndex).arg(emitter->name());
             auto* emitterItem = new QStandardItem(emitterName);
             emitterItem->setEditable(false);
             emitterItem->setData(static_cast<s32>(NodeType::Emitter), sRoleNodeType);
@@ -296,7 +304,7 @@ void PtclList::updateEmitterName(s32 setIndex, s32 emitterIndex) {
     const auto& set = sets[setIndex];
     const auto* emitter = set->emitters()[emitterIndex].get();
 
-    QString emitterName = QString("Emitter %1: %2").arg(emitterIndex).arg(emitter->name());
+    QString emitterName = QString("%1: %2").arg(emitterIndex).arg(emitter->name());
     emitterItem->setText(emitterName);
 }
 
