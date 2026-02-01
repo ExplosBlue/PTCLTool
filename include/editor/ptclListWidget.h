@@ -22,7 +22,7 @@ public:
     explicit EmitterFilterProxyModel(QObject* parent = nullptr);
 
 protected:
-    bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
+    bool filterAcceptsRow(s32 sourceRow, const QModelIndex& sourceParent) const override;
 };
 
 
@@ -70,14 +70,14 @@ private:
     void addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emitterIndex);
 
 private:
-    Ptcl::PtclRes* mResPtr;
+    Ptcl::PtclRes* mResPtr{nullptr};
 
-    QStandardItemModel mListModel;
-    QTreeView  mTreeView;
-    QLineEdit mSearchBox;
-    QVBoxLayout mMainLayout;
+    QStandardItemModel mListModel{};
+    QTreeView  mTreeView{};
+    QLineEdit mSearchBox{};
+    QVBoxLayout mMainLayout{};
 
-    EmitterFilterProxyModel mProxyModel;
+    EmitterFilterProxyModel mProxyModel{};
 };
 
 

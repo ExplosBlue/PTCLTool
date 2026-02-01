@@ -10,17 +10,26 @@ namespace PtclEditor {
 EmitterFilterProxyModel::EmitterFilterProxyModel(QObject* parent) :
     QSortFilterProxyModel{parent} {}
 
-bool EmitterFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const {
+bool EmitterFilterProxyModel::filterAcceptsRow(s32 sourceRow, const QModelIndex& sourceParent) const {
     QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
     if (!index.isValid()) {
         return false;
     }
 
-    if (sourceModel()->data(index).toString().contains(filterRegularExpression())) {
+    const auto re = filterRegularExpression();
+
+    if (sourceModel()->data(index).toString().contains(re)) {
         return true;
     }
 
-    for (int i = 0; i < sourceModel()->rowCount(index); ++i) {
+    for (QModelIndex parent = sourceParent; parent.isValid(); parent = parent.parent()) {
+        if (sourceModel()->data(parent).toString().contains(re)) {
+            return true;
+        }
+    }
+
+    const s32 childCount = sourceModel()->rowCount(index);
+    for (s32 i = 0; i < childCount; ++i) {
         if (filterAcceptsRow(i, index)) {
             return true;
         }
@@ -34,10 +43,13 @@ bool EmitterFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex&
 
 
 PtclList::PtclList(QWidget* parent) :
-    QWidget(parent), mResPtr(nullptr) {
+    QWidget{parent} {
     // Search Box
     mSearchBox.setPlaceholderText("Search");
     connect(&mSearchBox, &QLineEdit::textChanged, this, &PtclList::filterList);
+    connect(&mSearchBox, &QLineEdit::textChanged, this, [this] {
+        mTreeView.expandAll();
+    });
 
     // Proxy Model
     mProxyModel.setSourceModel(&mListModel);
