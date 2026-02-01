@@ -525,7 +525,13 @@ static_assert(sizeof(BinFluctuationData) == 0xC, "BinFluctuationData is incorrec
 
 // Size 0x20
 struct alignas(4) BinStripeData {
-    std::array<u8, 32> _0;       // 0x00
+    StripeType stripeType;      // 0x00
+    s32 stripeNumHistory;       // 0x04
+    f32 stripeStartAlpha;       // 0x08
+    f32 stripeEndAlpha;         // 0x0C
+    binVec2f uvScrollSpeed;     // 0x10
+    s32 stripeHistoryStep;      // 0x18
+    f32 stripeDirInterpolate;   // 0x1C
 
     BinStripeData() = default;
     BinStripeData(const Ptcl::StripeData& stripeData);
