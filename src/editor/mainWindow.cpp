@@ -112,6 +112,10 @@ void MainWindow::setupConnections() {
     connect(&mEmitterSetWidget, &EmitterSetWidget::emitterTypeChanged, this, [this]() {
         mPtclList.updateEmitter(mCurEmitterSetIdx, mCurEmitterIdx);
     });
+
+    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterComplexFlagsChanged, this, [this]() {
+        mPtclList.updateEmitter(mCurEmitterSetIdx, mCurEmitterIdx);
+    });
 }
 
 void MainWindow::setupMenus() {

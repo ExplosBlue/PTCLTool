@@ -568,6 +568,8 @@ enum class FieldFlag : u16 {
     Collision   = 1 << 3,
     Convergence = 1 << 4,
     PosAdd      = 1 << 5,
+
+    Enabled = Random | Magnet | Spin | Collision | Convergence | PosAdd
 };
 
 

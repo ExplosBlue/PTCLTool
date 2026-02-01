@@ -1,5 +1,7 @@
 #include "editor/ptclListWidget.h"
 
+#include <QApplication>
+
 
 namespace PtclEditor {
 
@@ -36,6 +38,37 @@ bool EmitterFilterProxyModel::filterAcceptsRow(s32 sourceRow, const QModelIndex&
     }
 
     return false;
+}
+
+QVariant EmitterFilterProxyModel::data(const QModelIndex& index, s32 role) const {
+    if (!index.isValid()) {
+        return {};
+    }
+
+    const auto srcIndex = mapToSource(index);
+    if (!srcIndex.isValid()) {
+        return QSortFilterProxyModel::data(index, role);
+    }
+
+    const auto type = static_cast<PtclList::NodeType>(sourceModel()->data(srcIndex, PtclList::sRoleNodeType).toUInt());
+
+    const bool isComplexNode = (
+        type == PtclList::NodeType::ChildData ||
+        type == PtclList::NodeType::Fluctuation ||
+        type == PtclList::NodeType::Field
+    );
+
+    if (isComplexNode && role == Qt::ForegroundRole) {
+        const bool enabled = index.data(PtclList::sRoleEnabled).toBool();
+        if (!enabled) {
+            auto color = QSortFilterProxyModel::data(index, role).value<QColor>();
+            if (!color.isValid()) {
+                color = QApplication::palette().color(QPalette::Disabled, QPalette::Text);
+            }
+            return color;
+        }
+    }
+    return QSortFilterProxyModel::data(index, role);
 }
 
 
@@ -166,45 +199,93 @@ void PtclList::selectionChanged(const QItemSelection& selection) {
 }
 
 void PtclList::addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emitterIndex) {
+    const auto& emitter = mResPtr->getEmitterSets()[setIndex]->emitters()[emitterIndex];
+    const auto& props = emitter->complexProperties();
+
     // ChildData
-    auto* childItem = new QStandardItem("ChildData");
-    childItem->setEditable(false);
-    childItem->setData(static_cast<s32>(NodeType::ChildData), sRoleNodeType);
-    childItem->setData(setIndex, sRoleSetIdx);
-    childItem->setData(emitterIndex, sRoleEmitterIdx);
-    emitterItem->appendRow(childItem);
+    ensureComplexNode(
+        emitterItem,
+        NodeType::ChildData,
+        "ChildData",
+        setIndex,
+        emitterIndex,
+        props.childFlags.isSet(Ptcl::ChildFlag::Enabled)
+    );
 
     // Fluctuation
-    auto* fluxItem = new QStandardItem("Fluctuation");
-    fluxItem->setEditable(false);
-    fluxItem->setData(static_cast<s32>(NodeType::Fluctuation), sRoleNodeType);
-    fluxItem->setData(setIndex, sRoleSetIdx);
-    fluxItem->setData(emitterIndex, sRoleEmitterIdx);
-    emitterItem->appendRow(fluxItem);
+    ensureComplexNode(
+        emitterItem,
+        NodeType::Fluctuation,
+        "Fluctuation",
+        setIndex,
+        emitterIndex,
+        props.fluctuationFlags.isSet(Ptcl::FluctuationFlag::Enabled)
+    );
 
     // Field
-    auto* fieldItem = new QStandardItem("Field");
-    fieldItem->setEditable(false);
-    fieldItem->setData(static_cast<s32>(NodeType::Field), sRoleNodeType);
-    fieldItem->setData(setIndex, sRoleSetIdx);
-    fieldItem->setData(emitterIndex, sRoleEmitterIdx);
-    emitterItem->appendRow(fieldItem);
+    ensureComplexNode(
+        emitterItem,
+        NodeType::Field,
+        "Field",
+        setIndex,
+        emitterIndex,
+        props.fieldFlags.isSet(Ptcl::FieldFlag::Enabled)
+    );
 }
+
+QStandardItem* PtclList::findChildByType(QStandardItem* parent, NodeType type) {
+    if (!parent) {
+        return nullptr;
+    }
+
+    for (s32 i = 0; i < parent->rowCount(); ++i) {
+        auto* child = parent->child(i);
+        if (!child) {
+            continue;
+        }
+
+        if (child->data(sRoleNodeType).toUInt() == static_cast<u32>(type)) {
+            return child;
+        }
+    }
+    return nullptr;
+}
+
+void PtclList::ensureComplexNode(QStandardItem* emitterItem, NodeType type, const QString& label, s32 setIndex, s32 emitterIndex, bool enabled) {
+    auto* item = findChildByType(emitterItem, type);
+
+    if (!item) {
+        item = new QStandardItem(label);
+        item->setEditable(false);
+        item->setData(static_cast<s32>(type), sRoleNodeType);
+        item->setData(setIndex, sRoleSetIdx);
+        item->setData(emitterIndex, sRoleEmitterIdx);
+        emitterItem->appendRow(item);
+    }
+
+    item->setData(enabled, sRoleEnabled);
+}
+
 
 void PtclList::updateEmitter(s32 setIndex, s32 emitterIndex) {
     const QStandardItem* setItem = mListModel.item(setIndex);
-    QStandardItem* emitterItem = setItem->child(emitterIndex);
+    if (!setItem) {
+        return;
+    }
 
-    const auto& sets = mResPtr->getEmitterSets();
-    const auto& set = sets[setIndex];
-    const auto* emitter = set->emitters()[emitterIndex].get();
+    QStandardItem* emitterItem = setItem->child(emitterIndex);
+    if (!emitterItem) {
+        return;
+    }
+
+    const auto& emitter = mResPtr->getEmitterSets()[setIndex]->emitters()[emitterIndex];
 
     if (emitter->type() == Ptcl::EmitterType::Simple) {
-        // Remove Child, Flux and Field rows
-        emitterItem->removeRows(0, 3);
-    } else if (!emitterItem->hasChildren()){
-        addComplexNodes(emitterItem, setIndex, emitterIndex);
+        emitterItem->removeRows(0, emitterItem->rowCount());
+        return;
     }
+
+    addComplexNodes(emitterItem, setIndex, emitterIndex);
 }
 
 void PtclList::updateEmitterName(s32 setIndex, s32 emitterIndex) {

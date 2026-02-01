@@ -42,6 +42,7 @@ signals:
     void nameUpdated(const QString& name);
     void emitterTypeChanged();
     void emitterNameChanged();
+    void complexFlagsChanged();
 
 private:
     void setupStandardLayout(QVBoxLayout* mainLayout);

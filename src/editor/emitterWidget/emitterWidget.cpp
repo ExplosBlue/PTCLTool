@@ -224,6 +224,7 @@ void EmitterWidget::setupConnections() {
     connect(mChildEditorWidget, &ChildEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::ChildFlag>& childFlags) {
         if (!mEmitterPtr) { return; }
         mEmitterPtr->setChildFlags(childFlags);
+        emit complexFlagsChanged();
     });
 
     connect(mChildEditorWidget, &ChildEditorWidget::textureUpdated, this, [this](const std::shared_ptr<Ptcl::Texture>& oldTexture, const std::shared_ptr<Ptcl::Texture>& newTexture) {
@@ -245,12 +246,14 @@ void EmitterWidget::setupConnections() {
     connect(mFluctuationEditorWidget, &FluctuationEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::FluctuationFlag>& fluxFlags) {
         if (!mEmitterPtr) { return; }
         mEmitterPtr->setFluctuationFlags(fluxFlags);
+        complexFlagsChanged();
     });
 
     // Field Editor Widget
     connect(mFieldEditorWidget, &FieldEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::FieldFlag>& fieldFlags) {
         if (!mEmitterPtr) { return; }
         mEmitterPtr->setFieldFlags(fieldFlags);
+        complexFlagsChanged();
     });
 }
 
