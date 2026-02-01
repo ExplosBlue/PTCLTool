@@ -65,7 +65,7 @@ inline QDebug operator<<(QDebug dbg, const BillboardType& type) {
 enum class EmitterType : u32 {
     Simple     = 0x0,
     Complex    = 0x1,
-    UnkType2   = 0x2,
+    Compact    = 0x2,
 
     MAX
 };
@@ -75,7 +75,7 @@ inline QString toString<EmitterType>(const EmitterType& type) {
     switch (type) {
     case EmitterType::Simple:           return "Simple";
     case EmitterType::Complex:          return "Complex";
-    case EmitterType::UnkType2:         return "UnkType2";
+    case EmitterType::Compact:          return "Compact";
     case EmitterType::MAX:              return "EMITTER_TYPE_MAX";
     default: return "UNKNOWN";
     }

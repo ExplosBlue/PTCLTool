@@ -117,7 +117,7 @@ bool PtclRes::load(const QString& filePath) {
 
                     emitter->setTexture(mTextures[textureOffsetMap[textureOffset]]);
 
-                    if (binCommonEmitterData.type == EmitterType::Complex || binCommonEmitterData.type == EmitterType::UnkType2) {
+                    if (binCommonEmitterData.type == EmitterType::Complex || binCommonEmitterData.type == EmitterType::Compact) {
                         file.seek(binEmitterTblData.emitterPos + static_cast<qint64>(sizeof(BinCommonEmitterData)));
                         BinComplexEmitterData binComplexEmitterData;
                         stream >> binComplexEmitterData;
@@ -381,7 +381,7 @@ bool PtclRes::save(const QString& filePath) {
                 emitterDataCurOffset += sizeof(BinCommonEmitterData);
                 binEmitterDataList.emplace_back(emitterData);
 
-            } else if (emitter->type() == Ptcl::EmitterType::Complex || emitter->type() == Ptcl::EmitterType::UnkType2) {
+            } else if (emitter->type() == Ptcl::EmitterType::Complex || emitter->type() == Ptcl::EmitterType::Compact) {
 
                 // Create Complex EmitterData
                 BinComplexEmitterData emitterData(*emitter.get());

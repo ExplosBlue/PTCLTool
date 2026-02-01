@@ -172,6 +172,7 @@ qt_add_resources(EffectTool "icons"
     PREFIX "/"
     FILES
         res/icons/remove.png
+        res/icons/filter.png
 )
 
 if(ENABLE_ASAN AND CMAKE_BUILD_TYPE STREQUAL "Debug")
