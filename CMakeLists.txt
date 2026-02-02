@@ -26,6 +26,7 @@ set(PROJECT_SOURCES
     src/editor/emitterSetWidget.cpp
     src/editor/fluctuationEditorWidget.cpp
     src/editor/ptclListWidget.cpp
+    src/editor/stripeEditorWidget.cpp
     src/editor/textureListWidget.cpp
     src/editor/textureImportDialog.cpp
     src/editor/textureSelectDialog.cpp
@@ -91,6 +92,7 @@ set(PROJECT_HEADERS
     include/editor/emitterSetWidget.h
     include/editor/fluctuationEditorWidget.h
     include/editor/ptclListWidget.h
+    include/editor/stripeEditorWidget.h
     include/editor/textureImportDialog.h
     include/editor/textureListWidget.h
     include/editor/textureSelectDialog.h

@@ -1,5 +1,4 @@
 
-#include "editor/components/collapsibleWidget.h"
 #include "editor/emitterWidget/emitterWidget.h"
 
 #include "editor/emitterWidget/alphaPropertiesWidget.h"
@@ -42,6 +41,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     mScaleProperties = new ScalePropertiesWidget(this);
     mTextureProperties = new TexturePropertiesWidget(this);
     mCombinerProperties = new CombinerPropertiesWidget(this);
+    mStripeEditorWidget = new StripeEditorWidget(this);
 
     mStackedWidget = new QStackedWidget(this);
 
@@ -89,9 +89,11 @@ void EmitterWidget::setupStandardLayout(QVBoxLayout* mainLayout) {
         auto* section = new CollapsibleWidget(title);
         section->setContent(widget);
         mainLayout->addWidget(section);
+        return section;
     };
 
     addSection("Basic properties", mBasicProperties);
+    mStripeSection = addSection("Stripe properties", mStripeEditorWidget);
     addSection("Lifespan properties", mLifespanProperties);
     addSection("Termination properties", mTerminationProperties);
     addSection("Gravity properties", mGravityProperties);
@@ -114,10 +116,12 @@ void EmitterWidget::setupConnections() {
     connect(mBasicProperties, &BasicPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::BasicProperties& properties) {
         if (!mEmitterPtr) { return; }
         mEmitterPtr->setBasicProperties(properties);
+        updateStripeVisibility();
     });
 
     connect(mBasicProperties, &BasicPropertiesWidget::emitterTypeChanged, this, [this]() {
         if (!mEmitterPtr) { return; }
+        updateStripeVisibility();
         emit emitterTypeChanged();
     });
 
@@ -255,6 +259,19 @@ void EmitterWidget::setupConnections() {
         mEmitterPtr->setFieldFlags(fieldFlags);
         complexFlagsChanged();
     });
+
+    // Stripe Editor Widget
+    connect(mStripeEditorWidget, &StripeEditorWidget::dataUpdated, this, [this](const Ptcl::StripeData& data) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setStripeData(data);
+    });
+
+    connect(mStripeEditorWidget, &StripeEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::StripeFlag>& stripeFlags) {
+        if (!mEmitterPtr) { return; }
+        mEmitterPtr->setStripeFlags(stripeFlags);
+        complexFlagsChanged();
+    });
+
 }
 
 void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
@@ -275,6 +292,7 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     QSignalBlocker b15(mChildEditorWidget);
     QSignalBlocker b16(mFluctuationEditorWidget);
     QSignalBlocker b17(mFieldEditorWidget);
+    QSignalBlocker b18(mStripeEditorWidget);
 
     mEmitterPtr = emitter;
 
@@ -299,6 +317,9 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
 
     mFluctuationEditorWidget->setData(mEmitterPtr->fluctuationData(), mEmitterPtr->complexProperties().fluctuationFlags);
     mFieldEditorWidget->setData(&mEmitterPtr->fieldData(), mEmitterPtr->complexProperties().fieldFlags);
+    mStripeEditorWidget->setData(mEmitterPtr->stripeData(), mEmitterPtr->complexProperties().stripeFlags);
+
+    updateStripeVisibility();
 
     setEnabled(true);
 }
@@ -336,6 +357,19 @@ void EmitterWidget::clear() {
     mEmitterPtr = nullptr;
 }
 
+void EmitterWidget::updateStripeVisibility() {
+    if (!mEmitterPtr || !mStripeSection) {
+        return;
+    }
+
+    const auto eType = mEmitterPtr->type();
+    const auto bbType = mEmitterPtr->basicProperties().billboardType;
+
+    const bool show = (eType == Ptcl::EmitterType::Complex || eType == Ptcl::EmitterType::Compact) &&
+                      (bbType == Ptcl::BillboardType::Stripe || bbType == Ptcl::BillboardType::ComplexStripe);
+
+    mStripeSection->setVisible(show);
+}
 
 // ========================================================================== //
 

@@ -175,6 +175,10 @@ void Emitter::setFieldFlags(const BitFlag<FieldFlag>& fieldFlags) {
     mComplexProperties.fieldFlags = fieldFlags;
 }
 
+void Emitter::setStripeFlags(const BitFlag<StripeFlag>& stripeFlags) {
+    mComplexProperties.stripeFlags = stripeFlags;
+}
+
 ChildData& Emitter::childData() {
     return mChildData;
 }
