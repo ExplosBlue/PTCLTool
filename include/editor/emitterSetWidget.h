@@ -22,8 +22,10 @@ public:
     explicit EmitterSetWidget(QWidget* parent = nullptr);
 
     void setEmitterSet(Ptcl::EmitterSet* emitterSet);
-    void selectEmitter(s32 emitterIndex);
     void setTextureList(const Ptcl::TextureList& textureList);
+
+    void selectEmitter(s32 emitterIndex);
+
     void showStandardEditor();
     void showChildEditor();
     void showFluctuationEditor();
@@ -32,21 +34,14 @@ public:
     void clear();
 
 signals:
-    void textureUpdated(int oldIndex, int index);
+    void textureUpdated(s32 oldIndex, s32 index);
 
-    void emitterAdded();
-    void emitterRemoved();
     void emitterTypeChanged();
     void emitterNameChanged();
     void emitterSetNamedChanged();
     void emitterComplexFlagsChanged();
 
-private slots:
-    void selectedEmitterChanged(u32 index);
-    void emitterTabClosed(int index);
-
 private:
-    void populateEmitterPicker();
     void populateProperties();
 
 private:
@@ -55,10 +50,7 @@ private:
     QVBoxLayout mMainLayout;
     QLineEdit mNameLineEdit;
     QLabel mEmitterCountLabel;
-    QTabWidget mEmitterTabs;
     EmitterWidget mEmitterWidget;
-
-    std::vector<QWidget*> mEmitterTabPlaceholders;
 };
 
 
