@@ -1,8 +1,10 @@
 #pragma once
 
 #include "editor/childEditor/childEditorWidget.h"
+#include "editor/components/collapsibleWidget.h"
 #include "editor/fluctuationEditorWidget.h"
 #include "editor/fieldEditor/fieldEditorWidget.h"
+#include "editor/stripeEditorWidget.h"
 
 #include "ptcl/ptclEmitter.h"
 #include "ptcl/ptcl.h"
@@ -47,6 +49,7 @@ signals:
 private:
     void setupStandardLayout(QVBoxLayout* mainLayout);
     void setupConnections();
+    void updateStripeVisibility();
 
 private:
     class BasicPropertiesWidget;
@@ -87,6 +90,9 @@ private:
     ChildEditorWidget* mChildEditorWidget{nullptr};
     FluctuationEditorWidget* mFluctuationEditorWidget{nullptr};
     FieldEditorWidget* mFieldEditorWidget{nullptr};
+    StripeEditorWidget* mStripeEditorWidget{nullptr};
+
+    CollapsibleWidget* mStripeSection{nullptr};
 };
 
 

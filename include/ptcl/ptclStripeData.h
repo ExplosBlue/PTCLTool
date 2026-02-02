@@ -13,13 +13,13 @@ namespace Ptcl {
 
 struct StripeData
 {
-    StripeType type{};
-    s32 numHistory{};
-    f32 startAlpha{};
-    f32 endAlpha{};
-    Math::Vector2f uvScrollSpeed{};
-    s32 historyStep{};
-    f32 dirInterpolate{};
+    StripeType type{StripeType::Billboard};
+    s32 numHistory{60};
+    f32 startAlpha{1.0f};
+    f32 endAlpha{1.0f};
+    Math::Vector2f uvScrollSpeed{0.0f, 0.0f};
+    s32 historyStep{1};
+    f32 dirInterpolate{1.0f};
 };
 
 

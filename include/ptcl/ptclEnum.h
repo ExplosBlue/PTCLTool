@@ -587,7 +587,7 @@ enum class FluctuationFlag : u16 {
 
 
 enum class StripeFlag : u16 {
-    Unknown     = 1 << 0, // This is a placeholder
+    EmitterCoord    = 1 << 0,
 };
 
 
@@ -702,9 +702,9 @@ inline QDebug operator<<(QDebug dbg, const FieldConvergenceType& type) {
 
 
 enum class StripeType : u32 {
-    Beam          = 0x0,
-    RibbonCamera  = 0x1,
-    RibbonEmitter = 0x2,
+    Billboard       = 0x0,
+    EmitterMatrix   = 0x1,
+    EmitterUpDown   = 0x2,
 
     MAX
 };
@@ -712,9 +712,9 @@ enum class StripeType : u32 {
 template<>
 inline QString toString<StripeType>(const StripeType& type) {
     switch (type) {
-    case StripeType::Beam: return "Beam";
-    case StripeType::RibbonCamera:  return "RibbonCamera";
-    case StripeType::RibbonEmitter:  return "RibbonEmitter";
+    case StripeType::Billboard: return "Billboard";
+    case StripeType::EmitterMatrix:  return "EmitterMatrix";
+    case StripeType::EmitterUpDown:  return "EmitterUpDown";
     case StripeType::MAX: return "STRIPE_TYPE_MAX";
     default: return "Unknown";
     }

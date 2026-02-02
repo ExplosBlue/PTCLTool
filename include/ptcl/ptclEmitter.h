@@ -227,6 +227,7 @@ public:
     void setChildFlags(const BitFlag<ChildFlag>& childFlags);
     void setFluctuationFlags(const BitFlag<FluctuationFlag>& fluxFlags);
     void setFieldFlags(const BitFlag<FieldFlag>& fieldFlags);
+    void setStripeFlags(const BitFlag<StripeFlag>& stripeFlags);
 
     ChildData& childData();
 
