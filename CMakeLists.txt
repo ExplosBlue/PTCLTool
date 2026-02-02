@@ -172,8 +172,13 @@ qt_add_executable(EffectTool
 qt_add_resources(EffectTool "icons"
     PREFIX "/"
     FILES
-        res/icons/remove.png
+        res/icons/add_emitter.png
+        res/icons/add_emitterset.png
+        res/icons/emitter.png
+        res/icons/emitterset.png
+        res/icons/emitterset_expanded.png
         res/icons/filter.png
+        res/icons/remove.png
 )
 
 if(ENABLE_ASAN AND CMAKE_BUILD_TYPE STREQUAL "Debug")

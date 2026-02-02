@@ -30,13 +30,16 @@ public:
     const QString& name() const;
     void setName(const QString& name);
 
-    u32 emitterCount() const;
+    s32 emitterCount() const;
 
     u32 lastUpdateDate() const;
     void setLastUpdateDate(u32 lastUpdateDate);
 
     u32 userData() const;
     void setUserData(u32 data);
+
+    void addNewEmitter();
+    void removeEmitter(s32 emitterIndex);
 
 private:
     QString mName;

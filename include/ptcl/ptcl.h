@@ -40,6 +40,9 @@ public:
     const TextureList& textures() const;
     TextureList& textures();
 
+    void addNewEmitterSet();
+    void removeEmitterSet(s32 setIndex);
+
     u32 emitterSetCount() const;
     u32 emitterCount() const;
 

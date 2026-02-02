@@ -85,6 +85,34 @@ void MainWindow::setupConnections() {
         mEmitterSetWidget.showFieldEditor();
     });
 
+    connect(&mPtclList, &PtclList::emitterAdded, this, [this](s32 setIndex, s32 emitterIndex) {
+        selectEmitter(setIndex, emitterIndex);
+        mEmitterSetWidget.showStandardEditor();
+    });
+
+    connect(&mPtclList, &PtclList::emitterSetAdded, this, [this](s32 setIndex) {
+        selectEmitterSet(setIndex);
+        mEmitterSetWidget.showStandardEditor();
+    });
+
+    connect(&mPtclList, &PtclList::emitterRemoved, this, [this](s32 setIndex, s32 emitterIndex) {
+        const s32 emitterCount = mPtclRes->getEmitterSets()[setIndex]->emitterCount();
+        const s32 newIndex = emitterIndex - 1;
+        if (emitterCount >= 1 && newIndex >= 0) {
+            selectEmitter(setIndex, emitterIndex);
+            mEmitterSetWidget.showStandardEditor();
+        }
+    });
+
+    connect(&mPtclList, &PtclList::emitterSetRemoved, this, [this](s32 setIndex) {
+        const s32 emitterSetCount = mPtclRes->emitterSetCount();
+        const s32 newIndex = setIndex - 1;
+        if (emitterSetCount >= 1 && newIndex >= 0) {
+            selectEmitterSet(setIndex);
+            mEmitterSetWidget.showStandardEditor();
+        }
+    });
+
     // EmitterSet Widget
     connect(&mEmitterSetWidget, &EmitterSetWidget::textureUpdated, this, [this](s32 oldIndex, s32 newIndex) {
         if (oldIndex >= 0) { mTextureWidget.updateItemAt(oldIndex); }
@@ -93,16 +121,6 @@ void MainWindow::setupConnections() {
 
     connect(&mEmitterSetWidget, &EmitterSetWidget::emitterSetNamedChanged, this, [this]() {
         mPtclList.updateEmitterSetName(mCurEmitterSetIdx);
-    });
-
-    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterAdded, this, [this]() {
-        // TODO: this should insert a singluar list element instead of refreshing everything
-        mPtclList.refresh();
-    });
-
-    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterRemoved, this, [this]() {
-        // TODO: this should remove a singluar list element instead of refreshing everything
-        mPtclList.refresh();
     });
 
     connect(&mEmitterSetWidget, &EmitterSetWidget::emitterNameChanged, this, [this]() {

@@ -1,6 +1,7 @@
 #include "editor/ptclListWidget.h"
 
 #include <QApplication>
+#include <QMessageBox>
 
 
 namespace PtclEditor {
@@ -122,6 +123,25 @@ QVariant EmitterFilterProxyModel::data(const QModelIndex& index, s32 role) const
 
 PtclList::PtclList(QWidget* parent) :
     QWidget{parent} {
+    // Toolbar
+    mToolBar.setIconSize(QSize(24, 24));
+    mToolBar.setToolButtonStyle(Qt::ToolButtonIconOnly);
+
+    mAddEmitterSetAction = mToolBar.addAction(QIcon(":/res/icons/add_emitterset.png"), "Add Emitter Set");
+    connect(mAddEmitterSetAction, &QAction::triggered, this, &PtclList::addEmitter);
+
+    mAddEmitterAction = mToolBar.addAction(QIcon(":/res/icons/add_emitter.png"), "Add Emitter");
+    connect(mAddEmitterAction, &QAction::triggered, this, &PtclList::addEmitterSet);
+
+    mToolBar.addSeparator();
+
+    mRemoveAction = mToolBar.addAction(QIcon(":/res/icons/remove.png"), "Remove");
+    connect(mRemoveAction, &QAction::triggered, this, &PtclList::removeItem);
+
+    for (auto* act : { mAddEmitterSetAction, mAddEmitterAction, mRemoveAction }) {
+        act->setEnabled(false);
+    }
+
     // Search Box
     mSearchBox.setPlaceholderText("Search");
     connect(&mSearchBox, &QLineEdit::textChanged, this, &PtclList::filterList);
@@ -152,6 +172,7 @@ PtclList::PtclList(QWidget* parent) :
     searchLayout->addWidget(&mFilterButton);
 
     // Main layout
+    mMainLayout.addWidget(&mToolBar);
     mMainLayout.addWidget(&mTreeView);
     mMainLayout.addLayout(searchLayout);
 
@@ -214,42 +235,50 @@ void PtclList::populateList() {
     }
 
     mListModel.clear();
-
-    // EmitterSets
     const auto& sets = mResPtr->getEmitterSets();
     for (u32 setIndex = 0; setIndex < sets.size(); ++setIndex) {
-        const auto& set = sets[setIndex];
-
-        QString setName = QString("%1: %2").arg(setIndex).arg(set->name());
-        auto* setItem = new QStandardItem(setName);
-        setItem->setEditable(false);
-        setItem->setSelectable(false);
-        setItem->setData(static_cast<s32>(NodeType::EmitterSet), sRoleNodeType);
-        setItem->setData(setIndex, sRoleSetIdx);
-
-        // Emitters
-        for (u32 emitterIndex = 0; emitterIndex < set->emitters().size(); ++emitterIndex) {
-            auto* emitter = set->emitters()[emitterIndex].get();
-
-            QString emitterName = QString("%1: %2").arg(emitterIndex).arg(emitter->name());
-            auto* emitterItem = new QStandardItem(emitterName);
-            emitterItem->setEditable(false);
-            emitterItem->setData(static_cast<s32>(NodeType::Emitter), sRoleNodeType);
-            emitterItem->setData(setIndex, sRoleSetIdx);
-            emitterItem->setData(emitterIndex, sRoleEmitterIdx);
-            emitterItem->setData(static_cast<u32>(emitter->type()), sRoleEmitterType);
-
-            // Complex Data
-            if (emitter->type() == Ptcl::EmitterType::Complex || emitter->type() == Ptcl::EmitterType::Compact) {
-                addComplexNodes(emitterItem, setIndex, emitterIndex);
-            }
-            setItem->appendRow(emitterItem);
-        }
-        mListModel.appendRow(setItem);
+        insertEmitterSetNode(setIndex);
     }
 
     mTreeView.expandAll();
     filterList(mSearchBox.text());
+}
+
+void PtclList::insertEmitterSetNode(s32 setIndex) {
+    const auto& set = mResPtr->getEmitterSets()[setIndex];
+
+    QString setName = QString("%1: %2").arg(setIndex).arg(set->name());
+    auto* setItem = new QStandardItem(setName);
+    setItem->setEditable(false);
+    setItem->setSelectable(false);
+    setItem->setData(static_cast<s32>(NodeType::EmitterSet), sRoleNodeType);
+    setItem->setData(setIndex, sRoleSetIdx);
+    setItem->setIcon(QIcon(":/res/icons/emitterset.png"));
+
+    // Emitters
+    for (u32 emitterIndex = 0; emitterIndex < set->emitters().size(); ++emitterIndex) {
+        insertEmitterNode(setItem, setIndex, emitterIndex);
+    }
+    mListModel.appendRow(setItem);
+}
+
+void PtclList::insertEmitterNode(QStandardItem* setItem, s32 setIndex, s32 emitterIndex) {
+    const auto& emitter = mResPtr->getEmitterSets()[setIndex]->emitters()[emitterIndex];
+
+    QString emitterName = QString("%1: %2").arg(emitterIndex).arg(emitter->name());
+    auto* emitterItem = new QStandardItem(emitterName);
+    emitterItem->setEditable(false);
+    emitterItem->setData(static_cast<s32>(NodeType::Emitter), sRoleNodeType);
+    emitterItem->setData(setIndex, sRoleSetIdx);
+    emitterItem->setData(emitterIndex, sRoleEmitterIdx);
+    emitterItem->setData(static_cast<u32>(emitter->type()), sRoleEmitterType);
+    emitterItem->setIcon(QIcon(":/res/icons/emitter.png"));
+
+    // Complex Data
+    if (emitter->type() == Ptcl::EmitterType::Complex || emitter->type() == Ptcl::EmitterType::Compact) {
+        addComplexNodes(emitterItem, setIndex, emitterIndex);
+    }
+    setItem->appendRow(emitterItem);
 }
 
 void PtclList::filterList(const QString& text) {
@@ -264,6 +293,8 @@ void PtclList::selectionChanged(const QItemSelection& selection) {
     QModelIndex proxyIndex = selection.indexes().first();
     QModelIndex sourceIndex = mProxyModel.mapToSource(proxyIndex);
     QStandardItem* item = mListModel.itemFromIndex(sourceIndex);
+
+    updateToolbarForSelection(item);
 
     if (!item) {
         return;
@@ -405,6 +436,136 @@ void PtclList::updateEmitterSetName(s32 setIndex) {
     setItem->setText(setName);
 }
 
+void PtclList::updateToolbarForSelection(const QStandardItem* item) {
+    mAddEmitterSetAction->setEnabled(true);
+    mAddEmitterAction->setEnabled(false);
+    mRemoveAction->setEnabled(false);
+
+    if (!item) {
+        return;
+    }
+
+    const auto type = static_cast<NodeType>(item->data(sRoleNodeType).toUInt());
+
+    switch (type) {
+    case NodeType::EmitterSet:
+        mAddEmitterAction->setEnabled(true);
+        mRemoveAction->setEnabled(true);
+        break;
+    case NodeType::Emitter:
+        mAddEmitterAction->setEnabled(true);
+        mRemoveAction->setEnabled(true);
+        break;
+    case NodeType::ChildData:
+    case NodeType::Fluctuation:
+    case NodeType::Field:
+        mAddEmitterAction->setEnabled(false);
+        break;
+    }
+}
+
+void PtclList::addEmitter() {
+    QModelIndex proxyIndex = mTreeView.currentIndex();
+    QModelIndex sourceIndex = mProxyModel.mapToSource(proxyIndex);
+    QStandardItem* item = mListModel.itemFromIndex(sourceIndex);
+
+    if (!item) {
+        return;
+    }
+
+    const s32 setIndex = mResPtr->emitterSetCount();
+    mResPtr->addNewEmitterSet();
+
+    insertEmitterSetNode(setIndex);
+    // TODO: Autoselect index after insertion
+    emit emitterSetAdded(setIndex);
+}
+
+void PtclList::addEmitterSet() {
+    QModelIndex proxyIndex = mTreeView.currentIndex();
+    QModelIndex sourceIndex = mProxyModel.mapToSource(proxyIndex);
+    QStandardItem* item = mListModel.itemFromIndex(sourceIndex);
+
+    if (!item) {
+        return;
+    }
+
+    auto type = static_cast<NodeType>(item->data(sRoleNodeType).toUInt());
+    QStandardItem* setItem = item;
+    if (type == NodeType::Emitter) {
+        setItem = item->parent();
+    }
+
+    u32 setIndex = setItem->data(sRoleSetIdx).toUInt();
+    auto& emitterSet = mResPtr->getEmitterSets()[setIndex];
+    const s32 emitterIndex = emitterSet->emitterCount();
+
+    emitterSet->addNewEmitter();
+
+    insertEmitterNode(setItem, setIndex, emitterIndex);
+    // TODO: Autoselect index after insertion
+    emit emitterAdded(setIndex, emitterIndex);
+}
+
+void PtclList::removeItem() {
+    QModelIndex proxyIndex = mTreeView.currentIndex();
+    QModelIndex sourceIndex = mProxyModel.mapToSource(proxyIndex);
+    QStandardItem* item = mListModel.itemFromIndex(sourceIndex);
+
+    if (!item) {
+        return;
+    }
+
+    auto type = static_cast<NodeType>(item->data(sRoleNodeType).toUInt());
+
+    if (type == NodeType::Emitter) {
+        removeEmitter(item->parent(), item);
+    } else if (type == NodeType::EmitterSet) {
+        removeEmitterSet(item);
+    }
+}
+
+
+void PtclList::removeEmitter(QStandardItem* setItem, QStandardItem* emitterItem) {
+    if (!setItem) {
+        return;
+    }
+
+    const s32 setIndex = setItem->data(sRoleSetIdx).toUInt();
+    const s32 emitterIndex = emitterItem->data(sRoleEmitterIdx).toUInt();
+
+    const auto& emitterSet = mResPtr->getEmitterSets()[setIndex];
+    const auto& emitter = mResPtr->getEmitterSets()[setIndex]->emitters()[emitterIndex];
+
+    const auto confirmationMessage = QString("Are you sure you want to remove the Emitter '%1'?").arg(emitter->name());
+    if (QMessageBox::question(this, "Remove Emitter", confirmationMessage) != QMessageBox::Yes) {
+        return;
+    }
+
+    emitterSet->removeEmitter(emitterIndex);
+    setItem->removeRow(emitterIndex);
+    emit emitterRemoved(setIndex, emitterIndex);
+    // TODO: Autoselect new index after removal
+}
+
+void PtclList::removeEmitterSet(QStandardItem* setItem) {
+    if (!setItem) {
+        return;
+    }
+
+    const s32 setIndex = setItem->data(sRoleSetIdx).toUInt();
+    const auto& emitterSet = mResPtr->getEmitterSets()[setIndex];
+
+    const auto confirmationMessage = QString("Are you sure you want to remove the EmitterSet '%1'?").arg(emitterSet->name());
+    if (QMessageBox::question(this, "Remove EmitterSet", confirmationMessage) != QMessageBox::Yes) {
+        return;
+    }
+
+    mResPtr->removeEmitterSet(setIndex);
+    mListModel.removeRow(setIndex);
+    emit emitterSetRemoved(setIndex);
+    // TODO: Autoselect new index after removal
+}
 
 // ========================================================================== //
 

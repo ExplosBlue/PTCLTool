@@ -11,6 +11,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QToolBar>
 
 
 namespace PtclEditor {
@@ -83,6 +84,12 @@ signals:
     void selectedFluctuation(u32 setIndex, u32 emitterIndex);
     void selectedField(u32 setIndex, u32 emitterIndex);
 
+    void emitterAdded(s32 setIndex, s32 emitterIndex);
+    void emitterSetAdded(s32 setIndex);
+
+    void emitterRemoved(s32 setIndex, s32 emitterIndex);
+    void emitterSetRemoved(s32 setIndex);
+
 private slots:
     void selectionChanged(const QItemSelection& selection);
     void filterList(const QString& text);
@@ -94,7 +101,20 @@ private:
     void addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emitterIndex);
     void ensureComplexNode(QStandardItem* emitterItem, NodeType type, const QString& label, s32 setIndex, s32 emitterIndex, bool enabled);
 
+    void updateToolbarForSelection(const QStandardItem* item);
+
     static QStandardItem* findChildByType(QStandardItem* parent, NodeType type);
+
+    void insertEmitterNode(QStandardItem* setItem, s32 setIndex, s32 emitterIndex);
+    void insertEmitterSetNode(s32 setIndex);
+
+
+    void addEmitter();
+    void addEmitterSet();
+
+    void removeItem();
+    void removeEmitter(QStandardItem* setItem, QStandardItem* emitterItem);
+    void removeEmitterSet(QStandardItem* setItem);
 
 private:
     Ptcl::PtclRes* mResPtr{nullptr};
@@ -104,6 +124,13 @@ private:
     QLineEdit mSearchBox{};
     QToolButton mFilterButton{};
     QMenu mFilterMenu{};
+
+    QToolBar mToolBar{};
+    QAction* mAddEmitterSetAction{nullptr};
+    QAction* mAddEmitterAction{nullptr};
+    QAction* mRemoveAction{nullptr};
+    // QAction* mCopyAction{nullptr};
+    // QAction* mPasteAction{nullptr};
 
     QVBoxLayout mMainLayout{};
 
