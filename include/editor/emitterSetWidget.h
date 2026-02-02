@@ -3,10 +3,8 @@
 #include "emitterWidget/emitterWidget.h"
 #include "ptcl/ptclEmitterSet.h"
 
-#include <QLabel>
+#include <QGroupBox>
 #include <QLineEdit>
-#include <QTabWidget>
-#include <QVBoxLayout>
 #include <QWidget>
 
 
@@ -16,7 +14,7 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class EmitterSetWidget : public QWidget {
+class EmitterSetWidget final : public QWidget {
     Q_OBJECT
 public:
     explicit EmitterSetWidget(QWidget* parent = nullptr);
@@ -43,14 +41,29 @@ signals:
 
 private:
     void populateProperties();
+    void setupConnections();
+
+    void updateStatusLabel();
 
 private:
-    Ptcl::EmitterSet* mEmitterSetPtr;
+    enum class EditorMode {
+        Standard,
+        Child,
+        Fluctuation,
+        Field
+    };
 
-    QVBoxLayout mMainLayout;
-    QLineEdit mNameLineEdit;
-    QLabel mEmitterCountLabel;
-    EmitterWidget mEmitterWidget;
+private:
+    Ptcl::EmitterSet* mEmitterSetPtr{nullptr};
+    s32 mCurEmitterIdx{};
+
+    QLineEdit mNameLineEdit{};
+    QSpinBox mUserDataSpinBox{};
+    QSpinBox mLastUpdateSpinBox{};
+    QGroupBox mEmitterGroup{};
+    EmitterWidget mEmitterWidget{};
+
+    EditorMode mEditorMode{EditorMode::Standard};
 };
 
 
