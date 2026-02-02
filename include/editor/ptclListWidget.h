@@ -116,6 +116,9 @@ private:
     void removeEmitter(QStandardItem* setItem, QStandardItem* emitterItem);
     void removeEmitterSet(QStandardItem* setItem);
 
+    void reindexEmitters(QStandardItem* setItem, s32 setIndex);
+    void reindexEmitterSets();
+
 private:
     Ptcl::PtclRes* mResPtr{nullptr};
 

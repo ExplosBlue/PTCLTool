@@ -133,13 +133,12 @@ void EmitterSetWidget::populateProperties() {
 }
 
 void EmitterSetWidget::updateStatusLabel() {
-    if (!mEmitterSetPtr || mCurEmitterIdx < 0) {
+    if (!mEmitterSetPtr || mCurEmitterIdx < 0 || mCurEmitterIdx >= mEmitterSetPtr->emitterCount()) {
         mEmitterGroup.setTitle({});
         return;
     }
 
     const auto& emitter = mEmitterSetPtr->emitters()[mCurEmitterIdx];
-
     auto text = QString("%1 > %2").arg(mEmitterSetPtr->name(), emitter->name());
 
     switch (mEditorMode) {

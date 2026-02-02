@@ -544,6 +544,8 @@ void PtclList::removeEmitter(QStandardItem* setItem, QStandardItem* emitterItem)
 
     emitterSet->removeEmitter(emitterIndex);
     setItem->removeRow(emitterIndex);
+    reindexEmitters(setItem, setIndex);
+
     emit emitterRemoved(setIndex, emitterIndex);
     // TODO: Autoselect new index after removal
 }
@@ -563,8 +565,48 @@ void PtclList::removeEmitterSet(QStandardItem* setItem) {
 
     mResPtr->removeEmitterSet(setIndex);
     mListModel.removeRow(setIndex);
+    reindexEmitterSets();
+
     emit emitterSetRemoved(setIndex);
     // TODO: Autoselect new index after removal
+}
+
+void PtclList::reindexEmitters(QStandardItem* setItem, s32 setIndex) {
+    if (!setItem) {
+        return;
+    }
+
+    for (s32 i = 0; i < setItem->rowCount(); ++i) {
+        QStandardItem* emitterItem = setItem->child(i);
+        if (!emitterItem) {
+            continue;
+        }
+
+        emitterItem->setData(i, sRoleEmitterIdx);
+        const auto& emitter = mResPtr->getEmitterSets()[setIndex]->emitters()[i];
+        emitterItem->setText(QString("%1: %2").arg(i).arg(emitter->name()));
+
+        for (s32 c = 0; c < emitterItem->rowCount(); ++c) {
+            QStandardItem* child = emitterItem->child(c);
+            if (child) {
+                child->setData(i, sRoleEmitterIdx);
+            }
+        }
+    }
+}
+
+void PtclList::reindexEmitterSets() {
+    for (s32 i = 0; i < mListModel.rowCount(); ++i) {
+        QStandardItem* setItem = mListModel.item(i);
+        if (!setItem) {
+            continue;
+        }
+
+        setItem->setData(i, sRoleSetIdx);
+        const auto& set = mResPtr->getEmitterSets()[i];
+        setItem->setText(QString("%1: %2").arg(i).arg(set->name()));
+        reindexEmitters(setItem, i);
+    }
 }
 
 // ========================================================================== //
