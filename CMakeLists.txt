@@ -167,6 +167,7 @@ set(PROJECT_HEADERS
 qt_add_executable(EffectTool
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES} ${PROJECT_HEADERS}
+    include/util/randomUtil.h
 )
 
 qt_add_resources(EffectTool "icons"
