@@ -25,10 +25,10 @@ EmitterWidget::ColorPropertiesWidget::ColorPropertiesWidget(QWidget* parent) :
     // Color Properties
     auto colorLabelLayout = new QHBoxLayout;
     auto colorsLayout = new QHBoxLayout;
-    for (s32 i = 0; i < mColorWidgets.size(); ++i) {
-        colorsLayout->addWidget(&mColorWidgets[i]);
-        mColorWidgets[i].setProperty("colorIndex", i);
-        connect(&mColorWidgets[i], &RGBAColorWidget::colorChanged, this, &ColorPropertiesWidget::handleColorChanged);
+    for (s32 i = 0; i < mColor0Widgets.size(); ++i) {
+        colorsLayout->addWidget(&mColor0Widgets[i]);
+        mColor0Widgets[i].setProperty("colorIndex", i);
+        connect(&mColor0Widgets[i], &RGBAColorWidget::colorChanged, this, &ColorPropertiesWidget::handleColorChanged);
         colorLabelLayout->addWidget(&mColorLabels[i]);
     }
 
@@ -52,10 +52,10 @@ EmitterWidget::ColorPropertiesWidget::ColorPropertiesWidget(QWidget* parent) :
         emit propertiesUpdated(mProps);
     });
 
-    // Color0
-    mColor0Widget.enableAlpha(false);
-    connect(&mColor0Widget, &RGBAColorWidget::colorChanged, this, [this]() {
-        const auto& color = mColor0Widget.color();
+    // Color1
+    mColor1Widget.enableAlpha(false);
+    connect(&mColor1Widget, &RGBAColorWidget::colorChanged, this, [this]() {
+        const auto& color = mColor1Widget.color();
 
         Ptcl::binColor3f newColor{
             color.r * 255.0f,
@@ -63,7 +63,7 @@ EmitterWidget::ColorPropertiesWidget::ColorPropertiesWidget(QWidget* parent) :
             color.b * 255.0f
         };
 
-        mProps.color0 = newColor;
+        mProps.color1 = newColor;
         emit propertiesUpdated(mProps);
     });
 
@@ -74,8 +74,8 @@ EmitterWidget::ColorPropertiesWidget::ColorPropertiesWidget(QWidget* parent) :
     mainLayout->addLayout(colorsLayout);
     mainLayout->addWidget(&mColorSections);
     mainLayout->addLayout(colorRepeatLayout);
-    mainLayout->addWidget(new QLabel("Color0"));
-    mainLayout->addWidget(&mColor0Widget);
+    mainLayout->addWidget(new QLabel("Color1:"));
+    mainLayout->addWidget(&mColor1Widget);
     mainLayout->addWidget(new QLabel("Calc Type:"));
     mainLayout->addWidget(&mColorCalcTypeSpinBox);
 
@@ -91,14 +91,14 @@ void EmitterWidget::ColorPropertiesWidget::populateWidgets() {
     QSignalBlocker b1(mColorSections);
     QSignalBlocker b2(mColorNumRepeatSpinBox);
     QSignalBlocker b3(mColorCalcTypeSpinBox);
-    QSignalBlocker b4(mColor0Widget);
+    QSignalBlocker b4(mColor1Widget);
 
-    QSignalBlocker bColor0(mColorWidgets[0]);
-    QSignalBlocker bColor1(mColorWidgets[1]);
-    QSignalBlocker bColor2(mColorWidgets[2]);
+    QSignalBlocker bColor0(mColor0Widgets[0]);
+    QSignalBlocker bColor1(mColor0Widgets[1]);
+    QSignalBlocker bColor2(mColor0Widgets[2]);
 
-    for (s32 i = 0; i < mColorWidgets.size(); ++i) {
-        mColorWidgets[i].setColor(mProps.colors[i]);
+    for (s32 i = 0; i < mColor0Widgets.size(); ++i) {
+        mColor0Widgets[i].setColor(mProps.color0[i]);
     }
 
     mColorSections.setTimings(
@@ -107,7 +107,7 @@ void EmitterWidget::ColorPropertiesWidget::populateWidgets() {
         mProps.colorSection3
     );
 
-    const auto& colors = mProps.colors;
+    const auto& colors = mProps.color0;
     mColorSections.setInitialColor(QColor::fromRgbF(colors[0].r, colors[0].g, colors[0].b));
     mColorSections.setPeakColor(QColor::fromRgbF(colors[1].r, colors[1].g, colors[1].b));
     mColorSections.setEndColor(QColor::fromRgbF(colors[2].r, colors[2].g, colors[2].b));
@@ -116,13 +116,13 @@ void EmitterWidget::ColorPropertiesWidget::populateWidgets() {
     mColorNumRepeatSpinBox.setValue(mProps.colorNumRepeat);
     mColorCalcTypeSpinBox.setCurrentEnum(mProps.colorCalcType);
 
-    Ptcl::binColor4f color0{
-        std::clamp(mProps.color0.r / 255.0f, 0.0f, 1.0f),
-        std::clamp(mProps.color0.g / 255.0f, 0.0f, 1.0f),
-        std::clamp(mProps.color0.b / 255.0f, 0.0f, 1.0f),
+    Ptcl::binColor4f color1{
+        std::clamp(mProps.color1.r / 255.0f, 0.0f, 1.0f),
+        std::clamp(mProps.color1.g / 255.0f, 0.0f, 1.0f),
+        std::clamp(mProps.color1.b / 255.0f, 0.0f, 1.0f),
         1.0f
     };
-    mColor0Widget.setColor(color0);
+    mColor1Widget.setColor(color1);
 
     updateUiFromFlags();
 }
@@ -166,8 +166,8 @@ void EmitterWidget::ColorPropertiesWidget::applyBehaviorToUI(Behavior behavior) 
 }
 
 void EmitterWidget::ColorPropertiesWidget::showColorWidgets(std::array<bool, 3> visibility) {
-    for (s32 i = 0; i < mColorWidgets.size(); ++i) {
-        mColorWidgets[i].setVisible(visibility[i]);
+    for (s32 i = 0; i < mColor0Widgets.size(); ++i) {
+        mColor0Widgets[i].setVisible(visibility[i]);
     }
 }
 
@@ -208,12 +208,12 @@ void EmitterWidget::ColorPropertiesWidget::handleColorChanged() {
     }
 
     s32 index = widget->property("colorIndex").toInt();
-    if (index < 0 || index >= mColorWidgets.size()) {
+    if (index < 0 || index >= mColor0Widgets.size()) {
         return;
     }
 
     const auto& color = widget->color();
-    mProps.colors[index] = color;
+    mProps.color0[index] = color;
 
     QColor qcolor = QColor::fromRgbF(color.r, color.g, color.b);
     if (index == 0) {

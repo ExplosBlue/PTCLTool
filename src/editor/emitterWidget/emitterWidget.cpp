@@ -197,7 +197,7 @@ void EmitterWidget::setupConnections() {
         if (!mEmitterPtr) { return; }
         mEmitterPtr->setColorProperties(properties);
         mCombinerProperties->updateCombinerPreview();
-        mChildEditorWidget->setParentColor0(mEmitterPtr->colorProperties().colors[0]);
+        mChildEditorWidget->setParentColor0(mEmitterPtr->colorProperties().color0[0]);
     });
 
     // Combiner Properties
@@ -310,10 +310,10 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     mRotationProperties->setProperties(mEmitterPtr->rotationProperties());
     mTextureProperties->setProperties(mEmitterPtr->textureProperties(), mEmitterPtr->textureHandle().get());
     mCombinerProperties->setProperties(mEmitterPtr->combinerProperties());
-    mCombinerProperties->setCombinerSrc(&mEmitterPtr->textureHandle(), &mEmitterPtr->colorProperties().color0, &mEmitterPtr->colorProperties().colors[0]);
+    mCombinerProperties->setCombinerSrc(&mEmitterPtr->textureHandle(), &mEmitterPtr->colorProperties().color1, &mEmitterPtr->colorProperties().color0[0]);
 
     mChildEditorWidget->setChildData(&mEmitterPtr->childData(), mEmitterPtr->complexProperties().childFlags);
-    mChildEditorWidget->setParentColor0(mEmitterPtr->colorProperties().colors[0]);
+    mChildEditorWidget->setParentColor0(mEmitterPtr->colorProperties().color0[0]);
 
     mFluctuationEditorWidget->setData(mEmitterPtr->fluctuationData(), mEmitterPtr->complexProperties().fluctuationFlags);
     mFieldEditorWidget->setData(&mEmitterPtr->fieldData(), mEmitterPtr->complexProperties().fieldFlags);

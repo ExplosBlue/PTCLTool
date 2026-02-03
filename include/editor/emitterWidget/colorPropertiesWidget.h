@@ -63,13 +63,13 @@ private:
 
     QComboBox mColorBehavior{};
     std::array<QLabel, 3> mColorLabels;
-    std::array<RGBAColorWidget, 3> mColorWidgets;
+    std::array<RGBAColorWidget, 3> mColor0Widgets;
     ColorGradientEditor mColorSections{};
     SizedSpinBox<s32> mColorNumRepeatSpinBox{};
     QLabel mRepetitionCountLabel{};
     EnumComboBox<Ptcl::ColorCalcType> mColorCalcTypeSpinBox{};
 
-    RGBAColorWidget mColor0Widget{};
+    RGBAColorWidget mColor1Widget{};
 };
 
 

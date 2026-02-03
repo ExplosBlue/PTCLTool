@@ -37,7 +37,7 @@ private:
     QWidget* mControlsContainer{nullptr};
     QDoubleSpinBox mScaleSpinBox{};
     QDoubleSpinBox mFreqSpinBox{};
-    QSpinBox mPhaseRndSpinBox{};
+    QCheckBox mPhaseRndCheckBox{};
     QCheckBox mApplyAlphaCheckBox{};
     QCheckBox mApplyScaleCheckBox{};
     QCheckBox mEnabledCheckBox{};
