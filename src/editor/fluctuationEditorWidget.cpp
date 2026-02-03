@@ -13,7 +13,7 @@ FluctuationEditorWidget::FluctuationEditorWidget(QWidget* parent) :
     // TODO: Determine better ranges?
     mScaleSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
     mFreqSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
-    mPhaseRndSpinBox.setRange(std::numeric_limits<s32>::min(), std::numeric_limits<s32>::max());
+    mPhaseRndCheckBox.setText("Randomness");
     mEnabledCheckBox.setText("Enabled");
     mApplyAlphaCheckBox.setText("Apply to alpha");
     mApplyScaleCheckBox.setText("Apply to scale");
@@ -26,7 +26,7 @@ FluctuationEditorWidget::FluctuationEditorWidget(QWidget* parent) :
     controlsLayout->addRow("Apply to scale:", &mApplyScaleCheckBox);
     controlsLayout->addRow("Fluctuation Scale:", &mScaleSpinBox);
     controlsLayout->addRow("Fluctuation Frequency:", &mFreqSpinBox);
-    controlsLayout->addRow("Phase Random:", &mPhaseRndSpinBox);
+    controlsLayout->addRow("Phase:", &mPhaseRndCheckBox);
 
     auto* mainLayout = new QFormLayout(this);
     mainLayout->addRow("Fluctuation:", &mEnabledCheckBox);
@@ -68,8 +68,8 @@ void FluctuationEditorWidget::setupConnections() {
     });
 
     // Phase Rnd
-    connect(&mPhaseRndSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
-        mData.fluctuationPhaseRnd = value;
+    connect(&mPhaseRndCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
+        mData.fluctuationPhaseRnd = checked;
         emit dataUpdated(mData);
     });
 }
@@ -77,7 +77,7 @@ void FluctuationEditorWidget::setupConnections() {
 void FluctuationEditorWidget::setData(const Ptcl::FluctuationData& data, const BitFlag<Ptcl::FluctuationFlag>& fluxFlag) {
     QSignalBlocker b1(mScaleSpinBox);
     QSignalBlocker b2(mFreqSpinBox);
-    QSignalBlocker b3(mPhaseRndSpinBox);
+    QSignalBlocker b3(mPhaseRndCheckBox);
     QSignalBlocker b4(mApplyAlphaCheckBox);
     QSignalBlocker b5(mApplyScaleCheckBox);
     QSignalBlocker b6(mEnabledCheckBox);
@@ -87,7 +87,7 @@ void FluctuationEditorWidget::setData(const Ptcl::FluctuationData& data, const B
 
     mScaleSpinBox.setValue(mData.fluctuationScale);
     mFreqSpinBox.setValue(mData.fluctuationFreq);
-    mPhaseRndSpinBox.setValue(mData.fluctuationPhaseRnd);
+    mPhaseRndCheckBox.setChecked(mData.fluctuationPhaseRnd);
 
     mApplyAlphaCheckBox.setChecked(mFluxFlag.isSet(Ptcl::FluctuationFlag::ApplyAlpha));
     mApplyScaleCheckBox.setChecked( mFluxFlag.isSet(Ptcl::FluctuationFlag::ApplyScale));

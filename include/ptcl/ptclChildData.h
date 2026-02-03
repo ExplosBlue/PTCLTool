@@ -31,10 +31,10 @@ public:
 
     struct VelocityProperties {
         Math::Vector3f randVel{0.0f, 0.0f, 0.0f};
-        Math::Vector3f gravity{0.0f, 0.0f, 0.0f};
+        Math::Vector3f gravity{0.0f, -1.0f, 0.0f};
         f32 velInheritRate{1.0f};
         f32 initPosRand{0.0f};
-        f32 figurVel{0.0f};
+        f32 figurVel{0.1f};
         f32 airResist{1.0f};
     };
 
@@ -64,7 +64,7 @@ public:
     };
 
     struct ColorProperties {
-        binColor4f color0{0.0f, 0.0f, 0.0f, 1.0f};
+        binColor4f color0{1.0f, 1.0f, 1.0f, 1.0f};
         binColor3f color1{255.0f, 255.0f, 255.0f};
     };
 

@@ -362,8 +362,8 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     billboardType = emitter.basicProperties().billboardType;
     depthFunc = emitter.combinerProperties().depthFunc;
     gravity = emitter.gravityProperties().gravity;
-    color = emitter.colorProperties().colors;
     color0 = emitter.colorProperties().color0;
+    color1 = emitter.colorProperties().color1;
     colorSection1 = emitter.colorProperties().colorSection1;
     colorSection2 = emitter.colorProperties().colorSection2;
     colorSection3 = emitter.colorProperties().colorSection3;
@@ -440,10 +440,10 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item.billboardType
         >> item.depthFunc
         >> item.gravity
-        >> item.color[0]
-        >> item.color[1]
-        >> item.color[2]
-        >> item.color0
+        >> item.color0[0]
+        >> item.color0[1]
+        >> item.color0[2]
+        >> item.color1
         >> item.colorSection1
         >> item.colorSection2
         >> item.colorSection3
@@ -523,10 +523,10 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item.billboardType
         << item.depthFunc
         << item.gravity
-        << item.color[0]
-        << item.color[1]
-        << item.color[2]
-        << item.color0
+        << item.color0[0]
+        << item.color0[1]
+        << item.color0[2]
+        << item.color1
         << item.colorSection1
         << item.colorSection2
         << item.colorSection3
@@ -609,8 +609,8 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- billboardType:         " << billboardType;
     qDebug() << indentation << "- depthFunc:             " << depthFunc;
     qDebug() << indentation << "- gravity:               " << gravity;
-    qDebug() << indentation << "- color:                 " << color.data();
-    qDebug() << indentation << "- color0:                " << color0;
+    qDebug() << indentation << "- color0:                " << color0.data();
+    qDebug() << indentation << "- color1:                " << color1;
     qDebug() << indentation << "- colorSection1:         " << colorSection1;
     qDebug() << indentation << "- colorSection2:         " << colorSection2;
     qDebug() << indentation << "- colorSection3:         " << colorSection3;

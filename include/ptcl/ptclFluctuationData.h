@@ -9,9 +9,9 @@ namespace Ptcl {
 
 
 struct FluctuationData {
-    f32 fluctuationScale{};
-    f32 fluctuationFreq{};
-    s32 fluctuationPhaseRnd{};
+    f32 fluctuationScale{1.0f};
+    f32 fluctuationFreq{20.0f};
+    bool fluctuationPhaseRnd{false};
 };
 
 

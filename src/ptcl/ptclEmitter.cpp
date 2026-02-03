@@ -310,7 +310,7 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     };
 
     mColorProperties = {
-        .colors = emitterData.color,
+        .color0 = emitterData.color0,
         .colorSection1 = emitterData.colorSection1,
         .colorSection2 = emitterData.colorSection2,
         .colorSection3 = emitterData.colorSection3,
@@ -318,7 +318,7 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .colorRandom = emitterData.flag.isSet(EmitterFlag::ColorRandom),
         .colorAnimation = emitterData.flag.isSet(EmitterFlag::ColorAnimation),
         .colorCalcType = static_cast<ColorCalcType>(emitterData.rotCalcType / 5),
-        .color0 = emitterData.color0
+        .color1 = emitterData.color1
     };
 
     mAlphaProperties = {

@@ -264,8 +264,8 @@ struct alignas(4) BinCommonEmitterData {
     BillboardType billboardType;                // 0x94
     DepthFuncType depthFunc;                    // 0x98
     binVec3f gravity;                           // 0x9C
-    std::array<binColor4f, 3> color;            // 0xA8
-    binColor3f color0;                          // 0xD8
+    std::array<binColor4f, 3> color0;           // 0xA8
+    binColor3f color1;                          // 0xD8
     s32 colorSection1;                          // 0xE4
     s32 colorSection2;                          // 0xE8
     s32 colorSection3;                          // 0xEC

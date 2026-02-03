@@ -1,4 +1,5 @@
 #include "ptcl/ptclSeed.h"
+#include "util/randomUtil.h"
 
 #include <QtLogging>
 
@@ -6,7 +7,10 @@
 // ========================================================================== //
 
 
-PtclSeed::PtclSeed() = default;
+PtclSeed::PtclSeed() {
+    setMode(Mode::ConstantSeed);
+    setConstantSeed(Random::randomInt(1u, 0xFFFFFFFE));
+};
 
 PtclSeed::PtclSeed(u32 raw) :
     mValue{raw} {}

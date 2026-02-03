@@ -392,6 +392,10 @@ std::optional<Math::Vector2f> EmitterWidget::TexturePropertiesWidget::calcFrameU
 }
 
 QImage EmitterWidget::TexturePropertiesWidget::getFrameTexture(s32 frame) const {
+    if (!mTexture) {
+        return {};
+    }
+
     auto uv = calcFrameUVOffset(frame);
     if (!uv) {
         return {};

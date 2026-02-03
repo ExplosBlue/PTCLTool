@@ -52,18 +52,18 @@ public:
 
     struct RotationProperties {
         RotType rotType{RotType::None};
-        Math::Vector3i initRot{};
-        Math::Vector3i initRotRand{};
-        Math::Vector3i rotVel{};
-        Math::Vector3i rotVelRand{};
+        Math::Vector3i initRot{0, 0, 0};
+        Math::Vector3i initRotRand{0, 0, 0};
+        Math::Vector3i rotVel{0, 0, 0};
+        Math::Vector3i rotVelRand{0, 0, 0};
         Math::Vector2f rotBasis{0.0f, 0.0f};
     };
 
     struct ColorProperties {
-        std::array<binColor4f, 3> colors{
-            binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
-            binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
-            binColor4f{0.0f, 0.0f, 0.0f, 1.0f},
+        std::array<binColor4f, 3> color0{
+            binColor4f{1.0f, 1.0f, 1.0f, 1.0f},
+            binColor4f{1.0f, 1.0f, 1.0f, 1.0f},
+            binColor4f{1.0f, 1.0f, 1.0f, 1.0f},
         };
         s32 colorSection1{20};
         s32 colorSection2{60};
@@ -74,15 +74,15 @@ public:
         bool colorAnimation{false};
         ColorCalcType colorCalcType{ColorCalcType::None};
 
-        binColor3f color0{255.0f, 255.0f, 255.0f};
+        binColor3f color1{255.0f, 255.0f, 255.0f};
     };
 
     struct AlphaProperties {
-        f32 initAlpha{0.0f};
+        f32 initAlpha{1.0f};
         f32 diffAlpha21{0.0f};
         f32 diffAlpha32{0.0f};
         s32 alphaSection1{0};
-        s32 alphaSection2{0};
+        s32 alphaSection2{100};
     };
 
     struct VolumeProperties {
@@ -94,8 +94,8 @@ public:
     };
 
     struct VelocityProperties {
-        f32 figureVel{0.0f};
-        Math::Vector3f emitterVelDir{0.0f, 0.0f, 0.0f};
+        f32 figureVel{0.1f};
+        Math::Vector3f emitterVelDir{0.0f, 1.0f, 0.0f};
         f32 initVel{0.0f};
         f32 initVelRnd{0.0f};
         Math::Vector3f spreadVec{0.0f, 0.0f, 0.0f};
@@ -111,7 +111,7 @@ public:
     };
 
     struct TerminationProperties {
-        bool isStopEmitInFade{false};
+        bool isStopEmitInFade{true};
         f32 alphaAddInFade{0.0f};
     };
 
@@ -121,8 +121,16 @@ public:
     };
 
     struct TransformProperties {
-        Math::Matrix34f transformSRT{};
-        Math::Matrix34f transformRT{};
+        Math::Matrix34f transformSRT{
+            {1.0f, 0.0f, 0.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f, 0.0f},
+            {0.0f, 0.0f, 1.0f, 0.0f},
+        };
+        Math::Matrix34f transformRT{
+            {1.0f, 0.0f, 0.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f, 0.0f},
+            {0.0f, 0.0f, 1.0f, 0.0f},
+        };
     };
 
     struct GravityProperties {
@@ -137,13 +145,13 @@ public:
         TextureFilter textureMinFilter{TextureFilter::Nearest};
         TextureMipFilter textureMipFilter{TextureMipFilter::None};
 
-        u16 numTexPat{0};
+        u16 numTexPat{1};
         u8 numTexDivX{1};
         u8 numTexDivY{1};
         Math::Vector2f texUVScale{1.0f, 1.0f};
         std::array<u8, 16> texPatTbl{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        u16 texPatFreq{0};
-        u16 texPatTblUse{0};
+        u16 texPatFreq{1};
+        u16 texPatTblUse{2};
         bool isTexPatAnim{false};
     };
 
@@ -155,9 +163,18 @@ public:
     };
 
     struct ComplexProperties {
-        BitFlag<ChildFlag> childFlags{};
+        BitFlag<ChildFlag> childFlags{
+            ChildFlag::AlphaInherit,
+            ChildFlag::ScaleInherit,
+            ChildFlag::RotateInherit,
+            ChildFlag::IsFollow,
+            ChildFlag::Unk80
+        };
         BitFlag<FieldFlag> fieldFlags{};
-        BitFlag<FluctuationFlag> fluctuationFlags{};
+        BitFlag<FluctuationFlag> fluctuationFlags{
+            FluctuationFlag::ApplyAlpha,
+            FluctuationFlag::ApplyScale
+        };
         BitFlag<StripeFlag> stripeFlags{};
     };
 
