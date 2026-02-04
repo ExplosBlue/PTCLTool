@@ -150,7 +150,7 @@ public:
         u8 numTexDivY{1};
         Math::Vector2f texUVScale{1.0f, 1.0f};
         std::array<u8, 16> texPatTbl{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        u16 texPatFreq{1};
+        u16 texPatFreq{0};
         u16 texPatTblUse{2};
         bool isTexPatAnim{false};
     };
