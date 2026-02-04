@@ -24,21 +24,24 @@ public:
     TextureFormat textureFormat() const;
 
     u32 userCount() const;
-
     u32 Id() const;
+
+    bool isPlaceholder() const;
 
     void replaceTexture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format);
     void replaceTexture(const Texture& other);
 
-private:
-    std::vector<u8> mEncodedData;
-    TextureFormat mTextureFormat;
-    QImage mDecodedTexture;
+    static const std::shared_ptr<Texture>& placeholder();
 
-    // TODO: maybe other stuff here?
+private:
+    std::vector<u8> mEncodedData{};
+    TextureFormat mTextureFormat{};
+    QImage mDecodedTexture{};
 
     inline static u32 sNextId = 0;
-    u32 mId;
+
+    u32 mId{};
+    bool mIsPlaceholder{false};
 
 protected:
     u32 mUserCount = 0;
@@ -65,7 +68,7 @@ public:
     std::shared_ptr<Texture> get() const;
     void set(const std::shared_ptr<Texture>& texture);
 
-    TextureHandle& operator=(std::shared_ptr<Texture> texture);
+    TextureHandle& operator=(const std::shared_ptr<Texture>& texture);
     std::shared_ptr<Texture> operator->() const;
 
 private:

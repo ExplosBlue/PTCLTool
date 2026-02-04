@@ -1,6 +1,7 @@
 #include "ptcl/ptclTexture.h"
 #include "util/imageUtil.h"
 
+#include <memory>
 #include <utility>
 
 
@@ -39,7 +40,12 @@ u32 Texture::Id() const {
     return mId;
 }
 
+bool Texture::isPlaceholder() const {
+    return mIsPlaceholder;
+}
+
 void Texture::replaceTexture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format) {
+    mEncodedData = std::move(*encodedData);
     mTextureFormat = format;
     mDecodedTexture = ImageUtil::picaTextureToQImage(mEncodedData, width, height, format);
 
@@ -52,6 +58,34 @@ void Texture::replaceTexture(const Texture& other) {
     mTextureFormat = other.mTextureFormat;
     mEncodedData = other.mEncodedData;
     mDecodedTexture = other.mDecodedTexture;
+}
+
+const std::shared_ptr<Texture>& Texture::placeholder() {
+    static std::shared_ptr<Texture> sPlaceholder = [] {
+        constexpr s32 width = 8;
+        constexpr s32 height = 8;
+        constexpr s32 tile = width / 2;
+
+        QImage img(width, height, QImage::Format_RGBA8888);
+        img.fill(Qt::magenta);
+
+        const QColor c0(Qt::magenta);
+        const QColor c1(Qt::black);
+
+        for (s32 y = 0; y < height; ++y) {
+            for (s32 x = 0; x < width; ++x) {
+                bool odd = ((x / tile) + (y / tile)) & 1;
+                img.setPixelColor(x, y, odd ? c0 : c1);
+            }
+        }
+
+        auto encoded = ImageUtil::QImageToPicaTexture(img, TextureFormat::ETC1);
+        auto tex = std::make_shared<Texture>(&encoded, width, height, TextureFormat::ETC1);
+
+        tex->mIsPlaceholder = true;
+        return tex;
+    }();
+    return sPlaceholder;
 }
 
 // ========================================================================== //
@@ -76,11 +110,10 @@ bool TextureHandle::isValid() const {
 }
 
 std::shared_ptr<Texture> TextureHandle::get() const {
-    return mTexturePtr;
+    return mTexturePtr ? mTexturePtr : Texture::placeholder();
 }
 
-void TextureHandle::set(const std::shared_ptr<Texture>& texture)
-{
+void TextureHandle::set(const std::shared_ptr<Texture>& texture) {
     if (mTexturePtr != texture) {
         decrementCount();
         mTexturePtr = texture;
@@ -88,24 +121,24 @@ void TextureHandle::set(const std::shared_ptr<Texture>& texture)
     }
 }
 
-TextureHandle& TextureHandle::operator=(std::shared_ptr<Texture> texture) {
+TextureHandle& TextureHandle::operator=(const std::shared_ptr<Texture>& texture) {
     set(std::move(texture));
     return *this;
 }
 
 
 std::shared_ptr<Texture> TextureHandle::operator->() const {
-    return mTexturePtr;
+    return get();
 }
 
 void TextureHandle::incrementCount() {
-    if (mTexturePtr) {
+    if (mTexturePtr && !mTexturePtr->isPlaceholder()) {
         mTexturePtr->mUserCount++;
     }
 }
 
 void TextureHandle::decrementCount() {
-    if (mTexturePtr) {
+    if (mTexturePtr && !mTexturePtr->isPlaceholder()) {
         mTexturePtr->mUserCount--;
     }
 }
