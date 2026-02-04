@@ -72,6 +72,8 @@ public:
 
     void setPtclRes(Ptcl::PtclRes* ptclRes);
 
+    void selectEmitter(s32 setIndex, s32 emitterIndex);
+
     void updateEmitter(s32 setIndex, s32 emitterIndex);
     void updateEmitterName(s32 setIndex, s32 emitterIndex);
     void updateEmitterSetName(s32 setIndex);
@@ -107,7 +109,6 @@ private:
 
     void insertEmitterNode(QStandardItem* setItem, s32 setIndex, s32 emitterIndex);
     void insertEmitterSetNode(s32 setIndex);
-
 
     void addEmitter();
     void addEmitterSet();
