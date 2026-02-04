@@ -75,6 +75,7 @@ private:
     QComboBox mBillboardComboBox{};
     QComboBox mShapeComboBox{};
     QComboBox mStripeTypeComboBox{};
+    QCheckBox mIsBillboardMtxCheckBox{};
 };
 
 

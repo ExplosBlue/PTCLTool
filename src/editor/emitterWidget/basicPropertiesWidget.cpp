@@ -52,6 +52,7 @@ EmitterWidget::BasicPropertiesWidget::BasicPropertiesWidget(QWidget* parent) :
     mMainLayout->addRow("Shape:", &mShapeComboBox);
     mMainLayout->addRow("Billboard Type:", &mBillboardComboBox);
     mMainLayout->addRow("Stripe Type:", &mStripeTypeComboBox);
+    mMainLayout->addRow("Is Billboard Matrix:", &mIsBillboardMtxCheckBox);
 
     setupConnections();
 }
@@ -139,13 +140,18 @@ void EmitterWidget::BasicPropertiesWidget::setupConnections() {
         applyBillboardType(mStripeTypeComboBox.currentData().value<Ptcl::BillboardType>());
         emit propertiesUpdated(mProps);
     });
+
+    // Is Billboard Mtx
+    connect(&mIsBillboardMtxCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
+        mProps.isEmitterBillboardMtx = checked;
+        emit propertiesUpdated(mProps);
+    });
 }
 
 void EmitterWidget::BasicPropertiesWidget::applyBillboardType(Ptcl::BillboardType type) {
     mProps.billboardType = type;
     mProps.isPolygon = (type == Ptcl::BillboardType::PolygonXY || type == Ptcl::BillboardType::PolygonXZ);
     mProps.isVelLook = (type == Ptcl::BillboardType::VelLook || type == Ptcl::BillboardType::VelLookPolygon);
-    mProps.isEmitterBillboardMtx = mProps.isVelLook;
 }
 
 bool EmitterWidget::BasicPropertiesWidget::isBillboardAllowedForShape(Ptcl::BillboardType billboard, ShapeType shape) {
@@ -184,6 +190,7 @@ void EmitterWidget::BasicPropertiesWidget::setProperties(const Ptcl::Emitter::Ba
     QSignalBlocker b6(mBillboardComboBox);
     QSignalBlocker b7(mShapeComboBox);
     QSignalBlocker b8(mStripeTypeComboBox);
+    QSignalBlocker b9(mIsBillboardMtxCheckBox);
 
     mProps = properties;
 
@@ -204,6 +211,8 @@ void EmitterWidget::BasicPropertiesWidget::setProperties(const Ptcl::Emitter::Ba
     const auto shapeType = shapeFromBillboard(mProps.billboardType);
     const s32 shapeIndex = mShapeComboBox.findData(QVariant::fromValue(shapeType));
     mShapeComboBox.setCurrentIndex(shapeIndex);
+
+    mIsBillboardMtxCheckBox.setChecked(mProps.isEmitterBillboardMtx);
 
     syncBillboardSelection();
     updateBillboardRowVisibility();
