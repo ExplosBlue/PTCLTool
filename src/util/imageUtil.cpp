@@ -193,8 +193,6 @@ inline std::vector<u8> ETC1Compress(const std::vector<u8>& rgba, s32 width, s32 
 
                 params.m_dithering = dither;
 
-                qDebug() << block_rgba;
-
                 rg_etc1::pack_etc1_block(compressed_color.data(), block_rgba.data(), params);
 
                 // Write alpha block if needed
