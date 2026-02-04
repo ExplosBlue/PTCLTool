@@ -391,6 +391,30 @@ void PtclList::ensureComplexNode(QStandardItem* emitterItem, NodeType type, cons
     item->setData(enabled, sRoleEnabled);
 }
 
+void PtclList::selectEmitter(s32 setIndex, s32 emitterIndex) {
+    const QStandardItem* setItem = mListModel.item(setIndex);
+    if (!setItem) {
+        return;
+    }
+
+    const QStandardItem* emitterItem = setItem->child(emitterIndex);
+    if (!emitterItem) {
+        return;
+    }
+
+    const QModelIndex sourceIndex = mListModel.indexFromItem(emitterItem);
+    const QModelIndex proxyIndex = mProxyModel.mapFromSource(sourceIndex);
+
+    if (!proxyIndex.isValid()) {
+        return;
+    }
+
+    auto* selection = mTreeView.selectionModel();
+
+    selection->clearSelection();
+    selection->setCurrentIndex(proxyIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    mTreeView.scrollTo(proxyIndex);
+}
 
 void PtclList::updateEmitter(s32 setIndex, s32 emitterIndex) {
     const QStandardItem* setItem = mListModel.item(setIndex);
@@ -448,14 +472,23 @@ void PtclList::updateToolbarForSelection(const QStandardItem* item) {
     const auto type = static_cast<NodeType>(item->data(sRoleNodeType).toUInt());
 
     switch (type) {
-    case NodeType::EmitterSet:
+    case NodeType::EmitterSet: {
         mAddEmitterAction->setEnabled(true);
         mRemoveAction->setEnabled(true);
         break;
-    case NodeType::Emitter:
+    }
+    case NodeType::Emitter: {
         mAddEmitterAction->setEnabled(true);
-        mRemoveAction->setEnabled(true);
+
+        const auto* setItem = item->parent();
+        if (!setItem) {
+            break;
+        }
+
+        const s32 emitterCount = setItem->rowCount();
+        mRemoveAction->setEnabled(emitterCount > 1);
         break;
+    }
     case NodeType::ChildData:
     case NodeType::Fluctuation:
     case NodeType::Field:
@@ -546,8 +579,13 @@ void PtclList::removeEmitter(QStandardItem* setItem, QStandardItem* emitterItem)
     setItem->removeRow(emitterIndex);
     reindexEmitters(setItem, setIndex);
 
+    const s32 remainingCount = setItem->rowCount();
+    if (remainingCount > 0) {
+        const s32 nextIndex = qMin(emitterIndex, remainingCount - 1);
+        selectEmitter(setIndex, nextIndex);
+    }
+
     emit emitterRemoved(setIndex, emitterIndex);
-    // TODO: Autoselect new index after removal
 }
 
 void PtclList::removeEmitterSet(QStandardItem* setItem) {

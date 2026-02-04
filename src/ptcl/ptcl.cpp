@@ -329,7 +329,7 @@ bool PtclRes::save(const QString& filePath) {
             .lastUpdateDate = emitterSet->lastUpdateDate(),
             .namePos        = nameTblCurOffset,
             .namePtr        = 0,
-            .numEmitter     = emitterSet->emitterCount(),
+            .numEmitter     = static_cast<u32>(emitterSet->emitterCount()),
             .emitterTblPos  = emitterTblDataCurOffset,
             .emitterTbl     = 0
         };
