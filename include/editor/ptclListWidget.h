@@ -89,7 +89,7 @@ signals:
     void emitterAdded(s32 setIndex, s32 emitterIndex);
     void emitterSetAdded(s32 setIndex);
 
-    void emitterRemoved(s32 setIndex, s32 emitterIndex);
+    void emitterRemoved(s32 setIndex, s32 newEmitterIndex);
     void emitterSetRemoved(s32 setIndex);
 
 private slots:
