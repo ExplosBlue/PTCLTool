@@ -24,30 +24,27 @@ TextureListItem::TextureListItem(const QString& text, QIcon thumbnail, QWidget* 
     setMouseTracking(true);
     setAttribute(Qt::WA_Hover);
 
-    // Create a layout for the custom item
     auto* layout = new QHBoxLayout(this);
     layout->setAlignment(Qt::AlignTop);
     layout->setContentsMargins(5, 5, 5, 5);
 
-    // Create a label for the thumbnail
     auto* thumbnailWidget = new ThumbnailWidget(this);
     thumbnailWidget->setPixmap(mThumbnail.pixmap(64, 64));
     thumbnailWidget->setThumbnailSize(QSize(64, 64));
     layout->addWidget(thumbnailWidget);
 
-    // Create a label for the text
     auto* textLabel = new QLabel(text, this);
     textLabel->setWordWrap(true);
     layout->addWidget(textLabel);
 
     // Export Action
     mExportAction.setText("Export");
-    mExportAction.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSave)); // TODO: Better icon
+    mExportAction.setIcon(QIcon(":/res/icons/export_image.png"));
     connect(&mExportAction, &QAction::triggered, this, [this](){ emit exportImage(); });
 
     // Replace Action
     mReplaceAction.setText("Replace");
-    mReplaceAction.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSave)); // TODO: Better icon
+    mReplaceAction.setIcon(QIcon(":/res/icons/replace_image.png"));
     connect(&mReplaceAction, &QAction::triggered, this, [this](){ emit replaceTexture(); });
 
     setLayout(layout);
@@ -99,17 +96,18 @@ TextureListWidget::TextureListWidget(QWidget *parent) :
 
     // Export All
     mActionExportAll.setText("Export All");
-    // mActionExportAll.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::NThemeIcons)); // TODO: Add a better icon for this
+    mActionExportAll.setIcon(QIcon(":/res/icons/export_image.png"));
     connect(&mActionExportAll, &QAction::triggered, this, &TextureListWidget::exportAll);
 
     // Import Texture
     mActionImportTexture.setText("Import Texture");
-    // mActionImportTexture.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::NThemeIcons)); // TODO: Add a better icon for this
+    mActionImportTexture.setIcon(QIcon(":/res/icons/import_image.png"));
     connect(&mActionImportTexture, &QAction::triggered, this, &TextureListWidget::importTexture);
 
     // Toolbar
     mToolbar.addAction(&mActionExportAll);
     mToolbar.addAction(&mActionImportTexture);
+    mToolbar.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     mainLayout->addWidget(&mToolbar);
 
     // Scroll Area
@@ -298,15 +296,15 @@ void TextureListWidget::setupListItem(TextureListItem* item, int index) {
     auto userCount = texture->userCount();
 
     QString sizeString = (sizeBytes < 1024) ?
-                            QString("%1 Bytes").arg(sizeBytes) :
-                            QString("%1 KB").arg(sizeBytes / 1024);
+        QString("%1 Bytes").arg(sizeBytes) :
+        QString("%1 KB").arg(sizeBytes / 1024);
 
     QString text = QString("Format: %1 \nDimentions: %2x%3\nSize: %4\nUsers: %5")
-                       .arg(toString(format))
-                       .arg(width)
-                       .arg(height)
-                       .arg(sizeString)
-                       .arg(userCount);
+        .arg(toString(format))
+        .arg(width)
+        .arg(height)
+        .arg(sizeString)
+        .arg(userCount);
 
     // Update existing item
     if (item) {
@@ -328,6 +326,12 @@ void TextureListWidget::setupListItem(TextureListItem* item, int index) {
         newItem->setProperty("textureIndex", index);
         connect(newItem, &TextureListItem::exportImage, this, &TextureListWidget::exportImage);
         connect(newItem, &TextureListItem::replaceTexture, this, &TextureListWidget::replaceTexture);
+
+        texture->setUserCountCallback([this, index](u32 userCount) {
+            Q_UNUSED(userCount);
+            updateItemAt(index);
+        });
+
         mItemWidgets.push_back(newItem);
     }
 }

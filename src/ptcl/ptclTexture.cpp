@@ -88,6 +88,26 @@ const std::shared_ptr<Texture>& Texture::placeholder() {
     return sPlaceholder;
 }
 
+void Texture::setUserCountCallback(const Texture::UserCountCallback& callback) {
+    mUserCountCallBack = callback;
+}
+
+void Texture::incrementUserCount() {
+    mUserCount++;
+
+    if (mUserCountCallBack) {
+        mUserCountCallBack(mUserCount);
+    }
+}
+
+void Texture::decrementUserCount() {
+    mUserCount--;
+
+    if (mUserCountCallBack) {
+        mUserCountCallBack(mUserCount);
+    }
+}
+
 // ========================================================================== //
 
 
@@ -100,8 +120,36 @@ TextureHandle::~TextureHandle() {
     decrementCount();
 }
 
+TextureHandle::TextureHandle(const TextureHandle& other)
+    : mTexturePtr(other.mTexturePtr) {
+    incrementCount();
+}
+
+TextureHandle::TextureHandle(TextureHandle&& other) noexcept
+    : mTexturePtr(std::move(other.mTexturePtr)) {
+    other.mTexturePtr = nullptr;
+}
+
+TextureHandle& TextureHandle::operator=(const TextureHandle& other) {
+    if (this != &other) {
+        decrementCount();
+        mTexturePtr = other.mTexturePtr;
+        incrementCount();
+    }
+    return *this;
+}
+
+TextureHandle& TextureHandle::operator=(TextureHandle&& other) noexcept {
+    if (this != &other) {
+        decrementCount();
+        mTexturePtr = std::move(other.mTexturePtr);
+        other.mTexturePtr = nullptr;
+    }
+    return *this;
+}
+
 TextureHandle TextureHandle::clone() const {
-    return {mTexturePtr};
+    return *this;
 }
 
 void TextureHandle::invalidate() {
@@ -135,13 +183,13 @@ std::shared_ptr<Texture> TextureHandle::operator->() const {
 
 void TextureHandle::incrementCount() {
     if (mTexturePtr && !mTexturePtr->isPlaceholder()) {
-        mTexturePtr->mUserCount++;
+        mTexturePtr->incrementUserCount();
     }
 }
 
 void TextureHandle::decrementCount() {
     if (mTexturePtr && !mTexturePtr->isPlaceholder()) {
-        mTexturePtr->mUserCount--;
+        mTexturePtr->decrementUserCount();
     }
 }
 

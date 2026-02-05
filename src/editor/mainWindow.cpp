@@ -148,12 +148,6 @@ void MainWindow::setupConnections() {
         setDirty(true);
     });
 
-    // Emitter Widget
-    connect(&mEmitterWidget, &EmitterWidget::textureUpdated, this, [this](s32 oldIndex, s32 newIndex) {
-        if (oldIndex >= 0) { mTextureWidget.updateItemAt(oldIndex); }
-        if (newIndex >= 0) { mTextureWidget.updateItemAt(newIndex); }
-    });
-
     connect(&mEmitterWidget, &EmitterWidget::emitterNameChanged, this, [this]() {
         mPtclList.updateEmitterName(mCurEmitterSetIdx, mCurEmitterIdx);
         updatePropertiesStatus();

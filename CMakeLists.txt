@@ -176,12 +176,16 @@ qt_add_resources(EffectTool "icons"
         res/icons/add_emitter.png
         res/icons/add_emitterset.png
         res/icons/copy.png
+        res/icons/delete_image.png
         res/icons/emitter.png
         res/icons/emitterset.png
         res/icons/emitterset_expanded.png
+        res/icons/export_image.png
         res/icons/filter.png
+        res/icons/import_image.png
         res/icons/paste.png
         res/icons/remove.png
+        res/icons/replace_image.png
 )
 
 if(ENABLE_ASAN AND CMAKE_BUILD_TYPE STREQUAL "Debug")

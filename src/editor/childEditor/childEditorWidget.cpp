@@ -186,8 +186,6 @@ void ChildEditorWidget::setupConnections() {
     connect(mTextureProperties, &TexturePropertiesWidget::textureUpdated, this, [this](const std::shared_ptr<Ptcl::Texture>& oldTexture, const std::shared_ptr<Ptcl::Texture>& newTexture) {
         if (!mDataPtr) { return; }
         mDataPtr->setTexture(newTexture);
-
-        emit textureUpdated(oldTexture, newTexture);
         mCombinerProperties->updateCombinerPreview();
     });
 
