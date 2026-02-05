@@ -128,10 +128,10 @@ PtclList::PtclList(QWidget* parent) :
     mToolBar.setToolButtonStyle(Qt::ToolButtonIconOnly);
 
     mAddEmitterSetAction = mToolBar.addAction(QIcon(":/res/icons/add_emitterset.png"), "Add Emitter Set");
-    connect(mAddEmitterSetAction, &QAction::triggered, this, &PtclList::addEmitter);
+    connect(mAddEmitterSetAction, &QAction::triggered, this, &PtclList::addEmitterSet);
 
     mAddEmitterAction = mToolBar.addAction(QIcon(":/res/icons/add_emitter.png"), "Add Emitter");
-    connect(mAddEmitterAction, &QAction::triggered, this, &PtclList::addEmitterSet);
+    connect(mAddEmitterAction, &QAction::triggered, this, &PtclList::addEmitter);
 
     mToolBar.addSeparator();
 
@@ -300,25 +300,37 @@ void PtclList::selectionChanged(const QItemSelection& selection) {
     }
 
     auto type = static_cast<NodeType>(item->data(sRoleNodeType).toUInt());
-    u32 setIndex = item->data(sRoleSetIdx).toUInt();
-    u32 emitterIndex = item->data(sRoleEmitterIdx).toUInt();
 
     switch (type) {
-    case NodeType::EmitterSet:
-        emit selectedEmitterSetChanged(setIndex);
-        break;
-    case NodeType::Emitter:
-        emit selectedEmitterChanged(setIndex, emitterIndex);
-        break;
-    case NodeType::ChildData:
-        emit selectedChildData(setIndex, emitterIndex);
-        break;
-    case NodeType::Fluctuation:
-        emit selectedFluctuation(setIndex, emitterIndex);
-        break;
-    case NodeType::Field:
-        emit selectedField(setIndex, emitterIndex);
-        break;
+        case NodeType::EmitterSet: {
+            const u32 setIndex = sourceIndex.row();
+            emit selectedEmitterSetChanged(setIndex);
+            break;
+        }
+        case NodeType::Emitter: {
+            const u32 emitterIndex = sourceIndex.row();
+            const u32 setIndex = sourceIndex.parent().row();
+            emit selectedEmitterChanged(setIndex, emitterIndex);
+            break;
+        }
+        case NodeType::ChildData: {
+            const u32 emitterIndex = sourceIndex.row();
+            const u32 setIndex = sourceIndex.parent().row();
+            emit selectedChildData(setIndex, emitterIndex);
+            break;
+        }
+        case NodeType::Fluctuation: {
+            const u32 emitterIndex = sourceIndex.row();
+            const u32 setIndex = sourceIndex.parent().row();
+            emit selectedFluctuation(setIndex, emitterIndex);
+            break;
+        }
+        case NodeType::Field: {
+            const u32 emitterIndex = sourceIndex.row();
+            const u32 setIndex = sourceIndex.parent().row();
+            emit selectedField(setIndex, emitterIndex);
+            break;
+        }
     }
 }
 
@@ -415,6 +427,26 @@ void PtclList::selectEmitter(s32 setIndex, s32 emitterIndex) {
     mTreeView.scrollTo(proxyIndex);
 }
 
+void PtclList::selectEmitterSet(s32 setIndex) {
+    const QStandardItem* setItem = mListModel.item(setIndex);
+    if (!setItem) {
+        return;
+    }
+
+    const QModelIndex sourceIndex = mListModel.indexFromItem(setItem);
+    const QModelIndex proxyIndex = mProxyModel.mapFromSource(sourceIndex);
+
+    if (!proxyIndex.isValid()) {
+        return;
+    }
+
+    auto* selection = mTreeView.selectionModel();
+
+    selection->clearSelection();
+    selection->setCurrentIndex(proxyIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    mTreeView.scrollTo(proxyIndex);
+}
+
 void PtclList::updateEmitter(s32 setIndex, s32 emitterIndex) {
     const QStandardItem* setItem = mListModel.item(setIndex);
     if (!setItem) {
@@ -496,7 +528,7 @@ void PtclList::updateToolbarForSelection(const QStandardItem* item) {
     }
 }
 
-void PtclList::addEmitter() {
+void PtclList::addEmitterSet() {
     QModelIndex proxyIndex = mTreeView.currentIndex();
     QModelIndex sourceIndex = mProxyModel.mapToSource(proxyIndex);
     QStandardItem* item = mListModel.itemFromIndex(sourceIndex);
@@ -509,11 +541,11 @@ void PtclList::addEmitter() {
     mResPtr->addNewEmitterSet();
 
     insertEmitterSetNode(setIndex);
-    // TODO: Autoselect index after insertion
-    emit emitterSetAdded(setIndex);
+    selectEmitterSet(setIndex);
+    expandSourceIndex(mListModel.index(setIndex, 0));
 }
 
-void PtclList::addEmitterSet() {
+void PtclList::addEmitter() {
     QModelIndex proxyIndex = mTreeView.currentIndex();
     QModelIndex sourceIndex = mProxyModel.mapToSource(proxyIndex);
     QStandardItem* item = mListModel.itemFromIndex(sourceIndex);
@@ -535,8 +567,8 @@ void PtclList::addEmitterSet() {
     emitterSet->addNewEmitter();
 
     insertEmitterNode(setItem, setIndex, emitterIndex);
-    // TODO: Autoselect index after insertion
-    emit emitterAdded(setIndex, emitterIndex);
+    selectEmitter(setIndex, emitterIndex);
+    expandSourceIndex(mListModel.indexFromItem(setItem));
 }
 
 void PtclList::removeItem() {
@@ -582,7 +614,6 @@ void PtclList::removeEmitter(QStandardItem* setItem, QStandardItem* emitterItem)
     if (remainingCount > 0) {
         const s32 nextIndex = qMin(emitterIndex, remainingCount - 1);
         selectEmitter(setIndex, nextIndex);
-        emit emitterRemoved(setIndex, emitterIndex);
     }
 }
 
@@ -603,8 +634,11 @@ void PtclList::removeEmitterSet(QStandardItem* setItem) {
     mListModel.removeRow(setIndex);
     reindexEmitterSets();
 
-    emit emitterSetRemoved(setIndex);
-    // TODO: Autoselect new index after removal
+    const s32 remainingCount = mListModel.rowCount();
+    if (remainingCount > 0) {
+        const s32 nextIndex = qMin(setIndex, remainingCount - 1);
+        selectEmitterSet(nextIndex);
+    }
 }
 
 void PtclList::reindexEmitters(QStandardItem* setItem, s32 setIndex) {
@@ -644,6 +678,14 @@ void PtclList::reindexEmitterSets() {
         reindexEmitters(setItem, i);
     }
 }
+
+void PtclList::expandSourceIndex(const QModelIndex& sourceIndex) {
+    const QModelIndex proxyIndex = mProxyModel.mapFromSource(sourceIndex);
+    if (proxyIndex.isValid()) {
+        mTreeView.expand(proxyIndex);
+    }
+}
+
 
 // ========================================================================== //
 
