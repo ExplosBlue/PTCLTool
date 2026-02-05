@@ -84,9 +84,9 @@ public:
 
 public:
     ChildData() = default;
-
     ChildData(const ChildData&) = delete;
-    ChildData& operator=(const ChildData&) = delete;
+
+    std::unique_ptr<ChildData> clone() const;
 
     TextureHandle& textureHandle();
     const TextureHandle& textureHandle() const;

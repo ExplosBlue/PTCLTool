@@ -184,6 +184,8 @@ public:
     Emitter(const Emitter&) = delete;
     Emitter& operator=(const Emitter&) = delete;
 
+    std::unique_ptr<Emitter> clone() const;
+
     EmitterType type() const;
 
     BitFlag<EmitterFlag>& flags();

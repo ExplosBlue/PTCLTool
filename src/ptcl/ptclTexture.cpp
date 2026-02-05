@@ -100,10 +100,13 @@ TextureHandle::~TextureHandle() {
     decrementCount();
 }
 
+TextureHandle TextureHandle::clone() const {
+    return {mTexturePtr};
+}
+
 void TextureHandle::invalidate() {
     mTexturePtr = nullptr;
 }
-
 
 bool TextureHandle::isValid() const {
     return mTexturePtr != nullptr;
@@ -125,7 +128,6 @@ TextureHandle& TextureHandle::operator=(const std::shared_ptr<Texture>& texture)
     set(std::move(texture));
     return *this;
 }
-
 
 std::shared_ptr<Texture> TextureHandle::operator->() const {
     return get();

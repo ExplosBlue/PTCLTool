@@ -138,7 +138,15 @@ PtclList::PtclList(QWidget* parent) :
     mRemoveAction = mToolBar.addAction(QIcon(":/res/icons/remove.png"), "Remove");
     connect(mRemoveAction, &QAction::triggered, this, &PtclList::removeItem);
 
-    for (auto* act : { mAddEmitterSetAction, mAddEmitterAction, mRemoveAction }) {
+    mToolBar.addSeparator();
+
+    mCopyAction = mToolBar.addAction(QIcon(":/res/icons/copy.png"), "Copy");
+    connect(mCopyAction, &QAction::triggered, this, &PtclList::copyItem);
+
+    mPasteAction = mToolBar.addAction(QIcon(":/res/icons/paste.png"), "Paste");
+    connect(mPasteAction, &QAction::triggered, this, &PtclList::pasteItem);
+
+    for (auto* act : { mAddEmitterSetAction, mAddEmitterAction, mRemoveAction, mCopyAction, mPasteAction }) {
         act->setEnabled(false);
     }
 
@@ -495,6 +503,8 @@ void PtclList::updateToolbarForSelection(const QStandardItem* item) {
     mAddEmitterSetAction->setEnabled(true);
     mAddEmitterAction->setEnabled(false);
     mRemoveAction->setEnabled(false);
+    mCopyAction->setEnabled(false);
+    mPasteAction->setEnabled(false);
 
     if (!item) {
         return;
@@ -502,12 +512,15 @@ void PtclList::updateToolbarForSelection(const QStandardItem* item) {
 
     const auto type = static_cast<NodeType>(item->data(sRoleNodeType).toUInt());
 
+    mPasteAction->setEnabled(mClipboardSet || mClipboardEmitter);
+
     switch (type) {
     case NodeType::EmitterSet: {
         mAddEmitterAction->setEnabled(true);
 
         const s32 emitterSetCount = mListModel.rowCount();
         mRemoveAction->setEnabled(emitterSetCount > 1);
+        mCopyAction->setEnabled(true);
         break;
     }
 
@@ -521,6 +534,7 @@ void PtclList::updateToolbarForSelection(const QStandardItem* item) {
 
         const s32 emitterCount = setItem->rowCount();
         mRemoveAction->setEnabled(emitterCount > 1);
+        mCopyAction->setEnabled(true);
         break;
     }
     case NodeType::ChildData:
@@ -693,6 +707,63 @@ void PtclList::expandSourceIndex(const QModelIndex& sourceIndex) {
     }
 }
 
+void PtclList::copyItem() {
+    QModelIndex proxyModel = mTreeView.currentIndex();
+    QModelIndex sourceIndex = mProxyModel.mapToSource(proxyModel);
+    QStandardItem* item = mListModel.itemFromIndex(sourceIndex);
+
+    if (!item) {
+        return;
+    }
+
+    const auto type = static_cast<NodeType>(item->data(sRoleNodeType).toUInt());
+    mClipboardSet.reset();
+    mClipboardEmitter.reset();
+
+    if (type == NodeType::EmitterSet) {
+        const s32 setIndex = item->data(sRoleSetIdx).toUInt();
+        mClipboardSet = mResPtr->getEmitterSets()[setIndex]->clone();
+    } else if (type == NodeType::Emitter) {
+        const s32 setIndex = item->parent()->data(sRoleSetIdx).toUInt();
+        const s32 emitterIndex = item->data(sRoleEmitterIdx).toUInt();
+        mClipboardEmitter = mResPtr->getEmitterSets()[setIndex]->emitters()[emitterIndex]->clone();
+    }
+
+    updateToolbarForSelection(item);
+}
+
+void PtclList::pasteItem() {
+    QModelIndex proxyModel = mTreeView.currentIndex();
+    QModelIndex sourceIndex = mProxyModel.mapToSource(proxyModel);
+    QStandardItem* item = mListModel.itemFromIndex(sourceIndex);
+
+    if (!item) {
+        return;
+    }
+
+    const auto type = static_cast<NodeType>(item->data(sRoleNodeType).toUInt());
+
+    if (mClipboardSet && type == NodeType::EmitterSet) {
+        auto& newSet = mResPtr->appendEmitterSet(mClipboardSet);
+        mClipboardSet = newSet->clone();
+
+        const s32 setIndex = mResPtr->emitterSetCount() - 1;
+        insertEmitterSetNode(setIndex);
+        selectEmitterSet(setIndex);
+    } else if (mClipboardEmitter && type == NodeType::Emitter) {
+        const auto& setItem = item->parent();
+        const s32 setIndex = item->data(sRoleSetIdx).toUInt();
+        auto& set = mResPtr->getEmitterSets()[setIndex];
+
+        auto& newEmitter = set->appendEmitter(mClipboardEmitter);
+        mClipboardEmitter = newEmitter->clone();
+
+        const s32 emitterIndex = set->emitterCount() - 1;
+        insertEmitterNode(setItem, setIndex, emitterIndex);
+        selectEmitter(setIndex, emitterIndex);
+    }
+
+}
 
 // ========================================================================== //
 

@@ -6,6 +6,32 @@ namespace Ptcl {
 
 // ========================================================================== //
 
+std::unique_ptr<Emitter> Emitter::clone() const {
+    auto newEmitter = std::make_unique<Emitter>();
+
+    newEmitter->mFlag = mFlag;
+    newEmitter->mBasicProperties = mBasicProperties;
+    newEmitter->mGravityProperties = mGravityProperties;
+    newEmitter->mTransformProperties = mTransformProperties;
+    newEmitter->mLifespanProperties = mLifespanProperties;
+    newEmitter->mTerminationProperties = mTerminationProperties;
+    newEmitter->mEmissionProperties = mEmissionProperties;
+    newEmitter->mVelocityProperties = mVelocityProperties;
+    newEmitter->mVolumeProperties = mVolumeProperties;
+    newEmitter->mColorProperties = mColorProperties;
+    newEmitter->mAlphaProperties = mAlphaProperties;
+    newEmitter->mScaleProperties = mScaleProperties;
+    newEmitter->mRotationProperties = mRotationProperties;
+    newEmitter->mTextureProperties = mTextureProperties;
+    newEmitter->mCombinerProperties = mCombinerProperties;
+    newEmitter->mTextureHandle = mTextureHandle.clone();
+    newEmitter->mComplexProperties = mComplexProperties;
+    newEmitter->mChildData = std::move(*mChildData.clone());
+    newEmitter->mFluctuationData = mFluctuationData;
+    newEmitter->mFieldData = mFieldData;
+    newEmitter->mStripeData = mStripeData;
+    return newEmitter;
+}
 
 EmitterType Emitter::type() const {
     return mBasicProperties.type;
@@ -195,7 +221,7 @@ void Emitter::initFluctuationData(const BinFluctuationData& fluctuationData) {
     mFluctuationData = {
         .fluctuationScale = fluctuationData.fluctuationScale,
         .fluctuationFreq = fluctuationData.fluctuationFreq,
-        .fluctuationPhaseRnd = fluctuationData.fluctuationPhaseRnd
+        .fluctuationPhaseRnd = static_cast<bool>(fluctuationData.fluctuationPhaseRnd)
     };
 }
 
