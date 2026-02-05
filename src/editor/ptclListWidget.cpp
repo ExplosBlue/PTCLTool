@@ -505,9 +505,12 @@ void PtclList::updateToolbarForSelection(const QStandardItem* item) {
     switch (type) {
     case NodeType::EmitterSet: {
         mAddEmitterAction->setEnabled(true);
-        mRemoveAction->setEnabled(true);
+
+        const s32 emitterSetCount = mListModel.rowCount();
+        mRemoveAction->setEnabled(emitterSetCount > 1);
         break;
     }
+
     case NodeType::Emitter: {
         mAddEmitterAction->setEnabled(true);
 
@@ -612,7 +615,7 @@ void PtclList::removeEmitter(QStandardItem* setItem, QStandardItem* emitterItem)
 
     const s32 remainingCount = setItem->rowCount();
     if (remainingCount > 0) {
-        const s32 nextIndex = qMin(emitterIndex, remainingCount - 1);
+        const s32 nextIndex = std::min(emitterIndex, remainingCount - 1);
         selectEmitter(setIndex, nextIndex);
     }
 }
@@ -635,8 +638,9 @@ void PtclList::removeEmitterSet(QStandardItem* setItem) {
     reindexEmitterSets();
 
     const s32 remainingCount = mListModel.rowCount();
+
     if (remainingCount > 0) {
-        const s32 nextIndex = qMin(setIndex, remainingCount - 1);
+        const s32 nextIndex = std::min(setIndex, remainingCount - 1);
         selectEmitterSet(nextIndex);
     }
 }
