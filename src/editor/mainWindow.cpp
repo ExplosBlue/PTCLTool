@@ -179,27 +179,27 @@ void MainWindow::setupConnections() {
 void MainWindow::setupMenus() {
     // Open File
     mOpenAction.setText("Open File");
-    mOpenAction.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpen));
+    mOpenAction.setIcon(QIcon(":/res/icons/open_file.png"));
     mOpenAction.setShortcut(QKeySequence::Open);
     connect(&mOpenAction, &QAction::triggered, this, &MainWindow::openFile);
 
     // Save
     mSaveAction.setText("Save");
-    mSaveAction.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSave));
+    mSaveAction.setIcon(QIcon(":/res/icons/save.png"));
     mSaveAction.setShortcut(QKeySequence::Save);
     mSaveAction.setEnabled(false);
     connect(&mSaveAction, &QAction::triggered, this, &MainWindow::saveFile);
 
     // Save As
     mSaveAsAction.setText("Save As");
-    mSaveAsAction.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSaveAs));
+    mSaveAsAction.setIcon(QIcon(":/res/icons/save_as.png"));
     mSaveAsAction.setShortcut(QKeySequence::SaveAs);
     mSaveAsAction.setEnabled(false);
     connect(&mSaveAsAction, &QAction::triggered, this, &MainWindow::saveFileAs);
 
     // Recent Files Menu
     mRecentFilesMenu.setTitle("Recent Files");
-    mRecentFilesMenu.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpenRecent));
+    mRecentFilesMenu.setIcon(QIcon(":/res/icons/recent.png"));
 
     // Recent Files Actions
     int maxRecentFiles = SettingsUtil::SettingsMgr::instance().maxRecentFiles();
