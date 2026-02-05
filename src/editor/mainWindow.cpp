@@ -353,7 +353,16 @@ void MainWindow::loadPtclRes(const QString& path) {
 void MainWindow::selectEmitterSet(s32 setIndex) {
     mCurEmitterSetIdx = setIndex;
     mCurEmitterIdx = 0;
-    auto &emitterSet = mPtclRes->getEmitterSets()[setIndex];
+
+    if (!mPtclRes || mCurEmitterIdx < 0 || mCurEmitterIdx < 0) {
+        return;
+    }
+
+    const auto& emitterSets = mPtclRes->getEmitterSets();
+    if (mCurEmitterSetIdx >= emitterSets.size()) {
+        return;
+    }
+    const auto& emitterSet = emitterSets[mCurEmitterSetIdx];
 
     mEmitterSetWidget.setEmitterSet(emitterSet.get());
 
@@ -365,8 +374,6 @@ void MainWindow::selectEmitterSet(s32 setIndex) {
 void MainWindow::selectEmitter(s32 setIndex, s32 emitterIndex) {
     mCurEmitterSetIdx = setIndex;
     mCurEmitterIdx = emitterIndex;
-
-    qDebug() << "SetIndex: " << setIndex << "EmitterIndex: " << emitterIndex;
 
     if (!mPtclRes || mCurEmitterIdx < 0 || mCurEmitterIdx < 0) {
         return;
