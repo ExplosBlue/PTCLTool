@@ -63,6 +63,10 @@ private:
     void setPropertiesView(PropertiesView view);
     void updatePropertiesStatus();
 
+    void updateWindowTitle();
+    void updateStatusBar();
+    void setDirty(bool dirty);
+
 private:
     std::unique_ptr<Ptcl::PtclRes> mPtclRes{};
 
@@ -90,6 +94,9 @@ private:
     PtclEditor::TextureListWidget mTextureWidget{};
 
     PropertiesView mCurPropertiesView{PropertiesView::EmitterSet};
+
+    QLabel* mStatusLabel{nullptr};
+    bool mHasUnsavedChanges{false};
 };
 
 

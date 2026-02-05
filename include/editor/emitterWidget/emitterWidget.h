@@ -45,6 +45,7 @@ signals:
     void emitterTypeChanged();
     void emitterNameChanged();
     void complexFlagsChanged();
+    void propertiesChanged();
 
 private:
     void setupStandardLayout(QVBoxLayout* mainLayout);

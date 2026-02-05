@@ -87,6 +87,9 @@ signals:
     void selectedFluctuation(u32 setIndex, u32 emitterIndex);
     void selectedField(u32 setIndex, u32 emitterIndex);
 
+    void itemAdded();
+    void itemRemoved();
+
 private slots:
     void selectionChanged(const QItemSelection& selection);
     void filterList(const QString& text);

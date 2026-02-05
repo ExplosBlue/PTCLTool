@@ -34,16 +34,19 @@ void EmitterSetWidget::setupConnections() {
         }
         mEmitterSetPtr->setName(text);
         emit emitterSetNamedChanged();
+        emit propertiesChanged();
     });
 
     // User Data
     connect(&mUserDataSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
         mEmitterSetPtr->setUserData(value);
+        emit propertiesChanged();
     });
 
     // Last Update
     connect(&mLastUpdateSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
         mEmitterSetPtr->setLastUpdateDate(value);
+        emit propertiesChanged();
     });
 }
 
