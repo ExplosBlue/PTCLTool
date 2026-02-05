@@ -130,30 +130,6 @@ void MainWindow::setupConnections() {
         updatePropertiesStatus();
     });
 
-    connect(&mPtclList, &PtclList::emitterAdded, this, [this](s32 setIndex, s32 emitterIndex) {
-        selectEmitter(setIndex, emitterIndex);
-        setPropertiesView(PropertiesView::Emitter);
-        updatePropertiesStatus();
-    });
-
-    connect(&mPtclList, &PtclList::emitterSetAdded, this, [this](s32 setIndex) {
-        selectEmitterSet(setIndex);
-        setPropertiesView(PropertiesView::EmitterSet);
-        updatePropertiesStatus();
-    });
-
-    connect(&mPtclList, &PtclList::emitterRemoved, this, [this](s32 setIndex, s32 newEmitterIndex) {
-        selectEmitter(setIndex, newEmitterIndex);
-        setPropertiesView(PropertiesView::Emitter);
-        updatePropertiesStatus();
-    });
-
-    connect(&mPtclList, &PtclList::emitterSetRemoved, this, [this](s32 newSetIndex) {
-        selectEmitterSet(newSetIndex);
-        setPropertiesView(PropertiesView::EmitterSet);
-        updatePropertiesStatus();
-    });
-
     // Emitter Widget
     connect(&mEmitterWidget, &EmitterWidget::textureUpdated, this, [this](s32 oldIndex, s32 newIndex) {
         if (oldIndex >= 0) { mTextureWidget.updateItemAt(oldIndex); }
@@ -389,7 +365,26 @@ void MainWindow::selectEmitterSet(s32 setIndex) {
 void MainWindow::selectEmitter(s32 setIndex, s32 emitterIndex) {
     mCurEmitterSetIdx = setIndex;
     mCurEmitterIdx = emitterIndex;
-    mEmitterWidget.setEmitter(mPtclRes->getEmitterSets()[setIndex]->emitters()[emitterIndex].get());
+
+    qDebug() << "SetIndex: " << setIndex << "EmitterIndex: " << emitterIndex;
+
+    if (!mPtclRes || mCurEmitterIdx < 0 || mCurEmitterIdx < 0) {
+        return;
+    }
+
+    const auto& emitterSets = mPtclRes->getEmitterSets();
+    if (mCurEmitterSetIdx >= emitterSets.size()) {
+        return;
+    }
+    const auto& emitterSet = emitterSets[mCurEmitterSetIdx];
+
+    const auto& emitters = emitterSet->emitters();
+    if (mCurEmitterIdx >= emitters.size()) {
+        return;
+    }
+    const auto& emitter = emitters[mCurEmitterIdx];
+
+    mEmitterWidget.setEmitter(emitter.get());
 
     if (!mEmitterWidget.isEnabled()) {
         mEmitterWidget.setEnabled(true);

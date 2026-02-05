@@ -73,6 +73,7 @@ public:
     void setPtclRes(Ptcl::PtclRes* ptclRes);
 
     void selectEmitter(s32 setIndex, s32 emitterIndex);
+    void selectEmitterSet(s32 setIndex);
 
     void updateEmitter(s32 setIndex, s32 emitterIndex);
     void updateEmitterName(s32 setIndex, s32 emitterIndex);
@@ -85,12 +86,6 @@ signals:
     void selectedChildData(u32 setIndex, u32 emitterIndex);
     void selectedFluctuation(u32 setIndex, u32 emitterIndex);
     void selectedField(u32 setIndex, u32 emitterIndex);
-
-    void emitterAdded(s32 setIndex, s32 emitterIndex);
-    void emitterSetAdded(s32 setIndex);
-
-    void emitterRemoved(s32 setIndex, s32 newEmitterIndex);
-    void emitterSetRemoved(s32 setIndex);
 
 private slots:
     void selectionChanged(const QItemSelection& selection);
@@ -119,6 +114,8 @@ private:
 
     void reindexEmitters(QStandardItem* setItem, s32 setIndex);
     void reindexEmitterSets();
+
+    void expandSourceIndex(const QModelIndex& sourceIndex);
 
 private:
     Ptcl::PtclRes* mResPtr{nullptr};
