@@ -555,7 +555,7 @@ void MainWindow::updatePropertiesStatus() {
 }
 
 void MainWindow::updateWindowTitle() {
-    QString title = "PtclEditor";
+    QString title = "PTCLTool";
     if (!mCurrentFilePath.isEmpty()) {
         title += " - " + QFileInfo(mCurrentFilePath).fileName();
     }
