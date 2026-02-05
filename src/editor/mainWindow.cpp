@@ -1,4 +1,5 @@
 #include "editor/mainWindow.h"
+#include "util/nameValidator.h"
 #include "util/settingsUtil.h"
 
 #include <QDataStream>
@@ -7,6 +8,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QFormLayout>
 #include <QMimeData>
 #include <QStandardPaths>
 
@@ -18,7 +20,7 @@ namespace PtclEditor {
 
 
 MainWindow::MainWindow(QWidget* parent) :
-    QMainWindow{parent}, mPtclList{this}, mEmitterSetWidget{this}, mTextureWidget{this} {
+    QMainWindow{parent} {
     setupUi();
     setupConnections();
     updateRecentFileList();
@@ -28,10 +30,38 @@ void MainWindow::setupUi() {
     // MainWindow
     setAcceptDrops(true);
 
+    // Properties
+    mPropertiesStack = new QStackedWidget(this);
+    mPropertiesStack->addWidget(&mEmitterSetWidget);
+    mPropertiesStack->addWidget(&mEmitterWidget);
+    mPropertiesStack->setCurrentIndex(0);
+
+    mPropertiesGroup.setFlat(false);
+    auto* emitterGroupLayout = new QVBoxLayout(&mPropertiesGroup);
+    emitterGroupLayout->setContentsMargins(0, 0, 0, 0);
+    emitterGroupLayout->addWidget(mPropertiesStack);
+
+    // Project Name
+    mProjNameLineEdit.setPlaceholderText("PTCLProject");
+    mProjNameLineEdit.setValidator(new EmitterNameValidator(&mProjNameLineEdit));
+    mProjNameLineEdit.setEnabled(false);
+
+    auto* projectSettingsLayout = new QFormLayout;
+    projectSettingsLayout->setContentsMargins(0, 0, 0, 0);
+    projectSettingsLayout->addRow("Project Name:", &mProjNameLineEdit);
+
+    auto* propertiesContainer = new QWidget(this);
+    auto* propertiesLayout = new QVBoxLayout(propertiesContainer);
+    propertiesLayout->setContentsMargins(0, 0, 0, 0);
+    propertiesLayout->setSpacing(4);
+
+    propertiesLayout->addLayout(projectSettingsLayout);
+    propertiesLayout->addWidget(&mPropertiesGroup);
+
     // Top Splitter
     mTopSplitter = new QSplitter(Qt::Horizontal, this);
     mTopSplitter->addWidget(&mPtclList);
-    mTopSplitter->addWidget(&mEmitterSetWidget);
+    mTopSplitter->addWidget(propertiesContainer);
     mTopSplitter->setSizes({1, 9999});
 
     // Bottom Splitter
@@ -42,6 +72,10 @@ void MainWindow::setupUi() {
     // Ptcl List
     mPtclList.setEnabled(false);
     mPtclList.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+
+    // Emitter Widget
+    mEmitterWidget.setEnabled(false);
+    mEmitterWidget.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
     // EmitterSet Widget
     mEmitterSetWidget.setEnabled(false);
@@ -60,79 +94,89 @@ void MainWindow::setupUi() {
 }
 
 void MainWindow::setupConnections() {
+    // Proj Name
+    connect(&mProjNameLineEdit, &QLineEdit::textChanged, this, [this](const QString& text) {
+        mPtclRes->setName(text);
+    });
+
     // Ptcl List
     connect(&mPtclList, &PtclList::selectedEmitterSetChanged, this, [this](s32 index) {
         selectEmitterSet(index);
+        setPropertiesView(PropertiesView::EmitterSet);
+        updatePropertiesStatus();
     });
 
     connect(&mPtclList, &PtclList::selectedEmitterChanged, this, [this](s32 setIndex, s32 emitterIndex) {
         selectEmitter(setIndex, emitterIndex);
-        mEmitterSetWidget.showStandardEditor();
+        setPropertiesView(PropertiesView::Emitter);
+        updatePropertiesStatus();
     });
 
     connect(&mPtclList, &PtclList::selectedChildData, this, [this](s32 setIndex, s32 emitterIndex) {
         selectEmitter(setIndex, emitterIndex);
-        mEmitterSetWidget.showChildEditor();
+        setPropertiesView(PropertiesView::EmitterChild);
+        updatePropertiesStatus();
     });
 
     connect(&mPtclList, &PtclList::selectedFluctuation, this, [this](s32 setIndex, s32 emitterIndex) {
         selectEmitter(setIndex, emitterIndex);
-        mEmitterSetWidget.showFluctuationEditor();
+        setPropertiesView(PropertiesView::EmitterFlux);
+        updatePropertiesStatus();
     });
 
     connect(&mPtclList, &PtclList::selectedField, this, [this](s32 setIndex, s32 emitterIndex) {
         selectEmitter(setIndex, emitterIndex);
-        mEmitterSetWidget.showFieldEditor();
+        setPropertiesView(PropertiesView::EmitterField);
+        updatePropertiesStatus();
     });
 
     connect(&mPtclList, &PtclList::emitterAdded, this, [this](s32 setIndex, s32 emitterIndex) {
         selectEmitter(setIndex, emitterIndex);
-        mEmitterSetWidget.showStandardEditor();
+        setPropertiesView(PropertiesView::Emitter);
+        updatePropertiesStatus();
     });
 
     connect(&mPtclList, &PtclList::emitterSetAdded, this, [this](s32 setIndex) {
         selectEmitterSet(setIndex);
-        mEmitterSetWidget.showStandardEditor();
+        setPropertiesView(PropertiesView::EmitterSet);
+        updatePropertiesStatus();
     });
 
-    connect(&mPtclList, &PtclList::emitterRemoved, this, [this](s32 setIndex, s32 emitterIndex) {
-        const s32 emitterCount = mPtclRes->getEmitterSets()[setIndex]->emitterCount();
-        const s32 newIndex = emitterIndex - 1;
-        if (emitterCount >= 1 && newIndex >= 0) {
-            selectEmitter(setIndex, emitterIndex);
-            mEmitterSetWidget.showStandardEditor();
-        }
+    connect(&mPtclList, &PtclList::emitterRemoved, this, [this](s32 setIndex, s32 newEmitterIndex) {
+        selectEmitter(setIndex, newEmitterIndex);
+        setPropertiesView(PropertiesView::Emitter);
+        updatePropertiesStatus();
     });
 
-    connect(&mPtclList, &PtclList::emitterSetRemoved, this, [this](s32 setIndex) {
-        const s32 emitterSetCount = mPtclRes->emitterSetCount();
-        const s32 newIndex = setIndex - 1;
-        if (emitterSetCount >= 1 && newIndex >= 0) {
-            selectEmitterSet(setIndex);
-            mEmitterSetWidget.showStandardEditor();
-        }
+    connect(&mPtclList, &PtclList::emitterSetRemoved, this, [this](s32 newSetIndex) {
+        selectEmitterSet(newSetIndex);
+        setPropertiesView(PropertiesView::EmitterSet);
+        updatePropertiesStatus();
     });
 
-    // EmitterSet Widget
-    connect(&mEmitterSetWidget, &EmitterSetWidget::textureUpdated, this, [this](s32 oldIndex, s32 newIndex) {
+    // Emitter Widget
+    connect(&mEmitterWidget, &EmitterWidget::textureUpdated, this, [this](s32 oldIndex, s32 newIndex) {
         if (oldIndex >= 0) { mTextureWidget.updateItemAt(oldIndex); }
         if (newIndex >= 0) { mTextureWidget.updateItemAt(newIndex); }
     });
 
+    connect(&mEmitterWidget, &EmitterWidget::emitterNameChanged, this, [this]() {
+        mPtclList.updateEmitterName(mCurEmitterSetIdx, mCurEmitterIdx);
+        updatePropertiesStatus();
+    });
+
+    connect(&mEmitterWidget, &EmitterWidget::emitterTypeChanged, this, [this]() {
+        mPtclList.updateEmitter(mCurEmitterSetIdx, mCurEmitterIdx);
+    });
+
+    connect(&mEmitterWidget, &EmitterWidget::complexFlagsChanged, this, [this]() {
+        mPtclList.updateEmitter(mCurEmitterSetIdx, mCurEmitterIdx);
+    });
+
+    // EmitterSet Widget
     connect(&mEmitterSetWidget, &EmitterSetWidget::emitterSetNamedChanged, this, [this]() {
         mPtclList.updateEmitterSetName(mCurEmitterSetIdx);
-    });
-
-    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterNameChanged, this, [this]() {
-        mPtclList.updateEmitterName(mCurEmitterSetIdx, mCurEmitterIdx);
-    });
-
-    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterTypeChanged, this, [this]() {
-        mPtclList.updateEmitter(mCurEmitterSetIdx, mCurEmitterIdx);
-    });
-
-    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterComplexFlagsChanged, this, [this]() {
-        mPtclList.updateEmitter(mCurEmitterSetIdx, mCurEmitterIdx);
+        updatePropertiesStatus();
     });
 }
 
@@ -303,6 +347,7 @@ void MainWindow::loadPtclRes(const QString& path) {
     mEmitterSetWidget.clear();
     mPtclList.setEnabled(false);
     mTextureWidget.setEnabled(false);
+    mProjNameLineEdit.setEnabled(false);
 
     mPtclRes = std::make_unique<Ptcl::PtclRes>();
     if (!mPtclRes->load(path)) {
@@ -316,7 +361,8 @@ void MainWindow::loadPtclRes(const QString& path) {
 
     mPtclList.setPtclRes(mPtclRes.get());
     mTextureWidget.setTextures(&mPtclRes->textures());
-    mEmitterSetWidget.setTextureList(mPtclRes->textures());
+    mEmitterWidget.setTextureList(&mPtclRes->textures());
+    mProjNameLineEdit.setText(mPtclRes->name());
 
     const auto& sets = mPtclRes->getEmitterSets();
     if (!sets.empty()) {
@@ -325,10 +371,12 @@ void MainWindow::loadPtclRes(const QString& path) {
 
     mPtclList.setEnabled(true);
     mTextureWidget.setEnabled(true);
+    mProjNameLineEdit.setEnabled(true);
 }
 
 void MainWindow::selectEmitterSet(s32 setIndex) {
     mCurEmitterSetIdx = setIndex;
+    mCurEmitterIdx = 0;
     auto &emitterSet = mPtclRes->getEmitterSets()[setIndex];
 
     mEmitterSetWidget.setEmitterSet(emitterSet.get());
@@ -339,9 +387,87 @@ void MainWindow::selectEmitterSet(s32 setIndex) {
 }
 
 void MainWindow::selectEmitter(s32 setIndex, s32 emitterIndex) {
-    selectEmitterSet(setIndex);
-    mEmitterSetWidget.selectEmitter(emitterIndex);
+    mCurEmitterSetIdx = setIndex;
     mCurEmitterIdx = emitterIndex;
+    mEmitterWidget.setEmitter(mPtclRes->getEmitterSets()[setIndex]->emitters()[emitterIndex].get());
+
+    if (!mEmitterWidget.isEnabled()) {
+        mEmitterWidget.setEnabled(true);
+    }
+}
+
+void MainWindow::setPropertiesView(PropertiesView view) {
+    if (view == mCurPropertiesView) {
+        return;
+    }
+
+    mCurPropertiesView = view;
+
+    switch (mCurPropertiesView) {
+        case PropertiesView::EmitterSet:
+            mPropertiesStack->setCurrentWidget(&mEmitterSetWidget);
+            break;
+        case PropertiesView::Emitter:
+            mPropertiesStack->setCurrentWidget(&mEmitterWidget);
+            mEmitterWidget.showStandardEditor();
+            break;
+        case PropertiesView::EmitterChild:
+            mPropertiesStack->setCurrentWidget(&mEmitterWidget);
+            mEmitterWidget.showChildEditor();
+            break;
+        case PropertiesView::EmitterFlux:
+            mPropertiesStack->setCurrentWidget(&mEmitterWidget);
+            mEmitterWidget.showFluctuationEditor();
+            break;
+        case PropertiesView::EmitterField:
+            mPropertiesStack->setCurrentWidget(&mEmitterWidget);
+            mEmitterWidget.showFieldEditor();
+            break;
+    }
+}
+
+void MainWindow::updatePropertiesStatus() {
+    mPropertiesGroup.setTitle({});
+
+    if (!mPtclRes || mCurEmitterIdx < 0 || mCurEmitterIdx < 0) {
+        return;
+    }
+
+    const auto& emitterSets = mPtclRes->getEmitterSets();
+    if (mCurEmitterSetIdx >= emitterSets.size()) {
+        return;
+    }
+    const auto& emitterSet = emitterSets[mCurEmitterSetIdx];
+
+    const auto& emitters = emitterSet->emitters();
+    if (mCurEmitterIdx >= emitters.size()) {
+        return;
+    }
+    const auto& emitter = emitters[mCurEmitterIdx];
+
+    QString title = emitterSet->name();
+
+    if (mCurPropertiesView != PropertiesView::EmitterSet) {
+        title += QStringLiteral(" > %1").arg(emitter->name());
+    }
+
+    switch (mCurPropertiesView) {
+    case PropertiesView::EmitterChild:
+        title += QStringLiteral(" > Child Properties:");
+        break;
+    case PropertiesView::EmitterFlux:
+        title += QStringLiteral(" > Fluctuation Properties:");
+        break;
+    case PropertiesView::EmitterField:
+        title += QStringLiteral(" > Field Properties:");
+        break;
+    case PropertiesView::Emitter:
+    case PropertiesView::EmitterSet:
+        title += QStringLiteral(" Properties:");
+        break;
+    }
+
+    mPropertiesGroup.setTitle(title);
 }
 
 

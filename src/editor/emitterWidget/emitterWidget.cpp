@@ -56,6 +56,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     scrollArea->setWidgetResizable(true);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scrollArea->setFrameShape(QFrame::NoFrame);
 
     mStackedWidget->addWidget(scrollArea);
 

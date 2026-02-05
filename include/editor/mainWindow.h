@@ -3,9 +3,11 @@
 #include "typedefs.h"
 #include "ptcl/ptcl.h"
 #include "editor/emitterSetWidget.h"
+#include "editor/emitterWidget/emitterWidget.h"
 #include "editor/ptclListWidget.h"
 #include "editor/textureListWidget.h"
 
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMainWindow>
@@ -24,6 +26,15 @@ namespace PtclEditor {
 
 class MainWindow final : public QMainWindow {
     Q_OBJECT
+
+private:
+    enum class PropertiesView {
+        EmitterSet,
+        Emitter,
+        EmitterChild,
+        EmitterFlux,
+        EmitterField
+    };
 
 public:
     MainWindow(QWidget* parent = nullptr);
@@ -49,25 +60,36 @@ private:
     void setupConnections();
     void setupMenus();
 
+    void setPropertiesView(PropertiesView view);
+    void updatePropertiesStatus();
+
 private:
-    std::unique_ptr<Ptcl::PtclRes> mPtclRes;
+    std::unique_ptr<Ptcl::PtclRes> mPtclRes{};
 
-    s32 mCurEmitterSetIdx;
-    s32 mCurEmitterIdx;
+    s32 mCurEmitterSetIdx{};
+    s32 mCurEmitterIdx{};
 
-    QAction mOpenAction;
-    QAction mSaveAction;
-    std::vector<QAction*> mRecentFileActions;
+    QAction mOpenAction{};
+    QAction mSaveAction{};
+    std::vector<QAction*> mRecentFileActions{};
 
-    QMenu mFileMenu;
-    QMenu mRecentFilesMenu;
+    QMenu mFileMenu{};
+    QMenu mRecentFilesMenu{};
 
-    QSplitter* mTopSplitter;
-    QSplitter* mBottomSplitter;
+    QSplitter* mTopSplitter{nullptr};
+    QSplitter* mBottomSplitter{nullptr};
 
-    PtclEditor::PtclList mPtclList;
-    PtclEditor::EmitterSetWidget mEmitterSetWidget;
-    PtclEditor::TextureListWidget mTextureWidget;
+    QLineEdit mProjNameLineEdit{};
+
+    QStackedWidget* mPropertiesStack{nullptr};
+    QGroupBox mPropertiesGroup{};
+
+    PtclEditor::PtclList mPtclList{};
+    PtclEditor::EmitterWidget mEmitterWidget{};
+    PtclEditor::EmitterSetWidget mEmitterSetWidget{};
+    PtclEditor::TextureListWidget mTextureWidget{};
+
+    PropertiesView mCurPropertiesView{PropertiesView::EmitterSet};
 };
 
 

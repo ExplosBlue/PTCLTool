@@ -43,6 +43,7 @@ ChildEditorWidget::ChildEditorWidget(QWidget* parent) :
     scrollArea->setWidgetResizable(true);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scrollArea->setFrameShape(QFrame::NoFrame);
 
     auto* outerLayout = new QVBoxLayout(this);
     outerLayout->addWidget(scrollArea);

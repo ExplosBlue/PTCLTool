@@ -250,7 +250,6 @@ void PtclList::insertEmitterSetNode(s32 setIndex) {
     QString setName = QString("%1: %2").arg(setIndex).arg(set->name());
     auto* setItem = new QStandardItem(setName);
     setItem->setEditable(false);
-    setItem->setSelectable(false);
     setItem->setData(static_cast<s32>(NodeType::EmitterSet), sRoleNodeType);
     setItem->setData(setIndex, sRoleSetIdx);
     setItem->setIcon(QIcon(":/res/icons/emitterset.png"));
@@ -583,9 +582,8 @@ void PtclList::removeEmitter(QStandardItem* setItem, QStandardItem* emitterItem)
     if (remainingCount > 0) {
         const s32 nextIndex = qMin(emitterIndex, remainingCount - 1);
         selectEmitter(setIndex, nextIndex);
+        emit emitterRemoved(setIndex, emitterIndex);
     }
-
-    emit emitterRemoved(setIndex, emitterIndex);
 }
 
 void PtclList::removeEmitterSet(QStandardItem* setItem) {
