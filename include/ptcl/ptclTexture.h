@@ -13,6 +13,9 @@ namespace Ptcl {
 
 class Texture {
 public:
+    using UserCountCallback = std::function<void(u32)>;
+
+public:
     Texture() = delete;
     Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format);
 
@@ -33,18 +36,25 @@ public:
 
     static const std::shared_ptr<Texture>& placeholder();
 
+    void setUserCountCallback(const UserCountCallback& callback);
+
+protected:
+    void incrementUserCount();
+    void decrementUserCount();
+
 private:
     std::vector<u8> mEncodedData{};
     TextureFormat mTextureFormat{};
     QImage mDecodedTexture{};
 
-    inline static u32 sNextId = 0;
+    inline static u32 sNextId{0};
 
     u32 mId{};
     bool mIsPlaceholder{false};
 
-protected:
-    u32 mUserCount = 0;
+    UserCountCallback mUserCountCallBack{};
+
+    u32 mUserCount{0};
 
     friend class TextureHandle;
 };
@@ -56,7 +66,12 @@ protected:
 class TextureHandle {
 public:
     TextureHandle(std::shared_ptr<Texture> texture = nullptr);
-    TextureHandle(const TextureHandle&) = delete;
+    TextureHandle(const TextureHandle& other);
+    TextureHandle(TextureHandle&& other) noexcept;
+
+    TextureHandle& operator=(const TextureHandle& other);
+    TextureHandle& operator=(TextureHandle&& other) noexcept;
+
     ~TextureHandle();
 
     TextureHandle clone() const;

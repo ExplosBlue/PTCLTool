@@ -28,7 +28,6 @@ public:
 
 signals:
     void flagsUpdated(const BitFlag<Ptcl::ChildFlag>& childFlag);
-    void textureUpdated(const std::shared_ptr<Ptcl::Texture>& oldTexture, const std::shared_ptr<Ptcl::Texture>& newTexture);
 
 private:
     void setupLayout(QVBoxLayout* mainLayout);

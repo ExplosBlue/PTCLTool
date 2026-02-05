@@ -138,16 +138,8 @@ void EmitterWidget::setupConnections() {
     connect(mTextureProperties, &TexturePropertiesWidget::textureUpdated, this, [this](const std::shared_ptr<Ptcl::Texture>& oldTexture, const std::shared_ptr<Ptcl::Texture>& newTexture) {
         if (!mEmitterPtr) { return; }
         mEmitterPtr->setTexture(newTexture);
-
-        s32 oldIndex = -1;
-        s32 newIndex = -1;
-        for (size_t i = 0; i < mTextureList->size(); ++i) {
-            if ((*mTextureList)[i] == oldTexture) { oldIndex = static_cast<s32>(i); }
-            if ((*mTextureList)[i] == newTexture) { newIndex = static_cast<s32>(i); }
-        }
-        emit textureUpdated(oldIndex, newIndex);
-        emit propertiesChanged();
         mCombinerProperties->updateCombinerPreview();
+        emit propertiesChanged();
     });
 
     connect(mTextureProperties, &TexturePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::TextureProperties& properties) {
@@ -247,17 +239,6 @@ void EmitterWidget::setupConnections() {
         if (!mEmitterPtr) { return; }
         mEmitterPtr->setChildFlags(childFlags);
         emit complexFlagsChanged();
-        emit propertiesChanged();
-    });
-
-    connect(mChildEditorWidget, &ChildEditorWidget::textureUpdated, this, [this](const std::shared_ptr<Ptcl::Texture>& oldTexture, const std::shared_ptr<Ptcl::Texture>& newTexture) {
-        s32 oldIndex = -1;
-        s32 newIndex = -1;
-        for (size_t i = 0; i < mTextureList->size(); ++i) {
-            if ((*mTextureList)[i] == oldTexture) { oldIndex = static_cast<s32>(i); }
-            if ((*mTextureList)[i] == newTexture) { newIndex = static_cast<s32>(i); }
-        }
-        emit textureUpdated(oldIndex, newIndex);
         emit propertiesChanged();
     });
 
