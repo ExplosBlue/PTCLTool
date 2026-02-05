@@ -9,8 +9,11 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFormLayout>
+#include <QLabel>
 #include <QMimeData>
+#include <QMessageBox>
 #include <QStandardPaths>
+#include <QStatusBar>
 
 
 namespace PtclEditor {
@@ -87,16 +90,23 @@ void MainWindow::setupUi() {
     setCentralWidget(mBottomSplitter);
     setupMenus();
 
-    auto& settings = SettingsUtil::SettingsMgr::instance();
+    // StatusBar
+    auto* status = statusBar();
+    mStatusLabel = new QLabel("No file loaded", status);
+    status->addPermanentWidget(mStatusLabel);
 
+    auto& settings = SettingsUtil::SettingsMgr::instance();
     restoreGeometry(settings.windowGeometry());
     restoreState(settings.windowState());
+
+    updateWindowTitle();
 }
 
 void MainWindow::setupConnections() {
     // Proj Name
     connect(&mProjNameLineEdit, &QLineEdit::textChanged, this, [this](const QString& text) {
         mPtclRes->setName(text);
+        setDirty(true);
     });
 
     // Ptcl List
@@ -130,6 +140,14 @@ void MainWindow::setupConnections() {
         updatePropertiesStatus();
     });
 
+    connect(&mPtclList, &PtclList::itemAdded, this, [this]() {
+        setDirty(true);
+    });
+
+    connect(&mPtclList, &PtclList::itemRemoved, this, [this]() {
+        setDirty(true);
+    });
+
     // Emitter Widget
     connect(&mEmitterWidget, &EmitterWidget::textureUpdated, this, [this](s32 oldIndex, s32 newIndex) {
         if (oldIndex >= 0) { mTextureWidget.updateItemAt(oldIndex); }
@@ -149,10 +167,18 @@ void MainWindow::setupConnections() {
         mPtclList.updateEmitter(mCurEmitterSetIdx, mCurEmitterIdx);
     });
 
+    connect(&mEmitterWidget, &EmitterWidget::propertiesChanged, this, [this]() {
+        setDirty(true);
+    });
+
     // EmitterSet Widget
     connect(&mEmitterSetWidget, &EmitterSetWidget::emitterSetNamedChanged, this, [this]() {
         mPtclList.updateEmitterSetName(mCurEmitterSetIdx);
         updatePropertiesStatus();
+    });
+
+    connect(&mEmitterSetWidget, &EmitterSetWidget::propertiesChanged, this, [this]() {
+        setDirty(true);
     });
 }
 
@@ -194,12 +220,39 @@ void MainWindow::setupMenus() {
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
-    auto& settings = SettingsUtil::SettingsMgr::instance();
+    if (!mPtclRes || !mHasUnsavedChanges) {
+        auto& settings = SettingsUtil::SettingsMgr::instance();
+        settings.setWindowGeometry(saveGeometry());
+        settings.setWindowState(saveState());
 
+        event->accept();
+        return;
+    }
+
+    QMessageBox::StandardButton result = QMessageBox::warning(this,
+        "Unsaved Changes",
+        "The current file has unsaved changes.\n\nDo you want to save them before closing?",
+        QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+        QMessageBox::Save
+    );
+
+    switch (result) {
+    case QMessageBox::Save:
+        saveFile();
+        break;
+    case QMessageBox::Discard:
+        break;
+    case QMessageBox::Cancel:
+    default:
+        event->ignore();
+        return;
+    }
+
+    auto& settings = SettingsUtil::SettingsMgr::instance();
     settings.setWindowGeometry(saveGeometry());
     settings.setWindowState(saveState());
 
-    QMainWindow::closeEvent(event);
+    event->accept();
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent* event) {
@@ -279,6 +332,8 @@ void MainWindow::saveFile() {
     }
 
     mPtclRes->save(filePath);
+    setDirty(false);
+    statusBar()->showMessage("File Saved", 2000);
 
     SettingsUtil::SettingsMgr::instance().addRecentFile(filePath);
     SettingsUtil::SettingsMgr::instance().setLastSavePath(QFileInfo(filePath).absolutePath());
@@ -338,6 +393,8 @@ void MainWindow::loadPtclRes(const QString& path) {
     mPtclList.setPtclRes(mPtclRes.get());
     mTextureWidget.setTextures(&mPtclRes->textures());
     mEmitterWidget.setTextureList(&mPtclRes->textures());
+
+    QSignalBlocker b1(mProjNameLineEdit);
     mProjNameLineEdit.setText(mPtclRes->name());
 
     const auto& sets = mPtclRes->getEmitterSets();
@@ -345,9 +402,12 @@ void MainWindow::loadPtclRes(const QString& path) {
         selectEmitter(0, 0);
     }
 
+    updateStatusBar();
+    updateWindowTitle();
+
     mPtclList.setEnabled(true);
     mTextureWidget.setEnabled(true);
-    mProjNameLineEdit.setEnabled(true);
+    mProjNameLineEdit.setEnabled(true);    
 }
 
 void MainWindow::selectEmitterSet(s32 setIndex) {
@@ -470,6 +530,37 @@ void MainWindow::updatePropertiesStatus() {
     }
 
     mPropertiesGroup.setTitle(title);
+}
+
+void MainWindow::updateWindowTitle() {
+    QString title = "PtclEditor";
+    if (mPtclRes) {
+        title += " - " + mPtclRes->name();
+    }
+    if (mHasUnsavedChanges) {
+        title += " *";
+    }
+    setWindowTitle(title);
+}
+
+void MainWindow::updateStatusBar() {
+    if (!mStatusLabel) {
+        return;
+    }
+
+    if (!mPtclRes) {
+        mStatusLabel->setText("No file loaded");
+    } else if (mHasUnsavedChanges) {
+        mStatusLabel->setText("Unsaved changes");
+    } else {
+        mStatusLabel->setText("All changes saved");
+    }
+}
+
+void MainWindow::setDirty(bool dirty) {
+    mHasUnsavedChanges = dirty;
+    updateStatusBar();
+    updateWindowTitle();
 }
 
 

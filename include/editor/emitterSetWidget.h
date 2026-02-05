@@ -23,6 +23,7 @@ public:
 
 signals:
     void emitterSetNamedChanged();
+    void propertiesChanged();
 
 private:
     void populateProperties();
