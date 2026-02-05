@@ -47,6 +47,7 @@ protected:
 private slots:
     void openFile();
     void saveFile();
+    void saveFileAs();
 
     void openRecentFile();
 
@@ -69,12 +70,14 @@ private:
 
 private:
     std::unique_ptr<Ptcl::PtclRes> mPtclRes{};
+    QString mCurrentFilePath{};
 
     s32 mCurEmitterSetIdx{};
     s32 mCurEmitterIdx{};
 
     QAction mOpenAction{};
     QAction mSaveAction{};
+    QAction mSaveAsAction{};
     std::vector<QAction*> mRecentFileActions{};
 
     QMenu mFileMenu{};
