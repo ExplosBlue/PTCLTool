@@ -56,11 +56,10 @@ protected:
 class TextureHandle {
 public:
     TextureHandle(std::shared_ptr<Texture> texture = nullptr);
-
     TextureHandle(const TextureHandle&) = delete;
-    TextureHandle& operator=(const TextureHandle&) = delete;
-
     ~TextureHandle();
+
+    TextureHandle clone() const;
 
     void invalidate();
     bool isValid() const;

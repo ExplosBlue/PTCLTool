@@ -55,6 +55,27 @@ void EmitterSet::removeEmitter(s32 emitterIndex) {
     mEmitters.erase(mEmitters.begin() + emitterIndex);
 }
 
+std::unique_ptr<EmitterSet> EmitterSet::clone() const {
+    auto newSet = std::make_unique<EmitterSet>();
+
+    newSet->mName = mName;
+    newSet->mUserData = mUserData;
+    newSet->mLastUpdateDate = mLastUpdateDate;
+
+    for (const auto& emitter : mEmitters) {
+        if (emitter) {
+            newSet->mEmitters.push_back(emitter->clone());
+        }
+    }
+    return newSet;
+}
+
+const std::unique_ptr<Emitter>& EmitterSet::appendEmitter(std::unique_ptr<Emitter>& newSet) {
+    mEmitters.push_back(std::move(newSet));
+    return mEmitters.at(emitterCount() - 1);
+}
+
+
 // ========================================================================== //
 
 

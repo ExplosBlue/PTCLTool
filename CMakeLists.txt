@@ -175,10 +175,12 @@ qt_add_resources(EffectTool "icons"
     FILES
         res/icons/add_emitter.png
         res/icons/add_emitterset.png
+        res/icons/copy.png
         res/icons/emitter.png
         res/icons/emitterset.png
         res/icons/emitterset_expanded.png
         res/icons/filter.png
+        res/icons/paste.png
         res/icons/remove.png
 )
 

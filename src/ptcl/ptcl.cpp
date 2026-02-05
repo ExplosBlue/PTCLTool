@@ -597,14 +597,6 @@ EmitterSetList& PtclRes::getEmitterSets() {
     return mEmitterSets;
 }
 
-void PtclRes::addTexture(const Texture& texture) {
-    static_assert("Not implemented: PtclRes::addTexture");
-}
-
-void PtclRes::removeTexture(u32 textureIndex) {
-    static_assert("Not implemented: PtclRes::removeTexture");
-}
-
 const TextureList& PtclRes::textures() const {
     return mTextures;
 }
@@ -627,6 +619,12 @@ void PtclRes::removeEmitterSet(s32 setIndex) {
 
     mEmitterSets.erase(mEmitterSets.begin() + setIndex);
 }
+
+const std::unique_ptr<EmitterSet>& PtclRes::appendEmitterSet(std::unique_ptr<EmitterSet>& newSet) {
+    mEmitterSets.push_back(std::move(newSet));
+    return mEmitterSets.at(emitterSetCount() - 1);
+}
+
 
 // ========================================================================== //
 

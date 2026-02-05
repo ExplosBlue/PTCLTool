@@ -120,6 +120,9 @@ private:
 
     void expandSourceIndex(const QModelIndex& sourceIndex);
 
+    void copyItem();
+    void pasteItem();
+
 private:
     Ptcl::PtclRes* mResPtr{nullptr};
 
@@ -133,12 +136,15 @@ private:
     QAction* mAddEmitterSetAction{nullptr};
     QAction* mAddEmitterAction{nullptr};
     QAction* mRemoveAction{nullptr};
-    // QAction* mCopyAction{nullptr};
-    // QAction* mPasteAction{nullptr};
+    QAction* mCopyAction{nullptr};
+    QAction* mPasteAction{nullptr};
 
     QVBoxLayout mMainLayout{};
 
     EmitterFilterProxyModel mProxyModel{};
+
+    std::unique_ptr<Ptcl::EmitterSet> mClipboardSet;
+    std::unique_ptr<Ptcl::Emitter> mClipboardEmitter;
 };
 
 

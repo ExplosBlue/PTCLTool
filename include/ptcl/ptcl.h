@@ -34,9 +34,6 @@ public:
 
     EmitterSetList& getEmitterSets();
 
-    void addTexture(const Texture& texture);
-    void removeTexture(u32 textureIndex);
-
     const TextureList& textures() const;
     TextureList& textures();
 
@@ -45,6 +42,8 @@ public:
 
     u32 emitterSetCount() const;
     u32 emitterCount() const;
+
+    const std::unique_ptr<EmitterSet>& appendEmitterSet(std::unique_ptr<EmitterSet>& newSet);
 
 private:
     QString mName;

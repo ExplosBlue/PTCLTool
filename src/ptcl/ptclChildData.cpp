@@ -6,6 +6,21 @@ namespace Ptcl {
 
 // ========================================================================== //
 
+std::unique_ptr<ChildData> ChildData::clone() const {
+    auto newData = std::make_unique<ChildData>();
+
+    newData->mBasicProperties = mBasicProperties;
+    newData->mEmissionProperties = mEmissionProperties;
+    newData->mVelocityProperties = mVelocityProperties;
+    newData->mTextureProperties = mTextureProperties;
+    newData->mColorProperties = mColorProperties;
+    newData->mAlphaProperties = mAlphaProperties;
+    newData->mCombinerProperties = mCombinerProperties;
+    newData->mRotationProperties = mRotationProperties;
+    newData->mScaleProperties = mScaleProperties;
+    newData->mTextureHandle = mTextureHandle.clone();
+    return newData;
+}
 
 TextureHandle& ChildData::textureHandle() {
     return mTextureHandle;
