@@ -19,7 +19,7 @@
 ## Requirements
 
 - Qt 6.x
-- On Windows: [win-iconv](https://github.com/win-iconv/win-iconv)
+- On Windows: **[win-iconv](https://github.com/win-iconv/win-iconv)**
 - On Linux/macOS: Standard `iconv` library (usually pre-installed)
 
 ## Aknowledgements
@@ -34,6 +34,10 @@ Each library is included under its respective license in the `third_party/` dire
 
 - Icons are provided by **[icons8](https://icons8.com/)**
 
+
+## Downloads
+
+Prebuilt binaries for **Windows** and **macOS** can be found on the **[Latest Releases](https://github.com/ExplosBlue/PTCLTool/releases/latest)** page.
 
 ## License
 

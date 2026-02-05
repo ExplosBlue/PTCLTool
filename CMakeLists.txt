@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(PTCLTool VERSION 0.1 LANGUAGES CXX)
+project(PTCLTool VERSION 1.0.0 LANGUAGES CXX)
 
 option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 
@@ -183,10 +183,28 @@ qt_add_resources(PTCLTool "icons"
         res/icons/export_image.png
         res/icons/filter.png
         res/icons/import_image.png
+        res/icons/open_file.png
         res/icons/paste.png
+        res/icons/recent.png
         res/icons/remove.png
         res/icons/replace_image.png
+        res/icons/save.png
+        res/icons/save_as.png
 )
+
+if(WIN32)
+    set(APP_ICON_RESOURCE "${CMAKE_CURRENT_BINARY_DIR}/app_icon.rc")
+    file(WRITE "${APP_ICON_RESOURCE}" "IDI_ICON1 ICON \"${CMAKE_SOURCE_DIR}/res/icons/app_icon.ico\"\n")
+    set_source_files_properties(${APP_ICON_RESOURCE} PROPERTIES HEADER_FILE_ONLY TRUE)
+    target_sources(PTCLTool PRIVATE "${APP_ICON_RESOURCE}")
+endif()
+
+if(APPLE)
+    set_target_properties(PTCLTool PROPERTIES
+        MACOSX_BUNDLE_ICON_FILE app_icon.icns
+    )
+    qt_add_resources(PTCLTool "mac_icons" PREFIX "/" FILES res/icons/app_icon.icns)
+endif()
 
 if(ENABLE_ASAN AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     if(MSVC)
@@ -204,7 +222,7 @@ target_link_libraries(PTCLTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Iconv::Ico
 target_include_directories(PTCLTool PRIVATE include)
 
 if(${QT_VERSION} VERSION_LESS 6.1.0)
-  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.explos.PTCLTool)
+  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.ExplosBlue.PTCLTool)
 endif()
 set_target_properties(PTCLTool PROPERTIES
     ${BUNDLE_ID_OPTION}
@@ -220,6 +238,16 @@ install(TARGETS PTCLTool
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+if(LINUX)
+    install(FILES res/icons/app_icon.png
+        DESTINATION share/icons/hicolor/256x256/apps
+        RENAME org.ExplosBlue.PTCLTool.png
+    )
+    install(FILES res/org.ExplosBlue.PTCLTool.desktop
+        DESTINATION share/applications
+    )
+endif()
 
 if(WIN32)
     add_custom_command(TARGET PTCLTool POST_BUILD
