@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(EffectTool VERSION 0.1 LANGUAGES CXX)
+project(PTCLTool VERSION 0.1 LANGUAGES CXX)
 
 option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 
@@ -160,17 +160,17 @@ set(PROJECT_HEADERS
     include/util/imageUtil.h
     include/util/nameValidator.h
     include/util/printUtil.h
+    include/util/randomUtil.h
     include/util/settingsUtil.h
     include/util/stringUtil.h
 )
 
-qt_add_executable(EffectTool
+qt_add_executable(PTCLTool
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES} ${PROJECT_HEADERS}
-    include/util/randomUtil.h
 )
 
-qt_add_resources(EffectTool "icons"
+qt_add_resources(PTCLTool "icons"
     PREFIX "/"
     FILES
         res/icons/add_emitter.png
@@ -199,17 +199,14 @@ if(ENABLE_ASAN AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DADDRESS_SANITIZER)
 endif()
 
-target_link_libraries(EffectTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Iconv::Iconv Qt${QT_VERSION_MAJOR}::Concurrent)
+target_link_libraries(PTCLTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Iconv::Iconv Qt${QT_VERSION_MAJOR}::Concurrent)
 
-target_include_directories(EffectTool PRIVATE include)
+target_include_directories(PTCLTool PRIVATE include)
 
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
 if(${QT_VERSION} VERSION_LESS 6.1.0)
-  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.EffectTool)
+  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.explos.PTCLTool)
 endif()
-set_target_properties(EffectTool PROPERTIES
+set_target_properties(PTCLTool PROPERTIES
     ${BUNDLE_ID_OPTION}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -218,19 +215,19 @@ set_target_properties(EffectTool PROPERTIES
 )
 
 include(GNUInstallDirs)
-install(TARGETS EffectTool
+install(TARGETS PTCLTool
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 if(WIN32)
-    add_custom_command(TARGET EffectTool POST_BUILD
+    add_custom_command(TARGET PTCLTool POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_SOURCE_DIR}/third_party/iconv/bin/iconv.dll"
-            $<TARGET_FILE_DIR:EffectTool>)
+            $<TARGET_FILE_DIR:PTCLTool>)
 endif()
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(EffectTool)
+    qt_finalize_executable(PTCLTool)
 endif()
