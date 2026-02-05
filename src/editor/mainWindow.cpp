@@ -183,17 +183,25 @@ void MainWindow::setupConnections() {
 }
 
 void MainWindow::setupMenus() {
-    // Open File Action
+    // Open File
     mOpenAction.setText("Open File");
     mOpenAction.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpen));
     mOpenAction.setShortcut(QKeySequence::Open);
     connect(&mOpenAction, &QAction::triggered, this, &MainWindow::openFile);
 
-    // Save File Action
-    mSaveAction.setText("Save As");
-    mSaveAction.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSaveAs));
-    mSaveAction.setShortcut(QKeySequence::SaveAs);
+    // Save
+    mSaveAction.setText("Save");
+    mSaveAction.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSave));
+    mSaveAction.setShortcut(QKeySequence::Save);
+    mSaveAction.setEnabled(false);
     connect(&mSaveAction, &QAction::triggered, this, &MainWindow::saveFile);
+
+    // Save As
+    mSaveAsAction.setText("Save As");
+    mSaveAsAction.setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSaveAs));
+    mSaveAsAction.setShortcut(QKeySequence::SaveAs);
+    mSaveAsAction.setEnabled(false);
+    connect(&mSaveAsAction, &QAction::triggered, this, &MainWindow::saveFileAs);
 
     // Recent Files Menu
     mRecentFilesMenu.setTitle("Recent Files");
@@ -212,6 +220,7 @@ void MainWindow::setupMenus() {
     mFileMenu.setTitle("File");
     mFileMenu.addAction(&mOpenAction);
     mFileMenu.addAction(&mSaveAction);
+    mFileMenu.addAction(&mSaveAsAction);
     mFileMenu.addSeparator();
     mFileMenu.addMenu(&mRecentFilesMenu);
 
@@ -303,6 +312,25 @@ void MainWindow::saveFile() {
         return;
     }
 
+    if (mCurrentFilePath.isEmpty()) {
+        saveFileAs();
+        return;
+    }
+
+    mPtclRes->save(mCurrentFilePath);
+
+    setDirty(false);
+    statusBar()->showMessage("File Saved", 2000);
+
+    SettingsUtil::SettingsMgr::instance().addRecentFile(mCurrentFilePath);
+    updateRecentFileList();
+}
+
+void MainWindow::saveFileAs() {
+    if (!mPtclRes) {
+        return;
+    }
+
     QString basePath = SettingsUtil::SettingsMgr::instance().lastSavePath();
     if (basePath.isEmpty()) {
         QString lastOpenPath = SettingsUtil::SettingsMgr::instance().lastOpenPath();
@@ -313,31 +341,26 @@ void MainWindow::saveFile() {
         }
     }
 
-    QFileDialog saveFileDialog(this, "Save As", basePath, "*.ptcl");
-
-    if(saveFileDialog.exec() == QFileDialog::DialogCode::Rejected) {
+    QFileDialog dialog(this, "Save As", basePath, "*.ptcl");
+    if(dialog.exec() == QFileDialog::DialogCode::Rejected) {
         return;
     }
 
-    const auto& files = saveFileDialog.selectedFiles();
-
-    if (files.isEmpty()) {
-        return;
-    }
-
-    auto filePath = files.first();
-
+    auto filePath = dialog.selectedFiles().constFirst();
     if (!filePath.endsWith(".ptcl")) {
-        filePath.append(".ptcl");
+        filePath += ".ptcl";
     }
 
     mPtclRes->save(filePath);
+
     setDirty(false);
     statusBar()->showMessage("File Saved", 2000);
 
+    mCurrentFilePath = filePath;
     SettingsUtil::SettingsMgr::instance().addRecentFile(filePath);
     SettingsUtil::SettingsMgr::instance().setLastSavePath(QFileInfo(filePath).absolutePath());
     updateRecentFileList();
+    updateWindowTitle();
 }
 
 void MainWindow::openRecentFile() {
@@ -379,12 +402,16 @@ void MainWindow::loadPtclRes(const QString& path) {
     mPtclList.setEnabled(false);
     mTextureWidget.setEnabled(false);
     mProjNameLineEdit.setEnabled(false);
+    mSaveAsAction.setEnabled(false);
 
     mPtclRes = std::make_unique<Ptcl::PtclRes>();
     if (!mPtclRes->load(path)) {
         mPtclRes.reset();
         return;
     }
+
+    mCurrentFilePath = path;
+    setDirty(false);
 
     SettingsUtil::SettingsMgr::instance().addRecentFile(path);
     SettingsUtil::SettingsMgr::instance().setLastOpenPath(QFileInfo(path).absolutePath());
@@ -407,7 +434,8 @@ void MainWindow::loadPtclRes(const QString& path) {
 
     mPtclList.setEnabled(true);
     mTextureWidget.setEnabled(true);
-    mProjNameLineEdit.setEnabled(true);    
+    mProjNameLineEdit.setEnabled(true);
+    mSaveAsAction.setEnabled(true);
 }
 
 void MainWindow::selectEmitterSet(s32 setIndex) {
@@ -534,8 +562,8 @@ void MainWindow::updatePropertiesStatus() {
 
 void MainWindow::updateWindowTitle() {
     QString title = "PtclEditor";
-    if (mPtclRes) {
-        title += " - " + mPtclRes->name();
+    if (!mCurrentFilePath.isEmpty()) {
+        title += " - " + QFileInfo(mCurrentFilePath).fileName();
     }
     if (mHasUnsavedChanges) {
         title += " *";
@@ -559,6 +587,7 @@ void MainWindow::updateStatusBar() {
 
 void MainWindow::setDirty(bool dirty) {
     mHasUnsavedChanges = dirty;
+    mSaveAction.setEnabled(dirty);
     updateStatusBar();
     updateWindowTitle();
 }
