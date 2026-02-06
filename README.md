@@ -37,7 +37,7 @@ Each library is included under its respective license in the `third_party/` dire
 
 ## Downloads
 
-Prebuilt binaries for **Windows** and **macOS** can be found on the **[Latest Releases](https://github.com/ExplosBlue/PTCLTool/releases/latest)** page.
+Prebuilt binaries for **Windows**, **macOS** and **Linux** can be found on the **[Latest Releases](https://github.com/ExplosBlue/PTCLTool/releases/latest)** page.
 
 ## License
 

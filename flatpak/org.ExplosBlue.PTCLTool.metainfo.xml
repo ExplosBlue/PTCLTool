@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+    <id>org.ExplosBlue.PTCLTool</id>
+
+    <name>PTCLTool</name>
+    <summary>An editor for PTCL files</summary>
+
+    <description>
+        <p>
+            PTCLTool is a tool for editing the .ptcl particle effect format used in various Nintendo 3DS games, including:
+    
+            Animal Crossing: New Leaf
+            Mario Kart 7
+            New Super Mario Bros. 2
+            Photos with Mario
+            Photos with Animal Crossing
+            Super Mario 3D Land
+            いっしょにフォト ピクミン
+        </p>
+    </description>
+
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-3.0-or-later</project_license>
+
+    <launchable type="desktop-id">
+        org.explos.PTCLTool.desktop
+    </launchable>
+
+    <url type="homepage">https://github.com/ExplosBlue/PTCLTool</url>
+    <url type="bugtracker">https://github.com/ExplosBlue/PTCLTool/issues</url>
+
+    <developer_name>ExplosBlue</developer_name>
+
+    <provides>
+        <binary>PTCLTool</binary>
+    </provides>
+</component>
