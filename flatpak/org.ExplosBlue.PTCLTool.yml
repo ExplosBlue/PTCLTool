@@ -1,0 +1,32 @@
+app-id: org.ExplosBlue.PTCLTool
+runtime: org.kde.Platform
+runtime-version: '6.10'
+sdk: org.kde.Sdk
+command: PTCLTool
+
+finish-args:
+  - --socket=wayland
+  - --socket=x11
+  - --device=dri
+  - --filesystem=home
+
+modules:
+  - name: ptcltool
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_INSTALL_PREFIX=/app
+
+    sources:
+      - type: git
+        url: https://github.com/ExplosBlue/PTCLTool.git
+        tag: v1.0.0
+
+    build-commands:
+      - cmake --build .
+      - cmake --install .
+
+    install:
+      - install -Dm755 PTCLTool /app/bin/PTCLTool
+      - install -Dm644 flatpak/org.ExplosBlue.PTCLTool.metainfo.xml \
+          /app/share/metainfo/org.ExplosBlue.PTCLTool.metainfo.xml
