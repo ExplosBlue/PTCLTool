@@ -65,12 +65,15 @@ void MainWindow::setupUi() {
     mTopSplitter = new QSplitter(Qt::Horizontal, this);
     mTopSplitter->addWidget(&mPtclList);
     mTopSplitter->addWidget(propertiesContainer);
-    mTopSplitter->setSizes({1, 9999});
+    mTopSplitter->setStretchFactor(0, 0);
+    mTopSplitter->setStretchFactor(1, 1);
 
     // Bottom Splitter
     mBottomSplitter = new QSplitter(Qt::Vertical, this);
     mBottomSplitter->addWidget(mTopSplitter);
     mBottomSplitter->addWidget(&mTextureWidget);
+    mBottomSplitter->setStretchFactor(0, 1);
+    mBottomSplitter->setStretchFactor(1, 0);
 
     // Ptcl List
     mPtclList.setEnabled(false);
@@ -78,11 +81,9 @@ void MainWindow::setupUi() {
 
     // Emitter Widget
     mEmitterWidget.setEnabled(false);
-    mEmitterWidget.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
     // EmitterSet Widget
     mEmitterSetWidget.setEnabled(false);
-    mEmitterSetWidget.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
     // Texture Widget
     mTextureWidget.setEnabled(false);
