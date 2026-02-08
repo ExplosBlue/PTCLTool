@@ -9,6 +9,7 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QPainter>
+#include <QSplitter>
 #include <QStandardItemModel>
 #include <QStandardPaths>
 
@@ -24,6 +25,10 @@ TextureItemDelegate::TextureItemDelegate(QObject* parent) :
 
 void TextureItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
     painter->save();
+
+    if (option.state & QStyle::State_Selected) {
+        painter->fillRect(option.rect, option.palette.highlight());
+    }
 
     if (option.state & QStyle::State_MouseOver) {
         painter->fillRect(option.rect, option.palette.highlight());
@@ -151,20 +156,67 @@ void TextureListModel::emitRowChangedFor(Ptcl::Texture* texture) {
 
 // ========================================================================== //
 
-
-TextureListWidget::TextureListWidget(QWidget *parent) :
+TextureDetailsPanel::TextureDetailsPanel(QWidget* parent) :
     QWidget{parent} {
+    mThumbnailWidget.setThumbnailSize({256, 256});
+    mExportButton.setText("Export Texture");
+    mReplaceButton.setText("Replace Texture");
+
     auto* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
+    mainLayout->addWidget(&mThumbnailWidget);
+
+    auto* buttonLayout = new QHBoxLayout;
+    buttonLayout->addWidget(&mExportButton);
+    buttonLayout->addWidget(&mReplaceButton);
+    mainLayout->addLayout(buttonLayout);
+    mainLayout->addStretch(1);
+
+    connect(&mExportButton, &QPushButton::clicked, this, [this](bool checked) {
+        Q_UNUSED(checked);
+        if (mTexturePtr) {
+            emit exportRequested(mTexturePtr);
+        }
+    });
+
+    connect(&mReplaceButton, &QPushButton::clicked, this, [this](bool checked) {
+        Q_UNUSED(checked);
+        if (mTexturePtr) {
+            emit replaceRequested(mTexturePtr);
+        }
+    });
+
+    setEnabled(false);
+}
+
+void TextureDetailsPanel::setTexture(Ptcl::Texture* texture) {
+    mTexturePtr = texture;
+
+    if (!mTexturePtr) {
+        setEnabled(false);
+        // TODO: Clear thumbnailWidget
+        return;
+    }
+
+    setEnabled(true);
+    mThumbnailWidget.setPixmap(QPixmap::fromImage(mTexturePtr->textureData()));
+}
+
+
+// ========================================================================== //
+
+
+TextureListWidget::TextureListWidget(QWidget *parent) :
+    QWidget{parent} {
     setupToolbar();
     setupView();
     setupContextMenu();
+    setupLayout();
+    setupSelectionHandling();
 
-    mainLayout->addWidget(&mToolbar);
-    mainLayout->addWidget(&mView);
-
-    setLayout(mainLayout);
+    connect(&mDetailsPanel, &TextureDetailsPanel::exportRequested, this, &TextureListWidget::exportTexture);
+    connect(&mDetailsPanel, &TextureDetailsPanel::replaceRequested, this, &TextureListWidget::replaceTexture);
 }
 
 void TextureListWidget::setupToolbar() {
@@ -213,6 +265,28 @@ void TextureListWidget::setupContextMenu() {
     });
 }
 
+void TextureListWidget::setupLayout() {
+    auto* mainLayout = new QVBoxLayout(this);
+
+    auto* listLayout = new QHBoxLayout;
+    listLayout->addWidget(&mView);
+    listLayout->addWidget(&mDetailsPanel);
+    mainLayout->addLayout(listLayout);
+
+    mainLayout->addWidget(&mToolbar);
+}
+
+void TextureListWidget::setupSelectionHandling() {
+    connect(mView.selectionModel(), &QItemSelectionModel::currentChanged, this, [this](const QModelIndex& current, const QModelIndex& previous) {
+        Q_UNUSED(previous);
+
+        Ptcl::Texture* texture = nullptr;
+        if (current.isValid()) {
+            texture = static_cast<Ptcl::Texture*>(current.data(TextureListModel::Roles::TexturePtrRole).value<void*>());
+        }
+        mDetailsPanel.setTexture(texture);
+    });
+}
 
 void TextureListWidget::setTextures(Ptcl::TextureList* textures) {
     if (mTexturesPtr == textures) {
@@ -229,6 +303,7 @@ void TextureListWidget::setTextures(Ptcl::TextureList* textures) {
 
 void TextureListWidget::clear() {
     setTextures(nullptr);
+    mDetailsPanel.setTexture(nullptr);
 }
 
 void TextureListWidget::exportAll() {
@@ -349,6 +424,7 @@ void TextureListWidget::replaceTexture(Ptcl::Texture* texture) {
     if (dialog.exec() == QDialog::Accepted) {
         texture->replaceTexture(*dialog.getTexture());
         mModel.setTextures(mTexturesPtr);
+        mDetailsPanel.setTexture(texture);
     }
 
     SettingsUtil::SettingsMgr::instance().setLastImportPath(QFileInfo(filePath).absolutePath());
