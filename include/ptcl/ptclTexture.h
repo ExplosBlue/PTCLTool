@@ -13,7 +13,7 @@ namespace Ptcl {
 
 class Texture {
 public:
-    using UserCountCallback = std::function<void(u32)>;
+    using UserCountCallback = std::function<void()>;
 
 public:
     Texture() = delete;
@@ -36,11 +36,14 @@ public:
 
     static const std::shared_ptr<Texture>& placeholder();
 
-    void setUserCountCallback(const UserCountCallback& callback);
+    void setUserCountCallback(UserCountCallback callback);
 
 protected:
     void incrementUserCount();
     void decrementUserCount();
+
+private:
+    void doUserCountCallback() const;
 
 private:
     std::vector<u8> mEncodedData{};

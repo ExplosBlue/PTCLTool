@@ -88,25 +88,28 @@ const std::shared_ptr<Texture>& Texture::placeholder() {
     return sPlaceholder;
 }
 
-void Texture::setUserCountCallback(const Texture::UserCountCallback& callback) {
-    mUserCountCallBack = callback;
+void Texture::setUserCountCallback(Texture::UserCountCallback callback) {
+    mUserCountCallBack = std::move(callback);
 }
 
 void Texture::incrementUserCount() {
     mUserCount++;
-
-    if (mUserCountCallBack) {
-        mUserCountCallBack(mUserCount);
-    }
+    doUserCountCallback();
 }
 
 void Texture::decrementUserCount() {
     mUserCount--;
-
-    if (mUserCountCallBack) {
-        mUserCountCallBack(mUserCount);
-    }
+    doUserCountCallback();
 }
+
+void Texture::doUserCountCallback() const {
+    if (!mUserCountCallBack) {
+        return;
+    }
+
+    mUserCountCallBack();
+}
+
 
 // ========================================================================== //
 

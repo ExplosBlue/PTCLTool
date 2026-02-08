@@ -25,8 +25,6 @@ protected:
 private:
     QPixmap mPixmap;
     QSize mThumbnailSize;
-
-    void drawCheckerBackground(QPainter& painter, const QRect& rect);
 };
 
 
