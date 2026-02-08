@@ -1,10 +1,12 @@
 #pragma once
 
+#include "components/thumbnailWidget.h"
 #include "ptcl/ptcl.h"
 
 #include <QAbstractListModel>
 #include <QGridLayout>
 #include <QListView>
+#include <QPushButton>
 #include <QScrollArea>
 #include <QStyledItemDelegate>
 #include <QToolBar>
@@ -63,6 +65,28 @@ private:
 
 // ========================================================================== //
 
+class TextureDetailsPanel final : public QWidget {
+    Q_OBJECT
+public:
+    explicit TextureDetailsPanel(QWidget* parent = nullptr);
+
+    void setTexture(Ptcl::Texture* texture);
+
+signals:
+    void exportRequested(Ptcl::Texture* texture);
+    void replaceRequested(Ptcl::Texture* texture);
+
+private:
+    Ptcl::Texture* mTexturePtr{nullptr};
+
+    ThumbnailWidget mThumbnailWidget{};
+    QPushButton mExportButton{};
+    QPushButton mReplaceButton{};
+
+};
+
+// ========================================================================== //
+
 
 class TextureListWidget final : public QWidget {
     Q_OBJECT
@@ -82,6 +106,8 @@ private:
     void setupToolbar();
     void setupView();
     void setupContextMenu();
+    void setupLayout();
+    void setupSelectionHandling();
 
 private:
     Ptcl::TextureList* mTexturesPtr{nullptr};
@@ -93,6 +119,8 @@ private:
     QListView mView{};
     TextureListModel mModel{};
     TextureItemDelegate mDelegate{};
+
+    TextureDetailsPanel mDetailsPanel{};
 };
 
 
