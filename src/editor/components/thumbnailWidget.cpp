@@ -10,7 +10,7 @@
 
 
 ThumbnailWidget::ThumbnailWidget(QWidget* parent) :
-    QWidget(parent), mThumbnailSize(64, 64) {
+    QWidget{parent} {
     setMinimumSize(mThumbnailSize);
 }
 
@@ -23,6 +23,11 @@ void ThumbnailWidget::setThumbnailSize(QSize size) {
     mThumbnailSize = size;
     setFixedSize(size);
     updateGeometry();
+}
+
+void ThumbnailWidget::clear() {
+    mPixmap = {};
+    update();
 }
 
 QSize ThumbnailWidget::sizeHint() const {
