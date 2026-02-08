@@ -195,7 +195,7 @@ void TextureDetailsPanel::setTexture(Ptcl::Texture* texture) {
 
     if (!mTexturePtr) {
         setEnabled(false);
-        // TODO: Clear thumbnailWidget
+        mThumbnailWidget.clear();
         return;
     }
 

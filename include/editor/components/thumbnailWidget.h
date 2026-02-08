@@ -14,6 +14,8 @@ public:
     void setPixmap(const QPixmap& pixmap);
     void setThumbnailSize(QSize size);
 
+    void clear();
+
 signals:
     void clicked();
 
@@ -23,8 +25,8 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
 
 private:
-    QPixmap mPixmap;
-    QSize mThumbnailSize;
+    QPixmap mPixmap{};
+    QSize mThumbnailSize{64, 64};
 };
 
 
