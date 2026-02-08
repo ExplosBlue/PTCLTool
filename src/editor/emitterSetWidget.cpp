@@ -15,8 +15,8 @@ EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
     mNameLineEdit.setPlaceholderText("EmitterSetName");
     mNameLineEdit.setValidator(new EmitterNameValidator(&mNameLineEdit));
     // TODO: Check these
-    mUserDataSpinBox.setRange(std::numeric_limits<s32>::min(), std::numeric_limits<s32>::max());
-    mLastUpdateSpinBox.setRange(std::numeric_limits<s32>::min(), std::numeric_limits<s32>::max());
+    mUserDataSpinBox.setRange(std::numeric_limits<u32>::min(), std::numeric_limits<u32>::max());
+    mLastUpdateSpinBox.setRange(std::numeric_limits<u32>::min(), std::numeric_limits<u32>::max());
 
     auto* mainLayout = new QFormLayout(this);
     mainLayout->addRow("EmitterSet Name:", &mNameLineEdit);
@@ -38,14 +38,14 @@ void EmitterSetWidget::setupConnections() {
     });
 
     // User Data
-    connect(&mUserDataSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
-        mEmitterSetPtr->setUserData(value);
+    connect(&mUserDataSpinBox, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
+        mEmitterSetPtr->setUserData(static_cast<u32>(value));
         emit propertiesChanged();
     });
 
     // Last Update
-    connect(&mLastUpdateSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
-        mEmitterSetPtr->setLastUpdateDate(value);
+    connect(&mLastUpdateSpinBox, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
+        mEmitterSetPtr->setLastUpdateDate(static_cast<u32>(value));
         emit propertiesChanged();
     });
 }
@@ -62,9 +62,13 @@ void EmitterSetWidget::clear() {
 }
 
 void EmitterSetWidget::populateProperties() {
+    blockSignals(true);
+
     mNameLineEdit.setText(mEmitterSetPtr->name());
     mUserDataSpinBox.setValue(mEmitterSetPtr->userData());
     mLastUpdateSpinBox.setValue(mEmitterSetPtr->lastUpdateDate());
+
+    blockSignals(false);
 }
 
 
