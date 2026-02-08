@@ -1,5 +1,6 @@
 #pragma once
 
+#include "components/sizedSpinBox.h"
 #include "ptcl/ptclEmitterSet.h"
 
 #include <QLineEdit>
@@ -34,8 +35,8 @@ private:
     s32 mCurEmitterIdx{};
 
     QLineEdit mNameLineEdit{};
-    QSpinBox mUserDataSpinBox{};
-    QSpinBox mLastUpdateSpinBox{};
+    SizedSpinBox<u32> mUserDataSpinBox{};
+    SizedSpinBox<u32> mLastUpdateSpinBox{};
 };
 
 
