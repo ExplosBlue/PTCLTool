@@ -322,20 +322,20 @@ void PtclList::selectionChanged(const QItemSelection& selection) {
             break;
         }
         case NodeType::ChildData: {
-            const u32 emitterIndex = sourceIndex.row();
-            const u32 setIndex = sourceIndex.parent().row();
+            const u32 emitterIndex = sourceIndex.parent().row();
+            const u32 setIndex = sourceIndex.parent().parent().row();
             emit selectedChildData(setIndex, emitterIndex);
             break;
         }
         case NodeType::Fluctuation: {
-            const u32 emitterIndex = sourceIndex.row();
-            const u32 setIndex = sourceIndex.parent().row();
+            const u32 emitterIndex = sourceIndex.parent().row();
+            const u32 setIndex = sourceIndex.parent().parent().row();
             emit selectedFluctuation(setIndex, emitterIndex);
             break;
         }
         case NodeType::Field: {
-            const u32 emitterIndex = sourceIndex.row();
-            const u32 setIndex = sourceIndex.parent().row();
+            const u32 emitterIndex = sourceIndex.parent().row();
+            const u32 setIndex = sourceIndex.parent().parent().row();
             emit selectedField(setIndex, emitterIndex);
             break;
         }
