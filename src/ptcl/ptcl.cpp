@@ -14,207 +14,215 @@ namespace Ptcl {
 // ========================================================================== //
 
 
-bool PtclRes::load(const QString& filePath) {
-    std::unordered_map<u32, u32> textureOffsetMap;
+PtclBinaryReader::PtclBinaryReader(const QString& filePath) :
+    mFile{filePath}, mStream{&mFile} {
 
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly)) {
-        throw("PtclRes::load - Failed to open file.");
-        return false;
+    if (!mFile.open(QIODevice::ReadOnly)) {
+        throw("PtclBinaryReader - Failed to open file.");
     }
 
-    file.seek(0);
+    mStream.setByteOrder(QDataStream::LittleEndian);
+    mStream.setFloatingPointPrecision(QDataStream::SinglePrecision);
+}
 
-    QDataStream stream(&file);
-    stream.setByteOrder(QDataStream::LittleEndian);
-    stream.setFloatingPointPrecision(QDataStream::SinglePrecision);
+void PtclBinaryReader::readHeader() {
+    mStream >> mHeaderData;
 
-    // Read Binary Header
-    BinHeaderData binHeader;
-    stream >> binHeader;
+    mEmitterSetTblPos = mFile.pos();
 
-    // Read tables
-    s64 emitterSetTblPos = file.pos();
+    mFile.seek(mHeaderData.nameTblPos);
+    mNameTbl = mFile.readAll();
 
-    file.seek(binHeader.nameTblPos);
-    QByteArray nameTbl = file.readAll();
+    mFile.seek(mHeaderData.textureTblPos);
+    mTextureTblPos = mFile.pos();
+}
 
-    file.seek(binHeader.textureTblPos);
-    s64 textureTblPos = file.pos();
+QString PtclBinaryReader::readProjectName() {
+    return readName(mHeaderData.namePos);
+}
 
-    // Read name
-    const char* name = nameTbl.data() + binHeader.namePos;
-    setName(name);
+EmitterSetList PtclBinaryReader::readEmitterSets() {
+    EmitterSetList setList{};
 
-    // Read EmitterSets
-    mEmitterSets.reserve(binHeader.numEmitterSet);
+    setList.reserve(mHeaderData.numEmitterSet);
+    for (s32 idx = 0; idx < mHeaderData.numEmitterSet; idx++) {
+        setList.push_back(readEmitterSet(idx));
+    }
 
-    for (int resEmitterSetIdx = 0; resEmitterSetIdx < binHeader.numEmitterSet; resEmitterSetIdx++) {
+    return std::move(setList);
+}
 
-        auto emitterSet = std::make_unique<EmitterSet>();
+std::shared_ptr<Texture> PtclBinaryReader::loadTexture(u32 texturePos, u32 size, u32 width, u32 height, TextureFormat format) {
+    const u32 offset = mTextureTblPos + texturePos;
 
-        file.seek(emitterSetTblPos + static_cast<qint64>((sizeof(BinEmitterSetData)) * resEmitterSetIdx));
-        BinEmitterSetData binEmitterSetData;
-        stream >> binEmitterSetData;
+    auto it = mTextureOffsetMap.find(offset);
+    if (it != mTextureOffsetMap.end()) {
+        return mTextures[it->second];
+    }
 
-        const char* name = nameTbl.data() + binEmitterSetData.namePos;
-        QString decodedName = StringUtil::shiftJISToQString(name);
-        emitterSet->setName(decodedName);
+    mFile.seek(offset);
 
-        emitterSet->setUserData(binEmitterSetData.userData);
-        emitterSet->setLastUpdateDate(binEmitterSetData.lastUpdateDate);
+    std::vector<u8> textureData(size);
+    const s64 bytesRead = mStream.readRawData(reinterpret_cast<char*>(textureData.data()), size);
 
-        emitterSet->emitters().reserve(binEmitterSetData.numEmitter);
+    if (bytesRead != static_cast<s64>(size)) {
+        qWarning() << "Expected to read" << size << "bytes, got" << bytesRead << "bytes.";
+    }
 
-        // Read Emitters
-        if (binEmitterSetData.numEmitter > 0) {
+    auto texture = std::make_shared<Texture>(&textureData, width, height, format);
 
-            int emitterIdx = 0;
-            while (binEmitterSetData.numEmitter > emitterIdx) {
+    const u32 idx = static_cast<u32>(mTextures.size());
+    mTextures.push_back(texture);
+    mTextureOffsetMap.emplace(offset, idx);
 
-                auto emitter = std::make_unique<Emitter>();
+    return texture;
+}
 
-                file.seek(binEmitterSetData.emitterTblPos + static_cast<qint64>((sizeof(BinEmitterTblData)) * emitterIdx));
-                BinEmitterTblData binEmitterTblData;
-                stream >> binEmitterTblData;
+std::unique_ptr<EmitterSet> PtclBinaryReader::readEmitterSet(s32 index) {
+    mFile.seek(mEmitterSetTblPos + index * static_cast<s64>((sizeof(BinEmitterSetData))));
 
-                if (binEmitterTblData.emitterPos > 0) {
+    BinEmitterSetData setData{};
+    mStream >> setData;
 
-                    file.seek(binEmitterTblData.emitterPos);
+    auto set = std::make_unique<EmitterSet>();
+    set->setName(readName(setData.namePos));
 
-                    BinCommonEmitterData binCommonEmitterData{};
-                    stream >> binCommonEmitterData;
+    set->setUserData(setData.userData);
+    set->setLastUpdateDate(setData.lastUpdateDate);
 
-                    emitter->initFromBinary(binCommonEmitterData);
+    set->emitters().reserve(setData.numEmitter);
 
-                    const char* name = nameTbl.data() + binCommonEmitterData.namePos;
-                    QString decodedName = StringUtil::shiftJISToQString(name);
-                    emitter->setName(decodedName);
+    for (s32 idx = 0; idx < setData.numEmitter; ++idx) {
+        mFile.seek(setData.emitterTblPos + idx * static_cast<s64>((sizeof(BinEmitterTblData))));
 
-                    // Read texture data
-                    u32 textureOffset = textureTblPos + binCommonEmitterData.texturePos;
+        BinEmitterTblData tblData;
+        mStream >> tblData;
 
-                    if (textureOffsetMap.find(textureOffset) == textureOffsetMap.end()) {
-
-                        auto height = binCommonEmitterData.textureRes.height;
-                        auto width = binCommonEmitterData.textureRes.width;
-                        auto format = binCommonEmitterData.textureRes.format;
-                        auto size = binCommonEmitterData.textureSize;
-
-                        file.seek(textureOffset);
-                        std::vector<u8> textureData(size);
-                        auto bytesRead = stream.readRawData(reinterpret_cast<char*>(textureData.data()), size);
-                        if (bytesRead != size) {
-                            qWarning() << "Warning: Expected to read" << size << "bytes but only read" << bytesRead;
-                        }
-
-                        auto texture = std::make_shared<Texture>(Texture(&textureData, width, height, format));
-                        mTextures.push_back(texture);
-
-                        u32 textureIdx = mTextures.size() - 1;
-                        textureOffsetMap[textureOffset] = textureIdx;
-                    }
-
-                    emitter->setTexture(mTextures[textureOffsetMap[textureOffset]]);
-
-                    if (binCommonEmitterData.type == EmitterType::Complex || binCommonEmitterData.type == EmitterType::Compact) {
-                        file.seek(binEmitterTblData.emitterPos + static_cast<qint64>(sizeof(BinCommonEmitterData)));
-                        BinComplexEmitterData binComplexEmitterData;
-                        stream >> binComplexEmitterData;
-
-                        emitter->initComplexFromBinary(binComplexEmitterData);
-
-                        // ChildData
-                        if (binComplexEmitterData.childFlag.isSet(ChildFlag::Enabled)) {
-                            BinChildData binChildData;
-                            stream >> binChildData;
-                            emitter->childData().initFromBinary(binChildData);
-
-                            // Read texture data
-                            u32 textureOffset = textureTblPos + binChildData.childTexturePos;
-
-                            if (textureOffsetMap.find(textureOffset) == textureOffsetMap.end()) {
-
-                                auto height = binChildData.childTextureRes.height;
-                                auto width = binChildData.childTextureRes.width;
-                                auto format = binChildData.childTextureRes.format;
-                                auto size = binChildData.childTextureSize;
-
-                                file.seek(textureOffset);
-                                std::vector<u8> textureData(size);
-                                auto bytesRead = stream.readRawData(reinterpret_cast<char*>(textureData.data()), size);
-                                if (bytesRead != size) {
-                                    qWarning() << "Warning: Expected to read" << size << "bytes but only read" << bytesRead;
-                                }
-
-                                auto texture = std::make_shared<Texture>(Texture(&textureData, width, height, format));
-                                mTextures.push_back(texture);
-
-                                u32 textureIdx = mTextures.size() - 1;
-                                textureOffsetMap[textureOffset] = textureIdx;
-                            }
-
-                            emitter->childData().setTexture(mTextures[textureOffsetMap[textureOffset]]);
-                        }
-
-                        // FieldData
-                        Ptcl::FieldData fieldData;
-                        if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::Random)) {
-                            BinFieldRandomData binRandomData;
-                            stream >> binRandomData;
-                            fieldData.initRandomData(binRandomData);
-                        }
-                        if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::Magnet)) {
-                            BinFieldMagnetData binMagnetData;
-                            stream >> binMagnetData;
-                            fieldData.initMagnetData(binMagnetData);
-                        }
-                        if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::Spin)) {
-                            BinFieldSpinData binSpinData;
-                            stream >> binSpinData;
-                            fieldData.initSpinData(binSpinData);
-                        }
-                        if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::Collision)) {
-                            BinFieldCollisionData binCollisionData;
-                            stream >> binCollisionData;
-                            fieldData.initCollisionData(binCollisionData);
-                        }
-                        if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::Convergence)) {
-                            BinFieldConvergenceData binConvergenceData;
-                            stream >> binConvergenceData;
-                            fieldData.initConvergenceData(binConvergenceData);
-                        }
-                        if (binComplexEmitterData.fieldFlag.isSet(FieldFlag::PosAdd)) {
-                            BinFieldPosAddData binPosAddData;
-                            stream >> binPosAddData;
-                            fieldData.initPosAddData(binPosAddData);
-                        }
-                        emitter->setFieldData(fieldData);
-
-                        // FluctuationData
-                        if (binComplexEmitterData.fluctuationFlag.isSet(FluctuationFlag::Enabled)) {
-                            BinFluctuationData binFluctuationData;
-                            stream >> binFluctuationData;
-                            emitter->initFluctuationData(binFluctuationData);
-                        }
-
-                        // StripeData
-                        const auto billboardType = binCommonEmitterData.billboardType;
-                        if (billboardType == BillboardType::Stripe || billboardType == BillboardType::ComplexStripe) {
-                            BinStripeData binStripeData;
-                            stream >> binStripeData;
-                            emitter->initStripeData(binStripeData);
-                        }
-                    }
-                }
-
-                emitterSet->emitters().push_back(std::move(emitter));
-
-                ++emitterIdx;
-            }
+        auto emitter = std::make_unique<Emitter>();
+        if (tblData.emitterPos <= 0) {
+            set->emitters().push_back(std::move(emitter));
+            continue;
         }
-        mEmitterSets.push_back(std::move(emitterSet));
+
+        mFile.seek(tblData.emitterPos);
+
+        BinCommonEmitterData commonData{};
+        mStream >> commonData;
+
+        emitter->initFromBinary(commonData);
+        emitter->setName(readName(commonData.namePos));
+
+        emitter->setTexture(
+            loadTexture(
+                commonData.texturePos,
+                commonData.textureSize,
+                commonData.textureRes.width,
+                commonData.textureRes.height,
+                commonData.textureRes.format
+            )
+        );
+
+        if (commonData.type == EmitterType::Complex || commonData.type == EmitterType::Compact) {
+            mFile.seek(tblData.emitterPos + static_cast<qint64>(sizeof(BinCommonEmitterData)));
+            readComplexData(*emitter, commonData);
+        }
+
+        set->emitters().push_back(std::move(emitter));
     }
+    return set;
+}
+
+void PtclBinaryReader::readComplexData(Emitter& emitter, const BinCommonEmitterData& common) {
+    BinComplexEmitterData complex{};
+    mStream >> complex;
+
+    emitter.initComplexFromBinary(complex);
+
+    // ChildData
+    if (complex.childFlag.isSet(ChildFlag::Enabled)) {
+        BinChildData childData{};
+        mStream >> childData;
+        emitter.childData().initFromBinary(childData);
+
+        emitter.childData().setTexture(
+            loadTexture(
+                childData.childTexturePos,
+                childData.childTextureSize,
+                childData.childTextureRes.width,
+                childData.childTextureRes.height,
+                childData.childTextureRes.format
+            )
+        );
+    }
+
+    // FieldData
+    Ptcl::FieldData fieldData;
+    if (complex.fieldFlag.isSet(FieldFlag::Random)) {
+        BinFieldRandomData randomData{};
+        mStream >> randomData;
+        fieldData.initRandomData(randomData);
+    }
+    if (complex.fieldFlag.isSet(FieldFlag::Magnet)) {
+        BinFieldMagnetData magnetData{};
+        mStream >> magnetData;
+        fieldData.initMagnetData(magnetData);
+    }
+    if (complex.fieldFlag.isSet(FieldFlag::Spin)) {
+        BinFieldSpinData spinData{};
+        mStream >> spinData;
+        fieldData.initSpinData(spinData);
+    }
+    if (complex.fieldFlag.isSet(FieldFlag::Collision)) {
+        BinFieldCollisionData collisionData{};
+        mStream >> collisionData;
+        fieldData.initCollisionData(collisionData);
+    }
+    if (complex.fieldFlag.isSet(FieldFlag::Convergence)) {
+        BinFieldConvergenceData convergenceData{};
+        mStream >> convergenceData;
+        fieldData.initConvergenceData(convergenceData);
+    }
+    if (complex.fieldFlag.isSet(FieldFlag::PosAdd)) {
+        BinFieldPosAddData posAddData{};
+        mStream >> posAddData;
+        fieldData.initPosAddData(posAddData);
+    }
+    emitter.setFieldData(fieldData);
+
+    // FluctuationData
+    if (complex.fluctuationFlag.isSet(FluctuationFlag::Enabled)) {
+        BinFluctuationData fluctuationData{};
+        mStream >> fluctuationData;
+        emitter.initFluctuationData(fluctuationData);
+    }
+
+    // StripeData
+    const auto billboardType = common.billboardType;
+    if (billboardType == BillboardType::Stripe || billboardType == BillboardType::ComplexStripe) {
+        BinStripeData stripeData{};
+        mStream >> stripeData;
+        emitter.initStripeData(stripeData);
+    }
+}
+
+TextureList PtclBinaryReader::takeTextures() {
+    return std::move(mTextures);
+}
+
+QString PtclBinaryReader::readName(u32 namePos) {
+    return StringUtil::shiftJISToQString(mNameTbl.data() + namePos);
+}
+
+// ========================================================================== //
+
+
+bool PtclRes::load(const QString& filePath) {
+    PtclBinaryReader reader(filePath);
+
+    reader.readHeader();
+    mName = reader.readProjectName();
+    mEmitterSets = reader.readEmitterSets();
+    mTextures = reader.takeTextures();
 
     return true;
 }
