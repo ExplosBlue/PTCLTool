@@ -248,12 +248,14 @@ public:
     void setFieldFlags(const BitFlag<FieldFlag>& fieldFlags);
     void setStripeFlags(const BitFlag<StripeFlag>& stripeFlags);
 
+    const ChildData& childData() const;
     ChildData& childData();
 
     const FluctuationData& fluctuationData() const;
     void setFluctuationData(const FluctuationData& fluctuationData);
     void initFluctuationData(const BinFluctuationData& fluctuationData);
 
+    const FieldData& fieldData() const;
     FieldData& fieldData();
     void setFieldData(const FieldData& fieldData);
 

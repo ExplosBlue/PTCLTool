@@ -205,6 +205,10 @@ void Emitter::setStripeFlags(const BitFlag<StripeFlag>& stripeFlags) {
     mComplexProperties.stripeFlags = stripeFlags;
 }
 
+const ChildData& Emitter::childData() const {
+    return mChildData;
+}
+
 ChildData& Emitter::childData() {
     return mChildData;
 }
@@ -223,6 +227,10 @@ void Emitter::initFluctuationData(const BinFluctuationData& fluctuationData) {
         .fluctuationFreq = fluctuationData.fluctuationFreq,
         .fluctuationPhaseRnd = static_cast<bool>(fluctuationData.fluctuationPhaseRnd)
     };
+}
+
+const FieldData& Emitter::fieldData() const {
+    return mFieldData;
 }
 
 FieldData& Emitter::fieldData() {
