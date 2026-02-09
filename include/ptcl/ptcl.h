@@ -21,8 +21,6 @@ using EmitterSetList = std::vector<std::unique_ptr<EmitterSet>>;
 // ========================================================================== //
 
 
-class PtclRes;
-
 class PtclBinaryReader {
 public:
     explicit PtclBinaryReader(const QString& filePath);
@@ -56,6 +54,67 @@ private:
 // ========================================================================== //
 
 
+class PtclRes;
+
+class PtclBinaryWriter {
+public:
+    explicit PtclBinaryWriter(const QString& filePath);
+
+    void write(const PtclRes& res);
+
+private:
+    void buildHeader(const PtclRes& res);
+    void buildEmitters(const PtclRes& res);
+    void writeFile();
+
+    u32 appendName(const QString& name);
+    u32 appendTexture(const TextureHandle& texture, u32& outSize);
+    void alignTextureTable();
+
+    void writeSimpleEmitter(const Emitter& emitter);
+    void writeComplexEmitter(const Emitter& emitter);
+
+private:
+    using DataBlockVariant = std::variant<
+        BinCommonEmitterData,
+        BinComplexEmitterData,
+        BinChildData,
+        BinFieldRandomData,
+        BinFieldMagnetData,
+        BinFieldSpinData,
+        BinFieldCollisionData,
+        BinFieldConvergenceData,
+        BinFieldPosAddData,
+        BinFluctuationData,
+        BinStripeData
+    >;
+
+private:
+    QFile mFile{};
+    QDataStream mStream{};
+
+    BinHeaderData mHeader{};
+
+    std::vector<BinEmitterSetData> mEmitterSets{};
+    std::vector<BinEmitterTblData> mEmitterTbls{};
+    std::vector<DataBlockVariant> mEmitterData{};
+
+    std::vector<char> mNameTbl;
+    std::vector<char> mTextureTbl;
+
+    std::unordered_map<u32, u32> mTextureOffsetMap{};
+
+    u32 mEmitterSetsCurOffset{0};
+    u32 mEmitterTblCurOffset{0};
+    u32 mEmitterDataCurOffset{0};
+    u32 mNameTblCurOffset{0};
+    u32 mTextureTblCurOffset{0};
+};
+
+
+// ========================================================================== //
+
+
 class PtclRes {
 public:
     PtclRes() = default;
@@ -69,6 +128,7 @@ public:
     const QString& name() const;
     void setName(const QString& name);
 
+    const EmitterSetList& getEmitterSets() const;
     EmitterSetList& getEmitterSets();
 
     const TextureList& textures() const;
