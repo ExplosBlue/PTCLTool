@@ -419,8 +419,7 @@ void MainWindow::loadPtclRes(const QString& path) {
     QSignalBlocker b1(mProjNameLineEdit);
     mProjNameLineEdit.setText(mPtclRes->name());
 
-    const auto& sets = mPtclRes->getEmitterSets();
-    if (!sets.empty()) {
+    if (mPtclRes->emitterSetCount() != 0) {
         selectEmitter(0, 0);
     }
 
@@ -437,17 +436,12 @@ void MainWindow::selectEmitterSet(s32 setIndex) {
     mCurEmitterSetIdx = setIndex;
     mCurEmitterIdx = 0;
 
-    if (!mPtclRes || mCurEmitterIdx < 0 || mCurEmitterIdx < 0) {
+    if (!mPtclRes) {
         return;
     }
 
-    const auto& emitterSets = mPtclRes->getEmitterSets();
-    if (mCurEmitterSetIdx >= emitterSets.size()) {
-        return;
-    }
-    const auto& emitterSet = emitterSets[mCurEmitterSetIdx];
-
-    mEmitterSetWidget.setEmitterSet(emitterSet.get());
+    const auto& emitterSet = mPtclRes->emitterSet(mCurEmitterSetIdx);
+    mEmitterSetWidget.setEmitterSet(emitterSet);
 
     if (!mEmitterSetWidget.isEnabled()) {
         mEmitterSetWidget.setEnabled(true);
@@ -458,23 +452,12 @@ void MainWindow::selectEmitter(s32 setIndex, s32 emitterIndex) {
     mCurEmitterSetIdx = setIndex;
     mCurEmitterIdx = emitterIndex;
 
-    if (!mPtclRes || mCurEmitterIdx < 0 || mCurEmitterIdx < 0) {
+    if (!mPtclRes) {
         return;
     }
 
-    const auto& emitterSets = mPtclRes->getEmitterSets();
-    if (mCurEmitterSetIdx >= emitterSets.size()) {
-        return;
-    }
-    const auto& emitterSet = emitterSets[mCurEmitterSetIdx];
-
-    const auto& emitters = emitterSet->emitters();
-    if (mCurEmitterIdx >= emitters.size()) {
-        return;
-    }
-    const auto& emitter = emitters[mCurEmitterIdx];
-
-    mEmitterWidget.setEmitter(emitter.get());
+    const auto& emitter = mPtclRes->emitter(mCurEmitterSetIdx, mCurEmitterIdx);
+    mEmitterWidget.setEmitter(emitter);
 
     if (!mEmitterWidget.isEnabled()) {
         mEmitterWidget.setEnabled(true);
@@ -514,21 +497,12 @@ void MainWindow::setPropertiesView(PropertiesView view) {
 void MainWindow::updatePropertiesStatus() {
     mPropertiesGroup.setTitle({});
 
-    if (!mPtclRes || mCurEmitterIdx < 0 || mCurEmitterIdx < 0) {
+    if (!mPtclRes) {
         return;
     }
 
-    const auto& emitterSets = mPtclRes->getEmitterSets();
-    if (mCurEmitterSetIdx >= emitterSets.size()) {
-        return;
-    }
-    const auto& emitterSet = emitterSets[mCurEmitterSetIdx];
-
-    const auto& emitters = emitterSet->emitters();
-    if (mCurEmitterIdx >= emitters.size()) {
-        return;
-    }
-    const auto& emitter = emitters[mCurEmitterIdx];
+    const auto& emitterSet = mPtclRes->emitterSet(mCurEmitterSetIdx);
+    const auto& emitter = mPtclRes->emitter(mCurEmitterSetIdx, mCurEmitterIdx);
 
     QString title = emitterSet->name();
 
