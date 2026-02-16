@@ -265,7 +265,7 @@ void PtclBinaryWriter::buildHeader(const PtclRes& res) {
     constexpr u32 headerBasePos = 0;
     constexpr u32 emitterSetsBasePos = headerBasePos + sizeof(BinHeaderData);
     const u32 emitterTblDataBasePos = emitterSetsBasePos + (res.emitterSetCount() * sizeof(BinEmitterSetData));
-    const u32 emitterDataBasePos = emitterTblDataBasePos + (res.emitterCount() * sizeof(BinEmitterTblData));
+    const u32 emitterDataBasePos = emitterTblDataBasePos + (res.totalEmitterCount() * sizeof(BinEmitterTblData));
 
     mEmitterSetsCurOffset = emitterSetsBasePos;
     mEmitterTblCurOffset = emitterTblDataBasePos;
@@ -449,7 +449,15 @@ u32 PtclRes::emitterSetCount() const {
     return mEmitterSets.size();
 }
 
-u32 PtclRes::emitterCount() const {
+u32 PtclRes::emitterCount(s32 setIndex) const {
+    if (setIndex < 0 || setIndex >= mEmitterSets.size()) {
+        return 0;
+    }
+
+    return mEmitterSets[setIndex]->emitterCount();
+}
+
+u32 PtclRes::totalEmitterCount() const {
     u32 count = 0;
 
     for (auto& emitterSet : mEmitterSets) {
@@ -478,8 +486,46 @@ const EmitterSetList& PtclRes::getEmitterSets() const {
     return mEmitterSets;
 }
 
-EmitterSetList& PtclRes::getEmitterSets() {
-    return mEmitterSets;
+EmitterSet* PtclRes::emitterSet(s32 index) {
+    if (index < 0 || index >= mEmitterSets.size()) {
+        return nullptr;
+    }
+
+    return mEmitterSets[index].get();
+}
+
+const EmitterSet* PtclRes::emitterSet(s32 index) const {
+    if (index < 0 || index >= mEmitterSets.size()) {
+        return nullptr;
+    }
+
+    return mEmitterSets[index].get();
+}
+
+Emitter* PtclRes::emitter(s32 setIndex, s32 emitterIndex) {
+    if (setIndex < 0 || setIndex >= mEmitterSets.size()) {
+        return nullptr;
+    }
+
+    auto& set = mEmitterSets[setIndex];
+    if (emitterIndex < 0 || emitterIndex >= set->emitters().size()) {
+        return nullptr;
+    }
+
+    return set->emitters()[emitterIndex].get();
+}
+
+const Emitter* PtclRes::emitter(s32 setIndex, s32 emitterIndex) const {
+    if (setIndex < 0 || setIndex >= mEmitterSets.size()) {
+        return nullptr;
+    }
+
+    auto& set = mEmitterSets[setIndex];
+    if (emitterIndex < 0 || emitterIndex >= set->emitters().size()) {
+        return nullptr;
+    }
+
+    return set->emitters()[emitterIndex].get();
 }
 
 const TextureList& PtclRes::textures() const {
