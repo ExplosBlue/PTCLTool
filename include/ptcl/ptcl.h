@@ -129,7 +129,12 @@ public:
     void setName(const QString& name);
 
     const EmitterSetList& getEmitterSets() const;
-    EmitterSetList& getEmitterSets();
+
+    EmitterSet* emitterSet(s32 index);
+    const EmitterSet* emitterSet(s32 index) const;
+
+    Emitter* emitter(s32 setIndex, s32 emitterIndex);
+    const Emitter* emitter(s32 setIndex, s32 emitterIndex) const;
 
     const TextureList& textures() const;
     TextureList& textures();
@@ -138,7 +143,9 @@ public:
     void removeEmitterSet(s32 setIndex);
 
     u32 emitterSetCount() const;
-    u32 emitterCount() const;
+
+    u32 emitterCount(s32 setIndex) const;
+    u32 totalEmitterCount() const;
 
     const std::unique_ptr<EmitterSet>& appendEmitterSet(std::unique_ptr<EmitterSet>& newSet);
 
