@@ -6,6 +6,7 @@
 #include "editor/fieldEditor/fieldEditorWidget.h"
 #include "editor/stripeEditorWidget.h"
 
+#include "ptcl/ptclDocument.h"
 #include "ptcl/ptclEmitter.h"
 #include "ptcl/ptcl.h"
 
@@ -30,14 +31,8 @@ class EmitterWidget final : public QWidget {
 public:
     explicit EmitterWidget(QWidget* parent = nullptr);
 
-    void setEmitter(Ptcl::Emitter* emitter);
-    void setTextureList(const Ptcl::TextureList* textureList);
-    void showStandardEditor();
-    void showChildEditor();
-    void showFluctuationEditor();
-    void showFieldEditor();
-
-    void clear();
+    void setDocument(Ptcl::Document* document);
+    void setSelection(Ptcl::Selection* selection);
 
 signals:
     void nameUpdated(const QString& name);
@@ -50,6 +45,7 @@ private:
     void setupStandardLayout(QVBoxLayout* mainLayout);
     void setupConnections();
     void updateStripeVisibility();
+    void populateProperties();
 
 private:
     class BasicPropertiesWidget;
@@ -68,7 +64,10 @@ private:
     class CombinerPropertiesWidget;
 
 private:
-    Ptcl::Emitter* mEmitterPtr{nullptr};
+    Ptcl::Document* mDocument{nullptr};
+    const Ptcl::Selection* mSelection{nullptr};
+    Ptcl::Emitter* mEmitter{nullptr};
+
     const Ptcl::TextureList* mTextureList{nullptr};
 
     BasicPropertiesWidget* mBasicProperties{nullptr};

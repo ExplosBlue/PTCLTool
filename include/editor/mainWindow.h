@@ -2,6 +2,7 @@
 
 #include "typedefs.h"
 #include "ptcl/ptcl.h"
+#include "ptcl/ptclDocument.h"
 #include "editor/emitterSetWidget.h"
 #include "editor/emitterWidget/emitterWidget.h"
 #include "editor/ptclListWidget.h"
@@ -54,8 +55,6 @@ private slots:
 private:
     void updateRecentFileList();
     void loadPtclRes(const QString& path);
-    void selectEmitterSet(s32 setIndex);
-    void selectEmitter(s32 setIndex, s32 emitterIndex);
 
     void setupUi();
     void setupConnections();
@@ -69,11 +68,8 @@ private:
     void setDirty(bool dirty);
 
 private:
-    std::unique_ptr<Ptcl::PtclRes> mPtclRes{};
-    QString mCurrentFilePath{};
-
-    s32 mCurEmitterSetIdx{};
-    s32 mCurEmitterIdx{};
+    std::unique_ptr<Ptcl::Document> mDocument{};
+    Ptcl::Selection mSelection{};
 
     QAction mOpenAction{};
     QAction mSaveAction{};
