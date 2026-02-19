@@ -115,172 +115,215 @@ void EmitterWidget::setupStandardLayout(QVBoxLayout* mainLayout) {
 void EmitterWidget::setupConnections() {
     // Basic Properties
     connect(mBasicProperties, &BasicPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::BasicProperties& properties) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setBasicProperties(properties);
+        if (!mEmitter) { return; }
+        mEmitter->setBasicProperties(properties);
         updateStripeVisibility();
         emit propertiesChanged();
     });
 
     connect(mBasicProperties, &BasicPropertiesWidget::emitterTypeChanged, this, [this]() {
-        if (!mEmitterPtr) { return; }
+        if (!mEmitter) { return; }
         updateStripeVisibility();
         emit emitterTypeChanged();
         emit propertiesChanged();
     });
 
     connect(mBasicProperties, &BasicPropertiesWidget::emitterNameChanged, this, [this]() {
-        if (!mEmitterPtr) { return; }
+        if (!mEmitter) { return; }
         emit emitterNameChanged();
         emit propertiesChanged();
     });
 
     // Texture Properties
     connect(mTextureProperties, &TexturePropertiesWidget::textureUpdated, this, [this](const std::shared_ptr<Ptcl::Texture>& oldTexture, const std::shared_ptr<Ptcl::Texture>& newTexture) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setTexture(newTexture);
+        if (!mEmitter) { return; }
+        mEmitter->setTexture(newTexture);
         mCombinerProperties->updateCombinerPreview();
         emit propertiesChanged();
     });
 
     connect(mTextureProperties, &TexturePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::TextureProperties& properties) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setTextureProperties(properties);
+        if (!mEmitter) { return; }
+        mEmitter->setTextureProperties(properties);
         emit propertiesChanged();
     });
 
     // Gravity Properties
     connect(mGravityProperties, &GravityPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::GravityProperties& properties) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setGravityProperties(properties);
+        if (!mEmitter) { return; }
+        mEmitter->setGravityProperties(properties);
         emit propertiesChanged();
     });
 
     // Lifespan Properties
     connect(mLifespanProperties, &LifespanPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::LifespanProperties& properties) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setLifespanProperties(properties);
+        if (!mEmitter) { return; }
+        mEmitter->setLifespanProperties(properties);
         emit propertiesChanged();
     });
 
     // Termination Properties
     connect(mTerminationProperties, &TerminationPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::TerminationProperties& properties) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setTerminationProperties(properties);
+        if (!mEmitter) { return; }
+        mEmitter->setTerminationProperties(properties);
         emit propertiesChanged();
     });
 
     // Emission Properties
     connect(mEmissionProperties, &EmissionPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::EmissionProperties& properties) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setEmissionProperties(properties);
+        if (!mEmitter) { return; }
+        mEmitter->setEmissionProperties(properties);
         emit propertiesChanged();
     });
 
     // Volume Properties
     connect(mVolumeProperties, &VolumePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::VolumeProperties& properties) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setVolumeProperties(properties);
+        if (!mEmitter) { return; }
+        mEmitter->setVolumeProperties(properties);
         emit propertiesChanged();
     });
 
     // Velocity Properties
     connect(mVelocityProperties, &VelocityPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::VelocityProperties& properties) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setVelocityProperties(properties);
+        if (!mEmitter) { return; }
+        mEmitter->setVelocityProperties(properties);
         emit propertiesChanged();
     });
 
     // Transform Properties
     connect(mTransformProperties, &TransformPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::TransformProperties& properties) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setTransformProperties(properties);
+        if (!mEmitter) { return; }
+        mEmitter->setTransformProperties(properties);
         emit propertiesChanged();
     });
 
     // Color Properties
     connect(mColorProperties, &ColorPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::ColorProperties& properties) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setColorProperties(properties);
+        if (!mEmitter) { return; }
+        mEmitter->setColorProperties(properties);
         mCombinerProperties->updateCombinerPreview();
-        mChildEditorWidget->setParentColor0(mEmitterPtr->colorProperties().color0[0]);
+        mChildEditorWidget->setParentColor0(mEmitter->colorProperties().color0[0]);
         emit propertiesChanged();
     });
 
     // Combiner Properties
     connect(mCombinerProperties, &CombinerPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::CombinerProperties& properties) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setCombinerProperties(properties);
+        if (!mEmitter) { return; }
+        mEmitter->setCombinerProperties(properties);
         emit propertiesChanged();
     });
 
     // Alpha Properties
     connect(mAlphaProperties, &AlphaPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::AlphaProperties& properties) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setAlphaProperties(properties);
+        if (!mEmitter) { return; }
+        mEmitter->setAlphaProperties(properties);
         emit propertiesChanged();
     });
 
     // Rotation Properties
     connect(mRotationProperties, &RotationPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::RotationProperties& properties) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setRotationProperties(properties);
+        if (!mEmitter) { return; }
+        mEmitter->setRotationProperties(properties);
         emit propertiesChanged();
     });
 
     // Scale Properties
     connect(mScaleProperties, &ScalePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::ScaleProperties& properties) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setScaleProperties(properties);
+        if (!mEmitter) { return; }
+        mEmitter->setScaleProperties(properties);
         emit propertiesChanged();
     });
 
     // Child Editor Widget
     connect(mChildEditorWidget, &ChildEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::ChildFlag>& childFlags) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setChildFlags(childFlags);
+        if (!mEmitter) { return; }
+        mEmitter->setChildFlags(childFlags);
         emit complexFlagsChanged();
         emit propertiesChanged();
     });
 
     // Fluctuation Editor Widget
     connect(mFluctuationEditorWidget, &FluctuationEditorWidget::dataUpdated, this, [this](const Ptcl::FluctuationData& data) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setFluctuationData(data);
+        if (!mEmitter) { return; }
+        mEmitter->setFluctuationData(data);
         emit propertiesChanged();
     });
 
     connect(mFluctuationEditorWidget, &FluctuationEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::FluctuationFlag>& fluxFlags) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setFluctuationFlags(fluxFlags);
+        if (!mEmitter) { return; }
+        mEmitter->setFluctuationFlags(fluxFlags);
         complexFlagsChanged();
         emit propertiesChanged();
     });
 
     // Field Editor Widget
     connect(mFieldEditorWidget, &FieldEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::FieldFlag>& fieldFlags) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setFieldFlags(fieldFlags);
+        if (!mEmitter) { return; }
+        mEmitter->setFieldFlags(fieldFlags);
         complexFlagsChanged();
         emit propertiesChanged();
     });
 
     // Stripe Editor Widget
     connect(mStripeEditorWidget, &StripeEditorWidget::dataUpdated, this, [this](const Ptcl::StripeData& data) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setStripeData(data);
+        if (!mEmitter) { return; }
+        mEmitter->setStripeData(data);
         emit propertiesChanged();
     });
 
     connect(mStripeEditorWidget, &StripeEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::StripeFlag>& stripeFlags) {
-        if (!mEmitterPtr) { return; }
-        mEmitterPtr->setStripeFlags(stripeFlags);
+        if (!mEmitter) { return; }
+        mEmitter->setStripeFlags(stripeFlags);
         complexFlagsChanged();
         emit propertiesChanged();
     });
 
 }
 
-void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
+void EmitterWidget::setDocument(Ptcl::Document* document) {
+    mDocument = document;
+}
+
+void EmitterWidget::setSelection(Ptcl::Selection* selection) {
+    mSelection = selection;
+
+    connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
+        if (!mDocument) {
+            mEmitter = nullptr;
+            setEnabled(false);
+            return;
+        }
+
+        mEmitter = mDocument->emitter(setIndex, emitterIndex);
+
+        switch (type) {
+        case Ptcl::Selection::Type::Emitter:
+            mStackedWidget->setCurrentIndex(0);
+            break;
+        case Ptcl::Selection::Type::EmitterChild:
+            mStackedWidget->setCurrentWidget(mChildEditorWidget);
+            break;
+        case Ptcl::Selection::Type::EmitterFlux:
+            mStackedWidget->setCurrentWidget(mFluctuationEditorWidget);
+            break;
+        case Ptcl::Selection::Type::EmitterField:
+            mStackedWidget->setCurrentWidget(mFieldEditorWidget);
+            break;
+        default:
+            break;
+        }
+
+        // TODO: Have child widgets handle this themselves
+        mTextureList = &mDocument->textures();
+        mTextureProperties->setTextureList(mTextureList);
+        mChildEditorWidget->setTextureList(mTextureList);
+
+        setEnabled(true);
+        populateProperties();
+    });
+}
+
+void EmitterWidget::populateProperties() {
     QSignalBlocker b1(mBasicProperties);
     QSignalBlocker b2(mGravityProperties);
     QSignalBlocker b3(mTransformProperties);
@@ -300,76 +343,39 @@ void EmitterWidget::setEmitter(Ptcl::Emitter* emitter) {
     QSignalBlocker b17(mFieldEditorWidget);
     QSignalBlocker b18(mStripeEditorWidget);
 
-    mEmitterPtr = emitter;
+    mBasicProperties->setProperties(mEmitter->basicProperties());
+    mGravityProperties->setProperties(mEmitter->gravityProperties());
+    mTransformProperties->setProperties(mEmitter->transformProperties());
+    mLifespanProperties->setProperties(mEmitter->lifespanProperties());
+    mTerminationProperties->setProperties(mEmitter->terminationProperties());
+    mEmissionProperties->setProperties(mEmitter->emissionProperties());
+    mVelocityProperties->setProperties(mEmitter->velocityProperties());
+    mVolumeProperties->setProperties(mEmitter->volumeProperties());
+    mColorProperties->setProperties(mEmitter->colorProperties());
+    mAlphaProperties->setProperties(mEmitter->alphaProperties());
+    mScaleProperties->setProperties(mEmitter->scaleProperties());
+    mRotationProperties->setProperties(mEmitter->rotationProperties());
+    mTextureProperties->setProperties(mEmitter->textureProperties(), mEmitter->textureHandle().get());
+    mCombinerProperties->setProperties(mEmitter->combinerProperties());
+    mCombinerProperties->setCombinerSrc(&mEmitter->textureHandle(), &mEmitter->colorProperties().color1, &mEmitter->colorProperties().color0[0]);
 
-    mBasicProperties->setProperties(mEmitterPtr->basicProperties());
-    mGravityProperties->setProperties(mEmitterPtr->gravityProperties());
-    mTransformProperties->setProperties(mEmitterPtr->transformProperties());
-    mLifespanProperties->setProperties(mEmitterPtr->lifespanProperties());
-    mTerminationProperties->setProperties(mEmitterPtr->terminationProperties());
-    mEmissionProperties->setProperties(mEmitterPtr->emissionProperties());
-    mVelocityProperties->setProperties(mEmitterPtr->velocityProperties());
-    mVolumeProperties->setProperties(mEmitterPtr->volumeProperties());
-    mColorProperties->setProperties(mEmitterPtr->colorProperties());
-    mAlphaProperties->setProperties(mEmitterPtr->alphaProperties());
-    mScaleProperties->setProperties(mEmitterPtr->scaleProperties());
-    mRotationProperties->setProperties(mEmitterPtr->rotationProperties());
-    mTextureProperties->setProperties(mEmitterPtr->textureProperties(), mEmitterPtr->textureHandle().get());
-    mCombinerProperties->setProperties(mEmitterPtr->combinerProperties());
-    mCombinerProperties->setCombinerSrc(&mEmitterPtr->textureHandle(), &mEmitterPtr->colorProperties().color1, &mEmitterPtr->colorProperties().color0[0]);
+    mChildEditorWidget->setChildData(&mEmitter->childData(), mEmitter->complexProperties().childFlags);
+    mChildEditorWidget->setParentColor0(mEmitter->colorProperties().color0[0]);
 
-    mChildEditorWidget->setChildData(&mEmitterPtr->childData(), mEmitterPtr->complexProperties().childFlags);
-    mChildEditorWidget->setParentColor0(mEmitterPtr->colorProperties().color0[0]);
-
-    mFluctuationEditorWidget->setData(mEmitterPtr->fluctuationData(), mEmitterPtr->complexProperties().fluctuationFlags);
-    mFieldEditorWidget->setData(&mEmitterPtr->fieldData(), mEmitterPtr->complexProperties().fieldFlags);
-    mStripeEditorWidget->setData(mEmitterPtr->stripeData(), mEmitterPtr->complexProperties().stripeFlags);
+    mFluctuationEditorWidget->setData(mEmitter->fluctuationData(), mEmitter->complexProperties().fluctuationFlags);
+    mFieldEditorWidget->setData(&mEmitter->fieldData(), mEmitter->complexProperties().fieldFlags);
+    mStripeEditorWidget->setData(mEmitter->stripeData(), mEmitter->complexProperties().stripeFlags);
 
     updateStripeVisibility();
-
-    setEnabled(true);
-}
-
-void EmitterWidget::setTextureList(const Ptcl::TextureList* textureList) {
-    mTextureList = textureList;
-    mTextureProperties->setTextureList(textureList);
-    mChildEditorWidget->setTextureList(textureList);
-}
-
-void EmitterWidget::showStandardEditor() {
-    mStackedWidget->setCurrentIndex(0);
-}
-
-void EmitterWidget::showChildEditor() {
-    if (mStackedWidget) {
-        mStackedWidget->setCurrentWidget(mChildEditorWidget);
-    }
-}
-
-void EmitterWidget::showFluctuationEditor() {
-    if (mStackedWidget) {
-        mStackedWidget->setCurrentWidget(mFluctuationEditorWidget);
-    }
-}
-
-void EmitterWidget::showFieldEditor() {
-    if (mStackedWidget) {
-        mStackedWidget->setCurrentWidget(mFieldEditorWidget);
-    }
-}
-
-void EmitterWidget::clear() {
-    setEnabled(false);
-    mEmitterPtr = nullptr;
 }
 
 void EmitterWidget::updateStripeVisibility() {
-    if (!mEmitterPtr || !mStripeSection) {
+    if (!mEmitter || !mStripeSection) {
         return;
     }
 
-    const auto eType = mEmitterPtr->type();
-    const auto bbType = mEmitterPtr->basicProperties().billboardType;
+    const auto eType = mEmitter->type();
+    const auto bbType = mEmitter->basicProperties().billboardType;
 
     const bool show = (eType == Ptcl::EmitterType::Complex || eType == Ptcl::EmitterType::Compact) &&
                       (bbType == Ptcl::BillboardType::Stripe || bbType == Ptcl::BillboardType::ComplexStripe);

@@ -29,44 +29,55 @@ EmitterSetWidget::EmitterSetWidget(QWidget* parent) :
 void EmitterSetWidget::setupConnections() {
     // Name Edit
     connect(&mNameLineEdit, &QLineEdit::textEdited, this, [this](const QString& text) {
-        if (!mEmitterSetPtr) {
+        if (!mEmitterSet) {
             return;
         }
-        mEmitterSetPtr->setName(text);
+        mEmitterSet->setName(text);
         emit emitterSetNamedChanged();
         emit propertiesChanged();
     });
 
     // User Data
     connect(&mUserDataSpinBox, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
-        mEmitterSetPtr->setUserData(static_cast<u32>(value));
+        mEmitterSet->setUserData(static_cast<u32>(value));
         emit propertiesChanged();
     });
 
     // Last Update
     connect(&mLastUpdateSpinBox, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
-        mEmitterSetPtr->setLastUpdateDate(static_cast<u32>(value));
+        mEmitterSet->setLastUpdateDate(static_cast<u32>(value));
         emit propertiesChanged();
     });
 }
 
-void EmitterSetWidget::setEmitterSet(Ptcl::EmitterSet* emitterSet) {
-    setEnabled(true);
-    mEmitterSetPtr = emitterSet;
-    populateProperties();
+void EmitterSetWidget::setDocument(Ptcl::Document* document) {
+    mDocument = document;
 }
 
-void EmitterSetWidget::clear() {
-    setEnabled(false);
-    mEmitterSetPtr = nullptr;
+void EmitterSetWidget::setSelection(Ptcl::Selection* selection) {
+    mSelection = selection;
+
+    connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex) {
+        Q_UNUSED(emitterIndex);
+
+        if (!mDocument) {
+            mEmitterSet = nullptr;
+            setEnabled(false);
+            return;
+        }
+
+        mEmitterSet = mDocument->emitterSet(setIndex);
+        setEnabled(true);
+        populateProperties();
+    });
 }
 
 void EmitterSetWidget::populateProperties() {
     blockSignals(true);
 
-    mNameLineEdit.setText(mEmitterSetPtr->name());
-    mUserDataSpinBox.setValue(mEmitterSetPtr->userData());
-    mLastUpdateSpinBox.setValue(mEmitterSetPtr->lastUpdateDate());
+    mNameLineEdit.setText(mEmitterSet->name());
+    mUserDataSpinBox.setValue(mEmitterSet->userData());
+    mLastUpdateSpinBox.setValue(mEmitterSet->lastUpdateDate());
 
     blockSignals(false);
 }

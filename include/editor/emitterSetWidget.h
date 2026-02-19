@@ -1,6 +1,7 @@
 #pragma once
 
 #include "components/sizedSpinBox.h"
+#include "ptcl/ptclDocument.h"
 #include "ptcl/ptclEmitterSet.h"
 
 #include <QLineEdit>
@@ -19,8 +20,8 @@ class EmitterSetWidget final : public QWidget {
 public:
     explicit EmitterSetWidget(QWidget* parent = nullptr);
 
-    void setEmitterSet(Ptcl::EmitterSet* emitterSet);
-    void clear();
+    void setDocument(Ptcl::Document* document);
+    void setSelection(Ptcl::Selection* selection);
 
 signals:
     void emitterSetNamedChanged();
@@ -31,8 +32,9 @@ private:
     void setupConnections();
 
 private:
-    Ptcl::EmitterSet* mEmitterSetPtr{nullptr};
-    s32 mCurEmitterIdx{};
+    Ptcl::Document* mDocument{nullptr};
+    const Ptcl::Selection* mSelection{nullptr};
+    Ptcl::EmitterSet* mEmitterSet{nullptr};
 
     QLineEdit mNameLineEdit{};
     SizedSpinBox<u32> mUserDataSpinBox{};

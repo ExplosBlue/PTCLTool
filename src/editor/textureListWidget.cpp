@@ -288,22 +288,27 @@ void TextureListWidget::setupSelectionHandling() {
     });
 }
 
-void TextureListWidget::setTextures(Ptcl::TextureList* textures) {
-    if (mTexturesPtr == textures) {
+void TextureListWidget::setDocument(Ptcl::Document* document) {
+    mDocument = document;
+
+    if (!mDocument) {
+        mTexturesPtr = nullptr;
+        mModel.setTextures(nullptr);
+
+        mActionExportAll->setEnabled(false);
+        mActionImportTexture->setEnabled(false);
+
+        setEnabled(false);
         return;
     }
 
-    mTexturesPtr = textures;
-    mModel.setTextures(textures);
+    mTexturesPtr = &mDocument->textures();
+    mModel.setTextures(mTexturesPtr);
 
-    const bool hasData = (textures != nullptr);
-    mActionExportAll->setEnabled(hasData);
-    mActionImportTexture->setEnabled(hasData);
-}
+    mActionExportAll->setEnabled(true);
+    mActionImportTexture->setEnabled(true);
 
-void TextureListWidget::clear() {
-    setTextures(nullptr);
-    mDetailsPanel.setTexture(nullptr);
+    setEnabled(true);
 }
 
 void TextureListWidget::exportAll() {

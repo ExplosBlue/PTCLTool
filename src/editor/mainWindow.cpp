@@ -78,12 +78,15 @@ void MainWindow::setupUi() {
     // Ptcl List
     mPtclList.setEnabled(false);
     mPtclList.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+    mPtclList.setSelection(&mSelection);
 
     // Emitter Widget
     mEmitterWidget.setEnabled(false);
+    mEmitterWidget.setSelection(&mSelection);
 
     // EmitterSet Widget
     mEmitterSetWidget.setEnabled(false);
+    mEmitterSetWidget.setSelection(&mSelection);
 
     // Texture Widget
     mTextureWidget.setEnabled(false);
@@ -106,38 +109,36 @@ void MainWindow::setupUi() {
 void MainWindow::setupConnections() {
     // Proj Name
     connect(&mProjNameLineEdit, &QLineEdit::textChanged, this, [this](const QString& text) {
-        mPtclRes->setName(text);
+        mDocument->data().setName(text);
         setDirty(true);
     });
 
-    // Ptcl List
-    connect(&mPtclList, &PtclList::selectedEmitterSetChanged, this, [this](s32 index) {
-        selectEmitterSet(index);
-        setPropertiesView(PropertiesView::EmitterSet);
-        updatePropertiesStatus();
-    });
+    connect(&mSelection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
+        if (!mDocument) {
+            return;
+        }
 
-    connect(&mPtclList, &PtclList::selectedEmitterChanged, this, [this](s32 setIndex, s32 emitterIndex) {
-        selectEmitter(setIndex, emitterIndex);
-        setPropertiesView(PropertiesView::Emitter);
-        updatePropertiesStatus();
-    });
+        switch (type) {
+        case Ptcl::Selection::Type::EmitterSet:
+            setPropertiesView(PropertiesView::EmitterSet);
+            break;
+        case Ptcl::Selection::Type::Emitter:
+            setPropertiesView(PropertiesView::Emitter);
+            break;
+        case Ptcl::Selection::Type::EmitterChild:
+            setPropertiesView(PropertiesView::EmitterChild);
+            break;
+        case Ptcl::Selection::Type::EmitterFlux:
+            setPropertiesView(PropertiesView::EmitterFlux);
+            break;
+        case Ptcl::Selection::Type::EmitterField:
+            setPropertiesView(PropertiesView::EmitterField);
+            break;
+        case Ptcl::Selection::Type::None:
+            // TODO
+            break;
+        }
 
-    connect(&mPtclList, &PtclList::selectedChildData, this, [this](s32 setIndex, s32 emitterIndex) {
-        selectEmitter(setIndex, emitterIndex);
-        setPropertiesView(PropertiesView::EmitterChild);
-        updatePropertiesStatus();
-    });
-
-    connect(&mPtclList, &PtclList::selectedFluctuation, this, [this](s32 setIndex, s32 emitterIndex) {
-        selectEmitter(setIndex, emitterIndex);
-        setPropertiesView(PropertiesView::EmitterFlux);
-        updatePropertiesStatus();
-    });
-
-    connect(&mPtclList, &PtclList::selectedField, this, [this](s32 setIndex, s32 emitterIndex) {
-        selectEmitter(setIndex, emitterIndex);
-        setPropertiesView(PropertiesView::EmitterField);
         updatePropertiesStatus();
     });
 
@@ -150,16 +151,16 @@ void MainWindow::setupConnections() {
     });
 
     connect(&mEmitterWidget, &EmitterWidget::emitterNameChanged, this, [this]() {
-        mPtclList.updateEmitterName(mCurEmitterSetIdx, mCurEmitterIdx);
+        mPtclList.updateEmitterName(mSelection.emitterSetIndex(), mSelection.emitterIndex());
         updatePropertiesStatus();
     });
 
     connect(&mEmitterWidget, &EmitterWidget::emitterTypeChanged, this, [this]() {
-        mPtclList.updateEmitter(mCurEmitterSetIdx, mCurEmitterIdx);
+        mPtclList.updateEmitter(mSelection.emitterSetIndex(), mSelection.emitterIndex());
     });
 
     connect(&mEmitterWidget, &EmitterWidget::complexFlagsChanged, this, [this]() {
-        mPtclList.updateEmitter(mCurEmitterSetIdx, mCurEmitterIdx);
+        mPtclList.updateEmitter(mSelection.emitterSetIndex(), mSelection.emitterIndex());
     });
 
     connect(&mEmitterWidget, &EmitterWidget::propertiesChanged, this, [this]() {
@@ -168,7 +169,7 @@ void MainWindow::setupConnections() {
 
     // EmitterSet Widget
     connect(&mEmitterSetWidget, &EmitterSetWidget::emitterSetNamedChanged, this, [this]() {
-        mPtclList.updateEmitterSetName(mCurEmitterSetIdx);
+        mPtclList.updateEmitterSetName(mSelection.emitterSetIndex());
         updatePropertiesStatus();
     });
 
@@ -203,8 +204,8 @@ void MainWindow::setupMenus() {
     mRecentFilesMenu.setIcon(QIcon(":/res/icons/recent.png"));
 
     // Recent Files Actions
-    int maxRecentFiles = SettingsUtil::SettingsMgr::instance().maxRecentFiles();
-    for (int i = 0; i < maxRecentFiles; ++i) {
+    s32 maxRecentFiles = SettingsUtil::SettingsMgr::instance().maxRecentFiles();
+    for (s32 i = 0; i < maxRecentFiles; ++i) {
         QAction* recentFileAction = mRecentFilesMenu.addAction("");
         recentFileAction->setVisible(false);
         connect(recentFileAction, &QAction::triggered, this, &MainWindow::openRecentFile);
@@ -224,7 +225,7 @@ void MainWindow::setupMenus() {
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
-    if (!mPtclRes || !mHasUnsavedChanges) {
+    if (!mDocument || !mHasUnsavedChanges) {
         auto& settings = SettingsUtil::SettingsMgr::instance();
         settings.setWindowGeometry(saveGeometry());
         settings.setWindowState(saveState());
@@ -303,26 +304,26 @@ void MainWindow::openFile() {
 }
 
 void MainWindow::saveFile() {
-    if (!mPtclRes) {
+    if (!mDocument) {
         return;
     }
 
-    if (mCurrentFilePath.isEmpty()) {
+    if (mDocument->filePath().isEmpty()) {
         saveFileAs();
         return;
     }
 
-    mPtclRes->save(mCurrentFilePath);
+    mDocument->save(mDocument->filePath());
 
     setDirty(false);
     statusBar()->showMessage("File Saved", 2000);
 
-    SettingsUtil::SettingsMgr::instance().addRecentFile(mCurrentFilePath);
+    SettingsUtil::SettingsMgr::instance().addRecentFile(mDocument->filePath());
     updateRecentFileList();
 }
 
 void MainWindow::saveFileAs() {
-    if (!mPtclRes) {
+    if (!mDocument) {
         return;
     }
 
@@ -346,12 +347,12 @@ void MainWindow::saveFileAs() {
         filePath += ".ptcl";
     }
 
-    mPtclRes->save(filePath);
+    mDocument->save(filePath);
 
     setDirty(false);
     statusBar()->showMessage("File Saved", 2000);
 
-    mCurrentFilePath = filePath;
+    mDocument->filePath() = filePath;
     SettingsUtil::SettingsMgr::instance().addRecentFile(filePath);
     SettingsUtil::SettingsMgr::instance().setLastSavePath(QFileInfo(filePath).absolutePath());
     updateRecentFileList();
@@ -372,10 +373,10 @@ void MainWindow::openRecentFile() {
 void MainWindow::updateRecentFileList() {
     const auto recentFiles = SettingsUtil::SettingsMgr::instance().recentFiles();
 
-    int maxRecentFiles = SettingsUtil::SettingsMgr::instance().maxRecentFiles();
+    s32 maxRecentFiles = SettingsUtil::SettingsMgr::instance().maxRecentFiles();
     qsizetype numRecentFiles = qMin(recentFiles.size(), maxRecentFiles);
 
-    for (int i = 0; i < numRecentFiles; ++i) {
+    for (s32 i = 0; i < numRecentFiles; ++i) {
         auto& file = recentFiles[i];
         auto& action = mRecentFileActions[i];
 
@@ -393,75 +394,43 @@ void MainWindow::updateRecentFileList() {
 }
 
 void MainWindow::loadPtclRes(const QString& path) {
-    mEmitterSetWidget.clear();
-    mPtclList.setEnabled(false);
-    mTextureWidget.setEnabled(false);
+    mPtclList.setDocument(nullptr);
+    mEmitterWidget.setDocument(nullptr);
+    mEmitterSetWidget.setDocument(nullptr);
+    mTextureWidget.setDocument(nullptr);
+
     mProjNameLineEdit.setEnabled(false);
     mSaveAsAction.setEnabled(false);
 
-    mPtclRes = std::make_unique<Ptcl::PtclRes>();
-    if (!mPtclRes->load(path)) {
-        mPtclRes.reset();
+    mDocument = std::make_unique<Ptcl::Document>();
+    if (!mDocument->load(path)) {
+        mDocument.reset();
         return;
     }
 
-    mCurrentFilePath = path;
     setDirty(false);
 
     SettingsUtil::SettingsMgr::instance().addRecentFile(path);
     SettingsUtil::SettingsMgr::instance().setLastOpenPath(QFileInfo(path).absolutePath());
     updateRecentFileList();
 
-    mPtclList.setPtclRes(mPtclRes.get());
-    mTextureWidget.setTextures(&mPtclRes->textures());
-    mEmitterWidget.setTextureList(&mPtclRes->textures());
+    mPtclList.setDocument(mDocument.get());
+    mEmitterWidget.setDocument(mDocument.get());
+    mEmitterSetWidget.setDocument(mDocument.get());
+    mTextureWidget.setDocument(mDocument.get());
 
     QSignalBlocker b1(mProjNameLineEdit);
-    mProjNameLineEdit.setText(mPtclRes->name());
+    mProjNameLineEdit.setText(mDocument->data().name());
 
-    if (mPtclRes->emitterSetCount() != 0) {
-        selectEmitter(0, 0);
+    if (mDocument->data().emitterSetCount() != 0) {
+        mSelection.set(0, 0, Ptcl::Selection::Type::EmitterSet);
     }
 
     updateStatusBar();
     updateWindowTitle();
 
-    mPtclList.setEnabled(true);
-    mTextureWidget.setEnabled(true);
     mProjNameLineEdit.setEnabled(true);
     mSaveAsAction.setEnabled(true);
-}
-
-void MainWindow::selectEmitterSet(s32 setIndex) {
-    mCurEmitterSetIdx = setIndex;
-    mCurEmitterIdx = 0;
-
-    if (!mPtclRes) {
-        return;
-    }
-
-    const auto& emitterSet = mPtclRes->emitterSet(mCurEmitterSetIdx);
-    mEmitterSetWidget.setEmitterSet(emitterSet);
-
-    if (!mEmitterSetWidget.isEnabled()) {
-        mEmitterSetWidget.setEnabled(true);
-    }
-}
-
-void MainWindow::selectEmitter(s32 setIndex, s32 emitterIndex) {
-    mCurEmitterSetIdx = setIndex;
-    mCurEmitterIdx = emitterIndex;
-
-    if (!mPtclRes) {
-        return;
-    }
-
-    const auto& emitter = mPtclRes->emitter(mCurEmitterSetIdx, mCurEmitterIdx);
-    mEmitterWidget.setEmitter(emitter);
-
-    if (!mEmitterWidget.isEnabled()) {
-        mEmitterWidget.setEnabled(true);
-    }
 }
 
 void MainWindow::setPropertiesView(PropertiesView view) {
@@ -476,20 +445,10 @@ void MainWindow::setPropertiesView(PropertiesView view) {
             mPropertiesStack->setCurrentWidget(&mEmitterSetWidget);
             break;
         case PropertiesView::Emitter:
-            mPropertiesStack->setCurrentWidget(&mEmitterWidget);
-            mEmitterWidget.showStandardEditor();
-            break;
         case PropertiesView::EmitterChild:
-            mPropertiesStack->setCurrentWidget(&mEmitterWidget);
-            mEmitterWidget.showChildEditor();
-            break;
         case PropertiesView::EmitterFlux:
-            mPropertiesStack->setCurrentWidget(&mEmitterWidget);
-            mEmitterWidget.showFluctuationEditor();
-            break;
         case PropertiesView::EmitterField:
             mPropertiesStack->setCurrentWidget(&mEmitterWidget);
-            mEmitterWidget.showFieldEditor();
             break;
     }
 }
@@ -497,12 +456,12 @@ void MainWindow::setPropertiesView(PropertiesView view) {
 void MainWindow::updatePropertiesStatus() {
     mPropertiesGroup.setTitle({});
 
-    if (!mPtclRes) {
+    if (!mDocument) {
         return;
     }
 
-    const auto& emitterSet = mPtclRes->emitterSet(mCurEmitterSetIdx);
-    const auto& emitter = mPtclRes->emitter(mCurEmitterSetIdx, mCurEmitterIdx);
+    const auto& emitterSet = mDocument->emitterSet(mSelection.emitterSetIndex());
+    const auto& emitter = mDocument->emitter(mSelection.emitterSetIndex(), mSelection.emitterIndex());
 
     QString title = emitterSet->name();
 
@@ -531,8 +490,8 @@ void MainWindow::updatePropertiesStatus() {
 
 void MainWindow::updateWindowTitle() {
     QString title = "PTCLTool";
-    if (!mCurrentFilePath.isEmpty()) {
-        title += " - " + QFileInfo(mCurrentFilePath).fileName();
+    if (mDocument && !mDocument->filePath().isEmpty()) {
+        title += " - " + QFileInfo(mDocument->filePath()).fileName();
     }
     if (mHasUnsavedChanges) {
         title += " *";
@@ -545,7 +504,7 @@ void MainWindow::updateStatusBar() {
         return;
     }
 
-    if (!mPtclRes) {
+    if (!mDocument) {
         mStatusLabel->setText("No file loaded");
     } else if (mHasUnsavedChanges) {
         mStatusLabel->setText("Unsaved changes");

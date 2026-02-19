@@ -1,7 +1,7 @@
 #pragma once
 
 #include "util/bitflagUtil.h"
-#include "ptcl/ptcl.h"
+#include "ptcl/ptclDocument.h"
 
 #include <QLineEdit>
 #include <QMenu>
@@ -70,10 +70,8 @@ class PtclList : public QWidget {
 public:
     explicit PtclList(QWidget* parent = nullptr);
 
-    void setPtclRes(Ptcl::PtclRes* ptclRes);
-
-    void selectEmitter(s32 setIndex, s32 emitterIndex);
-    void selectEmitterSet(s32 setIndex);
+    void setDocument(Ptcl::Document* document);
+    void setSelection(Ptcl::Selection* selection);
 
     void updateEmitter(s32 setIndex, s32 emitterIndex);
     void updateEmitterName(s32 setIndex, s32 emitterIndex);
@@ -81,12 +79,6 @@ public:
     void refresh();
 
 signals:
-    void selectedEmitterSetChanged(u32 index);
-    void selectedEmitterChanged(u32 setIndex, u32 emitterIndex);
-    void selectedChildData(u32 setIndex, u32 emitterIndex);
-    void selectedFluctuation(u32 setIndex, u32 emitterIndex);
-    void selectedField(u32 setIndex, u32 emitterIndex);
-
     void itemAdded();
     void itemRemoved();
 
@@ -103,6 +95,7 @@ private:
 
     void updateToolbarForSelection(const QStandardItem* item);
 
+    QStandardItem* findItem(s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) const;
     static QStandardItem* findChildByType(QStandardItem* parent, NodeType type);
 
     void insertEmitterNode(QStandardItem* setItem, s32 setIndex, s32 emitterIndex);
@@ -124,7 +117,8 @@ private:
     void pasteItem();
 
 private:
-    Ptcl::PtclRes* mResPtr{nullptr};
+    Ptcl::Document* mDocument{nullptr};
+    Ptcl::Selection* mSelection{nullptr};
 
     QStandardItemModel mListModel{};
     QTreeView  mTreeView{};

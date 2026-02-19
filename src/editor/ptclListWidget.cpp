@@ -223,14 +223,53 @@ void PtclList::setupFilterMenu() {
     connect(compactAction, &QAction::toggled, this, updateFilter);
 }
 
-void PtclList::setPtclRes(Ptcl::PtclRes* ptclRes) {
-    if (mResPtr == ptclRes) {
+void PtclList::setDocument(Ptcl::Document* document) {
+    if (mDocument == document) {
+        return;
+    }
+
+    mDocument = document;
+
+    if (!mDocument) {
+        mListModel.clear();
+        setEnabled(false);
         return;
     }
 
     mListModel.clear();
-    mResPtr = ptclRes;
     populateList();
+    setEnabled(true);
+}
+
+void PtclList::setSelection(Ptcl::Selection* selection) {
+    mSelection = selection;
+
+    connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
+        if (!mDocument) {
+            return;
+        }
+
+        QSignalBlocker b(mTreeView.selectionModel());
+
+        const QStandardItem* item = findItem(setIndex, emitterIndex, type);
+        if (!item) {
+            mTreeView.clearSelection();
+            return;
+        }
+
+        const QModelIndex sourceIndex = mListModel.indexFromItem(item);
+        const QModelIndex proxyIndex = mProxyModel.mapFromSource(sourceIndex);
+
+        if (!proxyIndex.isValid()) {
+            mTreeView.clearSelection();
+            return;
+        }
+
+        auto* selectionModel = mTreeView.selectionModel();
+        selectionModel->clearSelection();
+        selectionModel->setCurrentIndex(proxyIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        mTreeView.scrollTo(proxyIndex);
+    });
 }
 
 void PtclEditor::PtclList::refresh() {
@@ -238,13 +277,13 @@ void PtclEditor::PtclList::refresh() {
 }
 
 void PtclList::populateList() {
-    if (!mResPtr) {
+    if (!mDocument) {
         return;
     }
 
     mListModel.clear();
-    const auto& sets = mResPtr->getEmitterSets();
-    for (u32 setIndex = 0; setIndex < sets.size(); ++setIndex) {
+    const auto& sets = mDocument->data().getEmitterSets();
+    for (s32 setIndex = 0; setIndex < sets.size(); ++setIndex) {
         insertEmitterSetNode(setIndex);
     }
 
@@ -253,7 +292,7 @@ void PtclList::populateList() {
 }
 
 void PtclList::insertEmitterSetNode(s32 setIndex) {
-    const auto& set = mResPtr->getEmitterSets()[setIndex];
+    const auto& set = mDocument->emitterSet(setIndex);
 
     QString setName = QString("%1: %2").arg(setIndex).arg(set->name());
     auto* setItem = new QStandardItem(setName);
@@ -263,14 +302,14 @@ void PtclList::insertEmitterSetNode(s32 setIndex) {
     setItem->setIcon(QIcon(":/res/icons/emitterset.png"));
 
     // Emitters
-    for (u32 emitterIndex = 0; emitterIndex < set->emitters().size(); ++emitterIndex) {
+    for (s32 emitterIndex = 0; emitterIndex < set->emitters().size(); ++emitterIndex) {
         insertEmitterNode(setItem, setIndex, emitterIndex);
     }
     mListModel.appendRow(setItem);
 }
 
 void PtclList::insertEmitterNode(QStandardItem* setItem, s32 setIndex, s32 emitterIndex) {
-    const auto& emitter = mResPtr->getEmitterSets()[setIndex]->emitters()[emitterIndex];
+    const auto& emitter = mDocument->emitter(setIndex, emitterIndex);
 
     QString emitterName = QString("%1: %2").arg(emitterIndex).arg(emitter->name());
     auto* emitterItem = new QStandardItem(emitterName);
@@ -311,39 +350,39 @@ void PtclList::selectionChanged(const QItemSelection& selection) {
 
     switch (type) {
         case NodeType::EmitterSet: {
-            const u32 setIndex = sourceIndex.row();
-            emit selectedEmitterSetChanged(setIndex);
+            const s32 setIndex = sourceIndex.row();
+            mSelection->set(setIndex, 0, Ptcl::Selection::Type::EmitterSet);
             break;
         }
         case NodeType::Emitter: {
-            const u32 emitterIndex = sourceIndex.row();
-            const u32 setIndex = sourceIndex.parent().row();
-            emit selectedEmitterChanged(setIndex, emitterIndex);
+            const s32 emitterIndex = sourceIndex.row();
+            const s32 setIndex = sourceIndex.parent().row();
+            mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::Emitter);
             break;
         }
         case NodeType::ChildData: {
-            const u32 emitterIndex = sourceIndex.parent().row();
-            const u32 setIndex = sourceIndex.parent().parent().row();
-            emit selectedChildData(setIndex, emitterIndex);
+            const s32 emitterIndex = sourceIndex.parent().row();
+            const s32 setIndex = sourceIndex.parent().parent().row();
+            mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::EmitterChild);
             break;
         }
         case NodeType::Fluctuation: {
-            const u32 emitterIndex = sourceIndex.parent().row();
-            const u32 setIndex = sourceIndex.parent().parent().row();
-            emit selectedFluctuation(setIndex, emitterIndex);
+            const s32 emitterIndex = sourceIndex.parent().row();
+            const s32 setIndex = sourceIndex.parent().parent().row();
+            mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::EmitterFlux);
             break;
         }
         case NodeType::Field: {
-            const u32 emitterIndex = sourceIndex.parent().row();
-            const u32 setIndex = sourceIndex.parent().parent().row();
-            emit selectedField(setIndex, emitterIndex);
+            const s32 emitterIndex = sourceIndex.parent().row();
+            const s32 setIndex = sourceIndex.parent().parent().row();
+            mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::EmitterField);
             break;
         }
     }
 }
 
 void PtclList::addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emitterIndex) {
-    const auto& emitter = mResPtr->getEmitterSets()[setIndex]->emitters()[emitterIndex];
+    const auto& emitter = mDocument->emitter(setIndex, emitterIndex);
     const auto& props = emitter->complexProperties();
 
     // ChildData
@@ -375,6 +414,35 @@ void PtclList::addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emi
         emitterIndex,
         props.fieldFlags.isSet(Ptcl::FieldFlag::Enabled)
     );
+}
+
+QStandardItem* PtclList::findItem(s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) const {
+    auto* setItem = mListModel.item(setIndex);
+    if (!setItem) {
+        return nullptr;
+    }
+
+    if (type == Ptcl::Selection::Type::EmitterSet) {
+        return setItem;
+    }
+
+    auto* emitterItem = setItem->child(emitterIndex);
+    if (!emitterItem) {
+        return nullptr;
+    }
+
+    switch (type) {
+    case Ptcl::Selection::Type::Emitter:
+        return emitterItem;
+    case Ptcl::Selection::Type::EmitterChild:
+        return findChildByType(emitterItem, NodeType::ChildData);
+    case Ptcl::Selection::Type::EmitterFlux:
+        return findChildByType(emitterItem, NodeType::Fluctuation);
+    case Ptcl::Selection::Type::EmitterField:
+        return findChildByType(emitterItem, NodeType::Field);
+    default:
+        return nullptr;
+    }
 }
 
 QStandardItem* PtclList::findChildByType(QStandardItem* parent, NodeType type) {
@@ -410,51 +478,6 @@ void PtclList::ensureComplexNode(QStandardItem* emitterItem, NodeType type, cons
     item->setData(enabled, sRoleEnabled);
 }
 
-void PtclList::selectEmitter(s32 setIndex, s32 emitterIndex) {
-    const QStandardItem* setItem = mListModel.item(setIndex);
-    if (!setItem) {
-        return;
-    }
-
-    const QStandardItem* emitterItem = setItem->child(emitterIndex);
-    if (!emitterItem) {
-        return;
-    }
-
-    const QModelIndex sourceIndex = mListModel.indexFromItem(emitterItem);
-    const QModelIndex proxyIndex = mProxyModel.mapFromSource(sourceIndex);
-
-    if (!proxyIndex.isValid()) {
-        return;
-    }
-
-    auto* selection = mTreeView.selectionModel();
-
-    selection->clearSelection();
-    selection->setCurrentIndex(proxyIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-    mTreeView.scrollTo(proxyIndex);
-}
-
-void PtclList::selectEmitterSet(s32 setIndex) {
-    const QStandardItem* setItem = mListModel.item(setIndex);
-    if (!setItem) {
-        return;
-    }
-
-    const QModelIndex sourceIndex = mListModel.indexFromItem(setItem);
-    const QModelIndex proxyIndex = mProxyModel.mapFromSource(sourceIndex);
-
-    if (!proxyIndex.isValid()) {
-        return;
-    }
-
-    auto* selection = mTreeView.selectionModel();
-
-    selection->clearSelection();
-    selection->setCurrentIndex(proxyIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-    mTreeView.scrollTo(proxyIndex);
-}
-
 void PtclList::updateEmitter(s32 setIndex, s32 emitterIndex) {
     const QStandardItem* setItem = mListModel.item(setIndex);
     if (!setItem) {
@@ -466,7 +489,7 @@ void PtclList::updateEmitter(s32 setIndex, s32 emitterIndex) {
         return;
     }
 
-    const auto& emitter = mResPtr->getEmitterSets()[setIndex]->emitters()[emitterIndex];
+    const auto& emitter = mDocument->emitter(setIndex, emitterIndex);
     emitterItem->setData(static_cast<u32>(emitter->type()), sRoleEmitterType);
 
     if (emitter->type() == Ptcl::EmitterType::Simple) {
@@ -481,9 +504,7 @@ void PtclList::updateEmitterName(s32 setIndex, s32 emitterIndex) {
     const QStandardItem* setItem = mListModel.item(setIndex);
     QStandardItem* emitterItem = setItem->child(emitterIndex);
 
-    const auto& sets = mResPtr->getEmitterSets();
-    const auto& set = sets[setIndex];
-    const auto* emitter = set->emitters()[emitterIndex].get();
+    const auto& emitter = mDocument->emitter(setIndex, emitterIndex);
 
     QString emitterName = QString("%1: %2").arg(emitterIndex).arg(emitter->name());
     emitterItem->setText(emitterName);
@@ -492,8 +513,7 @@ void PtclList::updateEmitterName(s32 setIndex, s32 emitterIndex) {
 void PtclList::updateEmitterSetName(s32 setIndex) {
     QStandardItem* setItem = mListModel.item(setIndex);
 
-    const auto& sets = mResPtr->getEmitterSets();
-    const auto& set = sets[setIndex];
+    const auto& set = mDocument->emitterSet(setIndex);
 
     QString setName = QString("%1: %2").arg(setIndex).arg(set->name());
     setItem->setText(setName);
@@ -554,11 +574,11 @@ void PtclList::addEmitterSet() {
         return;
     }
 
-    const s32 setIndex = mResPtr->emitterSetCount();
-    mResPtr->addNewEmitterSet();
+    const s32 setIndex = mDocument->data().emitterSetCount();
+    mDocument->data().addNewEmitterSet();
 
     insertEmitterSetNode(setIndex);
-    selectEmitterSet(setIndex);
+    mSelection->set(setIndex, 0, Ptcl::Selection::Type::EmitterSet);
     expandSourceIndex(mListModel.index(setIndex, 0));
     emit itemAdded();
 }
@@ -578,14 +598,14 @@ void PtclList::addEmitter() {
         setItem = item->parent();
     }
 
-    u32 setIndex = setItem->data(sRoleSetIdx).toUInt();
-    auto& emitterSet = mResPtr->getEmitterSets()[setIndex];
+    s32 setIndex = setItem->data(sRoleSetIdx).toInt();
+    const auto& emitterSet = mDocument->emitterSet(setIndex);
     const s32 emitterIndex = emitterSet->emitterCount();
 
     emitterSet->addNewEmitter();
 
     insertEmitterNode(setItem, setIndex, emitterIndex);
-    selectEmitter(setIndex, emitterIndex);
+    mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::Emitter);
     expandSourceIndex(mListModel.indexFromItem(setItem));
     emit itemAdded();
 }
@@ -615,11 +635,11 @@ void PtclList::removeEmitter(QStandardItem* setItem, QStandardItem* emitterItem)
         return;
     }
 
-    const s32 setIndex = setItem->data(sRoleSetIdx).toUInt();
-    const s32 emitterIndex = emitterItem->data(sRoleEmitterIdx).toUInt();
+    const s32 setIndex = setItem->data(sRoleSetIdx).toInt();
+    const s32 emitterIndex = emitterItem->data(sRoleEmitterIdx).toInt();
 
-    const auto& emitterSet = mResPtr->getEmitterSets()[setIndex];
-    const auto& emitter = mResPtr->getEmitterSets()[setIndex]->emitters()[emitterIndex];
+    const auto& emitterSet = mDocument->emitterSet(setIndex);
+    const auto& emitter = mDocument->emitter(setIndex, emitterIndex);
 
     const auto confirmationMessage = QString("Are you sure you want to remove the Emitter '%1'?").arg(emitter->name());
     if (QMessageBox::question(this, "Remove Emitter", confirmationMessage) != QMessageBox::Yes) {
@@ -633,7 +653,7 @@ void PtclList::removeEmitter(QStandardItem* setItem, QStandardItem* emitterItem)
     const s32 remainingCount = setItem->rowCount();
     if (remainingCount > 0) {
         const s32 nextIndex = std::min(emitterIndex, remainingCount - 1);
-        selectEmitter(setIndex, nextIndex);
+        mSelection->set(setIndex, nextIndex, Ptcl::Selection::Type::Emitter);
     }
 }
 
@@ -642,15 +662,15 @@ void PtclList::removeEmitterSet(QStandardItem* setItem) {
         return;
     }
 
-    const s32 setIndex = setItem->data(sRoleSetIdx).toUInt();
-    const auto& emitterSet = mResPtr->getEmitterSets()[setIndex];
+    const s32 setIndex = setItem->data(sRoleSetIdx).toInt();
+    const auto& emitterSet = mDocument->emitterSet(setIndex);
 
     const auto confirmationMessage = QString("Are you sure you want to remove the EmitterSet '%1'?").arg(emitterSet->name());
     if (QMessageBox::question(this, "Remove EmitterSet", confirmationMessage) != QMessageBox::Yes) {
         return;
     }
 
-    mResPtr->removeEmitterSet(setIndex);
+    mDocument->data().removeEmitterSet(setIndex);
     mListModel.removeRow(setIndex);
     reindexEmitterSets();
 
@@ -658,7 +678,7 @@ void PtclList::removeEmitterSet(QStandardItem* setItem) {
 
     if (remainingCount > 0) {
         const s32 nextIndex = std::min(setIndex, remainingCount - 1);
-        selectEmitterSet(nextIndex);
+        mSelection->set(nextIndex, 0, Ptcl::Selection::Type::EmitterSet);
     }
 }
 
@@ -674,7 +694,7 @@ void PtclList::reindexEmitters(QStandardItem* setItem, s32 setIndex) {
         }
 
         emitterItem->setData(i, sRoleEmitterIdx);
-        const auto& emitter = mResPtr->getEmitterSets()[setIndex]->emitters()[i];
+        const auto& emitter = mDocument->emitter(setIndex, i);
         emitterItem->setText(QString("%1: %2").arg(i).arg(emitter->name()));
 
         for (s32 c = 0; c < emitterItem->rowCount(); ++c) {
@@ -694,7 +714,7 @@ void PtclList::reindexEmitterSets() {
         }
 
         setItem->setData(i, sRoleSetIdx);
-        const auto& set = mResPtr->getEmitterSets()[i];
+        const auto& set = mDocument->emitterSet(i);
         setItem->setText(QString("%1: %2").arg(i).arg(set->name()));
         reindexEmitters(setItem, i);
     }
@@ -721,12 +741,12 @@ void PtclList::copyItem() {
     mClipboardEmitter.reset();
 
     if (type == NodeType::EmitterSet) {
-        const s32 setIndex = item->data(sRoleSetIdx).toUInt();
-        mClipboardSet = mResPtr->getEmitterSets()[setIndex]->clone();
+        const s32 setIndex = item->data(sRoleSetIdx).toInt();
+        mClipboardSet = mDocument->data().emitterSet(setIndex)->clone();
     } else if (type == NodeType::Emitter) {
-        const s32 setIndex = item->parent()->data(sRoleSetIdx).toUInt();
-        const s32 emitterIndex = item->data(sRoleEmitterIdx).toUInt();
-        mClipboardEmitter = mResPtr->getEmitterSets()[setIndex]->emitters()[emitterIndex]->clone();
+        const s32 setIndex = item->parent()->data(sRoleSetIdx).toInt();
+        const s32 emitterIndex = item->data(sRoleEmitterIdx).toInt();
+        mClipboardEmitter = mDocument->data().emitter(setIndex, emitterIndex)->clone();
     }
 
     updateToolbarForSelection(item);
@@ -744,25 +764,25 @@ void PtclList::pasteItem() {
     const auto type = static_cast<NodeType>(item->data(sRoleNodeType).toUInt());
 
     if (mClipboardSet && type == NodeType::EmitterSet) {
-        auto& newSet = mResPtr->appendEmitterSet(mClipboardSet);
+        auto& newSet = mDocument->data().appendEmitterSet(mClipboardSet);
         mClipboardSet = newSet->clone();
 
-        const s32 setIndex = mResPtr->emitterSetCount() - 1;
+        const s32 setIndex = mDocument->data().emitterSetCount() - 1;
         insertEmitterSetNode(setIndex);
-        selectEmitterSet(setIndex);
+        mSelection->set(setIndex, 0, Ptcl::Selection::Type::EmitterSet);
     } else if (mClipboardEmitter && type == NodeType::Emitter) {
         const auto& setItem = item->parent();
-        const s32 setIndex = item->data(sRoleSetIdx).toUInt();
-        auto& set = mResPtr->getEmitterSets()[setIndex];
+        const s32 setIndex = item->data(sRoleSetIdx).toInt();
+        auto set = mDocument->data().emitterSet(setIndex);
 
         auto& newEmitter = set->appendEmitter(mClipboardEmitter);
         mClipboardEmitter = newEmitter->clone();
 
         const s32 emitterIndex = set->emitterCount() - 1;
         insertEmitterNode(setItem, setIndex, emitterIndex);
-        selectEmitter(setIndex, emitterIndex);
-    }
 
+        mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::Emitter);
+    }
 }
 
 // ========================================================================== //
