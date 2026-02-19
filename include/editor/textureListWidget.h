@@ -2,6 +2,7 @@
 
 #include "components/thumbnailWidget.h"
 #include "ptcl/ptcl.h"
+#include "ptcl/ptclDocument.h"
 
 #include <QAbstractListModel>
 #include <QGridLayout>
@@ -93,8 +94,7 @@ class TextureListWidget final : public QWidget {
 public:
     explicit TextureListWidget(QWidget* parent = nullptr);
 
-    void setTextures(Ptcl::TextureList* textures);
-    void clear();
+    void setDocument(Ptcl::Document* document);
 
 private slots:
     void exportAll();
@@ -110,6 +110,7 @@ private:
     void setupSelectionHandling();
 
 private:
+    Ptcl::Document* mDocument{nullptr};
     Ptcl::TextureList* mTexturesPtr{nullptr};
 
     QToolBar mToolbar{};

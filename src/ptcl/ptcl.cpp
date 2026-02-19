@@ -445,11 +445,11 @@ bool PtclRes::load(const QString& filePath) {
     return true;
 }
 
-u32 PtclRes::emitterSetCount() const {
+s32 PtclRes::emitterSetCount() const {
     return mEmitterSets.size();
 }
 
-u32 PtclRes::emitterCount(s32 setIndex) const {
+s32 PtclRes::emitterCount(s32 setIndex) const {
     if (setIndex < 0 || setIndex >= mEmitterSets.size()) {
         return 0;
     }

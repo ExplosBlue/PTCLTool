@@ -76,6 +76,7 @@ set(PROJECT_SOURCES
     src/ptcl/ptcl.cpp
     src/ptcl/ptclBinary.cpp
     src/ptcl/ptclChildData.cpp
+    src/ptcl/ptclDocument.cpp
     src/ptcl/ptclEmitter.cpp
     src/ptcl/ptclEmitterSet.cpp
     src/ptcl/ptclFieldData.cpp
@@ -149,6 +150,7 @@ set(PROJECT_HEADERS
     include/ptcl/ptcl.h
     include/ptcl/ptclBinary.h
     include/ptcl/ptclChildData.h
+    include/ptcl/ptclDocument.h
     include/ptcl/ptclEmitter.h
     include/ptcl/ptclEmitterSet.h
     include/ptcl/ptclEnum.h
