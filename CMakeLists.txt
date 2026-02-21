@@ -150,6 +150,7 @@ set(PROJECT_HEADERS
     include/ptcl/ptcl.h
     include/ptcl/ptclBinary.h
     include/ptcl/ptclChildData.h
+    include/ptcl/ptclCommand.h
     include/ptcl/ptclDocument.h
     include/ptcl/ptclEmitter.h
     include/ptcl/ptclEmitterSet.h

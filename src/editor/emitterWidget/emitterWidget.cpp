@@ -252,7 +252,7 @@ void EmitterWidget::setupConnections() {
     connect(mFluctuationEditorWidget, &FluctuationEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::FluctuationFlag>& fluxFlags) {
         if (!mEmitter) { return; }
         mEmitter->setFluctuationFlags(fluxFlags);
-        complexFlagsChanged();
+        emit complexFlagsChanged();
         emit propertiesChanged();
     });
 
@@ -260,7 +260,7 @@ void EmitterWidget::setupConnections() {
     connect(mFieldEditorWidget, &FieldEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::FieldFlag>& fieldFlags) {
         if (!mEmitter) { return; }
         mEmitter->setFieldFlags(fieldFlags);
-        complexFlagsChanged();
+        emit complexFlagsChanged();
         emit propertiesChanged();
     });
 
@@ -274,7 +274,7 @@ void EmitterWidget::setupConnections() {
     connect(mStripeEditorWidget, &StripeEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::StripeFlag>& stripeFlags) {
         if (!mEmitter) { return; }
         mEmitter->setStripeFlags(stripeFlags);
-        complexFlagsChanged();
+        emit complexFlagsChanged();
         emit propertiesChanged();
     });
 
@@ -282,10 +282,14 @@ void EmitterWidget::setupConnections() {
 
 void EmitterWidget::setDocument(Ptcl::Document* document) {
     mDocument = document;
+
+    mBasicProperties->setDocument(document);
 }
 
 void EmitterWidget::setSelection(Ptcl::Selection* selection) {
     mSelection = selection;
+
+    mBasicProperties->setSelection(selection);
 
     connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
         if (!mDocument) {
@@ -343,7 +347,6 @@ void EmitterWidget::populateProperties() {
     QSignalBlocker b17(mFieldEditorWidget);
     QSignalBlocker b18(mStripeEditorWidget);
 
-    mBasicProperties->setProperties(mEmitter->basicProperties());
     mGravityProperties->setProperties(mEmitter->gravityProperties());
     mTransformProperties->setProperties(mEmitter->transformProperties());
     mLifespanProperties->setProperties(mEmitter->lifespanProperties());

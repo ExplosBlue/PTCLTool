@@ -33,10 +33,6 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     return newEmitter;
 }
 
-EmitterType Emitter::type() const {
-    return mBasicProperties.type;
-}
-
 BitFlag<EmitterFlag>& Emitter::flags() {
     return mFlag;
 }

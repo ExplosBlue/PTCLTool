@@ -27,6 +27,8 @@ public:
     u32 raw() const;
     void setRaw(u32 raw);
 
+    bool operator==(const PtclSeed&) const = default;
+
 private:
     u32 mValue = 1;
 };

@@ -276,7 +276,7 @@ void PtclBinaryWriter::buildHeader(const PtclRes& res) {
      mHeader = {
         .magic          = {'S', 'P', 'B', 'D'},
         .version        = 11,
-        .numEmitterSet  = res.emitterSetCount(),
+        .numEmitterSet  = static_cast<u32>(res.emitterSetCount()),
         .namePos        = appendName(res.name()),
         .nameTblPos     = 0,
         .textureTblPos  = 0,
