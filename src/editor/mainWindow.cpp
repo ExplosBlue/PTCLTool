@@ -68,10 +68,16 @@ void MainWindow::setupUi() {
     mTopSplitter->setStretchFactor(0, 0);
     mTopSplitter->setStretchFactor(1, 1);
 
+    // Bottom Container
+    auto* bottomContainer = new QWidget(this);
+    auto* bottomLayout = new QHBoxLayout(bottomContainer);
+    bottomLayout->addWidget(&mUndoView, 0);
+    bottomLayout->addWidget(&mTextureWidget, 1);
+
     // Bottom Splitter
     mBottomSplitter = new QSplitter(Qt::Vertical, this);
     mBottomSplitter->addWidget(mTopSplitter);
-    mBottomSplitter->addWidget(&mTextureWidget);
+    mBottomSplitter->addWidget(bottomContainer);
     mBottomSplitter->setStretchFactor(0, 1);
     mBottomSplitter->setStretchFactor(1, 0);
 
@@ -93,6 +99,9 @@ void MainWindow::setupUi() {
 
     setCentralWidget(mBottomSplitter);
     setupMenus();
+
+    // Undo View
+    mUndoView.setEmptyLabel("<No History>");
 
     // StatusBar
     auto* status = statusBar();
@@ -199,6 +208,16 @@ void MainWindow::setupMenus() {
     mSaveAsAction.setEnabled(false);
     connect(&mSaveAsAction, &QAction::triggered, this, &MainWindow::saveFileAs);
 
+    // Undo
+    mUndoAction = new QAction("Undo", this);
+    mUndoAction->setShortcut(QKeySequence::Undo);
+    mUndoAction->setEnabled(false);
+
+    // Redo
+    mRedoAction = new QAction("Redo", this);
+    mRedoAction->setShortcut(QKeySequence::Redo);
+    mRedoAction->setEnabled(false);
+
     // Recent Files Menu
     mRecentFilesMenu.setTitle("Recent Files");
     mRecentFilesMenu.setIcon(QIcon(":/res/icons/recent.png"));
@@ -220,8 +239,14 @@ void MainWindow::setupMenus() {
     mFileMenu.addSeparator();
     mFileMenu.addMenu(&mRecentFilesMenu);
 
+    // Edit Menu
+    mEditMenu.setTitle("Edit");
+    mEditMenu.addAction(mUndoAction);
+    mEditMenu.addAction(mRedoAction);
+
     // Menu Bar
     menuBar()->addMenu(&mFileMenu);
+    menuBar()->addMenu(&mEditMenu);
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
@@ -405,9 +430,11 @@ void MainWindow::loadPtclRes(const QString& path) {
     mDocument = std::make_unique<Ptcl::Document>();
     if (!mDocument->load(path)) {
         mDocument.reset();
+        bindUndoStack();
         return;
     }
 
+    bindUndoStack();
     setDirty(false);
 
     SettingsUtil::SettingsMgr::instance().addRecentFile(path);
@@ -518,6 +545,38 @@ void MainWindow::setDirty(bool dirty) {
     mSaveAction.setEnabled(dirty);
     updateStatusBar();
     updateWindowTitle();
+}
+
+void MainWindow::bindUndoStack() {
+    if (!mDocument) {
+        mUndoAction->setEnabled(false);
+        mRedoAction->setEnabled(false);
+        return;
+    }
+
+    auto* stack = mDocument->undoStack();
+
+    mUndoAction->disconnect();
+    mRedoAction->disconnect();
+
+    connect(mUndoAction, &QAction::triggered, stack, &QUndoStack::undo);
+    connect(mRedoAction, &QAction::triggered, stack, &QUndoStack::redo);
+
+    connect(stack, &QUndoStack::canUndoChanged, mUndoAction, &QAction::setEnabled);
+    connect(stack, &QUndoStack::canRedoChanged, mRedoAction, &QAction::setEnabled);
+
+    connect(stack, &QUndoStack::undoTextChanged, this, [this](const QString& text) {
+        mUndoAction->setText(text.isEmpty() ? "Undo" : "Undo " + text);
+    });
+
+    connect(stack, &QUndoStack::redoTextChanged, this, [this](const QString& text) {
+        mRedoAction->setText(text.isEmpty() ? "Redo" : "Redo " + text);
+    });
+
+    mUndoAction->setEnabled(stack->canUndo());
+    mRedoAction->setEnabled(stack->canRedo());
+
+    mUndoView.setStack(stack);
 }
 
 

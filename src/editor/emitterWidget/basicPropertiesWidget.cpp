@@ -60,98 +60,135 @@ EmitterWidget::BasicPropertiesWidget::BasicPropertiesWidget(QWidget* parent) :
 void EmitterWidget::BasicPropertiesWidget::setupConnections() {
     // Emitter Name
     connect(&mNameLineEdit, &QLineEdit::textChanged, this, [this](const QString& text) {
-        mProps.name = text;
-        emit propertiesUpdated(mProps);
-        emit emitterNameChanged();
+        setEmitterProperty(
+            "Set Name",
+            "EmitterName",
+            &Ptcl::Emitter::name,
+            &Ptcl::Emitter::setName,
+            text
+        );
     });
 
     // Emitter Type
     connect(&mTypeComboBox, &QComboBox::currentIndexChanged, this, [this]() {
-        mProps.type = mTypeComboBox.currentEnum();
+        auto* stack = mDocument->undoStack();
+        stack->beginMacro(formatLabel("Set Type"));
 
-        if (mProps.type == Ptcl::EmitterType::Simple) {
-            if (!isBillboardAllowedForShape(mProps.billboardType, ShapeType::Particle)) {
-                applyBillboardType(Ptcl::BillboardType::Billboard);
+        setEmitterProperty(
+            "Set Type",
+            "EmitterType",
+            &Ptcl::Emitter::type,
+            &Ptcl::Emitter::setType,
+            mTypeComboBox.currentEnum()
+        );
+
+        if (mEmitter->type() == Ptcl::EmitterType::Simple) {
+            if (!isBillboardAllowedForShape(mEmitter->billboardType(), ShapeType::Particle)) {
+                setBillboardType(Ptcl::BillboardType::Billboard, "Auto Fix Billboard Type", "BillboardType");
                 syncBillboardSelection();
             }
         }
 
+        stack->endMacro();
+
         updateShapeRowVisibility();
         updateBillboardRowVisibility();
-        emit propertiesUpdated(mProps);
-        emit emitterTypeChanged();
     });
 
     // Random Seed Mode
     connect(&mRandomSeedMode, &QComboBox::currentIndexChanged, this, [this]() {
-        auto& seed = mProps.randomSeed;
+        auto seed = mEmitter->randomSeed();
         auto mode = static_cast<PtclSeed::Mode>(mRandomSeedMode.currentData().toUInt());
 
         seed.setMode(mode);
+
+        setEmitterProperty(
+            "Set Random Seed Mode",
+            "RandomSeedMode",
+            &Ptcl::Emitter::randomSeed,
+            &Ptcl::Emitter::setRandomSeed,
+            seed
+        );
+
         mRandomSeedSpinBox.setEnabled(mode == PtclSeed::Mode::ConstantSeed);
-        emit propertiesUpdated(mProps);
     });
 
     // Random Seed
     connect(&mRandomSeedSpinBox, &SizedSpinBoxBase::valueChanged, this, [this](int value) {
-        auto& seed = mProps.randomSeed;
+        auto seed = mEmitter->randomSeed();
         if (seed.mode() == PtclSeed::Mode::ConstantSeed) {
             seed.setConstantSeed(static_cast<u32>(value));
         }
-        emit propertiesUpdated(mProps);
+
+        setEmitterProperty(
+            "Set Random Seed",
+            "RandomSeed",
+            &Ptcl::Emitter::randomSeed,
+            &Ptcl::Emitter::setRandomSeed,
+            seed
+        );
     });
 
     // Follow Type
     connect(&mFollowTypeComboBox, &QComboBox::currentIndexChanged, this, [this]() {
         const auto type = mFollowTypeComboBox.currentEnum();
 
-        mProps.followType = type;
-        // TODO: Check if this should also be set for Ptcl::FollowType::PosOnly
-        mProps.isFollow = (type == Ptcl::FollowType::All);
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Follow Type",
+            "FollowType",
+            &Ptcl::Emitter::followType,
+            &Ptcl::Emitter::setFollowType,
+            type
+        );
     });
 
     // Billboard Type
     connect(&mBillboardComboBox, &QComboBox::currentIndexChanged, this, [this]() {
-        applyBillboardType(mBillboardComboBox.currentData().value<Ptcl::BillboardType>());
-        emit propertiesUpdated(mProps);
+        setBillboardType(mBillboardComboBox.currentData().value<Ptcl::BillboardType>(), "Set Billboard Type", "BillboardType");
     });
 
-    // Shape Type
+    // Shape Type    
     connect(&mShapeComboBox, &QComboBox::currentIndexChanged, this, [this]() {
         const auto type = mShapeComboBox.currentData().value<ShapeType>();
 
-        if (type == ShapeType::Particle) {
-            applyBillboardType(Ptcl::BillboardType::Billboard);
-        } else if (type == ShapeType::Primitive) {
-            applyBillboardType(Ptcl::BillboardType::Primitive);
-        } else {
-            applyBillboardType(Ptcl::BillboardType::Stripe);
+        Ptcl::BillboardType newBillboard;
+        switch (type) {
+            case ShapeType::Particle:   newBillboard = Ptcl::BillboardType::Billboard;  break;
+            case ShapeType::Primitive:  newBillboard = Ptcl::BillboardType::Primitive;  break;
+            case ShapeType::Stripe:     newBillboard = Ptcl::BillboardType::Stripe;     break;
         }
 
+        setBillboardType(newBillboard, "Set Shape Type", "ShapeType");
         syncBillboardSelection();
         updateBillboardRowVisibility();
         updateShapeRowVisibility();
-        emit propertiesUpdated(mProps);
     });
 
     // Stripe Type
     connect(&mStripeTypeComboBox, &QComboBox::currentIndexChanged, this, [this]() {
-        applyBillboardType(mStripeTypeComboBox.currentData().value<Ptcl::BillboardType>());
-        emit propertiesUpdated(mProps);
+        setBillboardType(mStripeTypeComboBox.currentData().value<Ptcl::BillboardType>(), "Set Stripe Type", "StripeType");
     });
 
     // Is Billboard Mtx
     connect(&mIsBillboardMtxCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
-        mProps.isEmitterBillboardMtx = checked;
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Billboard Matrix",
+            "IsBillboardMtx",
+            &Ptcl::Emitter::isEmitterBillboardMtx,
+            &Ptcl::Emitter::setIsEmitterBillboardMtx,
+            checked
+        );
     });
 }
 
-void EmitterWidget::BasicPropertiesWidget::applyBillboardType(Ptcl::BillboardType type) {
-    mProps.billboardType = type;
-    mProps.isPolygon = (type == Ptcl::BillboardType::PolygonXY || type == Ptcl::BillboardType::PolygonXZ);
-    mProps.isVelLook = (type == Ptcl::BillboardType::VelLook || type == Ptcl::BillboardType::VelLookPolygon);
+void EmitterWidget::BasicPropertiesWidget::setBillboardType(Ptcl::BillboardType type, const QString& label, const QString& key) {
+    setEmitterProperty(
+        label,
+        key,
+        &Ptcl::Emitter::billboardType,
+        &Ptcl::Emitter::setBillboardType,
+        type
+    );
 }
 
 bool EmitterWidget::BasicPropertiesWidget::isBillboardAllowedForShape(Ptcl::BillboardType billboard, ShapeType shape) {
@@ -181,7 +218,43 @@ EmitterWidget::BasicPropertiesWidget::ShapeType EmitterWidget::BasicPropertiesWi
     return ShapeType::Particle;
 }
 
-void EmitterWidget::BasicPropertiesWidget::setProperties(const Ptcl::Emitter::BasicProperties& properties) {
+void EmitterWidget::BasicPropertiesWidget::setDocument(Ptcl::Document* document) {
+    mDocument = document;
+    mDocument->disconnect();
+    connect(mDocument, &Ptcl::Document::emitterChanged, this, &BasicPropertiesWidget::onEmitterChanged);
+}
+
+void EmitterWidget::BasicPropertiesWidget::setSelection(Ptcl::Selection* selection) {
+    mSelection = selection;
+
+    mSelection->disconnect();
+    connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
+        if (!mDocument) {
+            mEmitter = nullptr;
+            setEnabled(false);
+            return;
+        }
+
+        mEmitter = mDocument->emitter(setIndex, emitterIndex);
+
+        setEnabled(true);
+        populateProperties();
+    });
+}
+
+void EmitterWidget::BasicPropertiesWidget::onEmitterChanged(s32 setIndex, s32 emitterIndex) {
+    if (!mEmitter) {
+        return;
+    }
+
+    if (setIndex != mSelection->emitterSetIndex() || emitterIndex != mSelection->emitterIndex()) {
+        return;
+    }
+
+    populateProperties();
+}
+
+void EmitterWidget::BasicPropertiesWidget::populateProperties() {
     QSignalBlocker b1(mNameLineEdit);
     QSignalBlocker b2(mTypeComboBox);
     QSignalBlocker b3(mRandomSeedMode);
@@ -192,27 +265,25 @@ void EmitterWidget::BasicPropertiesWidget::setProperties(const Ptcl::Emitter::Ba
     QSignalBlocker b8(mStripeTypeComboBox);
     QSignalBlocker b9(mIsBillboardMtxCheckBox);
 
-    mProps = properties;
+    mNameLineEdit.setText(mEmitter->name());
+    mTypeComboBox.setCurrentEnum(mEmitter->type());
 
-    mNameLineEdit.setText(mProps.name);
-    mTypeComboBox.setCurrentEnum(mProps.type);
-
-    auto& randomSeed = mProps.randomSeed;
+    auto& randomSeed = mEmitter->randomSeed();
     auto seedMode = randomSeed.mode();
-    int index = mRandomSeedMode.findData(static_cast<int>(seedMode));
+    s32 index = mRandomSeedMode.findData(static_cast<s32>(seedMode));
     if (index != -1) {
         mRandomSeedMode.setCurrentIndex(index);
     }
     mRandomSeedSpinBox.setValue(randomSeed.constantSeed());
     mRandomSeedSpinBox.setEnabled(seedMode == PtclSeed::Mode::ConstantSeed);
 
-    mFollowTypeComboBox.setCurrentEnum(mProps.followType);
+    mFollowTypeComboBox.setCurrentEnum(mEmitter->followType());
 
-    const auto shapeType = shapeFromBillboard(mProps.billboardType);
+    const auto shapeType = shapeFromBillboard(mEmitter->billboardType());
     const s32 shapeIndex = mShapeComboBox.findData(QVariant::fromValue(shapeType));
     mShapeComboBox.setCurrentIndex(shapeIndex);
 
-    mIsBillboardMtxCheckBox.setChecked(mProps.isEmitterBillboardMtx);
+    mIsBillboardMtxCheckBox.setChecked(mEmitter->isEmitterBillboardMtx());
 
     syncBillboardSelection();
     updateBillboardRowVisibility();
@@ -220,7 +291,7 @@ void EmitterWidget::BasicPropertiesWidget::setProperties(const Ptcl::Emitter::Ba
 }
 
 void EmitterWidget::BasicPropertiesWidget::updateShapeRowVisibility() {
-    if (mProps.type == Ptcl::EmitterType::Simple) {
+    if (mEmitter->type() == Ptcl::EmitterType::Simple) {
         mMainLayout->setRowVisible(&mShapeComboBox, false);
     } else {
         mMainLayout->setRowVisible(&mShapeComboBox, true);
@@ -237,7 +308,7 @@ void EmitterWidget::BasicPropertiesWidget::syncBillboardSelection() {
     QSignalBlocker b1(mBillboardComboBox);
     QSignalBlocker b2(mStripeTypeComboBox);
 
-    const QVariant value = QVariant::fromValue(mProps.billboardType);
+    const QVariant value = QVariant::fromValue(mEmitter->billboardType());
 
     const s32 billboardIndex = mBillboardComboBox.findData(value);
     if (billboardIndex != -1) {
@@ -248,6 +319,13 @@ void EmitterWidget::BasicPropertiesWidget::syncBillboardSelection() {
     if (stripeIndex != -1) {
         mStripeTypeComboBox.setCurrentIndex(stripeIndex);
     }
+}
+
+QString EmitterWidget::BasicPropertiesWidget::formatLabel(const QString& label) const {
+    return QString("Set %1, Emitter %2 - %3")
+        .arg(mSelection->emitterSetIndex())
+        .arg(mSelection->emitterIndex())
+        .arg(label);
 }
 
 // ========================================================================== //

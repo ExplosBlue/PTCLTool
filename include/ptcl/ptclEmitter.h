@@ -186,13 +186,35 @@ public:
 
     std::unique_ptr<Emitter> clone() const;
 
-    EmitterType type() const;
+    EmitterType type() const { return mBasicProperties.type; }
+    void setType(EmitterType type) { mBasicProperties.type = type; }
 
-    BitFlag<EmitterFlag>& flags();
-    const BitFlag<EmitterFlag>& flags() const;
+    FollowType followType() const { return mBasicProperties.followType; }
+    void setFollowType(FollowType type) {
+        mBasicProperties.followType = type;
+
+        // TODO: Check if this should also be set for Ptcl::FollowType::PosOnly
+        mBasicProperties.isFollow = (type == Ptcl::FollowType::All);
+    }
 
     const QString& name() const;
     void setName(const QString &name);
+
+    const PtclSeed& randomSeed() const { return mBasicProperties.randomSeed; }
+    void setRandomSeed(PtclSeed seed) { mBasicProperties.randomSeed = seed; }
+
+    BillboardType billboardType() const { return mBasicProperties.billboardType; }
+    void setBillboardType(BillboardType type) {
+        mBasicProperties.billboardType = type;
+        mBasicProperties.isPolygon = (type == Ptcl::BillboardType::PolygonXY || type == Ptcl::BillboardType::PolygonXZ);
+        mBasicProperties.isVelLook = (type == Ptcl::BillboardType::VelLook || type == Ptcl::BillboardType::VelLookPolygon);
+    }
+
+    bool isEmitterBillboardMtx() const { return mBasicProperties.isEmitterBillboardMtx; }
+    void setIsEmitterBillboardMtx(bool isEmitterBillboardMtx) { mBasicProperties.isEmitterBillboardMtx = isEmitterBillboardMtx; }
+
+    BitFlag<EmitterFlag>& flags();
+    const BitFlag<EmitterFlag>& flags() const;
 
     TextureHandle& textureHandle();
     const TextureHandle& textureHandle() const;
