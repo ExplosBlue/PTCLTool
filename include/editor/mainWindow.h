@@ -1,7 +1,5 @@
 #pragma once
 
-#include "typedefs.h"
-#include "ptcl/ptcl.h"
 #include "ptcl/ptclDocument.h"
 #include "editor/emitterSetWidget.h"
 #include "editor/emitterWidget/emitterWidget.h"
@@ -16,6 +14,7 @@
 #include <QMenuBar>
 #include <QScrollArea>
 #include <QSplitter>
+#include <QUndoView>
 #include <QVBoxLayout>
 
 
@@ -67,6 +66,8 @@ private:
     void updateStatusBar();
     void setDirty(bool dirty);
 
+    void bindUndoStack();
+
 private:
     std::unique_ptr<Ptcl::Document> mDocument{};
     Ptcl::Selection mSelection{};
@@ -76,8 +77,12 @@ private:
     QAction mSaveAsAction{};
     std::vector<QAction*> mRecentFileActions{};
 
+    QAction* mUndoAction{nullptr};
+    QAction* mRedoAction{nullptr};
+
     QMenu mFileMenu{};
     QMenu mRecentFilesMenu{};
+    QMenu mEditMenu{};
 
     QSplitter* mTopSplitter{nullptr};
     QSplitter* mBottomSplitter{nullptr};
@@ -86,6 +91,8 @@ private:
 
     QStackedWidget* mPropertiesStack{nullptr};
     QGroupBox mPropertiesGroup{};
+
+    QUndoView mUndoView{};
 
     PtclEditor::PtclList mPtclList{};
     PtclEditor::EmitterWidget mEmitterWidget{};

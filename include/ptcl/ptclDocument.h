@@ -3,6 +3,7 @@
 #include "ptcl/ptcl.h"
 
 #include <QObject>
+#include <QUndoStack>
 
 
 namespace Ptcl {
@@ -45,6 +46,13 @@ private:
 // ========================================================================== //
 
 
+template<typename T>
+class SetEmitterPropertyCommand;
+
+
+// ========================================================================== //
+
+
 class Document final : public QObject {
     Q_OBJECT
 public:
@@ -68,9 +76,23 @@ public:
     bool isModified() const { return mModified; }
     QString filePath() const  { return mFilePath; }
 
+    QUndoStack* undoStack() { return &mUndoStack; }
+
+    template<typename T, typename Getter, typename Setter>
+    void setEmitterProperty(s32 setIndex, s32 emitterIndex, QString label, QString key, Getter getter, Setter setter, const T& value) {
+        mUndoStack.push(new SetEmitterPropertyCommand<T>(this, setIndex, emitterIndex, label, key, getter, setter, value));
+    }
+
+    void notifyEmitterChanged(s32 setIndex, s32 emitterIndex) { emit emitterChanged(setIndex, emitterIndex); }
+
+signals:
+    void emitterChanged(s32 setIndex, s32 emitterIndex);
+
 private:
     PtclRes mData{};
     QString mFilePath{};
+    QUndoStack mUndoStack{};
+
     bool mModified{false};
 };
 
@@ -79,3 +101,5 @@ private:
 
 
 } // namespace Ptcl
+
+#include "ptcl/ptclCommand.h"
