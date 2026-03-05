@@ -186,6 +186,8 @@ public:
 
     std::unique_ptr<Emitter> clone() const;
 
+    // Basic Properties
+
     EmitterType type() const { return mBasicProperties.type; }
     void setType(EmitterType type) { mBasicProperties.type = type; }
 
@@ -198,7 +200,7 @@ public:
     }
 
     const QString& name() const;
-    void setName(const QString &name);
+    void setName(const QString& name);
 
     const PtclSeed& randomSeed() const { return mBasicProperties.randomSeed; }
     void setRandomSeed(PtclSeed seed) { mBasicProperties.randomSeed = seed; }
@@ -213,18 +215,24 @@ public:
     bool isEmitterBillboardMtx() const { return mBasicProperties.isEmitterBillboardMtx; }
     void setIsEmitterBillboardMtx(bool isEmitterBillboardMtx) { mBasicProperties.isEmitterBillboardMtx = isEmitterBillboardMtx; }
 
+    bool isPolygon() const { return mBasicProperties.isPolygon; }
+    bool isFollow() const { return mBasicProperties.isFollow; }
+    bool isVelLook() const { return mBasicProperties.isVelLook; }
+
+    // Gravity Properties
+
+    bool isDirectional() const { return mGravityProperties.isDirectional; }
+    void setDirectional(bool isDirectional) { mGravityProperties.isDirectional = isDirectional; }
+
+    const Math::Vector3f& gravity() const { return mGravityProperties.gravity; }
+    void setGravity(const Math::Vector3f& gravity) { mGravityProperties.gravity = gravity; }
+
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag>& flags() const;
 
     TextureHandle& textureHandle();
     const TextureHandle& textureHandle() const;
     void setTexture(const std::shared_ptr<Texture>& texture);
-
-    const BasicProperties &basicProperties() const;
-    void setBasicProperties(const BasicProperties &basicProperties);
-
-    const GravityProperties& gravityProperties() const;
-    void setGravityProperties(const GravityProperties& gravityProperties);
 
     const LifespanProperties& lifespanProperties() const;
     void setLifespanProperties(const LifespanProperties& lifespanProperties);
