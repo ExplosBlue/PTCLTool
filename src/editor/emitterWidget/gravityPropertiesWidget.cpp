@@ -9,8 +9,8 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-EmitterWidget::GravityPropertiesWidget::GravityPropertiesWidget(QWidget* parent) :
-    QWidget{parent} {
+GravityPropertiesWidget::GravityPropertiesWidget(QWidget* parent) :
+    EmitterWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
 
@@ -19,25 +19,40 @@ EmitterWidget::GravityPropertiesWidget::GravityPropertiesWidget(QWidget* parent)
     mainLayout->addRow("Coordinates:", &mIsDirectionalCheckBox);
     mainLayout->addRow("Gravity Direction:", &mGravitySpinBox);
 
+    setupConnections();
+}
+
+void GravityPropertiesWidget::setupConnections() {
+    // Is Directional
     connect(&mIsDirectionalCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
-        mProps.isDirectional = checked;
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Gravity Directional",
+            "GravDirectional",
+            &Ptcl::Emitter::isDirectional,
+            &Ptcl::Emitter::setDirectional,
+            checked
+        );
     });
 
+    // Gravity
     connect(&mGravitySpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
-        mProps.gravity = mGravitySpinBox.getVector();
-        emit propertiesUpdated(mProps);
+        const auto gravity = mGravitySpinBox.getVector();
+        setEmitterProperty(
+            "Set Gravity Direction",
+            "GravDir",
+            &Ptcl::Emitter::gravity,
+            &Ptcl::Emitter::setGravity,
+            gravity
+        );
     });
 }
 
-void EmitterWidget::GravityPropertiesWidget::setProperties(const Ptcl::Emitter::GravityProperties& properties) {
+void GravityPropertiesWidget::populateProperties() {
     QSignalBlocker b1(mIsDirectionalCheckBox);
     QSignalBlocker b2(mGravitySpinBox);
 
-    mProps = properties;
-
-    mIsDirectionalCheckBox.setChecked(mProps.isDirectional);
-    mGravitySpinBox.setVector(mProps.gravity);
+    mIsDirectionalCheckBox.setChecked(mEmitter->isDirectional());
+    mGravitySpinBox.setVector(mEmitter->gravity());
 }
 
 

@@ -61,22 +61,6 @@ void Emitter::setTexture(const std::shared_ptr<Texture>& texture) {
     mTextureHandle.set(texture);
 }
 
-const Emitter::BasicProperties& Emitter::basicProperties() const {
-    return mBasicProperties;
-}
-
-void Emitter::setBasicProperties(const BasicProperties& basicProperties) {
-    mBasicProperties = basicProperties;
-}
-
-const Emitter::GravityProperties& Emitter::gravityProperties() const {
-    return mGravityProperties;
-}
-
-void Emitter::setGravityProperties(const GravityProperties& gravityProperties) {
-    mGravityProperties = gravityProperties;
-}
-
 const Emitter::TransformProperties& Emitter::transformProperties() const {
     return mTransformProperties;
 }

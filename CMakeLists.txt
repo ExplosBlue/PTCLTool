@@ -56,6 +56,7 @@ set(PROJECT_SOURCES
     src/editor/emitterWidget/combinerPropertiesWidget.cpp
     src/editor/emitterWidget/emissionPropertiesWidget.cpp
     src/editor/emitterWidget/emitterWidget.cpp
+    src/editor/emitterWidget/emitterWidgetBase.cpp
     src/editor/emitterWidget/gravityPropertiesWidget.cpp
     src/editor/emitterWidget/lifespanPropertiesWidget.cpp
     src/editor/emitterWidget/rotationPropertiesWidget.cpp
@@ -127,6 +128,7 @@ set(PROJECT_HEADERS
     include/editor/emitterWidget/combinerPropertiesWidget.h
     include/editor/emitterWidget/emissionPropertiesWidget.h
     include/editor/emitterWidget/emitterWidget.h
+    include/editor/emitterWidget/emitterWidgetBase.h
     include/editor/emitterWidget/gravityPropertiesWidget.h
     include/editor/emitterWidget/lifespanPropertiesWidget.h
     include/editor/emitterWidget/rotationPropertiesWidget.h

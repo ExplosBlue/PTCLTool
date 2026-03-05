@@ -22,6 +22,8 @@
 
 namespace PtclEditor {
 
+class BasicPropertiesWidget;
+class GravityPropertiesWidget;
 
 // ========================================================================== //
 
@@ -48,8 +50,6 @@ private:
     void populateProperties();
 
 private:
-    class BasicPropertiesWidget;
-    class GravityPropertiesWidget;
     class TransformPropertiesWidget;
     class LifespanPropertiesWidget;
     class TerminationPropertiesWidget;

@@ -312,9 +312,9 @@ void BinTextureRes::printData(u32 indentationLevel) {
 
 
 BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
-    type = emitter.basicProperties().type;
+    type = emitter.type();
     flag = emitter.flags();
-    randomSeed = emitter.basicProperties().randomSeed.raw();
+    randomSeed = emitter.randomSeed().raw();
     namePos = 0; // To be assigned after construction...
     namePtr = 0;
 
@@ -331,12 +331,12 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     textureSize = 0; // To be assigned after construction...
     texturePos = 0; // To be assigned after construction...
     textureHandlePtr = 0;
-    isPolygon = emitter.basicProperties().isPolygon;
-    isFollow = emitter.basicProperties().isFollow;
-    isEmitterBillboardMtx = emitter.basicProperties().isEmitterBillboardMtx;
-    isDirectional = emitter.gravityProperties().isDirectional;
+    isPolygon = emitter.isPolygon();
+    isFollow = emitter.isFollow();
+    isEmitterBillboardMtx = emitter.isEmitterBillboardMtx();
+    isDirectional = emitter.isDirectional();
     isTexPatAnim = emitter.textureProperties().isTexPatAnim;
-    isVelLook = emitter.basicProperties().isVelLook;
+    isVelLook = emitter.isVelLook();
     volumeTblIndex = emitter.volumeProperties().volumeTblIndex;
     isStopEmitInFade = emitter.terminationProperties().isStopEmitInFade;
     volumeType = emitter.volumeProperties().volumeType;
@@ -359,9 +359,9 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     ptclLifeRnd = emitter.lifespanProperties().ptclLifeRnd;
     airResistance = emitter.velocityProperties().airResistance;
     blendFunc = emitter.combinerProperties().blendFunc;
-    billboardType = emitter.basicProperties().billboardType;
+    billboardType = emitter.billboardType();
     depthFunc = emitter.combinerProperties().depthFunc;
-    gravity = emitter.gravityProperties().gravity;
+    gravity = emitter.gravity();
     color0 = emitter.colorProperties().color0;
     color1 = emitter.colorProperties().color1;
     colorSection1 = emitter.colorProperties().colorSection1;
@@ -382,7 +382,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     scaleRand = emitter.scaleProperties().scaleRand;
 
     rotCalcType = static_cast<u32>(emitter.rotationProperties().rotType) + 5 * static_cast<u32>(emitter.colorProperties().colorCalcType);
-    followType = emitter.basicProperties().followType;
+    followType = emitter.followType();
     colorCombinerFunc = emitter.combinerProperties().combinerFunc;
     initRot = emitter.rotationProperties().initRot;
     initRotRand = emitter.rotationProperties().initRotRand;

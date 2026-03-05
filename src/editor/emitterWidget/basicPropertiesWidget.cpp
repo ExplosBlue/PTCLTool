@@ -9,8 +9,8 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-EmitterWidget::BasicPropertiesWidget::BasicPropertiesWidget(QWidget* parent) :
-    QWidget{parent} {
+BasicPropertiesWidget::BasicPropertiesWidget(QWidget* parent) :
+    EmitterWidgetBase{parent} {
 
     for (Ptcl::BillboardType type : sBillboardTypes) {
         mBillboardComboBox.addItem(Ptcl::toString(type), QVariant::fromValue(type));
@@ -57,7 +57,7 @@ EmitterWidget::BasicPropertiesWidget::BasicPropertiesWidget(QWidget* parent) :
     setupConnections();
 }
 
-void EmitterWidget::BasicPropertiesWidget::setupConnections() {
+void BasicPropertiesWidget::setupConnections() {
     // Emitter Name
     connect(&mNameLineEdit, &QLineEdit::textChanged, this, [this](const QString& text) {
         setEmitterProperty(
@@ -181,7 +181,7 @@ void EmitterWidget::BasicPropertiesWidget::setupConnections() {
     });
 }
 
-void EmitterWidget::BasicPropertiesWidget::setBillboardType(Ptcl::BillboardType type, const QString& label, const QString& key) {
+void BasicPropertiesWidget::setBillboardType(Ptcl::BillboardType type, const QString& label, const QString& key) {
     setEmitterProperty(
         label,
         key,
@@ -191,7 +191,7 @@ void EmitterWidget::BasicPropertiesWidget::setBillboardType(Ptcl::BillboardType 
     );
 }
 
-bool EmitterWidget::BasicPropertiesWidget::isBillboardAllowedForShape(Ptcl::BillboardType billboard, ShapeType shape) {
+bool BasicPropertiesWidget::isBillboardAllowedForShape(Ptcl::BillboardType billboard, ShapeType shape) {
     switch (shape) {
     case ShapeType::Particle:
         return billboard != Ptcl::BillboardType::Stripe &&
@@ -206,7 +206,7 @@ bool EmitterWidget::BasicPropertiesWidget::isBillboardAllowedForShape(Ptcl::Bill
     return false;
 }
 
-EmitterWidget::BasicPropertiesWidget::ShapeType EmitterWidget::BasicPropertiesWidget::shapeFromBillboard(Ptcl::BillboardType type) {
+BasicPropertiesWidget::ShapeType BasicPropertiesWidget::shapeFromBillboard(Ptcl::BillboardType type) {
     if (type == Ptcl::BillboardType::Stripe || type == Ptcl::BillboardType::ComplexStripe) {
         return ShapeType::Stripe;
     }
@@ -218,43 +218,7 @@ EmitterWidget::BasicPropertiesWidget::ShapeType EmitterWidget::BasicPropertiesWi
     return ShapeType::Particle;
 }
 
-void EmitterWidget::BasicPropertiesWidget::setDocument(Ptcl::Document* document) {
-    mDocument = document;
-    mDocument->disconnect();
-    connect(mDocument, &Ptcl::Document::emitterChanged, this, &BasicPropertiesWidget::onEmitterChanged);
-}
-
-void EmitterWidget::BasicPropertiesWidget::setSelection(Ptcl::Selection* selection) {
-    mSelection = selection;
-
-    mSelection->disconnect();
-    connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
-        if (!mDocument) {
-            mEmitter = nullptr;
-            setEnabled(false);
-            return;
-        }
-
-        mEmitter = mDocument->emitter(setIndex, emitterIndex);
-
-        setEnabled(true);
-        populateProperties();
-    });
-}
-
-void EmitterWidget::BasicPropertiesWidget::onEmitterChanged(s32 setIndex, s32 emitterIndex) {
-    if (!mEmitter) {
-        return;
-    }
-
-    if (setIndex != mSelection->emitterSetIndex() || emitterIndex != mSelection->emitterIndex()) {
-        return;
-    }
-
-    populateProperties();
-}
-
-void EmitterWidget::BasicPropertiesWidget::populateProperties() {
+void BasicPropertiesWidget::populateProperties() {
     QSignalBlocker b1(mNameLineEdit);
     QSignalBlocker b2(mTypeComboBox);
     QSignalBlocker b3(mRandomSeedMode);
@@ -290,7 +254,7 @@ void EmitterWidget::BasicPropertiesWidget::populateProperties() {
     updateShapeRowVisibility();
 }
 
-void EmitterWidget::BasicPropertiesWidget::updateShapeRowVisibility() {
+void BasicPropertiesWidget::updateShapeRowVisibility() {
     if (mEmitter->type() == Ptcl::EmitterType::Simple) {
         mMainLayout->setRowVisible(&mShapeComboBox, false);
     } else {
@@ -298,13 +262,13 @@ void EmitterWidget::BasicPropertiesWidget::updateShapeRowVisibility() {
     }
 }
 
-void EmitterWidget::BasicPropertiesWidget::updateBillboardRowVisibility() {
+void BasicPropertiesWidget::updateBillboardRowVisibility() {
     const auto shape = mShapeComboBox.currentData().value<ShapeType>();
     mMainLayout->setRowVisible(&mBillboardComboBox, shape == ShapeType::Particle);
     mMainLayout->setRowVisible(&mStripeTypeComboBox, shape == ShapeType::Stripe);
 }
 
-void EmitterWidget::BasicPropertiesWidget::syncBillboardSelection() {
+void BasicPropertiesWidget::syncBillboardSelection() {
     QSignalBlocker b1(mBillboardComboBox);
     QSignalBlocker b2(mStripeTypeComboBox);
 
@@ -321,12 +285,6 @@ void EmitterWidget::BasicPropertiesWidget::syncBillboardSelection() {
     }
 }
 
-QString EmitterWidget::BasicPropertiesWidget::formatLabel(const QString& label) const {
-    return QString("Set %1, Emitter %2 - %3")
-        .arg(mSelection->emitterSetIndex())
-        .arg(mSelection->emitterIndex())
-        .arg(label);
-}
 
 // ========================================================================== //
 
