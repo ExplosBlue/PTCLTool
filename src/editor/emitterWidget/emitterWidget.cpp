@@ -113,27 +113,6 @@ void EmitterWidget::setupStandardLayout(QVBoxLayout* mainLayout) {
 }
 
 void EmitterWidget::setupConnections() {
-    // Basic Properties
-    connect(mBasicProperties, &BasicPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::BasicProperties& properties) {
-        if (!mEmitter) { return; }
-        mEmitter->setBasicProperties(properties);
-        updateStripeVisibility();
-        emit propertiesChanged();
-    });
-
-    connect(mBasicProperties, &BasicPropertiesWidget::emitterTypeChanged, this, [this]() {
-        if (!mEmitter) { return; }
-        updateStripeVisibility();
-        emit emitterTypeChanged();
-        emit propertiesChanged();
-    });
-
-    connect(mBasicProperties, &BasicPropertiesWidget::emitterNameChanged, this, [this]() {
-        if (!mEmitter) { return; }
-        emit emitterNameChanged();
-        emit propertiesChanged();
-    });
-
     // Texture Properties
     connect(mTextureProperties, &TexturePropertiesWidget::textureUpdated, this, [this](const std::shared_ptr<Ptcl::Texture>& oldTexture, const std::shared_ptr<Ptcl::Texture>& newTexture) {
         if (!mEmitter) { return; }
@@ -145,13 +124,6 @@ void EmitterWidget::setupConnections() {
     connect(mTextureProperties, &TexturePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::TextureProperties& properties) {
         if (!mEmitter) { return; }
         mEmitter->setTextureProperties(properties);
-        emit propertiesChanged();
-    });
-
-    // Gravity Properties
-    connect(mGravityProperties, &GravityPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::GravityProperties& properties) {
-        if (!mEmitter) { return; }
-        mEmitter->setGravityProperties(properties);
         emit propertiesChanged();
     });
 
@@ -284,12 +256,14 @@ void EmitterWidget::setDocument(Ptcl::Document* document) {
     mDocument = document;
 
     mBasicProperties->setDocument(document);
+    mGravityProperties->setDocument(document);
 }
 
 void EmitterWidget::setSelection(Ptcl::Selection* selection) {
     mSelection = selection;
 
     mBasicProperties->setSelection(selection);
+    mGravityProperties->setSelection(selection);
 
     connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
         if (!mDocument) {
@@ -328,8 +302,6 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
 }
 
 void EmitterWidget::populateProperties() {
-    QSignalBlocker b1(mBasicProperties);
-    QSignalBlocker b2(mGravityProperties);
     QSignalBlocker b3(mTransformProperties);
     QSignalBlocker b4(mLifespanProperties);
     QSignalBlocker b5(mTerminationProperties);
@@ -341,13 +313,11 @@ void EmitterWidget::populateProperties() {
     QSignalBlocker b11(mRotationProperties);
     QSignalBlocker b12(mTextureProperties);
     QSignalBlocker b13(mCombinerProperties);
-    QSignalBlocker b14(mBasicProperties);
     QSignalBlocker b15(mChildEditorWidget);
     QSignalBlocker b16(mFluctuationEditorWidget);
     QSignalBlocker b17(mFieldEditorWidget);
     QSignalBlocker b18(mStripeEditorWidget);
 
-    mGravityProperties->setProperties(mEmitter->gravityProperties());
     mTransformProperties->setProperties(mEmitter->transformProperties());
     mLifespanProperties->setProperties(mEmitter->lifespanProperties());
     mTerminationProperties->setProperties(mEmitter->terminationProperties());
@@ -378,7 +348,7 @@ void EmitterWidget::updateStripeVisibility() {
     }
 
     const auto eType = mEmitter->type();
-    const auto bbType = mEmitter->basicProperties().billboardType;
+    const auto bbType = mEmitter->billboardType();
 
     const bool show = (eType == Ptcl::EmitterType::Complex || eType == Ptcl::EmitterType::Compact) &&
                       (bbType == Ptcl::BillboardType::Stripe || bbType == Ptcl::BillboardType::ComplexStripe);

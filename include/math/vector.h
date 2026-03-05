@@ -24,8 +24,11 @@ public:
 
     Vector2(const Vector2&) = default;
     Vector2(Vector2&&) = default;
+
     Vector2& operator=(const Vector2&) = default;
     Vector2& operator=(Vector2&&) = default;
+
+    bool operator==(const Vector2&) const = default;
 
     T& operator[](std::size_t i) {
         assert(i < sAxisCount);
@@ -71,8 +74,11 @@ public:
 
     Vector3(const Vector3&) = default;
     Vector3(Vector3&&) = default;
+
     Vector3& operator=(const Vector3&) = default;
     Vector3& operator=(Vector3&&) = default;
+
+    bool operator==(const Vector3&) const = default;
 
     T& operator[](std::size_t i) {
         assert(i < sAxisCount);
@@ -121,8 +127,11 @@ public:
 
     Vector4(const Vector4&) = default;
     Vector4(Vector4&&) = default;
+
     Vector4& operator=(const Vector4&) = default;
     Vector4& operator=(Vector4&&) = default;
+
+    bool operator==(const Vector4&) const = default;
 
     T& operator[](std::size_t i) {
         assert(i < sAxisCount);
