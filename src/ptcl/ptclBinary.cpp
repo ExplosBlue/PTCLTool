@@ -343,11 +343,11 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     volumeRadius = emitter.volumeProperties().volumeRadius;
     volumeSweepStart = emitter.volumeProperties().volumeSweepStart;
     volumeSweepParam = emitter.volumeProperties().volumeSweepParam;
-    figureVel = emitter.velocityProperties().figureVel;
-    emitterVelDir = emitter.velocityProperties().emitterVelDir;
-    initVel = emitter.velocityProperties().initVel;
-    initVelRnd = emitter.velocityProperties().initVelRnd;
-    spreadVec = emitter.velocityProperties().spreadVec;
+    figureVel = emitter.figureVelocity();
+    emitterVelDir = emitter.velocityDirection();
+    initVel = emitter.initialVelocity();
+    initVelRnd = emitter.initialVelocityRandom();
+    spreadVec = emitter.spreadVector();
 
     startFrame = emitter.emitStartFrame();
     endFrame = emitter.emitEndFrame();
@@ -357,7 +357,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     emitRate = emitter.emitRate();
     ptclLife = emitter.ptclLife();
     ptclLifeRnd = emitter.ptclLifeRandom();
-    airResistance = emitter.velocityProperties().airResistance;
+    airResistance = emitter.airResistance();
     blendFunc = emitter.combinerProperties().blendFunc;
     billboardType = emitter.billboardType();
     depthFunc = emitter.combinerProperties().depthFunc;

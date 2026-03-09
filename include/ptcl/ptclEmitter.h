@@ -83,15 +83,6 @@ public:
         s32 volumeSweepParam{0};
     };
 
-    struct VelocityProperties {
-        f32 figureVel{0.1f};
-        Math::Vector3f emitterVelDir{0.0f, 1.0f, 0.0f};
-        f32 initVel{0.0f};
-        f32 initVelRnd{0.0f};
-        Math::Vector3f spreadVec{0.0f, 0.0f, 0.0f};
-        f32 airResistance{1.0f};
-    };
-
     struct TextureProperties {
         TextureWrap textureWrapT{TextureWrap::ClampToEdge};
         TextureWrap textureWrapS{TextureWrap::ClampToEdge};
@@ -266,15 +257,32 @@ public:
     s32 emitRate() const { return mEmitRate; }
     void setEmitRate(s32 emitRate) { mEmitRate = emitRate; }
 
+    // ----- Velocity Properties ----- \\
+
+    f32 figureVelocity() const { return mFigureVelocity; }
+    void setFigureVelocity(f32 velocity) { mFigureVelocity = velocity; }
+
+    const Math::Vector3f& velocityDirection() const { return mVelocityDir; }
+    void setVelocityDirection(const Math::Vector3f& direction) { mVelocityDir = direction; }
+
+    f32 initialVelocity() const { return mInitVelocity; }
+    void setInitialVelocity(f32 velocity) { mInitVelocity = velocity; }
+
+    f32 initialVelocityRandom() const { return mInitVelocityRnd; }
+    void setInitialVelocityRandom(f32 random) { mInitVelocityRnd = random; }
+
+    const Math::Vector3f& spreadVector() const { return mSpreadVec; }
+    void setSpreadVector(const Math::Vector3f& vector) { mSpreadVec = vector; }
+
+    f32 airResistance() const { return mAirResistance; }
+    void setAirResistance(f32 resistance) { mAirResistance = resistance; }
+
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag>& flags() const;
 
     TextureHandle& textureHandle();
     const TextureHandle& textureHandle() const;
     void setTexture(const std::shared_ptr<Texture>& texture);
-
-    const VelocityProperties& velocityProperties() const;
-    void setVelocityProperties(const VelocityProperties& velocityProperties);
 
     const VolumeProperties& volumeProperties() const;
     void setVolumeProperties(const VolumeProperties& volumeProperties);
@@ -371,7 +379,14 @@ private:
     s32 mLifeStepRnd{1};
     s32 mEmitRate{1};
 
-    VelocityProperties mVelocityProperties{};
+    // Velocity Properties
+    f32 mFigureVelocity{0.1f};
+    Math::Vector3f mVelocityDir{0.0f, 1.0f, 0.0f};
+    f32 mInitVelocity{0.0f};
+    f32 mInitVelocityRnd{0.0f};
+    Math::Vector3f mSpreadVec{0.0f, 0.0f, 0.0f};
+    f32 mAirResistance{1.0f};
+
     VolumeProperties mVolumeProperties{};
     ColorProperties mColorProperties{};
     AlphaProperties mAlphaProperties{};

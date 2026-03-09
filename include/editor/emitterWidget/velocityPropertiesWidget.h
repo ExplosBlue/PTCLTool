@@ -1,9 +1,7 @@
 #pragma once
 
 #include "editor/components/vectorSpinBox.h"
-#include "editor/emitterWidget/emitterWidget.h"
-
-#include "ptcl/ptclEmitter.h"
+#include "editor/emitterWidget/emitterWidgetBase.h"
 
 #include <QDoubleSpinBox>
 #include <QVector3D>
@@ -16,19 +14,16 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class EmitterWidget::VelocityPropertiesWidget final : public QWidget {
+class VelocityPropertiesWidget final : public EmitterWidgetBase {
     Q_OBJECT
 public:
     explicit VelocityPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::Emitter::VelocityProperties& properties);
-
-signals:
-    void propertiesUpdated(const Ptcl::Emitter::VelocityProperties& properties);
+private:
+    void populateProperties() final;
+    void setupConnections();
 
 private:
-    Ptcl::Emitter::VelocityProperties mProps{};
-
     QDoubleSpinBox mFigureVelSpinbox{};
     VectorSpinBox<Math::Vector3f> mVelDirSpinbox{};
     QDoubleSpinBox mInitVelSpinbox{};

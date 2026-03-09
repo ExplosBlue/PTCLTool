@@ -134,13 +134,6 @@ void EmitterWidget::setupConnections() {
         emit propertiesChanged();
     });
 
-    // Velocity Properties
-    connect(mVelocityProperties, &VelocityPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::VelocityProperties& properties) {
-        if (!mEmitter) { return; }
-        mEmitter->setVelocityProperties(properties);
-        emit propertiesChanged();
-    });
-
     // Color Properties
     connect(mColorProperties, &ColorPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::ColorProperties& properties) {
         if (!mEmitter) { return; }
@@ -227,6 +220,7 @@ void EmitterWidget::setDocument(Ptcl::Document* document) {
     mScaleProperties->setDocument(document);
     mTerminationProperties->setDocument(document);
     mEmissionProperties->setDocument(document);
+    mVelocityProperties->setDocument(document);
 }
 
 void EmitterWidget::setSelection(Ptcl::Selection* selection) {
@@ -239,6 +233,7 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
     mScaleProperties->setSelection(selection);
     mTerminationProperties->setSelection(selection);
     mEmissionProperties->setSelection(selection);
+    mVelocityProperties->setSelection(selection);
 
     connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
         if (!mDocument) {
@@ -277,7 +272,6 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
 }
 
 void EmitterWidget::populateProperties() {
-    QSignalBlocker b7(mVelocityProperties);
     QSignalBlocker b8(mColorProperties);
     QSignalBlocker b9(mAlphaProperties);
     QSignalBlocker b11(mRotationProperties);
@@ -288,7 +282,6 @@ void EmitterWidget::populateProperties() {
     QSignalBlocker b17(mFieldEditorWidget);
     QSignalBlocker b18(mStripeEditorWidget);
 
-    mVelocityProperties->setProperties(mEmitter->velocityProperties());
     mVolumeProperties->setProperties(mEmitter->volumeProperties());
     mColorProperties->setProperties(mEmitter->colorProperties());
     mAlphaProperties->setProperties(mEmitter->alphaProperties());

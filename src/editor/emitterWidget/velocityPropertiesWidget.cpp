@@ -9,8 +9,8 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-EmitterWidget::VelocityPropertiesWidget::VelocityPropertiesWidget(QWidget* parent) :
-    QWidget{parent} {
+VelocityPropertiesWidget::VelocityPropertiesWidget(QWidget* parent) :
+    EmitterWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
 
@@ -26,38 +26,76 @@ EmitterWidget::VelocityPropertiesWidget::VelocityPropertiesWidget(QWidget* paren
     mainLayout->addRow("Spread Vector:", &mSpreadVecSpinbox);
     mainLayout->addRow("Air Resistance:", &mAirResistanceSpinbox);
 
+    setupConnections();
+}
+
+void VelocityPropertiesWidget::setupConnections() {
     connect(&mFigureVelSpinbox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
-        mProps.figureVel = static_cast<f32>(value);
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Figure Velocity",
+            "SetFigureVelocity",
+            &Ptcl::Emitter::figureVelocity,
+            &Ptcl::Emitter::setFigureVelocity,
+            static_cast<f32>(value)
+        );
     });
 
     connect(&mVelDirSpinbox, &VectorSpinBoxBase::valueChanged, this, [this]() {
-        mProps.emitterVelDir = mVelDirSpinbox.getVector();
-        emit propertiesUpdated(mProps);
+        const auto direction = mVelDirSpinbox.getVector();
+
+        setEmitterProperty(
+            "Set Velocity Direction",
+            "SetVelocityDir",
+            &Ptcl::Emitter::velocityDirection,
+            &Ptcl::Emitter::setVelocityDirection,
+            direction
+        );
     });
 
     connect(&mInitVelSpinbox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
-        mProps.initVel = static_cast<f32>(value);
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Initial Velocity",
+            "SetInitialVelocity",
+            &Ptcl::Emitter::initialVelocity,
+            &Ptcl::Emitter::setInitialVelocity,
+            static_cast<f32>(value)
+        );
     });
 
     connect(&mVelRandomSpinbox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
-        mProps.initVelRnd = static_cast<f32>(value);
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Initial Velocity Random",
+            "SetInitVelocityRand",
+            &Ptcl::Emitter::initialVelocityRandom,
+            &Ptcl::Emitter::setInitialVelocityRandom,
+            static_cast<f32>(value)
+        );
     });
 
     connect(&mSpreadVecSpinbox, &VectorSpinBoxBase::valueChanged, this, [this]() {
-        mProps.spreadVec = mSpreadVecSpinbox.getVector();
-        emit propertiesUpdated(mProps);
+        const auto spread = mSpreadVecSpinbox.getVector();
+
+        setEmitterProperty(
+            "Set Spread Vector",
+            "SetSpreadVector",
+            &Ptcl::Emitter::spreadVector,
+            &Ptcl::Emitter::setSpreadVector,
+            spread
+        );
     });
 
     connect(&mAirResistanceSpinbox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
-        mProps.airResistance = static_cast<f32>(value);
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Air Resistance",
+            "SetAirResistance",
+            &Ptcl::Emitter::airResistance,
+            &Ptcl::Emitter::setAirResistance,
+            static_cast<f32>(value)
+        );
     });
 }
 
-void EmitterWidget::VelocityPropertiesWidget::setProperties(const Ptcl::Emitter::VelocityProperties& properties) {
+void VelocityPropertiesWidget::populateProperties() {
     QSignalBlocker b1(mFigureVelSpinbox);
     QSignalBlocker b2(mVelDirSpinbox);
     QSignalBlocker b3(mInitVelSpinbox);
@@ -65,14 +103,12 @@ void EmitterWidget::VelocityPropertiesWidget::setProperties(const Ptcl::Emitter:
     QSignalBlocker b5(mSpreadVecSpinbox);
     QSignalBlocker b6(mAirResistanceSpinbox);
 
-    mProps = properties;
-
-    mFigureVelSpinbox.setValue(mProps.figureVel);
-    mVelDirSpinbox.setVector(mProps.emitterVelDir);
-    mInitVelSpinbox.setValue(mProps.initVel);
-    mVelRandomSpinbox.setValue(mProps.initVelRnd);
-    mSpreadVecSpinbox.setVector(mProps.spreadVec);
-    mAirResistanceSpinbox.setValue(mProps.airResistance);
+    mFigureVelSpinbox.setValue(mEmitter->figureVelocity());
+    mVelDirSpinbox.setVector(mEmitter->velocityDirection());
+    mInitVelSpinbox.setValue(mEmitter->initialVelocity());
+    mVelRandomSpinbox.setValue(mEmitter->initialVelocityRandom());
+    mSpreadVecSpinbox.setVector(mEmitter->spreadVector());
+    mAirResistanceSpinbox.setValue(mEmitter->airResistance());
 
     update();
 }

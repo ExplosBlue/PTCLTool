@@ -45,7 +45,14 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mLifeStepRnd = mLifeStepRnd;
     newEmitter->mEmitRate = mEmitRate;
 
-    newEmitter->mVelocityProperties = mVelocityProperties;
+    // Velocity Properties
+    newEmitter->mFigureVelocity = mFigureVelocity;
+    newEmitter->mVelocityDir = mVelocityDir;
+    newEmitter->mInitVelocity = mInitVelocity;
+    newEmitter->mInitVelocityRnd = mInitVelocityRnd;
+    newEmitter->mSpreadVec = mSpreadVec;
+    newEmitter->mAirResistance = mAirResistance;
+
     newEmitter->mVolumeProperties = mVolumeProperties;
     newEmitter->mColorProperties = mColorProperties;
     newEmitter->mAlphaProperties = mAlphaProperties;
@@ -84,14 +91,6 @@ TextureHandle& Emitter::textureHandle() {
 
 void Emitter::setTexture(const std::shared_ptr<Texture>& texture) {
     mTextureHandle.set(texture);
-}
-
-const Emitter::VelocityProperties& Emitter::velocityProperties() const {
-    return mVelocityProperties;
-}
-
-void Emitter::setVelocityProperties(const VelocityProperties& velocityProperties) {
-    mVelocityProperties = velocityProperties;
 }
 
 const Emitter::VolumeProperties& Emitter::volumeProperties() const {
@@ -285,14 +284,13 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mLifeStepRnd = emitterData.lifeStepRnd;
     mEmitRate = emitterData.emitRate;
 
-    mVelocityProperties = {
-        .figureVel = emitterData.figureVel,
-        .emitterVelDir = Math::Vector3f(emitterData.emitterVelDir.x, emitterData.emitterVelDir.y, emitterData.emitterVelDir.z),
-        .initVel = emitterData.initVel,
-        .initVelRnd = emitterData.initVelRnd,
-        .spreadVec = Math::Vector3f(emitterData.spreadVec.x, emitterData.spreadVec.y, emitterData.spreadVec.z),
-        .airResistance = emitterData.airResistance
-    };
+    // Velocity Properties
+    mFigureVelocity = emitterData.figureVel;
+    mVelocityDir = Math::Vector3f(emitterData.emitterVelDir.x, emitterData.emitterVelDir.y, emitterData.emitterVelDir.z);
+    mInitVelocity = emitterData.initVel;
+    mInitVelocityRnd = emitterData.initVelRnd;
+    mSpreadVec = Math::Vector3f(emitterData.spreadVec.x, emitterData.spreadVec.y, emitterData.spreadVec.z);
+    mAirResistance = emitterData.airResistance;
 
     mVolumeProperties = {
         .volumeTblIndex = emitterData.volumeTblIndex,
