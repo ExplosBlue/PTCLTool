@@ -34,7 +34,10 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mTransformSRT = mTransformSRT;
     newEmitter->mTransformRT = mTransformRT;
 
-    newEmitter->mTerminationProperties = mTerminationProperties;
+    // Termination Properties
+    newEmitter->mIsStopEmitInFade = mIsStopEmitInFade;
+    newEmitter->mAlphaAddInFade = mAlphaAddInFade;
+
     newEmitter->mEmissionProperties = mEmissionProperties;
     newEmitter->mVelocityProperties = mVelocityProperties;
     newEmitter->mVolumeProperties = mVolumeProperties;
@@ -75,14 +78,6 @@ TextureHandle& Emitter::textureHandle() {
 
 void Emitter::setTexture(const std::shared_ptr<Texture>& texture) {
     mTextureHandle.set(texture);
-}
-
-const Emitter::TerminationProperties& Emitter::terminationProperties() const {
-    return mTerminationProperties;
-}
-
-void Emitter::setTerminationProperties(const TerminationProperties& terminationProperties) {
-    mTerminationProperties = terminationProperties;
 }
 
 const Emitter::EmissionProperties& Emitter::emissionProperties() const {
@@ -281,10 +276,9 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mTransformSRT = emitterData.transformSRT.toMatrix34f();
     mTransformRT = emitterData.transformRT.toMatrix34f();
 
-    mTerminationProperties = {
-        .isStopEmitInFade = emitterData.isStopEmitInFade,
-        .alphaAddInFade = emitterData.alphaAddInFade
-    };
+    // Termination Properties
+    mIsStopEmitInFade = emitterData.isStopEmitInFade;
+    mAlphaAddInFade = emitterData.alphaAddInFade;
 
     mEmissionProperties = {
         .startFrame = emitterData.startFrame,

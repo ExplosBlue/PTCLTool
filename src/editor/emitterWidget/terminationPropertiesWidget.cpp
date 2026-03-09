@@ -9,8 +9,8 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-EmitterWidget::TerminationPropertiesWidget::TerminationPropertiesWidget(QWidget* parent) :
-    QWidget{parent} {
+TerminationPropertiesWidget::TerminationPropertiesWidget(QWidget* parent) :
+    EmitterWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
 
@@ -19,25 +19,37 @@ EmitterWidget::TerminationPropertiesWidget::TerminationPropertiesWidget(QWidget*
     mainLayout->addRow("Stop Emission During Fade:", &mIsStopEmitCheckBox);
     mainLayout->addRow("Alpha Add During Fade:", &mAlphaAddInSpinBox);
 
-    connect(&mIsStopEmitCheckBox, &QCheckBox::checkStateChanged, this, [this](Qt::CheckState state) {
-        mProps.isStopEmitInFade = (state == Qt::CheckState::Checked);
-        emit propertiesUpdated(mProps);
+    setupConnections();
+}
+
+void TerminationPropertiesWidget::setupConnections() {
+    connect(&mIsStopEmitCheckBox, &QCheckBox::checkStateChanged, this, [this](bool checked) {
+        setEmitterProperty(
+            "Set Stop Emission",
+            "SetStopEmission",
+            &Ptcl::Emitter::isStopEmitInFade,
+            &Ptcl::Emitter::setIsStopEmitInFade,
+            checked
+        );
     });
 
     connect(&mAlphaAddInSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
-        mProps.alphaAddInFade = static_cast<f32>(value);
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Alpha Add In Fade",
+            "SetAlphaAddIn",
+            &Ptcl::Emitter::alphaAddInFade,
+            &Ptcl::Emitter::setAlphaAddInFade,
+            value
+        );
     });
 }
 
-void EmitterWidget::TerminationPropertiesWidget::setProperties(const Ptcl::Emitter::TerminationProperties& properties) {
+void TerminationPropertiesWidget::populateProperties() {
     QSignalBlocker b1(mIsStopEmitCheckBox);
     QSignalBlocker b2(mAlphaAddInSpinBox);
 
-    mProps = properties;
-
-    mIsStopEmitCheckBox.setChecked(mProps.isStopEmitInFade);
-    mAlphaAddInSpinBox.setValue(mProps.alphaAddInFade);
+    mIsStopEmitCheckBox.setChecked(mEmitter->isStopEmitInFade());
+    mAlphaAddInSpinBox.setValue(mEmitter->alphaAddInFade());
 }
 
 
