@@ -374,12 +374,12 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     alphaSection1 = emitter.alphaProperties().alphaSection1;
     alphaSection2 = emitter.alphaProperties().alphaSection2;
 
-    initScale = emitter.scaleProperties().initScale;
-    diffScale21 = emitter.scaleProperties().diffScale21;
-    diffScale32 = emitter.scaleProperties().diffScale32;
-    scaleSection1 = emitter.scaleProperties().scaleSection1;
-    scaleSection2 = emitter.scaleProperties().scaleSection2;
-    scaleRand = emitter.scaleProperties().scaleRand;
+    initScale = emitter.scaleAnim().initScale;
+    diffScale21 = emitter.scaleAnim().diffScale21;
+    diffScale32 = emitter.scaleAnim().diffScale32;
+    scaleSection1 = emitter.scaleAnim().scaleSection1;
+    scaleSection2 = emitter.scaleAnim().scaleSection2;
+    scaleRand = emitter.scaleRand();
 
     rotCalcType = static_cast<u32>(emitter.rotationProperties().rotType) + 5 * static_cast<u32>(emitter.colorProperties().colorCalcType);
     followType = emitter.followType();
@@ -389,8 +389,8 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     rotVel = emitter.rotationProperties().rotVel;
     rotVelRand = emitter.rotationProperties().rotVelRand;
     rotBasis = emitter.rotationProperties().rotBasis;
-    transformSRT = emitter.transformProperties().transformSRT;
-    transformRT = emitter.transformProperties().transformRT;
+    transformSRT = emitter.transformSRT();
+    transformRT = emitter.transformRT();
     alphaAddInFade = emitter.terminationProperties().alphaAddInFade;
     numTexPat = emitter.textureProperties().numTexPat;
     numTexDivX = emitter.textureProperties().numTexDivX;

@@ -192,13 +192,6 @@ void EmitterWidget::setupConnections() {
         emit propertiesChanged();
     });
 
-    // Scale Properties
-    connect(mScaleProperties, &ScalePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::ScaleProperties& properties) {
-        if (!mEmitter) { return; }
-        mEmitter->setScaleProperties(properties);
-        emit propertiesChanged();
-    });
-
     // Child Editor Widget
     connect(mChildEditorWidget, &ChildEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::ChildFlag>& childFlags) {
         if (!mEmitter) { return; }
@@ -251,6 +244,7 @@ void EmitterWidget::setDocument(Ptcl::Document* document) {
     mBasicProperties->setDocument(document);
     mGravityProperties->setDocument(document);
     mTransformProperties->setDocument(document);
+    mScaleProperties->setDocument(document);
 }
 
 void EmitterWidget::setSelection(Ptcl::Selection* selection) {
@@ -259,6 +253,7 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
     mBasicProperties->setSelection(selection);
     mGravityProperties->setSelection(selection);
     mTransformProperties->setSelection(selection);
+    mScaleProperties->setSelection(selection);
 
     connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
         if (!mDocument) {
@@ -303,7 +298,6 @@ void EmitterWidget::populateProperties() {
     QSignalBlocker b7(mVelocityProperties);
     QSignalBlocker b8(mColorProperties);
     QSignalBlocker b9(mAlphaProperties);
-    QSignalBlocker b10(mScaleProperties);
     QSignalBlocker b11(mRotationProperties);
     QSignalBlocker b12(mTextureProperties);
     QSignalBlocker b13(mCombinerProperties);
@@ -319,7 +313,6 @@ void EmitterWidget::populateProperties() {
     mVolumeProperties->setProperties(mEmitter->volumeProperties());
     mColorProperties->setProperties(mEmitter->colorProperties());
     mAlphaProperties->setProperties(mEmitter->alphaProperties());
-    mScaleProperties->setProperties(mEmitter->scaleProperties());
     mRotationProperties->setProperties(mEmitter->rotationProperties());
     mTextureProperties->setProperties(mEmitter->textureProperties(), mEmitter->textureHandle().get());
     mCombinerProperties->setProperties(mEmitter->combinerProperties());

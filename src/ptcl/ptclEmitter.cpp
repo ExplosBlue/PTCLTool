@@ -10,9 +10,26 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     auto newEmitter = std::make_unique<Emitter>();
 
     newEmitter->mFlag = mFlag;
-    newEmitter->mBasicProperties = mBasicProperties;
-    newEmitter->mGravityProperties = mGravityProperties;
-    newEmitter->mTransformProperties = mTransformProperties;
+
+    // Basic Properties
+    newEmitter->mType = mType;
+    newEmitter->mFollowType = mFollowType;
+    newEmitter->mName = mName;
+    newEmitter->mRandomSeed = mRandomSeed;
+    newEmitter->mBillboardType = mBillboardType;
+    newEmitter->mIsPolygon = mIsPolygon;
+    newEmitter->mIsVelLook = mIsVelLook;
+    newEmitter->mIsEmitterBillboardMtx = mIsEmitterBillboardMtx;
+    newEmitter->mIsFollow = mIsFollow;
+
+    // Gravity Properties
+    newEmitter->mIsDirectional = mIsDirectional;
+    newEmitter->mGravity = mGravity;
+
+    // Transform Properties
+    newEmitter->mTransformSRT = mTransformSRT;
+    newEmitter->mTransformRT = mTransformRT;
+
     newEmitter->mLifespanProperties = mLifespanProperties;
     newEmitter->mTerminationProperties = mTerminationProperties;
     newEmitter->mEmissionProperties = mEmissionProperties;
@@ -20,7 +37,11 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mVolumeProperties = mVolumeProperties;
     newEmitter->mColorProperties = mColorProperties;
     newEmitter->mAlphaProperties = mAlphaProperties;
-    newEmitter->mScaleProperties = mScaleProperties;
+
+    // Scale Properties
+    newEmitter->mScaleAnim = mScaleAnim;
+    newEmitter->mScaleRand = mScaleRand;
+
     newEmitter->mRotationProperties = mRotationProperties;
     newEmitter->mTextureProperties = mTextureProperties;
     newEmitter->mCombinerProperties = mCombinerProperties;
@@ -41,14 +62,6 @@ const BitFlag<EmitterFlag>& Emitter::flags() const {
     return mFlag;
 }
 
-const QString& Emitter::name() const {
-    return mBasicProperties.name;
-}
-
-void Emitter::setName(const QString& name) {
-    mBasicProperties.name = name;
-}
-
 const TextureHandle& Emitter::textureHandle() const {
     return mTextureHandle;
 }
@@ -59,14 +72,6 @@ TextureHandle& Emitter::textureHandle() {
 
 void Emitter::setTexture(const std::shared_ptr<Texture>& texture) {
     mTextureHandle.set(texture);
-}
-
-const Emitter::TransformProperties& Emitter::transformProperties() const {
-    return mTransformProperties;
-}
-
-void Emitter::setTransformProperties(const TransformProperties& transformProperties) {
-    mTransformProperties = transformProperties;
 }
 
 const Emitter::LifespanProperties& Emitter::lifespanProperties() const {
@@ -126,14 +131,6 @@ const Emitter::AlphaProperties& Emitter::alphaProperties() const {
 
 void Emitter::setAlphaProperties(const AlphaProperties& alphaProperties) {
     mAlphaProperties = alphaProperties;
-}
-
-const Emitter::ScaleProperties& Emitter::scaleProperties() const {
-    return mScaleProperties;
-}
-
-void Emitter::setScaleProperties(const ScaleProperties& scaleProperties) {
-    mScaleProperties = scaleProperties;
 }
 
 const Emitter::TextureProperties& Emitter::textureProperties() const {
@@ -242,9 +239,9 @@ void Emitter::initStripeData(const BinStripeData& stripeData) {
 }
 
 bool Emitter::hasStripeData() const {
-    const auto bType = mBasicProperties.billboardType;
+    const auto bType = mBillboardType;
     const bool isBillboardStripe = bType == BillboardType::Stripe || bType == BillboardType::ComplexStripe;
-    return mBasicProperties.type != EmitterType::Simple && isBillboardStripe;
+    return mType != EmitterType::Simple && isBillboardStripe;
 }
 
 void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
@@ -266,27 +263,24 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .isTexPatAnim = emitterData.isTexPatAnim
     };
 
-    mBasicProperties = {
-        .type = emitterData.type,
-        .followType = emitterData.followType,
-        // name - must be set after initialization
-        .randomSeed = PtclSeed{emitterData.randomSeed},
-        .billboardType = emitterData.billboardType,
-        .isPolygon = emitterData.isPolygon,
-        .isVelLook = emitterData.isVelLook,
-        .isEmitterBillboardMtx = emitterData.isEmitterBillboardMtx,
-        .isFollow = emitterData.isFollow
-    };
+    // Basic Properties
+    mType = emitterData.type;
+    mFollowType = emitterData.followType;
+    // name - must be set after initialization
+    mRandomSeed = PtclSeed{emitterData.randomSeed};
+    mBillboardType = emitterData.billboardType;
+    mIsPolygon = emitterData.isPolygon;
+    mIsVelLook = emitterData.isVelLook;
+    mIsEmitterBillboardMtx = emitterData.isEmitterBillboardMtx;
+    mIsFollow = emitterData.isFollow;
 
-    mGravityProperties = {
-        .isDirectional = emitterData.isDirectional,
-        .gravity = Math::Vector3f(emitterData.gravity.x, emitterData.gravity.y, emitterData.gravity.z)
-    };
+    // Gravity Properties
+    mIsDirectional = emitterData.isDirectional;
+    mGravity = Math::Vector3f(emitterData.gravity.x, emitterData.gravity.y, emitterData.gravity.z);
 
-    mTransformProperties = {
-        .transformSRT = emitterData.transformSRT.toMatrix34f(),
-        .transformRT = emitterData.transformRT.toMatrix34f()
-    };
+    // Transform Properties
+    mTransformSRT = emitterData.transformSRT.toMatrix34f();
+    mTransformRT = emitterData.transformRT.toMatrix34f();
 
     mLifespanProperties = {
         .ptclLife = emitterData.ptclLife,
@@ -343,14 +337,16 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .alphaSection2 = emitterData.alphaSection2,
     };
 
-    mScaleProperties = {
+    // Scale Properties
+    mScaleAnim = {
         .initScale = Math::Vector2f(emitterData.initScale.x, emitterData.initScale.y),
         .diffScale21 = Math::Vector2f(emitterData.diffScale21.x, emitterData.diffScale21.y),
         .diffScale32 = Math::Vector2f(emitterData.diffScale32.x, emitterData.diffScale32.y),
         .scaleSection1 = emitterData.scaleSection1,
         .scaleSection2 = emitterData.scaleSection2,
-        .scaleRand = emitterData.scaleRand
     };
+
+    mScaleRand = emitterData.scaleRand;
 
     mRotationProperties = {
         .rotType = static_cast<RotType>(emitterData.rotCalcType % 5),
