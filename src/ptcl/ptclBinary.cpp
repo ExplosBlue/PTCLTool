@@ -381,14 +381,14 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     scaleSection2 = emitter.scaleAnim().scaleSection2;
     scaleRand = emitter.scaleRand();
 
-    rotCalcType = static_cast<u32>(emitter.rotationProperties().rotType) + 5 * static_cast<u32>(emitter.colorProperties().colorCalcType);
+    rotCalcType = static_cast<u32>(emitter.rotationType()) + 5 * static_cast<u32>(emitter.colorProperties().colorCalcType);
     followType = emitter.followType();
     colorCombinerFunc = emitter.combinerProperties().combinerFunc;
-    initRot = emitter.rotationProperties().initRot;
-    initRotRand = emitter.rotationProperties().initRotRand;
-    rotVel = emitter.rotationProperties().rotVel;
-    rotVelRand = emitter.rotationProperties().rotVelRand;
-    rotBasis = emitter.rotationProperties().rotBasis;
+    initRot = emitter.initialRotation();
+    initRotRand = emitter.initialRotationRandom();
+    rotVel = emitter.rotationVelocity();
+    rotVelRand = emitter.rotationVelocityRandom();
+    rotBasis = emitter.rotationBasis();
     transformSRT = emitter.transformSRT();
     transformRT = emitter.transformRT();
     alphaAddInFade = emitter.alphaAddInFade();

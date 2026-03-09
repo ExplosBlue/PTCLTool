@@ -67,7 +67,14 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mScaleAnim = mScaleAnim;
     newEmitter->mScaleRand = mScaleRand;
 
-    newEmitter->mRotationProperties = mRotationProperties;
+    // Rotation Properties
+    newEmitter->mRotType = mRotType;
+    newEmitter->mInitRot = mInitRot;
+    newEmitter->mInitRotRand = mInitRotRand;
+    newEmitter->mRotVel = mRotVel;
+    newEmitter->mRotVelRand = mRotVelRand;
+    newEmitter->mRotBasis = mRotBasis;
+
     newEmitter->mTextureProperties = mTextureProperties;
     newEmitter->mCombinerProperties = mCombinerProperties;
     newEmitter->mTextureHandle = mTextureHandle.clone();
@@ -124,14 +131,6 @@ const Emitter::TextureProperties& Emitter::textureProperties() const {
 
 void Emitter::setTextureProperties(const TextureProperties& textureProperties) {
     mTextureProperties = textureProperties;
-}
-
-const Emitter::RotationProperties& Emitter::rotationProperties() const {
-    return mRotationProperties;
-}
-
-void Emitter::setRotationProperties(const RotationProperties& rotationProperties) {
-    mRotationProperties = rotationProperties;
 }
 
 const Emitter::CombinerProperties& Emitter::combinerProperties() const {
@@ -328,14 +327,13 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 
     mScaleRand = emitterData.scaleRand;
 
-    mRotationProperties = {
-        .rotType = static_cast<RotType>(emitterData.rotCalcType % 5),
-        .initRot = Math::Vector3i(emitterData.initRot.x, emitterData.initRot.y, emitterData.initRot.z),
-        .initRotRand = Math::Vector3i(emitterData.initRotRand.x, emitterData.initRotRand.y, emitterData.initRotRand.z),
-        .rotVel = Math::Vector3i(emitterData.rotVel.x, emitterData.rotVel.y, emitterData.rotVel.z),
-        .rotVelRand = Math::Vector3i(emitterData.rotVelRand.x, emitterData.rotVelRand.y, emitterData.rotVelRand.z),
-        .rotBasis = Math::Vector2f(emitterData.rotBasis.x, emitterData.rotBasis.y)
-    };
+    // Rotation Properties
+    mRotType = static_cast<RotType>(emitterData.rotCalcType % 5);
+    mInitRot = Math::Vector3i(emitterData.initRot.x, emitterData.initRot.y, emitterData.initRot.z);
+    mInitRotRand = Math::Vector3i(emitterData.initRotRand.x, emitterData.initRotRand.y, emitterData.initRotRand.z);
+    mRotVel = Math::Vector3i(emitterData.rotVel.x, emitterData.rotVel.y, emitterData.rotVel.z);
+    mRotVelRand = Math::Vector3i(emitterData.rotVelRand.x, emitterData.rotVelRand.y, emitterData.rotVelRand.z);
+    mRotBasis = Math::Vector2f(emitterData.rotBasis.x, emitterData.rotBasis.y);
 
     mCombinerProperties = {
         .blendFunc = emitterData.blendFunc,

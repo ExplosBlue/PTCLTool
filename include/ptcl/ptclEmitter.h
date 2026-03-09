@@ -40,15 +40,6 @@ public:
         bool operator==(const ScaleAnim&) const = default;
     };
 
-    struct RotationProperties {
-        RotType rotType{RotType::None};
-        Math::Vector3i initRot{0, 0, 0};
-        Math::Vector3i initRotRand{0, 0, 0};
-        Math::Vector3i rotVel{0, 0, 0};
-        Math::Vector3i rotVelRand{0, 0, 0};
-        Math::Vector2f rotBasis{0.0f, 0.0f};
-    };
-
     struct ColorProperties {
         std::array<binColor4f, 3> color0{
             binColor4f{1.0f, 1.0f, 1.0f, 1.0f},
@@ -286,6 +277,26 @@ public:
     s32 volumeSweepParam() const { return mVolumeSweepParam; }
     void setVolumeSweepParam(s32 sweepParam) { mVolumeSweepParam = sweepParam; }
 
+    // ----- Rotation Properties ----- \\
+
+    RotType rotationType() const { return mRotType; }
+    void setRotationType(RotType type) { mRotType = type; }
+
+    const Math::Vector3i& initialRotation() const { return mInitRot; }
+    void setInitialRotation(const Math::Vector3i& rotation) { mInitRot = rotation; }
+
+    const Math::Vector3i& initialRotationRandom() const { return mInitRotRand; }
+    void setInitialRotationRandom(const Math::Vector3i& rotation) { mInitRotRand = rotation; }
+
+    const Math::Vector3i& rotationVelocity() const { return mRotVel; }
+    void setRotationVelocity(const Math::Vector3i& velocity) { mRotVel = velocity; }
+
+    const Math::Vector3i& rotationVelocityRandom() const { return mRotVelRand; }
+    void setRotationVelocityRandom(const Math::Vector3i& random) { mRotVelRand = random; }
+
+    const Math::Vector2f& rotationBasis() const { return mRotBasis; }
+    void setRotationBasis(const Math::Vector2f& basis) { mRotBasis = basis; }
+
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag>& flags() const;
 
@@ -301,9 +312,6 @@ public:
 
     const TextureProperties& textureProperties() const;
     void setTextureProperties(const TextureProperties& textureProperties);
-
-    const RotationProperties& rotationProperties() const;
-    void setRotationProperties(const RotationProperties& rotationProperties);
 
     const CombinerProperties& combinerProperties() const;
     void setCombinerProperties(const CombinerProperties& combinerProperties);
@@ -400,9 +408,16 @@ private:
     s32 mVolumeSweepStart{0};
     s32 mVolumeSweepParam{0};
 
+    // Rotation Properties
+    RotType mRotType{RotType::None};
+    Math::Vector3i mInitRot{0, 0, 0};
+    Math::Vector3i mInitRotRand{0, 0, 0};
+    Math::Vector3i mRotVel{0, 0, 0};
+    Math::Vector3i mRotVelRand{0, 0, 0};
+    Math::Vector2f mRotBasis{0.0f, 0.0f};
+
     ColorProperties mColorProperties{};
     AlphaProperties mAlphaProperties{};
-    RotationProperties mRotationProperties{};
     TextureProperties mTextureProperties{};
     CombinerProperties mCombinerProperties{};
 
