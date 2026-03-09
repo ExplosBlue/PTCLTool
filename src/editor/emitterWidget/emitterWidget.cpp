@@ -162,13 +162,6 @@ void EmitterWidget::setupConnections() {
         emit propertiesChanged();
     });
 
-    // Transform Properties
-    connect(mTransformProperties, &TransformPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::TransformProperties& properties) {
-        if (!mEmitter) { return; }
-        mEmitter->setTransformProperties(properties);
-        emit propertiesChanged();
-    });
-
     // Color Properties
     connect(mColorProperties, &ColorPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::ColorProperties& properties) {
         if (!mEmitter) { return; }
@@ -257,6 +250,7 @@ void EmitterWidget::setDocument(Ptcl::Document* document) {
 
     mBasicProperties->setDocument(document);
     mGravityProperties->setDocument(document);
+    mTransformProperties->setDocument(document);
 }
 
 void EmitterWidget::setSelection(Ptcl::Selection* selection) {
@@ -264,6 +258,7 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
 
     mBasicProperties->setSelection(selection);
     mGravityProperties->setSelection(selection);
+    mTransformProperties->setSelection(selection);
 
     connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
         if (!mDocument) {
@@ -302,7 +297,6 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
 }
 
 void EmitterWidget::populateProperties() {
-    QSignalBlocker b3(mTransformProperties);
     QSignalBlocker b4(mLifespanProperties);
     QSignalBlocker b5(mTerminationProperties);
     QSignalBlocker b6(mEmissionProperties);
@@ -318,7 +312,6 @@ void EmitterWidget::populateProperties() {
     QSignalBlocker b17(mFieldEditorWidget);
     QSignalBlocker b18(mStripeEditorWidget);
 
-    mTransformProperties->setProperties(mEmitter->transformProperties());
     mLifespanProperties->setProperties(mEmitter->lifespanProperties());
     mTerminationProperties->setProperties(mEmitter->terminationProperties());
     mEmissionProperties->setProperties(mEmitter->emissionProperties());

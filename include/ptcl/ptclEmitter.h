@@ -1,6 +1,7 @@
 #pragma once
 
 #include "math/matrix.h"
+#include "math/util.h"
 
 #include "ptcl/ptclBinary.h"
 #include "ptcl/ptclChildData.h"
@@ -226,6 +227,49 @@ public:
 
     const Math::Vector3f& gravity() const { return mGravityProperties.gravity; }
     void setGravity(const Math::Vector3f& gravity) { mGravityProperties.gravity = gravity; }
+
+    // Transform Properties
+    const Math::Matrix34f& transformRT() const { return mTransformProperties.transformRT; }
+    const Math::Matrix34f& transformSRT() const { return mTransformProperties.transformSRT; }
+
+    void setTransform(const Math::Vector3f& rotation, const Math::Vector3f& translation, const Math::Vector3f& scale) {
+        const auto mtxR = Math::Util::eulerToRotationMatrix(rotation);
+
+        Math::Matrix34f mtxRT;
+        for (s32 r = 0; r < 3; ++r) {
+            for (s32 c = 0; c < 3; ++c) {
+                mtxRT(r, c) = mtxR(r, c);
+            }
+            mtxRT(r, 3) = translation[r];
+        }
+
+        mTransformProperties.transformRT = mtxRT;
+
+        Math::Matrix34f mtxSRT;
+        for (s32 r = 0; r < 3; ++r) {
+            mtxSRT(r, 0) = mtxRT(r, 0) * scale.getX();
+            mtxSRT(r, 1) = mtxRT(r, 1) * scale.getY();
+            mtxSRT(r, 2) = mtxRT(r, 2) * scale.getZ();
+            mtxSRT(r, 3) = mtxRT(r, 3);
+        }
+
+        mTransformProperties.transformSRT = mtxSRT;
+    }
+
+    Math::Vector3f translation() const { return Math::Util::getTranslation(mTransformProperties.transformRT); }
+    void setTranslation(const Math::Vector3f& translation) { setTransform(rotation(), translation, scale()); }
+
+    Math::Vector3f rotation() const {
+        auto rot = Math::Util::getRotationEuler(mTransformProperties.transformRT);
+        rot.setX(Math::Util::to180(rot.getX()));
+        rot.setY(Math::Util::to180(rot.getY()));
+        rot.setZ(Math::Util::to180(rot.getZ()));
+        return rot;
+    }
+    void setRotation(const Math::Vector3f& rotation) { setTransform(rotation, translation(), scale()); }
+
+    Math::Vector3f scale() const { return Math::Util::getScale(mTransformProperties.transformSRT); }
+    void setScale(const Math::Vector3f& scale) { setTransform(rotation(), translation(), scale); }
 
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag>& flags() const;

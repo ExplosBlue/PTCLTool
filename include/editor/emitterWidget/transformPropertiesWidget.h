@@ -1,9 +1,7 @@
 #pragma once
 
 #include "editor/components/vectorSpinBox.h"
-#include "editor/emitterWidget/emitterWidget.h"
-
-#include "ptcl/ptclEmitter.h"
+#include "editor/emitterWidget/emitterWidgetBase.h"
 
 
 namespace PtclEditor {
@@ -12,25 +10,19 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class EmitterWidget::TransformPropertiesWidget final : public QWidget {
+class TransformPropertiesWidget final : public EmitterWidgetBase {
     Q_OBJECT
 public:
     explicit TransformPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::Emitter::TransformProperties& properties);
-
-signals:
-    void propertiesUpdated(const Ptcl::Emitter::TransformProperties& properties);
+private:
+    void populateProperties() final;
+    void setupConnections();
 
 private:
-    void rebuildMatrices();
-
-private:
-    Ptcl::Emitter::TransformProperties mProps{};
-
-    VectorSpinBox<Math::Vector3f> mScaleSpinBox;
-    VectorSpinBox<Math::Vector3f> mRotationSpinBox;
-    VectorSpinBox<Math::Vector3f> mTranslationSpinBox;
+    VectorSpinBox<Math::Vector3f> mScaleSpinBox{};
+    VectorSpinBox<Math::Vector3f> mRotationSpinBox{};
+    VectorSpinBox<Math::Vector3f> mTranslationSpinBox{};
 };
 
 
