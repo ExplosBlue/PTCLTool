@@ -100,11 +100,6 @@ public:
         s32 emitRate{1};
     };
 
-    struct TerminationProperties {
-        bool isStopEmitInFade{true};
-        f32 alphaAddInFade{0.0f};
-    };
-
     struct TextureProperties {
         TextureWrap textureWrapT{TextureWrap::ClampToEdge};
         TextureWrap textureWrapS{TextureWrap::ClampToEdge};
@@ -202,6 +197,14 @@ public:
     s32 ptclLifeRandom() const { return mPtclLifeRnd; }
     void setPtclLifeRandom(const s32 lifeRandom) { mPtclLifeRnd = lifeRandom; }
 
+    // ----- Termination Properties ----- \\
+
+    bool isStopEmitInFade() const { return mIsStopEmitInFade; }
+    void setIsStopEmitInFade(bool isStop) { mIsStopEmitInFade = isStop; }
+
+    f32 alphaAddInFade() const { return mAlphaAddInFade; }
+    void setAlphaAddInFade(f32 alpha) { mAlphaAddInFade = alpha; }
+
     // ----- Transform Properties ----- \\
 
     const Math::Matrix34f& transformRT() const { return mTransformRT; }
@@ -260,9 +263,6 @@ public:
     TextureHandle& textureHandle();
     const TextureHandle& textureHandle() const;
     void setTexture(const std::shared_ptr<Texture>& texture);
-
-    const TerminationProperties& terminationProperties() const;
-    void setTerminationProperties(const TerminationProperties& terminationProperties);
 
     const EmissionProperties& emissionProperties() const;
     void setEmissionProperties(const EmissionProperties& emissionProperties);
@@ -338,6 +338,10 @@ private:
     s32 mPtclLife{100};
     s32 mPtclLifeRnd{0};
 
+    // Termination Properties
+    bool mIsStopEmitInFade{true};
+    f32 mAlphaAddInFade{0.0f};
+
     // Transform Properties
     Math::Matrix34f mTransformSRT{
          {1.0f, 0.0f, 0.0f, 0.0f},
@@ -354,7 +358,8 @@ private:
     ScaleAnim mScaleAnim{};
     f32 mScaleRand{0.0f};
 
-    TerminationProperties mTerminationProperties{};
+
+
     EmissionProperties mEmissionProperties{};
     VelocityProperties mVelocityProperties{};
     VolumeProperties mVolumeProperties{};

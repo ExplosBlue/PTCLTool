@@ -338,7 +338,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     isTexPatAnim = emitter.textureProperties().isTexPatAnim;
     isVelLook = emitter.isVelLook();
     volumeTblIndex = emitter.volumeProperties().volumeTblIndex;
-    isStopEmitInFade = emitter.terminationProperties().isStopEmitInFade;
+    isStopEmitInFade = emitter.isStopEmitInFade();
     volumeType = emitter.volumeProperties().volumeType;
     volumeRadius = emitter.volumeProperties().volumeRadius;
     volumeSweepStart = emitter.volumeProperties().volumeSweepStart;
@@ -391,7 +391,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     rotBasis = emitter.rotationProperties().rotBasis;
     transformSRT = emitter.transformSRT();
     transformRT = emitter.transformRT();
-    alphaAddInFade = emitter.terminationProperties().alphaAddInFade;
+    alphaAddInFade = emitter.alphaAddInFade();
     numTexPat = emitter.textureProperties().numTexPat;
     numTexDivX = emitter.textureProperties().numTexDivX;
     numTexDivY = emitter.textureProperties().numTexDivY;

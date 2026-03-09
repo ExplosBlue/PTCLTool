@@ -127,13 +127,6 @@ void EmitterWidget::setupConnections() {
         emit propertiesChanged();
     });
 
-    // Termination Properties
-    connect(mTerminationProperties, &TerminationPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::TerminationProperties& properties) {
-        if (!mEmitter) { return; }
-        mEmitter->setTerminationProperties(properties);
-        emit propertiesChanged();
-    });
-
     // Emission Properties
     connect(mEmissionProperties, &EmissionPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::EmissionProperties& properties) {
         if (!mEmitter) { return; }
@@ -239,6 +232,7 @@ void EmitterWidget::setDocument(Ptcl::Document* document) {
     mTransformProperties->setDocument(document);
     mLifespanProperties->setDocument(document);
     mScaleProperties->setDocument(document);
+    mTerminationProperties->setDocument(document);
 }
 
 void EmitterWidget::setSelection(Ptcl::Selection* selection) {
@@ -249,6 +243,7 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
     mTransformProperties->setSelection(selection);
     mLifespanProperties->setSelection(selection);
     mScaleProperties->setSelection(selection);
+    mTerminationProperties->setSelection(selection);
 
     connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
         if (!mDocument) {
@@ -287,7 +282,6 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
 }
 
 void EmitterWidget::populateProperties() {
-    QSignalBlocker b5(mTerminationProperties);
     QSignalBlocker b6(mEmissionProperties);
     QSignalBlocker b7(mVelocityProperties);
     QSignalBlocker b8(mColorProperties);
@@ -300,7 +294,6 @@ void EmitterWidget::populateProperties() {
     QSignalBlocker b17(mFieldEditorWidget);
     QSignalBlocker b18(mStripeEditorWidget);
 
-    mTerminationProperties->setProperties(mEmitter->terminationProperties());
     mEmissionProperties->setProperties(mEmitter->emissionProperties());
     mVelocityProperties->setProperties(mEmitter->velocityProperties());
     mVolumeProperties->setProperties(mEmitter->volumeProperties());

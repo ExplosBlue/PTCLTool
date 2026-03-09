@@ -1,8 +1,6 @@
 #pragma once
 
-#include "editor/emitterWidget/emitterWidget.h"
-
-#include "ptcl/ptclEmitter.h"
+#include "editor/emitterWidget/emitterWidgetBase.h"
 
 #include <QDoubleSpinBox>
 #include <QCheckBox>
@@ -16,19 +14,16 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class EmitterWidget::TerminationPropertiesWidget final : public QWidget {
+class TerminationPropertiesWidget final : public EmitterWidgetBase {
     Q_OBJECT
 public:
     explicit TerminationPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::Emitter::TerminationProperties& properties);
-
-signals:
-    void propertiesUpdated(const Ptcl::Emitter::TerminationProperties& properties);
+private:
+    void populateProperties() final;
+    void setupConnections();
 
 private:
-    Ptcl::Emitter::TerminationProperties mProps{};
-
     QCheckBox mIsStopEmitCheckBox;
     QDoubleSpinBox mAlphaAddInSpinBox;
 };
