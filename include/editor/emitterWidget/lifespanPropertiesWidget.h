@@ -1,8 +1,6 @@
 #pragma once
 
-#include "editor/emitterWidget/emitterWidget.h"
-
-#include "ptcl/ptclEmitter.h"
+#include "editor/emitterWidget/emitterWidgetBase.h"
 
 #include <QDoubleSpinBox>
 #include <QCheckBox>
@@ -16,19 +14,16 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class EmitterWidget::LifespanPropertiesWidget final : public QWidget {
+class LifespanPropertiesWidget final : public EmitterWidgetBase {
     Q_OBJECT
 public:
     explicit LifespanPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::Emitter::LifespanProperties& properties);
-
-signals:
-    void propertiesUpdated(const Ptcl::Emitter::LifespanProperties& properties);
+private:
+    void populateProperties() final;
+    void setupConnections();
 
 private:
-    Ptcl::Emitter::LifespanProperties mProps{};
-
     QCheckBox mInfiniteLifeCheckBox;
     QSpinBox mLifeSpanSpinBox;
     QSpinBox mLifeSpanRndSpinBox;

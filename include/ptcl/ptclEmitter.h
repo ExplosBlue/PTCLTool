@@ -105,11 +105,6 @@ public:
         f32 alphaAddInFade{0.0f};
     };
 
-    struct LifespanProperties {
-        s32 ptclLife{100};
-        s32 ptclLifeRnd{0};
-    };
-
     struct TextureProperties {
         TextureWrap textureWrapT{TextureWrap::ClampToEdge};
         TextureWrap textureWrapS{TextureWrap::ClampToEdge};
@@ -199,6 +194,14 @@ public:
     const Math::Vector3f& gravity() const { return mGravity; }
     void setGravity(const Math::Vector3f& gravity) { mGravity = gravity; }
 
+    // ----- Lifespan Properties ----- \\
+
+    s32 ptclLife() const { return mPtclLife; }
+    void setPtclLife(const s32 ptclLife) { mPtclLife = ptclLife; }
+
+    s32 ptclLifeRandom() const { return mPtclLifeRnd; }
+    void setPtclLifeRandom(const s32 lifeRandom) { mPtclLifeRnd = lifeRandom; }
+
     // ----- Transform Properties ----- \\
 
     const Math::Matrix34f& transformRT() const { return mTransformRT; }
@@ -257,9 +260,6 @@ public:
     TextureHandle& textureHandle();
     const TextureHandle& textureHandle() const;
     void setTexture(const std::shared_ptr<Texture>& texture);
-
-    const LifespanProperties& lifespanProperties() const;
-    void setLifespanProperties(const LifespanProperties& lifespanProperties);
 
     const TerminationProperties& terminationProperties() const;
     void setTerminationProperties(const TerminationProperties& terminationProperties);
@@ -334,6 +334,10 @@ private:
     bool mIsDirectional{false};
     Math::Vector3f mGravity{0.0f, -1.0f, 0.0f};
 
+    // Lifespan Properties
+    s32 mPtclLife{100};
+    s32 mPtclLifeRnd{0};
+
     // Transform Properties
     Math::Matrix34f mTransformSRT{
          {1.0f, 0.0f, 0.0f, 0.0f},
@@ -350,7 +354,6 @@ private:
     ScaleAnim mScaleAnim{};
     f32 mScaleRand{0.0f};
 
-    LifespanProperties mLifespanProperties{};
     TerminationProperties mTerminationProperties{};
     EmissionProperties mEmissionProperties{};
     VelocityProperties mVelocityProperties{};
