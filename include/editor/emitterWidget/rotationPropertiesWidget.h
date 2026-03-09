@@ -2,9 +2,7 @@
 
 #include "editor/components/enumComboBox.h"
 #include "editor/components/vectorSpinBox.h"
-#include "editor/emitterWidget/emitterWidget.h"
-
-#include "ptcl/ptclEmitter.h"
+#include "editor/emitterWidget/emitterWidgetBase.h"
 
 #include <QComboBox>
 #include <QLabel>
@@ -17,23 +15,17 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class EmitterWidget::RotationPropertiesWidget final : public QWidget {
+class RotationPropertiesWidget final : public EmitterWidgetBase {
     Q_OBJECT
 public:
     explicit RotationPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::Emitter::RotationProperties& properties);
-
-signals:
-    void propertiesUpdated(const Ptcl::Emitter::RotationProperties& properties);
-
 private:
-    void populateWidgets();
+    void populateProperties() final;
+    void setupConnections();
     void updateAxis();
 
 private:
-    Ptcl::Emitter::RotationProperties mProps{};
-
     EnumComboBox<Ptcl::RotType> mRotTypeSpinBox{};
     VectorSpinBox<Math::Vector3f> mInitRotSpinBox{};
     VectorSpinBox<Math::Vector3f> mInitRotRandSpinBox{};
