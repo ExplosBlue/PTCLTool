@@ -25,7 +25,7 @@ namespace PtclEditor {
 class BasicPropertiesWidget;
 class GravityPropertiesWidget;
 class TransformPropertiesWidget;
-
+class ScalePropertiesWidget;
 
 // ========================================================================== //
 
@@ -60,7 +60,6 @@ private:
     class ColorPropertiesWidget;
     class AlphaPropertiesWidget;
     class RotationPropertiesWidget;
-    class ScalePropertiesWidget;
     class TexturePropertiesWidget;
     class CombinerPropertiesWidget;
 
