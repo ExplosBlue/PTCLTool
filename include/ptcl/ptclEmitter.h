@@ -75,14 +75,6 @@ public:
         s32 alphaSection2{100};
     };
 
-    struct VolumeProperties {
-        u8 volumeTblIndex{0};
-        VolumeType volumeType{VolumeType::Point};
-        Math::Vector3f volumeRadius{1.0f, 1.0f, 1.0f};
-        s32 volumeSweepStart{0};
-        s32 volumeSweepParam{0};
-    };
-
     struct TextureProperties {
         TextureWrap textureWrapT{TextureWrap::ClampToEdge};
         TextureWrap textureWrapS{TextureWrap::ClampToEdge};
@@ -277,15 +269,29 @@ public:
     f32 airResistance() const { return mAirResistance; }
     void setAirResistance(f32 resistance) { mAirResistance = resistance; }
 
+    // ----- Volume Properties ----- \\
+
+    u8 volumeTblIndex() const { return mVolumeTblIndex; }
+    void setVolumeTblIndex(u8 index) { mVolumeTblIndex = index; }
+
+    VolumeType volumeType() const { return mVolumeType; }
+    void setVolumeType(VolumeType type) { mVolumeType = type; }
+
+    const Math::Vector3f& volumeRadius() const { return mVolumeRadius; }
+    void setVolumeRadius(const Math::Vector3f& radius) { mVolumeRadius = radius; }
+
+    s32 volumeSweepStart() const { return mVolumeSweepStart; }
+    void setVolumeSweepStart(s32 sweepStart) { mVolumeSweepStart = sweepStart; }
+
+    s32 volumeSweepParam() const { return mVolumeSweepParam; }
+    void setVolumeSweepParam(s32 sweepParam) { mVolumeSweepParam = sweepParam; }
+
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag>& flags() const;
 
     TextureHandle& textureHandle();
     const TextureHandle& textureHandle() const;
     void setTexture(const std::shared_ptr<Texture>& texture);
-
-    const VolumeProperties& volumeProperties() const;
-    void setVolumeProperties(const VolumeProperties& volumeProperties);
 
     const ColorProperties& colorProperties() const;
     void setColorProperties(const ColorProperties& colorProperties);
@@ -387,7 +393,13 @@ private:
     Math::Vector3f mSpreadVec{0.0f, 0.0f, 0.0f};
     f32 mAirResistance{1.0f};
 
-    VolumeProperties mVolumeProperties{};
+    // Volume Properties
+    u8 mVolumeTblIndex{0};
+    VolumeType mVolumeType{VolumeType::Point};
+    Math::Vector3f mVolumeRadius{1.0f, 1.0f, 1.0f};
+    s32 mVolumeSweepStart{0};
+    s32 mVolumeSweepParam{0};
+
     ColorProperties mColorProperties{};
     AlphaProperties mAlphaProperties{};
     RotationProperties mRotationProperties{};

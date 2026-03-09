@@ -2,9 +2,7 @@
 
 #include "editor/components/enumComboBox.h"
 #include "editor/components/vectorSpinBox.h"
-#include "editor/emitterWidget/emitterWidget.h"
-
-#include "ptcl/ptclEmitter.h"
+#include "editor/emitterWidget/emitterWidgetBase.h"
 
 #include <QComboBox>
 #include <QLabel>
@@ -17,41 +15,34 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class EmitterWidget::VolumePropertiesWidget : public QWidget {
+class VolumePropertiesWidget : public EmitterWidgetBase {
     Q_OBJECT
 public:
     explicit VolumePropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::Emitter::VolumeProperties& properties);
-
-signals:
-    void propertiesUpdated(const Ptcl::Emitter::VolumeProperties& properties);
-
 private:
+    void populateProperties() final;
+    void setupConnections();
     void setupUi();
-    void setupSignals();
-    void populateWidgets();
     void updateFieldVisibility(Ptcl::VolumeType volumeType);
 
 private:
     struct VolumeField {
-        QWidget* widget;
-        std::function<QString(Ptcl::VolumeType)> label;
-        std::function<bool(Ptcl::VolumeType)> isVisible;
+        QWidget* widget{};
+        std::function<QString(Ptcl::VolumeType)> label{};
+        std::function<bool(Ptcl::VolumeType)> isVisible{};
     };
 
 private:
-    Ptcl::Emitter::VolumeProperties mProps{};
+    std::vector<VolumeField> mFields{};
+    std::unordered_map<QWidget*, QLabel*> mFieldLabels{};
 
-    std::vector<VolumeField> mFields;
-    std::unordered_map<QWidget*, QLabel*> mFieldLabels;
-
-    QComboBox mVolumeTblIndexComboBox;
-    EnumComboBox<Ptcl::VolumeType> mTypeComboBox;
-    VectorSpinBox<Math::Vector3f> mRadiusSpinBox;
-    QDoubleSpinBox mSweepStartSpinBox;
-    QDoubleSpinBox mSweepParamSpinBox;
-    QDoubleSpinBox mLengthSpinBox;
+    QComboBox mVolumeTblIndexComboBox{};
+    EnumComboBox<Ptcl::VolumeType> mTypeComboBox{};
+    VectorSpinBox<Math::Vector3f> mRadiusSpinBox{};
+    QDoubleSpinBox mSweepStartSpinBox{};
+    QDoubleSpinBox mSweepParamSpinBox{};
+    QDoubleSpinBox mLengthSpinBox{};
 };
 
 

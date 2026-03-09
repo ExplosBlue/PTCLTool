@@ -53,7 +53,13 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mSpreadVec = mSpreadVec;
     newEmitter->mAirResistance = mAirResistance;
 
-    newEmitter->mVolumeProperties = mVolumeProperties;
+    // Volume Properties
+    newEmitter->mVolumeTblIndex = mVolumeTblIndex;
+    newEmitter->mVolumeType = mVolumeType;
+    newEmitter->mVolumeRadius = mVolumeRadius;
+    newEmitter->mVolumeSweepStart = mVolumeSweepStart;
+    newEmitter->mVolumeSweepParam = mVolumeSweepParam;
+
     newEmitter->mColorProperties = mColorProperties;
     newEmitter->mAlphaProperties = mAlphaProperties;
 
@@ -91,14 +97,6 @@ TextureHandle& Emitter::textureHandle() {
 
 void Emitter::setTexture(const std::shared_ptr<Texture>& texture) {
     mTextureHandle.set(texture);
-}
-
-const Emitter::VolumeProperties& Emitter::volumeProperties() const {
-    return mVolumeProperties;
-}
-
-void Emitter::setVolumeProperties(const VolumeProperties& volumeProperties) {
-    mVolumeProperties = volumeProperties;
 }
 
 const Emitter::ColorProperties& Emitter::colorProperties() const {
@@ -292,13 +290,12 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mSpreadVec = Math::Vector3f(emitterData.spreadVec.x, emitterData.spreadVec.y, emitterData.spreadVec.z);
     mAirResistance = emitterData.airResistance;
 
-    mVolumeProperties = {
-        .volumeTblIndex = emitterData.volumeTblIndex,
-        .volumeType = emitterData.volumeType,
-        .volumeRadius = Math::Vector3f(emitterData.volumeRadius.x, emitterData.volumeRadius.y, emitterData.volumeRadius.z),
-        .volumeSweepStart = emitterData.volumeSweepStart,
-        .volumeSweepParam = emitterData.volumeSweepParam,
-    };
+    // Volume Properties
+    mVolumeTblIndex = emitterData.volumeTblIndex;
+    mVolumeType = emitterData.volumeType;
+    mVolumeRadius = Math::Vector3f(emitterData.volumeRadius.x, emitterData.volumeRadius.y, emitterData.volumeRadius.z);
+    mVolumeSweepStart = emitterData.volumeSweepStart;
+    mVolumeSweepParam = emitterData.volumeSweepParam;
 
     mColorProperties = {
         .color0 = emitterData.color0,

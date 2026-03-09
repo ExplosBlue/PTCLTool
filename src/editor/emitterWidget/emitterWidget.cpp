@@ -127,13 +127,6 @@ void EmitterWidget::setupConnections() {
         emit propertiesChanged();
     });
 
-    // Volume Properties
-    connect(mVolumeProperties, &VolumePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::VolumeProperties& properties) {
-        if (!mEmitter) { return; }
-        mEmitter->setVolumeProperties(properties);
-        emit propertiesChanged();
-    });
-
     // Color Properties
     connect(mColorProperties, &ColorPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::ColorProperties& properties) {
         if (!mEmitter) { return; }
@@ -221,6 +214,7 @@ void EmitterWidget::setDocument(Ptcl::Document* document) {
     mTerminationProperties->setDocument(document);
     mEmissionProperties->setDocument(document);
     mVelocityProperties->setDocument(document);
+    mVolumeProperties->setDocument(document);
 }
 
 void EmitterWidget::setSelection(Ptcl::Selection* selection) {
@@ -234,6 +228,7 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
     mTerminationProperties->setSelection(selection);
     mEmissionProperties->setSelection(selection);
     mVelocityProperties->setSelection(selection);
+    mVolumeProperties->setSelection(selection);
 
     connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
         if (!mDocument) {
@@ -282,7 +277,6 @@ void EmitterWidget::populateProperties() {
     QSignalBlocker b17(mFieldEditorWidget);
     QSignalBlocker b18(mStripeEditorWidget);
 
-    mVolumeProperties->setProperties(mEmitter->volumeProperties());
     mColorProperties->setProperties(mEmitter->colorProperties());
     mAlphaProperties->setProperties(mEmitter->alphaProperties());
     mRotationProperties->setProperties(mEmitter->rotationProperties());
