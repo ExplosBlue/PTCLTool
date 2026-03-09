@@ -11,14 +11,14 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-EmitterWidget::VolumePropertiesWidget::VolumePropertiesWidget(QWidget* parent) :
-    QWidget{parent} {
+VolumePropertiesWidget::VolumePropertiesWidget(QWidget* parent) :
+    EmitterWidgetBase{parent} {
 
     setupUi();
-    setupSignals();
+    setupConnections();
 }
 
-void EmitterWidget::VolumePropertiesWidget::setupUi() {
+void VolumePropertiesWidget::setupUi() {
     mRadiusSpinBox.setOrientation(Qt::Vertical);
 
     mSweepStartSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
@@ -106,57 +106,80 @@ void EmitterWidget::VolumePropertiesWidget::setupUi() {
     }
 }
 
-void EmitterWidget::VolumePropertiesWidget::setupSignals() {
-    connect(&mTypeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this]() {
-        auto type = mTypeComboBox.currentEnum();
-        mProps.volumeType = type;
-        updateFieldVisibility(type);
-        emit propertiesUpdated(mProps);
+void VolumePropertiesWidget::setupConnections() {
+    connect(&mTypeComboBox, QOverload<s32>::of(&QComboBox::currentIndexChanged), this, [this]() {
+        const auto type = mTypeComboBox.currentEnum();
+
+        setEmitterProperty(
+            "Set Volume Type",
+            "SetVolumeType",
+            &Ptcl::Emitter::volumeType,
+            &Ptcl::Emitter::setVolumeType,
+            type
+        );
     });
 
-    connect(&mVolumeTblIndexComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
-        mProps.volumeTblIndex = index;
-        emit propertiesUpdated(mProps);
+    connect(&mVolumeTblIndexComboBox, QOverload<s32>::of(&QComboBox::currentIndexChanged), this, [this](s32 index) {
+        setEmitterProperty(
+            "Set Volume Table Index",
+            "SetVolumeTblIdx",
+            &Ptcl::Emitter::volumeTblIndex,
+            &Ptcl::Emitter::setVolumeTblIndex,
+            index
+        );
     });
 
     connect(&mRadiusSpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
-        auto radius = mRadiusSpinBox.getVector();
+        const auto radius = mRadiusSpinBox.getVector();
 
-        mProps.volumeRadius = radius;
-        // Keep length spinbox in sync
-        const QSignalBlocker block(&mLengthSpinBox);
-        mLengthSpinBox.setValue(radius.getZ());
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Volume Radius",
+            "SetVolumeRadius",
+            &Ptcl::Emitter::volumeRadius,
+            &Ptcl::Emitter::setVolumeRadius,
+            radius
+        );
     });
 
-    connect(&mLengthSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
+    connect(&mLengthSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](f64 value) {
         auto radius = mRadiusSpinBox.getVector();
         radius.setZ(static_cast<f32>(value));
 
-        mProps.volumeRadius = radius;
-        // Keep radius spinbox in sync
-        const QSignalBlocker block(&mRadiusSpinBox);
-        mRadiusSpinBox.setVector(radius);
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Volume Length",
+            "SetVolumeLength",
+            &Ptcl::Emitter::volumeRadius,
+            &Ptcl::Emitter::setVolumeRadius,
+            radius
+        );
     });
 
-    connect(&mSweepStartSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
-        mProps.volumeSweepStart = Math::Util::deg2idx(Math::Util::to180(static_cast<f32>(value)));
-        emit propertiesUpdated(mProps);
+    connect(&mSweepStartSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](f64 value) {
+        const auto sweepStart = Math::Util::deg2idx(Math::Util::to180(static_cast<f32>(value)));
+
+        setEmitterProperty(
+            "Set Sweep Start",
+            "SetSweepStart",
+            &Ptcl::Emitter::volumeSweepStart,
+            &Ptcl::Emitter::setVolumeSweepStart,
+            sweepStart
+        );
     });
 
-    connect(&mSweepParamSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
-        mProps.volumeSweepParam = Math::Util::deg2idx(Math::Util::to180(static_cast<f32>(value)));
-        emit propertiesUpdated(mProps);
+    connect(&mSweepParamSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](f64 value) {
+        const auto sweepParam = Math::Util::deg2idx(Math::Util::to180(static_cast<f32>(value)));
+
+        setEmitterProperty(
+            "Set Sweep Param",
+            "SetSweepParam",
+            &Ptcl::Emitter::volumeSweepParam,
+            &Ptcl::Emitter::setVolumeSweepParam,
+            sweepParam
+        );
     });
 }
 
-void EmitterWidget::VolumePropertiesWidget::setProperties(const Ptcl::Emitter::VolumeProperties& properties) {
-    mProps = properties;
-    populateWidgets();
-}
-
-void EmitterWidget::VolumePropertiesWidget::populateWidgets() {
+void VolumePropertiesWidget::populateProperties() {
     QSignalBlocker b1(mVolumeTblIndexComboBox);
     QSignalBlocker b2(mTypeComboBox);
     QSignalBlocker b3(mRadiusSpinBox);
@@ -164,22 +187,22 @@ void EmitterWidget::VolumePropertiesWidget::populateWidgets() {
     QSignalBlocker b5(mSweepStartSpinBox);
     QSignalBlocker b6(mSweepParamSpinBox);
 
-    auto volumeType = mProps.volumeType;
+    auto volumeType = mEmitter->volumeType();
 
-    mVolumeTblIndexComboBox.setCurrentIndex(mProps.volumeTblIndex);
+    mVolumeTblIndexComboBox.setCurrentIndex(mEmitter->volumeTblIndex());
     mTypeComboBox.setCurrentEnum(volumeType);
 
-    auto& radius = mProps.volumeRadius;
+    auto& radius = mEmitter->volumeRadius();
     mRadiusSpinBox.setVector(radius);
     mLengthSpinBox.setValue(radius.getZ());
 
-    mSweepStartSpinBox.setValue(Math::Util::to360(Math::Util::idx2deg(mProps.volumeSweepStart)));
-    mSweepParamSpinBox.setValue(Math::Util::to360(Math::Util::idx2deg(mProps.volumeSweepParam)));
+    mSweepStartSpinBox.setValue(Math::Util::to360(Math::Util::idx2deg(mEmitter->volumeSweepStart())));
+    mSweepParamSpinBox.setValue(Math::Util::to360(Math::Util::idx2deg(mEmitter->volumeSweepParam())));
 
     updateFieldVisibility(volumeType);
 }
 
-void EmitterWidget::VolumePropertiesWidget::updateFieldVisibility(Ptcl::VolumeType type) {
+void VolumePropertiesWidget::updateFieldVisibility(Ptcl::VolumeType type) {
     for (const auto& field : mFields) {
         bool visible = field.isVisible(type);
         QWidget* widget = field.widget;
