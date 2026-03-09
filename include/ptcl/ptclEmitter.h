@@ -30,25 +30,14 @@ namespace Ptcl {
 class Emitter {
 
 public:
-    struct BasicProperties {
-        EmitterType type{EmitterType::Simple};
-        FollowType followType{FollowType::All};
-        QString name{"Emitter"};
-        PtclSeed randomSeed{};
-        BillboardType billboardType{BillboardType::Billboard};
-        bool isPolygon{false};
-        bool isVelLook{false};
-        bool isEmitterBillboardMtx{false};
-        bool isFollow{false};
-    };
-
-    struct ScaleProperties {
+    struct ScaleAnim {
         Math::Vector2f initScale{1.0f, 1.0f};
         Math::Vector2f diffScale21{0.0f, 0.0f};
         Math::Vector2f diffScale32{0.0f, 0.0f};
         s32 scaleSection1{0};
         s32 scaleSection2{0};
-        f32 scaleRand{0.0f};
+
+        bool operator==(const ScaleAnim&) const = default;
     };
 
     struct RotationProperties {
@@ -121,24 +110,6 @@ public:
         s32 ptclLifeRnd{0};
     };
 
-    struct TransformProperties {
-        Math::Matrix34f transformSRT{
-            {1.0f, 0.0f, 0.0f, 0.0f},
-            {0.0f, 1.0f, 0.0f, 0.0f},
-            {0.0f, 0.0f, 1.0f, 0.0f},
-        };
-        Math::Matrix34f transformRT{
-            {1.0f, 0.0f, 0.0f, 0.0f},
-            {0.0f, 1.0f, 0.0f, 0.0f},
-            {0.0f, 0.0f, 1.0f, 0.0f},
-        };
-    };
-
-    struct GravityProperties {
-        bool isDirectional{false};
-        Math::Vector3f gravity{0.0f, -1.0f, 0.0f};
-    };
-
     struct TextureProperties {
         TextureWrap textureWrapT{TextureWrap::ClampToEdge};
         TextureWrap textureWrapS{TextureWrap::ClampToEdge};
@@ -187,50 +158,51 @@ public:
 
     std::unique_ptr<Emitter> clone() const;
 
-    // Basic Properties
+    // ----- Basic Properties ----- \\
 
-    EmitterType type() const { return mBasicProperties.type; }
-    void setType(EmitterType type) { mBasicProperties.type = type; }
+    EmitterType type() const { return mType; }
+    void setType(EmitterType type) { mType = type; }
 
-    FollowType followType() const { return mBasicProperties.followType; }
+    FollowType followType() const { return mFollowType; }
     void setFollowType(FollowType type) {
-        mBasicProperties.followType = type;
+        mFollowType = type;
 
         // TODO: Check if this should also be set for Ptcl::FollowType::PosOnly
-        mBasicProperties.isFollow = (type == Ptcl::FollowType::All);
+        mIsFollow = (type == Ptcl::FollowType::All);
     }
 
-    const QString& name() const;
-    void setName(const QString& name);
+    const QString& name() const { return mName; }
+    void setName(const QString& name) { mName = name; }
 
-    const PtclSeed& randomSeed() const { return mBasicProperties.randomSeed; }
-    void setRandomSeed(PtclSeed seed) { mBasicProperties.randomSeed = seed; }
+    const PtclSeed& randomSeed() const { return mRandomSeed; }
+    void setRandomSeed(PtclSeed seed) { mRandomSeed = seed; }
 
-    BillboardType billboardType() const { return mBasicProperties.billboardType; }
+    BillboardType billboardType() const { return mBillboardType; }
     void setBillboardType(BillboardType type) {
-        mBasicProperties.billboardType = type;
-        mBasicProperties.isPolygon = (type == Ptcl::BillboardType::PolygonXY || type == Ptcl::BillboardType::PolygonXZ);
-        mBasicProperties.isVelLook = (type == Ptcl::BillboardType::VelLook || type == Ptcl::BillboardType::VelLookPolygon);
+        mBillboardType = type;
+        mIsPolygon = (type == Ptcl::BillboardType::PolygonXY || type == Ptcl::BillboardType::PolygonXZ);
+        mIsVelLook = (type == Ptcl::BillboardType::VelLook || type == Ptcl::BillboardType::VelLookPolygon);
     }
 
-    bool isEmitterBillboardMtx() const { return mBasicProperties.isEmitterBillboardMtx; }
-    void setIsEmitterBillboardMtx(bool isEmitterBillboardMtx) { mBasicProperties.isEmitterBillboardMtx = isEmitterBillboardMtx; }
+    bool isEmitterBillboardMtx() const { return mIsEmitterBillboardMtx; }
+    void setIsEmitterBillboardMtx(bool isEmitterBillboardMtx) { mIsEmitterBillboardMtx = isEmitterBillboardMtx; }
 
-    bool isPolygon() const { return mBasicProperties.isPolygon; }
-    bool isFollow() const { return mBasicProperties.isFollow; }
-    bool isVelLook() const { return mBasicProperties.isVelLook; }
+    bool isPolygon() const { return mIsPolygon; }
+    bool isFollow() const { return mIsFollow; }
+    bool isVelLook() const { return mIsVelLook; }
 
-    // Gravity Properties
+    // ----- Gravity Properties ----- \\
 
-    bool isDirectional() const { return mGravityProperties.isDirectional; }
-    void setDirectional(bool isDirectional) { mGravityProperties.isDirectional = isDirectional; }
+    bool isDirectional() const { return mIsDirectional; }
+    void setDirectional(bool isDirectional) { mIsDirectional = isDirectional; }
 
-    const Math::Vector3f& gravity() const { return mGravityProperties.gravity; }
-    void setGravity(const Math::Vector3f& gravity) { mGravityProperties.gravity = gravity; }
+    const Math::Vector3f& gravity() const { return mGravity; }
+    void setGravity(const Math::Vector3f& gravity) { mGravity = gravity; }
 
-    // Transform Properties
-    const Math::Matrix34f& transformRT() const { return mTransformProperties.transformRT; }
-    const Math::Matrix34f& transformSRT() const { return mTransformProperties.transformSRT; }
+    // ----- Transform Properties ----- \\
+
+    const Math::Matrix34f& transformRT() const { return mTransformRT; }
+    const Math::Matrix34f& transformSRT() const { return mTransformSRT; }
 
     void setTransform(const Math::Vector3f& rotation, const Math::Vector3f& translation, const Math::Vector3f& scale) {
         const auto mtxR = Math::Util::eulerToRotationMatrix(rotation);
@@ -243,7 +215,7 @@ public:
             mtxRT(r, 3) = translation[r];
         }
 
-        mTransformProperties.transformRT = mtxRT;
+        mTransformRT = mtxRT;
 
         Math::Matrix34f mtxSRT;
         for (s32 r = 0; r < 3; ++r) {
@@ -253,14 +225,14 @@ public:
             mtxSRT(r, 3) = mtxRT(r, 3);
         }
 
-        mTransformProperties.transformSRT = mtxSRT;
+        mTransformSRT = mtxSRT;
     }
 
-    Math::Vector3f translation() const { return Math::Util::getTranslation(mTransformProperties.transformRT); }
+    Math::Vector3f translation() const { return Math::Util::getTranslation(mTransformRT); }
     void setTranslation(const Math::Vector3f& translation) { setTransform(rotation(), translation, scale()); }
 
     Math::Vector3f rotation() const {
-        auto rot = Math::Util::getRotationEuler(mTransformProperties.transformRT);
+        auto rot = Math::Util::getRotationEuler(mTransformRT);
         rot.setX(Math::Util::to180(rot.getX()));
         rot.setY(Math::Util::to180(rot.getY()));
         rot.setZ(Math::Util::to180(rot.getZ()));
@@ -268,8 +240,16 @@ public:
     }
     void setRotation(const Math::Vector3f& rotation) { setTransform(rotation, translation(), scale()); }
 
-    Math::Vector3f scale() const { return Math::Util::getScale(mTransformProperties.transformSRT); }
+    Math::Vector3f scale() const { return Math::Util::getScale(mTransformSRT); }
     void setScale(const Math::Vector3f& scale) { setTransform(rotation(), translation(), scale); }
+
+    // ----- Scale Properties ----- \\
+
+    const ScaleAnim& scaleAnim() const { return mScaleAnim; }
+    void setScaleAnim(const ScaleAnim& scaleAnim) { mScaleAnim = scaleAnim; }
+
+    f32 scaleRand() const { return mScaleRand; }
+    void setScaleRand(f32 scaleRand) { mScaleRand = scaleRand; }
 
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag>& flags() const;
@@ -299,9 +279,6 @@ public:
     const AlphaProperties& alphaProperties() const;
     void setAlphaProperties(const AlphaProperties& alphaProperties);
 
-    const ScaleProperties& scaleProperties() const;
-    void setScaleProperties(const ScaleProperties& scaleProperties);
-
     const TextureProperties& textureProperties() const;
     void setTextureProperties(const TextureProperties& textureProperties);
 
@@ -310,9 +287,6 @@ public:
 
     const CombinerProperties& combinerProperties() const;
     void setCombinerProperties(const CombinerProperties& combinerProperties);
-
-    const TransformProperties& transformProperties() const;
-    void setTransformProperties(const TransformProperties& transformProperties);
 
     const ComplexProperties& complexProperties() const;
     void setComplexProperties(const ComplexProperties& complexProperties);
@@ -345,9 +319,37 @@ public:
 private:
     BitFlag<EmitterFlag> mFlag{};
 
-    BasicProperties mBasicProperties{};
-    GravityProperties mGravityProperties{};
-    TransformProperties mTransformProperties{};
+    // Basic Properties
+    EmitterType mType{EmitterType::Simple};
+    FollowType mFollowType{FollowType::All};
+    QString mName{"Emitter"};
+    PtclSeed mRandomSeed{};
+    BillboardType mBillboardType{BillboardType::Billboard};
+    bool mIsPolygon{false};
+    bool mIsVelLook{false};
+    bool mIsEmitterBillboardMtx{false};
+    bool mIsFollow{false};
+
+    // Gravity Properties
+    bool mIsDirectional{false};
+    Math::Vector3f mGravity{0.0f, -1.0f, 0.0f};
+
+    // Transform Properties
+    Math::Matrix34f mTransformSRT{
+         {1.0f, 0.0f, 0.0f, 0.0f},
+         {0.0f, 1.0f, 0.0f, 0.0f},
+         {0.0f, 0.0f, 1.0f, 0.0f},
+    };
+    Math::Matrix34f mTransformRT{
+        {1.0f, 0.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f, 0.0f},
+        {0.0f, 0.0f, 1.0f, 0.0f},
+    };
+
+    // Scale Properties
+    ScaleAnim mScaleAnim{};
+    f32 mScaleRand{0.0f};
+
     LifespanProperties mLifespanProperties{};
     TerminationProperties mTerminationProperties{};
     EmissionProperties mEmissionProperties{};
@@ -355,7 +357,6 @@ private:
     VolumeProperties mVolumeProperties{};
     ColorProperties mColorProperties{};
     AlphaProperties mAlphaProperties{};
-    ScaleProperties mScaleProperties{};
     RotationProperties mRotationProperties{};
     TextureProperties mTextureProperties{};
     CombinerProperties mCombinerProperties{};
