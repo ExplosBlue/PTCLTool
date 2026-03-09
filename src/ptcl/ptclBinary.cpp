@@ -349,12 +349,12 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     initVelRnd = emitter.velocityProperties().initVelRnd;
     spreadVec = emitter.velocityProperties().spreadVec;
 
-    startFrame = emitter.emissionProperties().startFrame;
-    endFrame = emitter.emissionProperties().endFrame;
-    lifeStep = emitter.emissionProperties().lifeStep;
-    lifeStepRnd = emitter.emissionProperties().lifeStepRnd;
+    startFrame = emitter.emitStartFrame();
+    endFrame = emitter.emitEndFrame();
+    lifeStep = emitter.lifeStep();
+    lifeStepRnd = emitter.lifeStepRandom();
 
-    emitRate = emitter.emissionProperties().emitRate;
+    emitRate = emitter.emitRate();
     ptclLife = emitter.ptclLife();
     ptclLifeRnd = emitter.ptclLifeRandom();
     airResistance = emitter.velocityProperties().airResistance;

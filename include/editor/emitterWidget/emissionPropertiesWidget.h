@@ -1,8 +1,6 @@
 #pragma once
 
-#include "editor/emitterWidget/emitterWidget.h"
-
-#include "ptcl/ptclEmitter.h"
+#include "editor/emitterWidget/emitterWidgetBase.h"
 
 #include <QDoubleSpinBox>
 #include <QCheckBox>
@@ -16,25 +14,22 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class EmitterWidget::EmissionPropertiesWidget final : public QWidget {
+class EmissionPropertiesWidget final : public EmitterWidgetBase {
     Q_OBJECT
 public:
     explicit EmissionPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::Emitter::EmissionProperties& properties);
-
-signals:
-    void propertiesUpdated(const Ptcl::Emitter::EmissionProperties& properties);
+private:
+    void populateProperties() final;
+    void setupConnections();
 
 private:
-    Ptcl::Emitter::EmissionProperties mProps{};
-
-    QSpinBox mStartFrameSpinBox;
-    QSpinBox mEndFrameSpinBox;
-    QCheckBox mInfiniteEmitCheckBox;
-    QSpinBox mLifeStepSpinBox;
-    QSpinBox mLifeStepRndSpinBox;
-    QSpinBox mEmitRateSpinBox;
+    QSpinBox mStartFrameSpinBox{};
+    QSpinBox mEndFrameSpinBox{};
+    QCheckBox mInfiniteEmitCheckBox{};
+    QSpinBox mLifeStepSpinBox{};
+    QSpinBox mLifeStepRndSpinBox{};
+    QSpinBox mEmitRateSpinBox{};
 
     static constexpr s32 sEmitInfinite = std::numeric_limits<s32>::max();
 };

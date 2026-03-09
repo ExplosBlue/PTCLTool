@@ -28,6 +28,8 @@ class TransformPropertiesWidget;
 class LifespanPropertiesWidget;
 class ScalePropertiesWidget;
 class TerminationPropertiesWidget;
+class EmissionPropertiesWidget;
+
 
 // ========================================================================== //
 
@@ -54,7 +56,6 @@ private:
     void populateProperties();
 
 private:
-    class EmissionPropertiesWidget;
     class VelocityPropertiesWidget;
     class VolumePropertiesWidget;
     class ColorPropertiesWidget;
