@@ -127,13 +127,6 @@ void EmitterWidget::setupConnections() {
         emit propertiesChanged();
     });
 
-    // Emission Properties
-    connect(mEmissionProperties, &EmissionPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::EmissionProperties& properties) {
-        if (!mEmitter) { return; }
-        mEmitter->setEmissionProperties(properties);
-        emit propertiesChanged();
-    });
-
     // Volume Properties
     connect(mVolumeProperties, &VolumePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::VolumeProperties& properties) {
         if (!mEmitter) { return; }
@@ -233,6 +226,7 @@ void EmitterWidget::setDocument(Ptcl::Document* document) {
     mLifespanProperties->setDocument(document);
     mScaleProperties->setDocument(document);
     mTerminationProperties->setDocument(document);
+    mEmissionProperties->setDocument(document);
 }
 
 void EmitterWidget::setSelection(Ptcl::Selection* selection) {
@@ -244,6 +238,7 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
     mLifespanProperties->setSelection(selection);
     mScaleProperties->setSelection(selection);
     mTerminationProperties->setSelection(selection);
+    mEmissionProperties->setSelection(selection);
 
     connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
         if (!mDocument) {
@@ -282,7 +277,6 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
 }
 
 void EmitterWidget::populateProperties() {
-    QSignalBlocker b6(mEmissionProperties);
     QSignalBlocker b7(mVelocityProperties);
     QSignalBlocker b8(mColorProperties);
     QSignalBlocker b9(mAlphaProperties);
@@ -294,7 +288,6 @@ void EmitterWidget::populateProperties() {
     QSignalBlocker b17(mFieldEditorWidget);
     QSignalBlocker b18(mStripeEditorWidget);
 
-    mEmissionProperties->setProperties(mEmitter->emissionProperties());
     mVelocityProperties->setProperties(mEmitter->velocityProperties());
     mVolumeProperties->setProperties(mEmitter->volumeProperties());
     mColorProperties->setProperties(mEmitter->colorProperties());

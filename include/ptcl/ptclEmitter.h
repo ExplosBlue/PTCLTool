@@ -92,14 +92,6 @@ public:
         f32 airResistance{1.0f};
     };
 
-    struct EmissionProperties {
-        s32 startFrame{0};
-        s32 endFrame{1};
-        s32 lifeStep{10};
-        s32 lifeStepRnd{1};
-        s32 emitRate{1};
-    };
-
     struct TextureProperties {
         TextureWrap textureWrapT{TextureWrap::ClampToEdge};
         TextureWrap textureWrapS{TextureWrap::ClampToEdge};
@@ -257,15 +249,29 @@ public:
     f32 scaleRand() const { return mScaleRand; }
     void setScaleRand(f32 scaleRand) { mScaleRand = scaleRand; }
 
+    // ----- Emission Properties ----- \\
+
+    s32 emitStartFrame() const { return mEmitStartFrame; }
+    void setEmitStartFrame(s32 startFrame) { mEmitStartFrame = startFrame; }
+
+    s32 emitEndFrame() const { return mEmitEndFrame; }
+    void setEmitEndFrame(s32 endFrame) { mEmitEndFrame = endFrame; }
+
+    s32 lifeStep() const { return mLifeStep; }
+    void setLifeStep(s32 lifeStep) { mLifeStep = lifeStep; }
+
+    s32 lifeStepRandom() const { return mLifeStepRnd; }
+    void setLifeStepRandom(s32 random) { mLifeStepRnd = random; }
+
+    s32 emitRate() const { return mEmitRate; }
+    void setEmitRate(s32 emitRate) { mEmitRate = emitRate; }
+
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag>& flags() const;
 
     TextureHandle& textureHandle();
     const TextureHandle& textureHandle() const;
     void setTexture(const std::shared_ptr<Texture>& texture);
-
-    const EmissionProperties& emissionProperties() const;
-    void setEmissionProperties(const EmissionProperties& emissionProperties);
 
     const VelocityProperties& velocityProperties() const;
     void setVelocityProperties(const VelocityProperties& velocityProperties);
@@ -358,9 +364,13 @@ private:
     ScaleAnim mScaleAnim{};
     f32 mScaleRand{0.0f};
 
+    // Emission Properties
+    s32 mEmitStartFrame{0};
+    s32 mEmitEndFrame{1};
+    s32 mLifeStep{10};
+    s32 mLifeStepRnd{1};
+    s32 mEmitRate{1};
 
-
-    EmissionProperties mEmissionProperties{};
     VelocityProperties mVelocityProperties{};
     VolumeProperties mVolumeProperties{};
     ColorProperties mColorProperties{};

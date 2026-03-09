@@ -38,7 +38,13 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mIsStopEmitInFade = mIsStopEmitInFade;
     newEmitter->mAlphaAddInFade = mAlphaAddInFade;
 
-    newEmitter->mEmissionProperties = mEmissionProperties;
+    // Emission Properties
+    newEmitter->mEmitStartFrame = mEmitStartFrame;
+    newEmitter->mEmitEndFrame = mEmitEndFrame;
+    newEmitter->mLifeStep = mLifeStep;
+    newEmitter->mLifeStepRnd = mLifeStepRnd;
+    newEmitter->mEmitRate = mEmitRate;
+
     newEmitter->mVelocityProperties = mVelocityProperties;
     newEmitter->mVolumeProperties = mVolumeProperties;
     newEmitter->mColorProperties = mColorProperties;
@@ -78,14 +84,6 @@ TextureHandle& Emitter::textureHandle() {
 
 void Emitter::setTexture(const std::shared_ptr<Texture>& texture) {
     mTextureHandle.set(texture);
-}
-
-const Emitter::EmissionProperties& Emitter::emissionProperties() const {
-    return mEmissionProperties;
-}
-
-void Emitter::setEmissionProperties(const EmissionProperties& emissionProperties) {
-    mEmissionProperties = emissionProperties;
 }
 
 const Emitter::VelocityProperties& Emitter::velocityProperties() const {
@@ -280,13 +278,12 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mIsStopEmitInFade = emitterData.isStopEmitInFade;
     mAlphaAddInFade = emitterData.alphaAddInFade;
 
-    mEmissionProperties = {
-        .startFrame = emitterData.startFrame,
-        .endFrame = emitterData.endFrame,
-        .lifeStep = emitterData.lifeStep,
-        .lifeStepRnd = emitterData.lifeStepRnd,
-        .emitRate = emitterData.emitRate
-    };
+    // Emission Properties
+    mEmitStartFrame = emitterData.startFrame;
+    mEmitEndFrame = emitterData.endFrame;
+    mLifeStep = emitterData.lifeStep;
+    mLifeStepRnd = emitterData.lifeStepRnd;
+    mEmitRate = emitterData.emitRate;
 
     mVelocityProperties = {
         .figureVel = emitterData.figureVel,
