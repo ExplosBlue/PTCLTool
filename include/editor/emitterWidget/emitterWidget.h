@@ -30,6 +30,7 @@ class ScalePropertiesWidget;
 class TerminationPropertiesWidget;
 class EmissionPropertiesWidget;
 class VelocityPropertiesWidget;
+class VolumePropertiesWidget;
 
 
 // ========================================================================== //
@@ -57,7 +58,6 @@ private:
     void populateProperties();
 
 private:
-    class VolumePropertiesWidget;
     class ColorPropertiesWidget;
     class AlphaPropertiesWidget;
     class RotationPropertiesWidget;
