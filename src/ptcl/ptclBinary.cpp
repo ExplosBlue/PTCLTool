@@ -355,8 +355,8 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     lifeStepRnd = emitter.emissionProperties().lifeStepRnd;
 
     emitRate = emitter.emissionProperties().emitRate;
-    ptclLife = emitter.lifespanProperties().ptclLife;
-    ptclLifeRnd = emitter.lifespanProperties().ptclLifeRnd;
+    ptclLife = emitter.ptclLife();
+    ptclLifeRnd = emitter.ptclLifeRandom();
     airResistance = emitter.velocityProperties().airResistance;
     blendFunc = emitter.combinerProperties().blendFunc;
     billboardType = emitter.billboardType();

@@ -9,8 +9,8 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-EmitterWidget::LifespanPropertiesWidget::LifespanPropertiesWidget(QWidget* parent) :
-    QWidget{parent} {
+LifespanPropertiesWidget::LifespanPropertiesWidget(QWidget* parent) :
+    EmitterWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
 
@@ -27,42 +27,56 @@ EmitterWidget::LifespanPropertiesWidget::LifespanPropertiesWidget(QWidget* paren
     mainLayout->addRow("Lifespan:", &mLifeSpanSpinBox);
     mainLayout->addRow("Lifespan Randomness:", &mLifeSpanRndSpinBox);
 
+    setupConnections();
+}
+
+void LifespanPropertiesWidget::setupConnections() {
     connect(&mLifeSpanSpinBox, &QSpinBox::valueChanged, this, [this](u64 value) {
-        mProps.ptclLife = static_cast<s32>(value);
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set LifeSpan",
+            "SetLifeSpan",
+            &Ptcl::Emitter::ptclLife,
+            &Ptcl::Emitter::setPtclLife,
+            static_cast<s32>(value)
+        );
     });
 
-    connect(&mInfiniteLifeCheckBox, &QCheckBox::checkStateChanged, this, [this](Qt::CheckState state) {
-        QSignalBlocker b1(mLifeSpanSpinBox);
+    connect(&mInfiniteLifeCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
+        const s32 newLife = checked ? sLifeInfinite : 100;
 
-        const bool isInfinite = (state == Qt::CheckState::Checked);
-        mProps.ptclLife = isInfinite ? sLifeInfinite : 100;
-        mLifeSpanSpinBox.setValue(mProps.ptclLife);
-        mLifeSpanSpinBox.setEnabled(!isInfinite);
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Toggle Infinite Life",
+            "SetParticleLife",
+            &Ptcl::Emitter::ptclLife,
+            &Ptcl::Emitter::setPtclLife,
+            newLife
+        );
     });
 
     connect(&mLifeSpanRndSpinBox, &QSpinBox::valueChanged, this, [this](u64 value) {
-        mProps.ptclLifeRnd = static_cast<s32>(value);
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set LifeSpan Random",
+            "SetLifeSpanRand",
+            &Ptcl::Emitter::ptclLifeRandom,
+            &Ptcl::Emitter::setPtclLifeRandom,
+            static_cast<s32>(value)
+        );
     });
 }
 
-void EmitterWidget::LifespanPropertiesWidget::setProperties(const Ptcl::Emitter::LifespanProperties& properties) {
+void LifespanPropertiesWidget::populateProperties() {
     QSignalBlocker b1(mInfiniteLifeCheckBox);
     QSignalBlocker b2(mLifeSpanSpinBox);
     QSignalBlocker b3(mLifeSpanRndSpinBox);
 
-    mProps = properties;
-
-    const s32 lifeSpan = mProps.ptclLife;
+    const s32 lifeSpan = mEmitter->ptclLife();
     const bool infiniteLife = (lifeSpan == sLifeInfinite);
 
     mLifeSpanSpinBox.setValue(lifeSpan);
     mLifeSpanSpinBox.setDisabled(infiniteLife);
     mInfiniteLifeCheckBox.setChecked(infiniteLife);
 
-    mLifeSpanRndSpinBox.setValue(mProps.ptclLifeRnd);
+    mLifeSpanRndSpinBox.setValue(mEmitter->ptclLifeRandom());
 }
 
 

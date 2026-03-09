@@ -26,11 +26,14 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mIsDirectional = mIsDirectional;
     newEmitter->mGravity = mGravity;
 
+    // Lifespan Properties
+    newEmitter->mPtclLife = mPtclLife;
+    newEmitter->mPtclLifeRnd = mPtclLifeRnd;
+
     // Transform Properties
     newEmitter->mTransformSRT = mTransformSRT;
     newEmitter->mTransformRT = mTransformRT;
 
-    newEmitter->mLifespanProperties = mLifespanProperties;
     newEmitter->mTerminationProperties = mTerminationProperties;
     newEmitter->mEmissionProperties = mEmissionProperties;
     newEmitter->mVelocityProperties = mVelocityProperties;
@@ -72,14 +75,6 @@ TextureHandle& Emitter::textureHandle() {
 
 void Emitter::setTexture(const std::shared_ptr<Texture>& texture) {
     mTextureHandle.set(texture);
-}
-
-const Emitter::LifespanProperties& Emitter::lifespanProperties() const {
-    return mLifespanProperties;
-}
-
-void Emitter::setLifespanProperties(const LifespanProperties& lifespanProperties) {
-    mLifespanProperties = lifespanProperties;
 }
 
 const Emitter::TerminationProperties& Emitter::terminationProperties() const {
@@ -278,14 +273,13 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mIsDirectional = emitterData.isDirectional;
     mGravity = Math::Vector3f(emitterData.gravity.x, emitterData.gravity.y, emitterData.gravity.z);
 
+    // Lifespan Properties
+    mPtclLife = emitterData.ptclLife;
+    mPtclLifeRnd = emitterData.ptclLifeRnd;
+
     // Transform Properties
     mTransformSRT = emitterData.transformSRT.toMatrix34f();
     mTransformRT = emitterData.transformRT.toMatrix34f();
-
-    mLifespanProperties = {
-        .ptclLife = emitterData.ptclLife,
-        .ptclLifeRnd = emitterData.ptclLifeRnd
-    };
 
     mTerminationProperties = {
         .isStopEmitInFade = emitterData.isStopEmitInFade,
