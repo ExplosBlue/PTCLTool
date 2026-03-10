@@ -368,11 +368,11 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     colorSection2 = emitter.colorProperties().colorSection2;
     colorSection3 = emitter.colorProperties().colorSection3;
     colorNumRepeat = emitter.colorProperties().colorNumRepeat;
-    initAlpha = emitter.alphaProperties().initAlpha;
-    diffAlpha21 = emitter.alphaProperties().diffAlpha21;
-    diffAlpha32 = emitter.alphaProperties().diffAlpha32;
-    alphaSection1 = emitter.alphaProperties().alphaSection1;
-    alphaSection2 = emitter.alphaProperties().alphaSection2;
+    initAlpha = emitter.alphaAnim().initAlpha;
+    diffAlpha21 = emitter.alphaAnim().diffAlpha21;
+    diffAlpha32 = emitter.alphaAnim().diffAlpha32;
+    alphaSection1 = emitter.alphaAnim().alphaSection1;
+    alphaSection2 = emitter.alphaAnim().alphaSection2;
 
     initScale = emitter.scaleAnim().initScale;
     diffScale21 = emitter.scaleAnim().diffScale21;
