@@ -61,7 +61,9 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mVolumeSweepParam = mVolumeSweepParam;
 
     newEmitter->mColorProperties = mColorProperties;
-    newEmitter->mAlphaProperties = mAlphaProperties;
+
+    // Alpha Properties
+    newEmitter->mAlphaAnim = mAlphaAnim;
 
     // Scale Properties
     newEmitter->mScaleAnim = mScaleAnim;
@@ -115,14 +117,6 @@ void Emitter::setColorProperties(const ColorProperties& colorProperties) {
     // Sync color flags with mFlag
     mFlag.set(EmitterFlag::ColorRandom, mColorProperties.colorRandom);
     mFlag.set(EmitterFlag::ColorAnimation, mColorProperties.colorAnimation);
-}
-
-const Emitter::AlphaProperties& Emitter::alphaProperties() const {
-    return mAlphaProperties;
-}
-
-void Emitter::setAlphaProperties(const AlphaProperties& alphaProperties) {
-    mAlphaProperties = alphaProperties;
 }
 
 const Emitter::TextureProperties& Emitter::textureProperties() const {
@@ -308,7 +302,8 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .color1 = emitterData.color1
     };
 
-    mAlphaProperties = {
+    // Alpha Properties
+    mAlphaAnim = {
         .initAlpha = emitterData.initAlpha,
         .diffAlpha21 = emitterData.diffAlpha21,
         .diffAlpha32 = emitterData.diffAlpha32,
