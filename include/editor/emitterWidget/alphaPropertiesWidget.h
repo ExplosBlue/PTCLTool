@@ -1,9 +1,7 @@
 #pragma once
 
 #include "editor/components/animGraph.h"
-#include "editor/emitterWidget/emitterWidget.h"
-
-#include "ptcl/ptclEmitter.h"
+#include "editor/emitterWidget/emitterWidgetBase.h"
 
 #include <QWidget>
 
@@ -14,19 +12,16 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class EmitterWidget::AlphaPropertiesWidget final : public QWidget {
+class AlphaPropertiesWidget final : public EmitterWidgetBase {
     Q_OBJECT
 public:
     explicit AlphaPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::Emitter::AlphaProperties& properties);
-
-signals:
-    void propertiesUpdated(const Ptcl::Emitter::AlphaProperties& properties);
+private:
+    void populateProperties() final;
+    void updateAnimPoint(s32 pointIndex, const AnimGraph::GraphPoint& point);
 
 private:
-    Ptcl::Emitter::AlphaProperties mProps{};
-
     AnimGraph mGraphA{};
 };
 

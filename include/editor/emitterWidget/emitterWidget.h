@@ -32,6 +32,7 @@ class EmissionPropertiesWidget;
 class VelocityPropertiesWidget;
 class VolumePropertiesWidget;
 class RotationPropertiesWidget;
+class AlphaPropertiesWidget;
 
 
 // ========================================================================== //
@@ -60,7 +61,6 @@ private:
 
 private:
     class ColorPropertiesWidget;
-    class AlphaPropertiesWidget;
     class TexturePropertiesWidget;
     class CombinerPropertiesWidget;
 

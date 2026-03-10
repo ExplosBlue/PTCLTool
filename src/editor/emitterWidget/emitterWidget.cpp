@@ -143,13 +143,6 @@ void EmitterWidget::setupConnections() {
         emit propertiesChanged();
     });
 
-    // Alpha Properties
-    connect(mAlphaProperties, &AlphaPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::AlphaProperties& properties) {
-        if (!mEmitter) { return; }
-        mEmitter->setAlphaProperties(properties);
-        emit propertiesChanged();
-    });
-
     // Child Editor Widget
     connect(mChildEditorWidget, &ChildEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::ChildFlag>& childFlags) {
         if (!mEmitter) { return; }
@@ -209,6 +202,7 @@ void EmitterWidget::setDocument(Ptcl::Document* document) {
     mVelocityProperties->setDocument(document);
     mVolumeProperties->setDocument(document);
     mRotationProperties->setDocument(document);
+    mAlphaProperties->setDocument(document);
 }
 
 void EmitterWidget::setSelection(Ptcl::Selection* selection) {
@@ -224,6 +218,7 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
     mVelocityProperties->setSelection(selection);
     mVolumeProperties->setSelection(selection);
     mRotationProperties->setSelection(selection);
+    mAlphaProperties->setSelection(selection);
 
     connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
         if (!mDocument) {
@@ -263,7 +258,6 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
 
 void EmitterWidget::populateProperties() {
     QSignalBlocker b8(mColorProperties);
-    QSignalBlocker b9(mAlphaProperties);
     QSignalBlocker b12(mTextureProperties);
     QSignalBlocker b13(mCombinerProperties);
     QSignalBlocker b15(mChildEditorWidget);
@@ -272,7 +266,6 @@ void EmitterWidget::populateProperties() {
     QSignalBlocker b18(mStripeEditorWidget);
 
     mColorProperties->setProperties(mEmitter->colorProperties());
-    mAlphaProperties->setProperties(mEmitter->alphaProperties());
     mTextureProperties->setProperties(mEmitter->textureProperties(), mEmitter->textureHandle().get());
     mCombinerProperties->setProperties(mEmitter->combinerProperties());
     mCombinerProperties->setCombinerSrc(&mEmitter->textureHandle(), &mEmitter->colorProperties().color1, &mEmitter->colorProperties().color0[0]);

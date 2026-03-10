@@ -58,12 +58,14 @@ public:
         binColor3f color1{255.0f, 255.0f, 255.0f};
     };
 
-    struct AlphaProperties {
+    struct AlphaAnim {
         f32 initAlpha{1.0f};
         f32 diffAlpha21{0.0f};
         f32 diffAlpha32{0.0f};
         s32 alphaSection1{0};
         s32 alphaSection2{100};
+
+        bool operator==(const AlphaAnim&) const = default;
     };
 
     struct TextureProperties {
@@ -297,6 +299,11 @@ public:
     const Math::Vector2f& rotationBasis() const { return mRotBasis; }
     void setRotationBasis(const Math::Vector2f& basis) { mRotBasis = basis; }
 
+    // ----- Alpha Properties ----- \\
+
+    const AlphaAnim& alphaAnim() const { return mAlphaAnim; }
+    void setAlphaAnim(const AlphaAnim& alphaAnim) { mAlphaAnim = alphaAnim; }
+
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag>& flags() const;
 
@@ -306,9 +313,6 @@ public:
 
     const ColorProperties& colorProperties() const;
     void setColorProperties(const ColorProperties& colorProperties);
-
-    const AlphaProperties& alphaProperties() const;
-    void setAlphaProperties(const AlphaProperties& alphaProperties);
 
     const TextureProperties& textureProperties() const;
     void setTextureProperties(const TextureProperties& textureProperties);
@@ -416,8 +420,10 @@ private:
     Math::Vector3i mRotVelRand{0, 0, 0};
     Math::Vector2f mRotBasis{0.0f, 0.0f};
 
+    // Alpha properties
+    AlphaAnim mAlphaAnim{};
+
     ColorProperties mColorProperties{};
-    AlphaProperties mAlphaProperties{};
     TextureProperties mTextureProperties{};
     CombinerProperties mCombinerProperties{};
 
