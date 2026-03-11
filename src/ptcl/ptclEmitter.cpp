@@ -77,8 +77,12 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mRotVelRand = mRotVelRand;
     newEmitter->mRotBasis = mRotBasis;
 
+    // Combiner Properties
+    newEmitter->mBlendFunc = mBlendFunc;
+    newEmitter->mDepthFunc = mDepthFunc;
+    newEmitter->mCombinerFunc = mCombinerFunc;
+
     newEmitter->mTextureProperties = mTextureProperties;
-    newEmitter->mCombinerProperties = mCombinerProperties;
     newEmitter->mTextureHandle = mTextureHandle.clone();
     newEmitter->mComplexProperties = mComplexProperties;
     newEmitter->mChildData = std::move(*mChildData.clone());
@@ -125,15 +129,6 @@ const Emitter::TextureProperties& Emitter::textureProperties() const {
 
 void Emitter::setTextureProperties(const TextureProperties& textureProperties) {
     mTextureProperties = textureProperties;
-}
-
-const Emitter::CombinerProperties& Emitter::combinerProperties() const {
-    return mCombinerProperties;
-}
-
-void Emitter::setCombinerProperties(const CombinerProperties& combinerProperties) {
-    mCombinerProperties = combinerProperties;
-    mFlag.set(EmitterFlag::EnableFog, mCombinerProperties.isFogEnabled);
 }
 
 const Emitter::ComplexProperties& Emitter::complexProperties() const {
@@ -330,12 +325,10 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mRotVelRand = Math::Vector3i(emitterData.rotVelRand.x, emitterData.rotVelRand.y, emitterData.rotVelRand.z);
     mRotBasis = Math::Vector2f(emitterData.rotBasis.x, emitterData.rotBasis.y);
 
-    mCombinerProperties = {
-        .blendFunc = emitterData.blendFunc,
-        .depthFunc = emitterData.depthFunc,
-        .combinerFunc = emitterData.colorCombinerFunc,
-        .isFogEnabled = emitterData.flag.isSet(EmitterFlag::EnableFog)
-    };
+    // Combiner Properties
+    mBlendFunc = emitterData.blendFunc;
+    mDepthFunc = emitterData.depthFunc;
+    mCombinerFunc = emitterData.colorCombinerFunc;
 }
 
 void Emitter::initComplexFromBinary(const BinComplexEmitterData& emitterData) {

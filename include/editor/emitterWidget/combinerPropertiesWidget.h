@@ -2,9 +2,7 @@
 
 #include "editor/components/combinerPreviewWidget.h"
 #include "editor/components/enumComboBox.h"
-#include "editor/emitterWidget/emitterWidget.h"
-
-#include "ptcl/ptclEmitter.h"
+#include "editor/emitterWidget/emitterWidgetBase.h"
 
 #include <QWidget>
 #include <QCheckBox>
@@ -16,22 +14,18 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class EmitterWidget::CombinerPropertiesWidget final : public QWidget {
+class CombinerPropertiesWidget final : public EmitterWidgetBase {
     Q_OBJECT
 public:
     explicit CombinerPropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::Emitter::CombinerProperties& properties);
-    void setCombinerSrc(const Ptcl::TextureHandle* texture, const Ptcl::binColor3f* constant, const Ptcl::binColor4f* primary);
-
     void updateCombinerPreview();
 
-signals:
-    void propertiesUpdated(const Ptcl::Emitter::CombinerProperties& properties);
+private:
+    void populateProperties() final;
+    void setupConnections();
 
 private:
-    Ptcl::Emitter::CombinerProperties mProps{};
-
     QCheckBox mFogCheckBox{};
     EnumComboBox<Ptcl::BlendFuncType> mBlendFuncComboBox{};
     EnumComboBox<Ptcl::DepthFuncType> mDepthFuncComboBox{};

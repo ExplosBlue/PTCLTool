@@ -136,13 +136,6 @@ void EmitterWidget::setupConnections() {
         emit propertiesChanged();
     });
 
-    // Combiner Properties
-    connect(mCombinerProperties, &CombinerPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::CombinerProperties& properties) {
-        if (!mEmitter) { return; }
-        mEmitter->setCombinerProperties(properties);
-        emit propertiesChanged();
-    });
-
     // Child Editor Widget
     connect(mChildEditorWidget, &ChildEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::ChildFlag>& childFlags) {
         if (!mEmitter) { return; }
@@ -203,6 +196,7 @@ void EmitterWidget::setDocument(Ptcl::Document* document) {
     mVolumeProperties->setDocument(document);
     mRotationProperties->setDocument(document);
     mAlphaProperties->setDocument(document);
+    mCombinerProperties->setDocument(document);
 }
 
 void EmitterWidget::setSelection(Ptcl::Selection* selection) {
@@ -219,6 +213,7 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
     mVolumeProperties->setSelection(selection);
     mRotationProperties->setSelection(selection);
     mAlphaProperties->setSelection(selection);
+    mCombinerProperties->setSelection(selection);
 
     connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
         if (!mDocument) {
@@ -259,7 +254,6 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
 void EmitterWidget::populateProperties() {
     QSignalBlocker b8(mColorProperties);
     QSignalBlocker b12(mTextureProperties);
-    QSignalBlocker b13(mCombinerProperties);
     QSignalBlocker b15(mChildEditorWidget);
     QSignalBlocker b16(mFluctuationEditorWidget);
     QSignalBlocker b17(mFieldEditorWidget);
@@ -267,8 +261,6 @@ void EmitterWidget::populateProperties() {
 
     mColorProperties->setProperties(mEmitter->colorProperties());
     mTextureProperties->setProperties(mEmitter->textureProperties(), mEmitter->textureHandle().get());
-    mCombinerProperties->setProperties(mEmitter->combinerProperties());
-    mCombinerProperties->setCombinerSrc(&mEmitter->textureHandle(), &mEmitter->colorProperties().color1, &mEmitter->colorProperties().color0[0]);
 
     mChildEditorWidget->setChildData(&mEmitter->childData(), mEmitter->complexProperties().childFlags);
     mChildEditorWidget->setParentColor0(mEmitter->colorProperties().color0[0]);

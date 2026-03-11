@@ -358,9 +358,9 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     ptclLife = emitter.ptclLife();
     ptclLifeRnd = emitter.ptclLifeRandom();
     airResistance = emitter.airResistance();
-    blendFunc = emitter.combinerProperties().blendFunc;
+    blendFunc = emitter.blendFunction();
     billboardType = emitter.billboardType();
-    depthFunc = emitter.combinerProperties().depthFunc;
+    depthFunc = emitter.depthFunction();
     gravity = emitter.gravity();
     color0 = emitter.colorProperties().color0;
     color1 = emitter.colorProperties().color1;
@@ -383,7 +383,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
 
     rotCalcType = static_cast<u32>(emitter.rotationType()) + 5 * static_cast<u32>(emitter.colorProperties().colorCalcType);
     followType = emitter.followType();
-    colorCombinerFunc = emitter.combinerProperties().combinerFunc;
+    colorCombinerFunc = emitter.combinerFunction();
     initRot = emitter.initialRotation();
     initRotRand = emitter.initialRotationRandom();
     rotVel = emitter.rotationVelocity();
