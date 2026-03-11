@@ -8,8 +8,8 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-EmitterWidget::CombinerPropertiesWidget::CombinerPropertiesWidget(QWidget* parent) :
-    QWidget{parent} {
+CombinerPropertiesWidget::CombinerPropertiesWidget(QWidget* parent) :
+    EmitterWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
 
@@ -21,49 +21,69 @@ EmitterWidget::CombinerPropertiesWidget::CombinerPropertiesWidget(QWidget* paren
     mainLayout->addRow("Combiner Function:", &mCombinerFuncComboBox);
     mainLayout->addWidget(&mCombinerPreview);
 
+    setupConnections();
+}
+
+void CombinerPropertiesWidget::setupConnections() {
     connect(&mFogCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
-        mProps.isFogEnabled = checked;
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Fog Enabled",
+            "SetFogEnabled",
+            &Ptcl::Emitter::isFogEnabled,
+            &Ptcl::Emitter::setIsFogEnabled,
+            checked
+        );
     });
 
     connect(&mBlendFuncComboBox, &QComboBox::currentIndexChanged, this, [this]() {
-        mProps.blendFunc = mBlendFuncComboBox.currentEnum();
-        emit propertiesUpdated(mProps);
+        const auto func = mBlendFuncComboBox.currentEnum();
+        setEmitterProperty(
+            "Set Blend Function",
+            "SetBlendFunction",
+            &Ptcl::Emitter::blendFunction,
+            &Ptcl::Emitter::setBlendFunction,
+            func
+        );
     });
 
     connect(&mDepthFuncComboBox, &QComboBox::currentIndexChanged, this, [this]() {
-        mProps.depthFunc = mDepthFuncComboBox.currentEnum();
-        emit propertiesUpdated(mProps);
+        const auto func = mDepthFuncComboBox.currentEnum();
+        setEmitterProperty(
+            "Set Depth Function",
+            "SetDepthFunction",
+            &Ptcl::Emitter::depthFunction,
+            &Ptcl::Emitter::setDepthFunction,
+            func
+        );
     });
 
     connect(&mCombinerFuncComboBox, &QComboBox::currentIndexChanged, this, [this]() {
-        auto value = mCombinerFuncComboBox.currentEnum();
-        mProps.combinerFunc = value;
-        mCombinerPreview.setConfig(static_cast<s32>(value));
-        emit propertiesUpdated(mProps);
+        const auto func = mCombinerFuncComboBox.currentEnum();
+        setEmitterProperty(
+            "Set Combiner Function",
+            "SetCombinerFunction",
+            &Ptcl::Emitter::combinerFunction,
+            &Ptcl::Emitter::setCombinerFunction,
+            func
+        );
     });
 }
 
-void EmitterWidget::CombinerPropertiesWidget::setProperties(const Ptcl::Emitter::CombinerProperties& properties) {
+void CombinerPropertiesWidget::populateProperties() {
     QSignalBlocker b1(mBlendFuncComboBox);
     QSignalBlocker b2(mDepthFuncComboBox);
     QSignalBlocker b3(mCombinerFuncComboBox);
     QSignalBlocker b4(mFogCheckBox);
 
-    mProps = properties;
-
-    mFogCheckBox.setChecked(mProps.isFogEnabled);
-    mBlendFuncComboBox.setCurrentEnum(mProps.blendFunc);
-    mDepthFuncComboBox.setCurrentEnum(mProps.depthFunc);
-    mCombinerFuncComboBox.setCurrentEnum(mProps.combinerFunc);
-    mCombinerPreview.setConfig(static_cast<s32>(mProps.combinerFunc));
+    mFogCheckBox.setChecked(mEmitter->isFogEnabled());
+    mBlendFuncComboBox.setCurrentEnum(mEmitter->blendFunction());
+    mDepthFuncComboBox.setCurrentEnum(mEmitter->depthFunction());
+    mCombinerFuncComboBox.setCurrentEnum(mEmitter->combinerFunction());
+    mCombinerPreview.setConfig(static_cast<s32>(mEmitter->combinerFunction()));
+    mCombinerPreview.setCombinerSrc(&mEmitter->textureHandle(), &mEmitter->colorProperties().color1, &mEmitter->colorProperties().color0[0]);
 }
 
-void EmitterWidget::CombinerPropertiesWidget::setCombinerSrc(const Ptcl::TextureHandle* texture, const Ptcl::binColor3f* constant, const Ptcl::binColor4f* primary) {
-    mCombinerPreview.setCombinerSrc(texture, constant, primary);
-}
-
-void EmitterWidget::CombinerPropertiesWidget::updateCombinerPreview() {
+void CombinerPropertiesWidget::updateCombinerPreview() {
     mCombinerPreview.updateStages();
 }
 

@@ -33,6 +33,7 @@ class VelocityPropertiesWidget;
 class VolumePropertiesWidget;
 class RotationPropertiesWidget;
 class AlphaPropertiesWidget;
+class CombinerPropertiesWidget;
 
 
 // ========================================================================== //
@@ -62,7 +63,6 @@ private:
 private:
     class ColorPropertiesWidget;
     class TexturePropertiesWidget;
-    class CombinerPropertiesWidget;
 
 private:
     Ptcl::Document* mDocument{nullptr};
