@@ -85,13 +85,6 @@ public:
         bool isTexPatAnim{false};
     };
 
-    struct CombinerProperties {
-        BlendFuncType blendFunc{BlendFuncType::Translucent};
-        DepthFuncType depthFunc{DepthFuncType::Unk0};
-        ColorCombinerFuncType combinerFunc{ColorCombinerFuncType::CombinerConfig0};
-        bool isFogEnabled{false};
-    };
-
     struct ComplexProperties {
         BitFlag<ChildFlag> childFlags{
             ChildFlag::AlphaInherit,
@@ -304,6 +297,20 @@ public:
     const AlphaAnim& alphaAnim() const { return mAlphaAnim; }
     void setAlphaAnim(const AlphaAnim& alphaAnim) { mAlphaAnim = alphaAnim; }
 
+    // ----- Combiner Properties ----- \\
+
+    BlendFuncType blendFunction() const { return mBlendFunc; }
+    void setBlendFunction(BlendFuncType blendFunction) { mBlendFunc = blendFunction; }
+
+    DepthFuncType depthFunction() const { return mDepthFunc; }
+    void setDepthFunction(DepthFuncType depthFunction) { mDepthFunc = depthFunction; }
+
+    ColorCombinerFuncType combinerFunction() const { return mCombinerFunc; }
+    void setCombinerFunction(ColorCombinerFuncType combineFunc) { mCombinerFunc = combineFunc; }
+
+    bool isFogEnabled() const { return mFlag.isSet(EmitterFlag::EnableFog); }
+    void setIsFogEnabled(bool enabled) { mFlag.set(EmitterFlag::EnableFog, enabled); }
+
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag>& flags() const;
 
@@ -316,9 +323,6 @@ public:
 
     const TextureProperties& textureProperties() const;
     void setTextureProperties(const TextureProperties& textureProperties);
-
-    const CombinerProperties& combinerProperties() const;
-    void setCombinerProperties(const CombinerProperties& combinerProperties);
 
     const ComplexProperties& complexProperties() const;
     void setComplexProperties(const ComplexProperties& complexProperties);
@@ -423,9 +427,13 @@ private:
     // Alpha properties
     AlphaAnim mAlphaAnim{};
 
+    // Combiner Properties
+    BlendFuncType mBlendFunc{BlendFuncType::Translucent};
+    DepthFuncType mDepthFunc{DepthFuncType::Unk0};
+    ColorCombinerFuncType mCombinerFunc{ColorCombinerFuncType::CombinerConfig0};
+
     ColorProperties mColorProperties{};
     TextureProperties mTextureProperties{};
-    CombinerProperties mCombinerProperties{};
 
     TextureHandle mTextureHandle{};
 
