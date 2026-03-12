@@ -128,6 +128,8 @@ struct alignas(4) binColor4f {
     friend QDataStream& operator<<(QDataStream& out, const binColor4f& item);
 
     friend QDebug operator<<(QDebug dbg, const binColor4f& item);
+
+    bool operator==(const binColor4f&) const = default;
 };
 
 static_assert(sizeof(binColor4f) == 0x10, "binColor4f is incorrect size.");
@@ -150,6 +152,8 @@ struct alignas(4) binColor3f {
     friend QDataStream& operator<<(QDataStream& out, const binColor3f& item);
 
     friend QDebug operator<<(QDebug dbg, const binColor3f& item);
+
+    bool operator==(const binColor3f&) const = default;
 };
 
 static_assert(sizeof(binColor3f) == 0x0C, "binColor3f is incorrect size.");

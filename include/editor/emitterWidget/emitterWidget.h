@@ -34,7 +34,7 @@ class VolumePropertiesWidget;
 class RotationPropertiesWidget;
 class AlphaPropertiesWidget;
 class CombinerPropertiesWidget;
-
+class ColorPropertiesWidget;
 
 // ========================================================================== //
 
@@ -61,7 +61,6 @@ private:
     void populateProperties();
 
 private:
-    class ColorPropertiesWidget;
     class TexturePropertiesWidget;
 
 private:
