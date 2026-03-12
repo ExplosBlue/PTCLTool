@@ -40,24 +40,6 @@ public:
         bool operator==(const ScaleAnim&) const = default;
     };
 
-    struct ColorProperties {
-        std::array<binColor4f, 3> color0{
-            binColor4f{1.0f, 1.0f, 1.0f, 1.0f},
-            binColor4f{1.0f, 1.0f, 1.0f, 1.0f},
-            binColor4f{1.0f, 1.0f, 1.0f, 1.0f},
-        };
-        s32 colorSection1{20};
-        s32 colorSection2{60};
-        s32 colorSection3{80};
-        s32 colorNumRepeat{1};
-
-        bool colorRandom{false};
-        bool colorAnimation{false};
-        ColorCalcType colorCalcType{ColorCalcType::None};
-
-        binColor3f color1{255.0f, 255.0f, 255.0f};
-    };
-
     struct AlphaAnim {
         f32 initAlpha{1.0f};
         f32 diffAlpha21{0.0f};
@@ -311,6 +293,55 @@ public:
     bool isFogEnabled() const { return mFlag.isSet(EmitterFlag::EnableFog); }
     void setIsFogEnabled(bool enabled) { mFlag.set(EmitterFlag::EnableFog, enabled); }
 
+    // ----- Color Properties ----- \\
+
+    const std::array<binColor4f, 3>& color0() const { return mColor0; }
+
+    const binColor4f& primaryColor() const { return mColor0[0]; }
+    void setPrimaryColor(const binColor4f& color) { mColor0[0] = color; }
+
+    const binColor4f& randomColorA() const { return mColor0[0]; }
+    void setRandomColorA(const binColor4f& color) { mColor0[0] = color; }
+
+    const binColor4f& randomColorB() const { return mColor0[1]; }
+    void setRandomColorB(const binColor4f& color) { mColor0[1] = color; }
+
+    const binColor4f& randomColorC() const { return mColor0[2]; }
+    void setRandomColorC(const binColor4f& color) { mColor0[2] = color; }
+
+    const binColor4f& startColor() const { return mColor0[0]; }
+    void setStartColor(const binColor4f& color) { mColor0[0] = color; }
+
+    const binColor4f& midColor() const { return mColor0[1]; }
+    void setMidColor(const binColor4f& color) { mColor0[1] = color; }
+
+    const binColor4f& endColor() const { return mColor0[2]; }
+    void setEndColor(const binColor4f& color) { mColor0[2] = color; }
+
+    s32 colorSection1() const { return mColorSection1; }
+    void setColorSection1(s32 section) { mColorSection1 = section; }
+
+    s32 colorSection2() const { return mColorSection2; }
+    void setColorSection2(s32 section) { mColorSection2 = section; }
+
+    s32 colorSection3() const { return mColorSection3; }
+    void setColorSection3(s32 section) { mColorSection3 = section; }
+
+    s32 colorNumRepeat() const { return mColorNumRepeat; }
+    void setColorNumRepeat(s32 num) { mColorNumRepeat = num; }
+
+    bool isColorRandom() const { return mFlag.isSet(EmitterFlag::ColorRandom); }
+    void setIsColorRandom(bool isRandom) { mFlag.set(EmitterFlag::ColorRandom, isRandom); }
+
+    bool isColorAnimation() const { return mFlag.isSet(EmitterFlag::ColorAnimation); }
+    void setIsColorAnimation(bool isAnim) { mFlag.set(EmitterFlag::ColorAnimation, isAnim); }
+
+    ColorCalcType colorCalcType() const { return mColorCalcType; }
+    void setColorCalcType(ColorCalcType type) { mColorCalcType = type; }
+
+    const binColor3f& secondaryColor() const { return mColor1; }
+    void setSecondaryColor(const binColor3f& color) { mColor1 = color; }
+
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag>& flags() const;
 
@@ -318,8 +349,6 @@ public:
     const TextureHandle& textureHandle() const;
     void setTexture(const std::shared_ptr<Texture>& texture);
 
-    const ColorProperties& colorProperties() const;
-    void setColorProperties(const ColorProperties& colorProperties);
 
     const TextureProperties& textureProperties() const;
     void setTextureProperties(const TextureProperties& textureProperties);
@@ -432,7 +461,20 @@ private:
     DepthFuncType mDepthFunc{DepthFuncType::Unk0};
     ColorCombinerFuncType mCombinerFunc{ColorCombinerFuncType::CombinerConfig0};
 
-    ColorProperties mColorProperties{};
+    // Color Properties
+    std::array<binColor4f, 3> mColor0{
+        binColor4f{1.0f, 1.0f, 1.0f, 1.0f},
+        binColor4f{1.0f, 1.0f, 1.0f, 1.0f},
+        binColor4f{1.0f, 1.0f, 1.0f, 1.0f},
+    };
+    s32 mColorSection1{20};
+    s32 mColorSection2{60};
+    s32 mColorSection3{80};
+    s32 mColorNumRepeat{1};
+    ColorCalcType mColorCalcType{ColorCalcType::None};
+
+    binColor3f mColor1{255.0f, 255.0f, 255.0f};
+
     TextureProperties mTextureProperties{};
 
     TextureHandle mTextureHandle{};

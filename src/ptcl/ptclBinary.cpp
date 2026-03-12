@@ -362,12 +362,12 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     billboardType = emitter.billboardType();
     depthFunc = emitter.depthFunction();
     gravity = emitter.gravity();
-    color0 = emitter.colorProperties().color0;
-    color1 = emitter.colorProperties().color1;
-    colorSection1 = emitter.colorProperties().colorSection1;
-    colorSection2 = emitter.colorProperties().colorSection2;
-    colorSection3 = emitter.colorProperties().colorSection3;
-    colorNumRepeat = emitter.colorProperties().colorNumRepeat;
+    color0 = emitter.color0();
+    color1 = emitter.secondaryColor();
+    colorSection1 = emitter.colorSection1();
+    colorSection2 = emitter.colorSection2();
+    colorSection3 = emitter.colorSection3();
+    colorNumRepeat = emitter.colorNumRepeat();
     initAlpha = emitter.alphaAnim().initAlpha;
     diffAlpha21 = emitter.alphaAnim().diffAlpha21;
     diffAlpha32 = emitter.alphaAnim().diffAlpha32;
@@ -381,7 +381,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     scaleSection2 = emitter.scaleAnim().scaleSection2;
     scaleRand = emitter.scaleRand();
 
-    rotCalcType = static_cast<u32>(emitter.rotationType()) + 5 * static_cast<u32>(emitter.colorProperties().colorCalcType);
+    rotCalcType = static_cast<u32>(emitter.rotationType()) + 5 * static_cast<u32>(emitter.colorCalcType());
     followType = emitter.followType();
     colorCombinerFunc = emitter.combinerFunction();
     initRot = emitter.initialRotation();
