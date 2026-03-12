@@ -80,7 +80,7 @@ void CombinerPropertiesWidget::populateProperties() {
     mDepthFuncComboBox.setCurrentEnum(mEmitter->depthFunction());
     mCombinerFuncComboBox.setCurrentEnum(mEmitter->combinerFunction());
     mCombinerPreview.setConfig(static_cast<s32>(mEmitter->combinerFunction()));
-    mCombinerPreview.setCombinerSrc(&mEmitter->textureHandle(), &mEmitter->colorProperties().color1, &mEmitter->colorProperties().color0[0]);
+    mCombinerPreview.setCombinerSrc(&mEmitter->textureHandle(), &mEmitter->secondaryColor(), &mEmitter->primaryColor());
 }
 
 void CombinerPropertiesWidget::updateCombinerPreview() {

@@ -60,7 +60,14 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mVolumeSweepStart = mVolumeSweepStart;
     newEmitter->mVolumeSweepParam = mVolumeSweepParam;
 
-    newEmitter->mColorProperties = mColorProperties;
+    // Color Properties
+    newEmitter->mColor0 = mColor0;
+    newEmitter->mColorSection1 = mColorSection1;
+    newEmitter->mColorSection2 = mColorSection2;
+    newEmitter->mColorSection3 = mColorSection3;
+    newEmitter->mColorNumRepeat = mColorNumRepeat;
+    newEmitter->mColorCalcType = mColorCalcType;
+    newEmitter->mColor1 = mColor1;
 
     // Alpha Properties
     newEmitter->mAlphaAnim = mAlphaAnim;
@@ -110,17 +117,6 @@ TextureHandle& Emitter::textureHandle() {
 
 void Emitter::setTexture(const std::shared_ptr<Texture>& texture) {
     mTextureHandle.set(texture);
-}
-
-const Emitter::ColorProperties& Emitter::colorProperties() const {
-    return mColorProperties;
-}
-
-void Emitter::setColorProperties(const ColorProperties& colorProperties) {
-    mColorProperties = colorProperties;
-    // Sync color flags with mFlag
-    mFlag.set(EmitterFlag::ColorRandom, mColorProperties.colorRandom);
-    mFlag.set(EmitterFlag::ColorAnimation, mColorProperties.colorAnimation);
 }
 
 const Emitter::TextureProperties& Emitter::textureProperties() const {
@@ -285,17 +281,14 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mVolumeSweepStart = emitterData.volumeSweepStart;
     mVolumeSweepParam = emitterData.volumeSweepParam;
 
-    mColorProperties = {
-        .color0 = emitterData.color0,
-        .colorSection1 = emitterData.colorSection1,
-        .colorSection2 = emitterData.colorSection2,
-        .colorSection3 = emitterData.colorSection3,
-        .colorNumRepeat = emitterData.colorNumRepeat,
-        .colorRandom = emitterData.flag.isSet(EmitterFlag::ColorRandom),
-        .colorAnimation = emitterData.flag.isSet(EmitterFlag::ColorAnimation),
-        .colorCalcType = static_cast<ColorCalcType>(emitterData.rotCalcType / 5),
-        .color1 = emitterData.color1
-    };
+    // Color Properties
+    mColor0 = emitterData.color0;
+    mColorSection1 = emitterData.colorSection1;
+    mColorSection2 = emitterData.colorSection2;
+    mColorSection3 = emitterData.colorSection3;
+    mColorNumRepeat = emitterData.colorNumRepeat;
+    mColorCalcType = static_cast<ColorCalcType>(emitterData.rotCalcType / 5);
+    mColor1 = emitterData.color1;
 
     // Alpha Properties
     mAlphaAnim = {

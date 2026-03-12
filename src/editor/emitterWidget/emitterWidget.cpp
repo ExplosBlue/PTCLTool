@@ -127,15 +127,6 @@ void EmitterWidget::setupConnections() {
         emit propertiesChanged();
     });
 
-    // Color Properties
-    connect(mColorProperties, &ColorPropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::ColorProperties& properties) {
-        if (!mEmitter) { return; }
-        mEmitter->setColorProperties(properties);
-        mCombinerProperties->updateCombinerPreview();
-        mChildEditorWidget->setParentColor0(mEmitter->colorProperties().color0[0]);
-        emit propertiesChanged();
-    });
-
     // Child Editor Widget
     connect(mChildEditorWidget, &ChildEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::ChildFlag>& childFlags) {
         if (!mEmitter) { return; }
@@ -197,6 +188,7 @@ void EmitterWidget::setDocument(Ptcl::Document* document) {
     mRotationProperties->setDocument(document);
     mAlphaProperties->setDocument(document);
     mCombinerProperties->setDocument(document);
+    mColorProperties->setDocument(document);
 }
 
 void EmitterWidget::setSelection(Ptcl::Selection* selection) {
@@ -214,6 +206,7 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
     mRotationProperties->setSelection(selection);
     mAlphaProperties->setSelection(selection);
     mCombinerProperties->setSelection(selection);
+    mColorProperties->setSelection(selection);
 
     connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
         if (!mDocument) {
@@ -252,18 +245,16 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
 }
 
 void EmitterWidget::populateProperties() {
-    QSignalBlocker b8(mColorProperties);
     QSignalBlocker b12(mTextureProperties);
     QSignalBlocker b15(mChildEditorWidget);
     QSignalBlocker b16(mFluctuationEditorWidget);
     QSignalBlocker b17(mFieldEditorWidget);
     QSignalBlocker b18(mStripeEditorWidget);
 
-    mColorProperties->setProperties(mEmitter->colorProperties());
     mTextureProperties->setProperties(mEmitter->textureProperties(), mEmitter->textureHandle().get());
 
     mChildEditorWidget->setChildData(&mEmitter->childData(), mEmitter->complexProperties().childFlags);
-    mChildEditorWidget->setParentColor0(mEmitter->colorProperties().color0[0]);
+    mChildEditorWidget->setParentColor0(mEmitter->primaryColor());
 
     mFluctuationEditorWidget->setData(mEmitter->fluctuationData(), mEmitter->complexProperties().fluctuationFlags);
     mFieldEditorWidget->setData(&mEmitter->fieldData(), mEmitter->complexProperties().fieldFlags);
