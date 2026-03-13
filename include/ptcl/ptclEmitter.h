@@ -50,23 +50,6 @@ public:
         bool operator==(const AlphaAnim&) const = default;
     };
 
-    struct TextureProperties {
-        TextureWrap textureWrapT{TextureWrap::ClampToEdge};
-        TextureWrap textureWrapS{TextureWrap::ClampToEdge};
-        TextureFilter textureMagFilter{TextureFilter::Nearest};
-        TextureFilter textureMinFilter{TextureFilter::Nearest};
-        TextureMipFilter textureMipFilter{TextureMipFilter::None};
-
-        u16 numTexPat{1};
-        u8 numTexDivX{1};
-        u8 numTexDivY{1};
-        Math::Vector2f texUVScale{1.0f, 1.0f};
-        std::array<u8, 16> texPatTbl{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        u16 texPatFreq{0};
-        u16 texPatTblUse{2};
-        bool isTexPatAnim{false};
-    };
-
     struct ComplexProperties {
         BitFlag<ChildFlag> childFlags{
             ChildFlag::AlphaInherit,
@@ -342,16 +325,67 @@ public:
     const binColor3f& secondaryColor() const { return mColor1; }
     void setSecondaryColor(const binColor3f& color) { mColor1 = color; }
 
+    // ----- Texture Properties ----- \\
+
+    TextureWrap textureWrapT() const { return mTextureWrapT; }
+    void setTextureWrapT(TextureWrap wrap) { mTextureWrapT = wrap; }
+
+    TextureWrap textureWrapS() const { return mTextureWrapS; }
+    void setTextureWrapS(TextureWrap wrap) { mTextureWrapS = wrap; }
+
+    TextureFilter textureMagFilter() const { return mTextureMagFilter; }
+    void setTextureMagFilter(TextureFilter filter) { mTextureMagFilter = filter; }
+
+    TextureFilter textureMinFilter() const { return mTextureMinFilter; }
+    void setTextureMinFilter(TextureFilter filter) { mTextureMinFilter = filter; }
+
+    TextureMipFilter textureMipFilter() const { return mTextureMipFilter; }
+    void setTextureMipFilter(TextureMipFilter filter) { mTextureMipFilter = filter; }
+
+    u16 numTexturePattern() const { return mNumTexturePattern; }
+    void setNumTexturePattern(u16 num) { mNumTexturePattern = num; }
+
+    u8 numTextureDivisionX() const { return mNumTextureDivisionX; }
+    void setNumTextureDivisionX(u8 num) {
+        mTextureUVScale.setX(static_cast<f32>(numTextureRepetitionsX()) / static_cast<f32>(num));
+        mNumTextureDivisionX = num;
+    }
+
+    u8 numTextureDivisionY() const { return mNumTextureDivisionY; }
+    void setNumTextureDivisionY(u8 num) {
+        mTextureUVScale.setY(static_cast<f32>(numTextureRepetitionsY()) / static_cast<f32>(num));
+        mNumTextureDivisionY = num;
+    }
+
+    s32 numTextureRepetitionsX() const { return static_cast<s32>(std::round(mTextureUVScale.getX() * static_cast<f32>(mNumTextureDivisionX))); }
+    void setNumTextureRepetitionsX(s32 num) { mTextureUVScale.setX(static_cast<f32>(num) / static_cast<f32>(mNumTextureDivisionX)); }
+
+    s32 numTextureRepetitionsY() const { return static_cast<s32>(std::round(mTextureUVScale.getY() * static_cast<f32>(mNumTextureDivisionY))); }
+    void setNumTextureRepetitionsY(s32 num) { mTextureUVScale.setY(static_cast<f32>(num) / static_cast<f32>(mNumTextureDivisionY)); }
+
+    const Math::Vector2f& textureUVScale() const { return mTextureUVScale; }
+    void setTextureUVScale(const Math::Vector2f& scale) { mTextureUVScale = scale; }
+
+    const std::array<u8, 16>& texturePatternTable() const { return mTexturePatternTbl; }
+    void setTexturePatternTable(const std::array<u8, 16>& table) { mTexturePatternTbl = table; }
+
+    u16 texturePatternFrequency() const { return mTexturePatternFrequency; }
+    void setTexturePatternFrequency(u16 frequency) { mTexturePatternFrequency = frequency; }
+
+    u16 texturePatternTableUse() const { return mTexturePatternTblUse; }
+    void setTexturePatternTableUse(u16 use) { mTexturePatternTblUse = use; }
+
+    bool isTexturePatternAnim() const { return mIsTexturePatternAnim; }
+    void setIsTexturePatternAnim(bool isAnim) { mIsTexturePatternAnim = isAnim; }
+
+    const TextureHandle& textureHandle() const { return mTextureHandle; }
+    // TextureHandle& textureHandle() { return mTextureHandle; }
+
+    std::shared_ptr<Texture> texture() const { return mTextureHandle.get(); }
+    void setTexture(const std::shared_ptr<Texture>& texture) { mTextureHandle.set(texture); }
+
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag>& flags() const;
-
-    TextureHandle& textureHandle();
-    const TextureHandle& textureHandle() const;
-    void setTexture(const std::shared_ptr<Texture>& texture);
-
-
-    const TextureProperties& textureProperties() const;
-    void setTextureProperties(const TextureProperties& textureProperties);
 
     const ComplexProperties& complexProperties() const;
     void setComplexProperties(const ComplexProperties& complexProperties);
@@ -475,8 +509,20 @@ private:
 
     binColor3f mColor1{255.0f, 255.0f, 255.0f};
 
-    TextureProperties mTextureProperties{};
-
+    // Texture Properties
+    TextureWrap mTextureWrapT{TextureWrap::ClampToEdge};
+    TextureWrap mTextureWrapS{TextureWrap::ClampToEdge};
+    TextureFilter mTextureMagFilter{TextureFilter::Nearest};
+    TextureFilter mTextureMinFilter{TextureFilter::Nearest};
+    TextureMipFilter mTextureMipFilter{TextureMipFilter::None};
+    u16 mNumTexturePattern{1};
+    u8 mNumTextureDivisionX{1};
+    u8 mNumTextureDivisionY{1};
+    Math::Vector2f mTextureUVScale{1.0f, 1.0f};
+    std::array<u8, 16> mTexturePatternTbl{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    u16 mTexturePatternFrequency{0};
+    u16 mTexturePatternTblUse{2};
+    bool mIsTexturePatternAnim{false};
     TextureHandle mTextureHandle{};
 
     ComplexProperties mComplexProperties{};
