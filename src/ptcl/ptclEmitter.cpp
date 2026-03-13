@@ -89,8 +89,22 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mDepthFunc = mDepthFunc;
     newEmitter->mCombinerFunc = mCombinerFunc;
 
-    newEmitter->mTextureProperties = mTextureProperties;
+    // Texture Properties
+    newEmitter->mTextureWrapT = mTextureWrapT;
+    newEmitter->mTextureWrapS = mTextureWrapS;
+    newEmitter->mTextureMagFilter = mTextureMagFilter;
+    newEmitter->mTextureMinFilter = mTextureMinFilter;
+    newEmitter->mTextureMipFilter = mTextureMipFilter;
+    newEmitter->mNumTexturePattern = mNumTexturePattern;
+    newEmitter->mNumTextureDivisionX = mNumTextureDivisionX;
+    newEmitter->mNumTextureDivisionY = mNumTextureDivisionY;
+    newEmitter->mTextureUVScale = mTextureUVScale;
+    newEmitter->mTexturePatternTbl = mTexturePatternTbl;
+    newEmitter->mTexturePatternFrequency = mTexturePatternFrequency;
+    newEmitter->mTexturePatternTblUse = mTexturePatternTblUse;
+    newEmitter->mIsTexturePatternAnim = mIsTexturePatternAnim;
     newEmitter->mTextureHandle = mTextureHandle.clone();
+
     newEmitter->mComplexProperties = mComplexProperties;
     newEmitter->mChildData = std::move(*mChildData.clone());
     newEmitter->mFluctuationData = mFluctuationData;
@@ -105,26 +119,6 @@ BitFlag<EmitterFlag>& Emitter::flags() {
 
 const BitFlag<EmitterFlag>& Emitter::flags() const {
     return mFlag;
-}
-
-const TextureHandle& Emitter::textureHandle() const {
-    return mTextureHandle;
-}
-
-TextureHandle& Emitter::textureHandle() {
-    return mTextureHandle;
-}
-
-void Emitter::setTexture(const std::shared_ptr<Texture>& texture) {
-    mTextureHandle.set(texture);
-}
-
-const Emitter::TextureProperties& Emitter::textureProperties() const {
-    return mTextureProperties;
-}
-
-void Emitter::setTextureProperties(const TextureProperties& textureProperties) {
-    mTextureProperties = textureProperties;
 }
 
 const Emitter::ComplexProperties& Emitter::complexProperties() const {
@@ -216,21 +210,20 @@ bool Emitter::hasStripeData() const {
 void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mFlag = emitterData.flag;
 
-    mTextureProperties = {
-        .textureWrapT = emitterData.textureRes.wrapT,
-        .textureWrapS = emitterData.textureRes.wrapS,
-        .textureMagFilter = emitterData.textureRes.magFilter,
-        .textureMinFilter = static_cast<TextureFilter>(emitterData.textureRes.minMipFilter & 0x1),
-        .textureMipFilter = static_cast<TextureMipFilter>((emitterData.textureRes.minMipFilter >> 1) & 0x3),
-        .numTexPat = emitterData.numTexPat,
-        .numTexDivX = emitterData.numTexDivX,
-        .numTexDivY = emitterData.numTexDivY,
-        .texUVScale = { emitterData.texUVScale.x, emitterData.texUVScale.y },
-        .texPatTbl = emitterData.texPatTbl,
-        .texPatFreq = emitterData.texPatFreq,
-        .texPatTblUse = emitterData.texPatTblUse,
-        .isTexPatAnim = emitterData.isTexPatAnim
-    };
+    // Texture Properties
+    mTextureWrapT = emitterData.textureRes.wrapT;
+    mTextureWrapS = emitterData.textureRes.wrapS;
+    mTextureMagFilter = emitterData.textureRes.magFilter;
+    mTextureMinFilter = static_cast<TextureFilter>(emitterData.textureRes.minMipFilter & 0x1);
+    mTextureMipFilter = static_cast<TextureMipFilter>((emitterData.textureRes.minMipFilter >> 1) & 0x3);
+    mNumTexturePattern = emitterData.numTexPat;
+    mNumTextureDivisionX = emitterData.numTexDivX;
+    mNumTextureDivisionY = emitterData.numTexDivY;
+    mTextureUVScale = { emitterData.texUVScale.x, emitterData.texUVScale.y };
+    mTexturePatternTbl = emitterData.texPatTbl;
+    mTexturePatternFrequency = emitterData.texPatFreq;
+    mTexturePatternTblUse = emitterData.texPatTblUse;
+    mIsTexturePatternAnim = emitterData.isTexPatAnim;
 
     // Basic Properties
     mType = emitterData.type;

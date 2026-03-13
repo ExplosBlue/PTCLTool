@@ -35,6 +35,8 @@ class RotationPropertiesWidget;
 class AlphaPropertiesWidget;
 class CombinerPropertiesWidget;
 class ColorPropertiesWidget;
+class TexturePropertiesWidget;
+
 
 // ========================================================================== //
 
@@ -59,9 +61,6 @@ private:
     void setupConnections();
     void updateStripeVisibility();
     void populateProperties();
-
-private:
-    class TexturePropertiesWidget;
 
 private:
     Ptcl::Document* mDocument{nullptr};
