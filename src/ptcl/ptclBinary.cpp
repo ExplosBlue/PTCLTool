@@ -322,10 +322,10 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
         .width = static_cast<u16>(emitter.textureHandle()->textureData().width()),
         .height = static_cast<u16>(emitter.textureHandle()->textureData().height()),
         .format = emitter.textureHandle()->textureFormat(),
-        .wrapT = emitter.textureProperties().textureWrapT,
-        .wrapS = emitter.textureProperties().textureWrapS,
-        .magFilter = emitter.textureProperties().textureMagFilter,
-        .minMipFilter = static_cast<u8>((static_cast<u8>(emitter.textureProperties().textureMinFilter) & 0x1) | ((static_cast<u8>(emitter.textureProperties().textureMipFilter) & 0x3) << 1)),
+        .wrapT = emitter.textureWrapT(),
+        .wrapS = emitter.textureWrapS(),
+        .magFilter = emitter.textureMagFilter(),
+        .minMipFilter = static_cast<u8>((static_cast<u8>(emitter.textureMinFilter()) & 0x1) | ((static_cast<u8>(emitter.textureMipFilter()) & 0x3) << 1)),
     };
 
     textureSize = 0; // To be assigned after construction...
@@ -335,7 +335,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     isFollow = emitter.isFollow();
     isEmitterBillboardMtx = emitter.isEmitterBillboardMtx();
     isDirectional = emitter.isDirectional();
-    isTexPatAnim = emitter.textureProperties().isTexPatAnim;
+    isTexPatAnim = emitter.isTexturePatternAnim();
     isVelLook = emitter.isVelLook();
     volumeTblIndex = emitter.volumeTblIndex();
     isStopEmitInFade = emitter.isStopEmitInFade();
@@ -392,13 +392,13 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     transformSRT = emitter.transformSRT();
     transformRT = emitter.transformRT();
     alphaAddInFade = emitter.alphaAddInFade();
-    numTexPat = emitter.textureProperties().numTexPat;
-    numTexDivX = emitter.textureProperties().numTexDivX;
-    numTexDivY = emitter.textureProperties().numTexDivY;
-    texUVScale = emitter.textureProperties().texUVScale;
-    std::copy(emitter.textureProperties().texPatTbl.begin(), emitter.textureProperties().texPatTbl.end(), texPatTbl.data());
-    texPatFreq = emitter.textureProperties().texPatFreq;
-    texPatTblUse = emitter.textureProperties().texPatTblUse;
+    numTexPat = emitter.numTexturePattern();
+    numTexDivX = emitter.numTextureDivisionX();
+    numTexDivY = emitter.numTextureDivisionY();
+    texUVScale = emitter.textureUVScale();
+    std::copy(emitter.texturePatternTable().begin(), emitter.texturePatternTable().end(), texPatTbl.data());
+    texPatFreq = emitter.texturePatternFrequency();
+    texPatTblUse = emitter.texturePatternTableUse();
 }
 
 QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {

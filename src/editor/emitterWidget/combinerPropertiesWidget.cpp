@@ -83,10 +83,6 @@ void CombinerPropertiesWidget::populateProperties() {
     mCombinerPreview.setCombinerSrc(&mEmitter->textureHandle(), &mEmitter->secondaryColor(), &mEmitter->primaryColor());
 }
 
-void CombinerPropertiesWidget::updateCombinerPreview() {
-    mCombinerPreview.updateStages();
-}
-
 
 // ========================================================================== //
 

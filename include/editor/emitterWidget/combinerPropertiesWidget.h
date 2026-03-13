@@ -19,8 +19,6 @@ class CombinerPropertiesWidget final : public EmitterWidgetBase {
 public:
     explicit CombinerPropertiesWidget(QWidget* parent = nullptr);
 
-    void updateCombinerPreview();
-
 private:
     void populateProperties() final;
     void setupConnections();

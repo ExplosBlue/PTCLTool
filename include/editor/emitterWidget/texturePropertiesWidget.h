@@ -3,10 +3,7 @@
 #include "editor/components/enumComboBox.h"
 #include "editor/components/sizedSpinBox.h"
 #include "editor/components/thumbnailWidget.h"
-#include "editor/emitterWidget/emitterWidget.h"
-
-#include "ptcl/ptcl.h"
-#include "ptcl/ptclEmitter.h"
+#include "editor/emitterWidget/emitterWidgetBase.h"
 
 #include <QCheckBox>
 #include <QGroupBox>
@@ -20,7 +17,7 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class EmitterWidget::TexturePropertiesWidget final : public QWidget {
+class TexturePropertiesWidget final : public EmitterWidgetBase {
     Q_OBJECT
 public:
     enum class AnimMode {
@@ -39,22 +36,14 @@ public:
 public:
     explicit TexturePropertiesWidget(QWidget* parent = nullptr);
 
-    void setProperties(const Ptcl::Emitter::TextureProperties& properties, const std::shared_ptr<Ptcl::Texture>& texture);
-
-    void populateWidgets();
-    void setTextureList(const Ptcl::TextureList* textureList);
-
-signals:
-    void propertiesUpdated(const Ptcl::Emitter::TextureProperties& properties);
-    void textureUpdated(const std::shared_ptr<Ptcl::Texture>& oldTexture, const std::shared_ptr<Ptcl::Texture>& newTexture);
-
 private slots:
     void changeTexture();
 
 private:
-    void updateTextureDetails();
+    void populateProperties() final;
+    void setupConnections();
+
     void updateTexPatTblColumns();
-    void updateUVScale();
 
     std::optional<Math::Vector2f> calcFrameUVOffset(s32 frame) const;
     QImage getFrameTexture(s32 frame) const;
@@ -64,11 +53,6 @@ private:
     s32 maxFrameCount() const;
 
 private:
-    Ptcl::Emitter::TextureProperties mProps{};
-    std::shared_ptr<Ptcl::Texture> mTexture{};
-
-    const Ptcl::TextureList* mTextureList{nullptr};
-
     ThumbnailWidget mTexturePreview{};
 
     EnumComboBox<Ptcl::TextureWrap> mWrapTComboBox{};

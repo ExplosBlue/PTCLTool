@@ -113,20 +113,6 @@ void EmitterWidget::setupStandardLayout(QVBoxLayout* mainLayout) {
 }
 
 void EmitterWidget::setupConnections() {
-    // Texture Properties
-    connect(mTextureProperties, &TexturePropertiesWidget::textureUpdated, this, [this](const std::shared_ptr<Ptcl::Texture>& oldTexture, const std::shared_ptr<Ptcl::Texture>& newTexture) {
-        if (!mEmitter) { return; }
-        mEmitter->setTexture(newTexture);
-        mCombinerProperties->updateCombinerPreview();
-        emit propertiesChanged();
-    });
-
-    connect(mTextureProperties, &TexturePropertiesWidget::propertiesUpdated, this, [this](const Ptcl::Emitter::TextureProperties& properties) {
-        if (!mEmitter) { return; }
-        mEmitter->setTextureProperties(properties);
-        emit propertiesChanged();
-    });
-
     // Child Editor Widget
     connect(mChildEditorWidget, &ChildEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::ChildFlag>& childFlags) {
         if (!mEmitter) { return; }
@@ -189,6 +175,7 @@ void EmitterWidget::setDocument(Ptcl::Document* document) {
     mAlphaProperties->setDocument(document);
     mCombinerProperties->setDocument(document);
     mColorProperties->setDocument(document);
+    mTextureProperties->setDocument(document);
 }
 
 void EmitterWidget::setSelection(Ptcl::Selection* selection) {
@@ -207,6 +194,7 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
     mAlphaProperties->setSelection(selection);
     mCombinerProperties->setSelection(selection);
     mColorProperties->setSelection(selection);
+    mTextureProperties->setSelection(selection);
 
     connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
         if (!mDocument) {
@@ -235,8 +223,6 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
         }
 
         // TODO: Have child widgets handle this themselves
-        mTextureList = &mDocument->textures();
-        mTextureProperties->setTextureList(mTextureList);
         mChildEditorWidget->setTextureList(mTextureList);
 
         setEnabled(true);
@@ -245,13 +231,10 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
 }
 
 void EmitterWidget::populateProperties() {
-    QSignalBlocker b12(mTextureProperties);
     QSignalBlocker b15(mChildEditorWidget);
     QSignalBlocker b16(mFluctuationEditorWidget);
     QSignalBlocker b17(mFieldEditorWidget);
     QSignalBlocker b18(mStripeEditorWidget);
-
-    mTextureProperties->setProperties(mEmitter->textureProperties(), mEmitter->textureHandle().get());
 
     mChildEditorWidget->setChildData(&mEmitter->childData(), mEmitter->complexProperties().childFlags);
     mChildEditorWidget->setParentColor0(mEmitter->primaryColor());
