@@ -36,7 +36,7 @@ void MainWindow::setupUi() {
     // Properties
     mPropertiesStack = new QStackedWidget(this);
     mPropertiesStack->addWidget(&mEmitterSetWidget);
-    mPropertiesStack->addWidget(&mEmitterWidget);
+    mPropertiesStack->addWidget(&mInspector);
     mPropertiesStack->setCurrentIndex(0);
 
     mPropertiesGroup.setFlat(false);
@@ -86,9 +86,9 @@ void MainWindow::setupUi() {
     mPtclList.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     mPtclList.setSelection(&mSelection);
 
-    // Emitter Widget
-    mEmitterWidget.setEnabled(false);
-    mEmitterWidget.setSelection(&mSelection);
+    // Inspector
+    mInspector.setEnabled(false);
+    mInspector.setSelection(&mSelection);
 
     // EmitterSet Widget
     mEmitterSetWidget.setEnabled(false);
@@ -159,20 +159,11 @@ void MainWindow::setupConnections() {
         setDirty(true);
     });
 
-    connect(&mEmitterWidget, &EmitterWidget::emitterNameChanged, this, [this]() {
-        mPtclList.updateEmitterName(mSelection.emitterSetIndex(), mSelection.emitterIndex());
-        updatePropertiesStatus();
-    });
-
-    connect(&mEmitterWidget, &EmitterWidget::emitterTypeChanged, this, [this]() {
+    connect(&mInspector, &InspectorPanel::complexFlagsChanged, this, [this]() {
         mPtclList.updateEmitter(mSelection.emitterSetIndex(), mSelection.emitterIndex());
     });
 
-    connect(&mEmitterWidget, &EmitterWidget::complexFlagsChanged, this, [this]() {
-        mPtclList.updateEmitter(mSelection.emitterSetIndex(), mSelection.emitterIndex());
-    });
-
-    connect(&mEmitterWidget, &EmitterWidget::propertiesChanged, this, [this]() {
+    connect(&mInspector, &InspectorPanel::propertiesChanged, this, [this]() {
         setDirty(true);
     });
 
@@ -420,7 +411,7 @@ void MainWindow::updateRecentFileList() {
 
 void MainWindow::loadPtclRes(const QString& path) {
     mPtclList.setDocument(nullptr);
-    mEmitterWidget.setDocument(nullptr);
+    mInspector.setDocument(nullptr);
     mEmitterSetWidget.setDocument(nullptr);
     mTextureWidget.setDocument(nullptr);
 
@@ -442,7 +433,7 @@ void MainWindow::loadPtclRes(const QString& path) {
     updateRecentFileList();
 
     mPtclList.setDocument(mDocument.get());
-    mEmitterWidget.setDocument(mDocument.get());
+    mInspector.setDocument(mDocument.get());
     mEmitterSetWidget.setDocument(mDocument.get());
     mTextureWidget.setDocument(mDocument.get());
 
@@ -475,7 +466,7 @@ void MainWindow::setPropertiesView(PropertiesView view) {
         case PropertiesView::EmitterChild:
         case PropertiesView::EmitterFlux:
         case PropertiesView::EmitterField:
-            mPropertiesStack->setCurrentWidget(&mEmitterWidget);
+            mPropertiesStack->setCurrentWidget(&mInspector);
             break;
     }
 }
