@@ -1,22 +1,22 @@
 
 #include "editor/inspector/inspectorPanel.h"
 
-#include "editor/inspector/alphaPropertiesWidget.h"
-#include "editor/inspector/basicPropertiesWidget.h"
-#include "editor/inspector/colorPropertiesWidget.h"
-#include "editor/inspector/combinerPropertiesWidget.h"
-#include "editor/inspector/emissionPropertiesWidget.h"
-#include "editor/inspector/fluctuationEditorWidget.h"
-#include "editor/inspector/gravityPropertiesWidget.h"
-#include "editor/inspector/lifespanPropertiesWidget.h"
-#include "editor/inspector/rotationPropertiesWidget.h"
-#include "editor/inspector/scalePropertiesWidget.h"
-#include "editor/inspector/stripeEditorWidget.h"
-#include "editor/inspector/terminationPropertiesWidget.h"
-#include "editor/inspector/texturePropertiesWidget.h"
-#include "editor/inspector/transformPropertiesWidget.h"
-#include "editor/inspector/velocityPropertiesWidget.h"
-#include "editor/inspector/volumePropertiesWidget.h"
+#include "editor/inspector/alphaAnimInspector.h"
+#include "editor/inspector/generalEmitterInspector.h"
+#include "editor/inspector/colorInspector.h"
+#include "editor/inspector/combinerInspector.h"
+#include "editor/inspector/emissionInspector.h"
+#include "editor/inspector/fluctuationInspector.h"
+#include "editor/inspector/gravityInspector.h"
+#include "editor/inspector/lifespanInspector.h"
+#include "editor/inspector/rotationInspector.h"
+#include "editor/inspector/scaleAnimInspector.h"
+#include "editor/inspector/stripeInspector.h"
+#include "editor/inspector/terminationInspector.h"
+#include "editor/inspector/textureInspector.h"
+#include "editor/inspector/transformInspector.h"
+#include "editor/inspector/velocityInspector.h"
+#include "editor/inspector/volumeInspector.h"
 
 #include <QScrollArea>
 
@@ -29,24 +29,24 @@ namespace PtclEditor {
 InspectorPanel::InspectorPanel(QWidget* parent) :
     QWidget{parent} {
 
-    mBasicProperties = new BasicPropertiesWidget(this);
-    mGravityProperties = new GravityPropertiesWidget(this);
-    mTransformProperties = new TransformPropertiesWidget(this);
-    mLifespanProperties = new LifespanPropertiesWidget(this);
-    mTerminationProperties = new TerminationPropertiesWidget(this);
-    mEmissionProperties = new EmissionPropertiesWidget(this);
-    mVelocityProperties = new VelocityPropertiesWidget(this);
-    mVolumeProperties = new VolumePropertiesWidget(this);
-    mColorProperties = new ColorPropertiesWidget(this);
-    mAlphaProperties = new AlphaPropertiesWidget(this);
-    mRotationProperties = new RotationPropertiesWidget(this);
-    mScaleProperties = new ScalePropertiesWidget(this);
-    mTextureProperties = new TexturePropertiesWidget(this);
-    mCombinerProperties = new CombinerPropertiesWidget(this);
-    mStripeEditorWidget = new StripeEditorWidget(this);
+    mGeneralInspector = new GeneralEmitterInspector(this);
+    mGravityInspector = new GravityInspector(this);
+    mTransformInspector = new TransformInspector(this);
+    mLifespanInspector = new LifespanInspector(this);
+    mTerminationInspector = new TerminationInspector(this);
+    mEmissionInspector = new EmissionInspector(this);
+    mVelocityInspector = new VelocityInspector(this);
+    mVolumeInspector = new VolumeInspector(this);
+    mColorInspector = new ColorInspector(this);
+    mAlphaAnimInspector = new AlphaAnimInspector(this);
+    mRotationInspector = new RotationInspector(this);
+    mScaleAnimInspector = new ScaleAnimInspector(this);
+    mTextureInspector = new TextureInspector(this);
+    mCombinerInspector = new CombinerInspector(this);
+    mStripeInspector = new StripeInspector(this);
 
     mChildEditorWidget = new ChildEditorWidget(this);
-    mFluctuationEditorWidget = new FluctuationEditorWidget(this);
+    mFluctuationInspector = new FluctuationInspector(this);
     mFieldEditorWidget = new FieldEditorWidget(this);
 
     mTabWidget = new QTabWidget(this);
@@ -102,25 +102,25 @@ QWidget* InspectorPanel::wrapInScroll(QWidget* widget) {
 }
 
 void InspectorPanel::buildEmitterTabs() {
-    mTabWidget->addTab(wrapInScroll(mBasicProperties), "General");
+    mTabWidget->addTab(wrapInScroll(mGeneralInspector), "General");
 
     if (mEmitter->hasStripeData()) {
-        mTabWidget->addTab(wrapInScroll(mStripeEditorWidget), "Stripe");
+        mTabWidget->addTab(wrapInScroll(mStripeInspector), "Stripe");
     }
 
-    mTabWidget->addTab(wrapInScroll(mLifespanProperties), "Life");
-    mTabWidget->addTab(wrapInScroll(mTerminationProperties), "Termination");
-    mTabWidget->addTab(wrapInScroll(mGravityProperties), "Gravity");
-    mTabWidget->addTab(wrapInScroll(mEmissionProperties), "Emission");
-    mTabWidget->addTab(wrapInScroll(mVolumeProperties), "Volume");
-    mTabWidget->addTab(wrapInScroll(mVelocityProperties), "Velocity");
-    mTabWidget->addTab(wrapInScroll(mTextureProperties), "Texture");
-    mTabWidget->addTab(wrapInScroll(mColorProperties), "Color");
-    mTabWidget->addTab(wrapInScroll(mCombinerProperties), "Combiner");
-    mTabWidget->addTab(wrapInScroll(mAlphaProperties), "Alpha");
-    mTabWidget->addTab(wrapInScroll(mTransformProperties), "Transform");
-    mTabWidget->addTab(wrapInScroll(mRotationProperties), "Rotation");
-    mTabWidget->addTab(wrapInScroll(mScaleProperties), "Scale");
+    mTabWidget->addTab(wrapInScroll(mLifespanInspector), "Life");
+    mTabWidget->addTab(wrapInScroll(mTerminationInspector), "Termination");
+    mTabWidget->addTab(wrapInScroll(mGravityInspector), "Gravity");
+    mTabWidget->addTab(wrapInScroll(mEmissionInspector), "Emission");
+    mTabWidget->addTab(wrapInScroll(mVolumeInspector), "Volume");
+    mTabWidget->addTab(wrapInScroll(mVelocityInspector), "Velocity");
+    mTabWidget->addTab(wrapInScroll(mTextureInspector), "Texture");
+    mTabWidget->addTab(wrapInScroll(mColorInspector), "Color");
+    mTabWidget->addTab(wrapInScroll(mCombinerInspector), "Combiner");
+    mTabWidget->addTab(wrapInScroll(mAlphaAnimInspector), "Alpha");
+    mTabWidget->addTab(wrapInScroll(mTransformInspector), "Transform");
+    mTabWidget->addTab(wrapInScroll(mRotationInspector), "Rotation");
+    mTabWidget->addTab(wrapInScroll(mScaleAnimInspector), "Scale");
 }
 
 void InspectorPanel::buildChildTabs() {
@@ -129,7 +129,7 @@ void InspectorPanel::buildChildTabs() {
 }
 
 void InspectorPanel::buildFluxTabs() {
-    mTabWidget->addTab(wrapInScroll(mFluctuationEditorWidget), "Fluctuation");
+    mTabWidget->addTab(wrapInScroll(mFluctuationInspector), "Fluctuation");
 }
 
 void InspectorPanel::buildFieldTabs() {
@@ -162,22 +162,22 @@ void InspectorPanel::setDocument(Ptcl::Document* document) {
 
     mDocument = document;
 
-    mBasicProperties->setDocument(document);
-    mGravityProperties->setDocument(document);
-    mTransformProperties->setDocument(document);
-    mLifespanProperties->setDocument(document);
-    mScaleProperties->setDocument(document);
-    mTerminationProperties->setDocument(document);
-    mEmissionProperties->setDocument(document);
-    mVelocityProperties->setDocument(document);
-    mVolumeProperties->setDocument(document);
-    mRotationProperties->setDocument(document);
-    mAlphaProperties->setDocument(document);
-    mCombinerProperties->setDocument(document);
-    mColorProperties->setDocument(document);
-    mTextureProperties->setDocument(document);
-    mFluctuationEditorWidget->setDocument(document);
-    mStripeEditorWidget->setDocument(document);
+    mGeneralInspector->setDocument(document);
+    mGravityInspector->setDocument(document);
+    mTransformInspector->setDocument(document);
+    mLifespanInspector->setDocument(document);
+    mScaleAnimInspector->setDocument(document);
+    mTerminationInspector->setDocument(document);
+    mEmissionInspector->setDocument(document);
+    mVelocityInspector->setDocument(document);
+    mVolumeInspector->setDocument(document);
+    mRotationInspector->setDocument(document);
+    mAlphaAnimInspector->setDocument(document);
+    mCombinerInspector->setDocument(document);
+    mColorInspector->setDocument(document);
+    mTextureInspector->setDocument(document);
+    mFluctuationInspector->setDocument(document);
+    mStripeInspector->setDocument(document);
 
     if (mDocument) {
         connect(mDocument, &Ptcl::Document::emitterChanged, this, [this](s32 setIndex, s32 emitterIndex) {
@@ -202,22 +202,22 @@ void InspectorPanel::setSelection(Ptcl::Selection* selection) {
 
     mSelection = selection;
 
-    mBasicProperties->setSelection(selection);
-    mGravityProperties->setSelection(selection);
-    mTransformProperties->setSelection(selection);
-    mLifespanProperties->setSelection(selection);
-    mScaleProperties->setSelection(selection);
-    mTerminationProperties->setSelection(selection);
-    mEmissionProperties->setSelection(selection);
-    mVelocityProperties->setSelection(selection);
-    mVolumeProperties->setSelection(selection);
-    mRotationProperties->setSelection(selection);
-    mAlphaProperties->setSelection(selection);
-    mCombinerProperties->setSelection(selection);
-    mColorProperties->setSelection(selection);
-    mTextureProperties->setSelection(selection);
-    mFluctuationEditorWidget->setSelection(selection);
-    mStripeEditorWidget->setSelection(selection);
+    mGeneralInspector->setSelection(selection);
+    mGravityInspector->setSelection(selection);
+    mTransformInspector->setSelection(selection);
+    mLifespanInspector->setSelection(selection);
+    mScaleAnimInspector->setSelection(selection);
+    mTerminationInspector->setSelection(selection);
+    mEmissionInspector->setSelection(selection);
+    mVelocityInspector->setSelection(selection);
+    mVolumeInspector->setSelection(selection);
+    mRotationInspector->setSelection(selection);
+    mAlphaAnimInspector->setSelection(selection);
+    mCombinerInspector->setSelection(selection);
+    mColorInspector->setSelection(selection);
+    mTextureInspector->setSelection(selection);
+    mFluctuationInspector->setSelection(selection);
+    mStripeInspector->setSelection(selection);
 
     if (mSelection) {
         connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
@@ -243,7 +243,7 @@ void InspectorPanel::setSelection(Ptcl::Selection* selection) {
 void InspectorPanel::populateProperties() {
     QSignalBlocker b15(mChildEditorWidget);
     QSignalBlocker b17(mFieldEditorWidget);
-    QSignalBlocker b18(mStripeEditorWidget);
+    QSignalBlocker b18(mStripeInspector);
 
     mChildEditorWidget->setChildData(&mEmitter->childData(), mEmitter->complexProperties().childFlags);
     mChildEditorWidget->setParentColor0(mEmitter->primaryColor());
