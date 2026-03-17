@@ -48,24 +48,24 @@ set(PROJECT_SOURCES
     src/editor/childEditor/scalePropertiesWidget.cpp
     src/editor/childEditor/texturePropertiesWidget.cpp
     src/editor/childEditor/velocityPropertiesWidget.cpp
-    src/editor/inspector/alphaPropertiesWidget.cpp
-    src/editor/inspector/basicPropertiesWidget.cpp
-    src/editor/inspector/colorPropertiesWidget.cpp
-    src/editor/inspector/combinerPropertiesWidget.cpp
-    src/editor/inspector/emissionPropertiesWidget.cpp
+    src/editor/inspector/alphaAnimInspector.cpp
+    src/editor/inspector/generalEmitterInspector.cpp
+    src/editor/inspector/colorInspector.cpp
+    src/editor/inspector/combinerInspector.cpp
+    src/editor/inspector/emissionInspector.cpp
     src/editor/inspector/inspectorPanel.cpp
     src/editor/inspector/inspectorWidgetBase.cpp
-    src/editor/inspector/fluctuationEditorWidget.cpp
-    src/editor/inspector/gravityPropertiesWidget.cpp
-    src/editor/inspector/lifespanPropertiesWidget.cpp
-    src/editor/inspector/rotationPropertiesWidget.cpp
-    src/editor/inspector/scalePropertiesWidget.cpp
-    src/editor/inspector/stripeEditorWidget.cpp
-    src/editor/inspector/terminationPropertiesWidget.cpp
-    src/editor/inspector/texturePropertiesWidget.cpp
-    src/editor/inspector/transformPropertiesWidget.cpp
-    src/editor/inspector/velocityPropertiesWidget.cpp
-    src/editor/inspector/volumePropertiesWidget.cpp
+    src/editor/inspector/fluctuationInspector.cpp
+    src/editor/inspector/gravityInspector.cpp
+    src/editor/inspector/lifespanInspector.cpp
+    src/editor/inspector/rotationInspector.cpp
+    src/editor/inspector/scaleAnimInspector.cpp
+    src/editor/inspector/stripeInspector.cpp
+    src/editor/inspector/terminationInspector.cpp
+    src/editor/inspector/textureInspector.cpp
+    src/editor/inspector/transformInspector.cpp
+    src/editor/inspector/velocityInspector.cpp
+    src/editor/inspector/volumeInspector.cpp
     src/editor/fieldEditor/collisionDataWidget.cpp
     src/editor/fieldEditor/convergenceDataWidget.cpp
     src/editor/fieldEditor/fieldEditorWidget.cpp
@@ -120,24 +120,24 @@ set(PROJECT_HEADERS
     include/editor/childEditor/scalePropertiesWidget.h
     include/editor/childEditor/texturePropertiesWidget.h
     include/editor/childEditor/velocityPropertiesWidget.h
-    include/editor/inspector/alphaPropertiesWidget.h
-    include/editor/inspector/basicPropertiesWidget.h
-    include/editor/inspector/colorPropertiesWidget.h
-    include/editor/inspector/combinerPropertiesWidget.h
-    include/editor/inspector/emissionPropertiesWidget.h
+    include/editor/inspector/alphaAnimInspector.h
+    include/editor/inspector/generalEmitterInspector.h
+    include/editor/inspector/colorInspector.h
+    include/editor/inspector/combinerInspector.h
+    include/editor/inspector/emissionInspector.h
     include/editor/inspector/inspectorPanel.h
     include/editor/inspector/inspectorWidgetBase.h
-    include/editor/inspector/fluctuationEditorWidget.h
-    include/editor/inspector/gravityPropertiesWidget.h
-    include/editor/inspector/lifespanPropertiesWidget.h
-    include/editor/inspector/rotationPropertiesWidget.h
-    include/editor/inspector/scalePropertiesWidget.h
-    include/editor/inspector/stripeEditorWidget.h
-    include/editor/inspector/terminationPropertiesWidget.h
-    include/editor/inspector/texturePropertiesWidget.h
-    include/editor/inspector/transformPropertiesWidget.h
-    include/editor/inspector/velocityPropertiesWidget.h
-    include/editor/inspector/volumePropertiesWidget.h
+    include/editor/inspector/fluctuationInspector.h
+    include/editor/inspector/gravityInspector.h
+    include/editor/inspector/lifespanInspector.h
+    include/editor/inspector/rotationInspector.h
+    include/editor/inspector/scaleAnimInspector.h
+    include/editor/inspector/stripeInspector.h
+    include/editor/inspector/terminationInspector.h
+    include/editor/inspector/textureInspector.h
+    include/editor/inspector/transformInspector.h
+    include/editor/inspector/velocityInspector.h
+    include/editor/inspector/volumeInspector.h
     include/editor/fieldEditor/collisionDataWidget.h
     include/editor/fieldEditor/convergenceDataWidget.h
     include/editor/fieldEditor/fieldEditorWidget.h

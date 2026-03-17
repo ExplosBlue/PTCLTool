@@ -20,22 +20,22 @@
 
 namespace PtclEditor {
 
-class BasicPropertiesWidget;
-class GravityPropertiesWidget;
-class TransformPropertiesWidget;
-class LifespanPropertiesWidget;
-class ScalePropertiesWidget;
-class TerminationPropertiesWidget;
-class EmissionPropertiesWidget;
-class VelocityPropertiesWidget;
-class VolumePropertiesWidget;
-class RotationPropertiesWidget;
-class AlphaPropertiesWidget;
-class CombinerPropertiesWidget;
-class ColorPropertiesWidget;
-class TexturePropertiesWidget;
-class FluctuationEditorWidget;
-class StripeEditorWidget;
+class GeneralEmitterInspector;
+class GravityInspector;
+class TransformInspector;
+class LifespanInspector;
+class ScaleAnimInspector;
+class TerminationInspector;
+class EmissionInspector;
+class VelocityInspector;
+class VolumeInspector;
+class RotationInspector;
+class AlphaAnimInspector;
+class CombinerInspector;
+class ColorInspector;
+class TextureInspector;
+class FluctuationInspector;
+class StripeInspector;
 
 
 // ========================================================================== //
@@ -75,22 +75,22 @@ private:
 
     const Ptcl::TextureList* mTextureList{nullptr};
 
-    BasicPropertiesWidget* mBasicProperties{nullptr};
-    GravityPropertiesWidget* mGravityProperties{nullptr};
-    TransformPropertiesWidget* mTransformProperties{nullptr};
-    LifespanPropertiesWidget* mLifespanProperties{nullptr};
-    TerminationPropertiesWidget* mTerminationProperties{nullptr};
-    EmissionPropertiesWidget* mEmissionProperties{nullptr};
-    VelocityPropertiesWidget* mVelocityProperties{nullptr};
-    VolumePropertiesWidget* mVolumeProperties{nullptr};
-    ColorPropertiesWidget* mColorProperties{nullptr};
-    AlphaPropertiesWidget* mAlphaProperties{nullptr};
-    RotationPropertiesWidget* mRotationProperties{nullptr};
-    ScalePropertiesWidget* mScaleProperties{nullptr};
-    TexturePropertiesWidget* mTextureProperties{nullptr};
-    CombinerPropertiesWidget* mCombinerProperties{nullptr};
-    StripeEditorWidget* mStripeEditorWidget{nullptr};
-    FluctuationEditorWidget* mFluctuationEditorWidget{nullptr};
+    GeneralEmitterInspector* mGeneralInspector{nullptr};
+    GravityInspector* mGravityInspector{nullptr};
+    TransformInspector* mTransformInspector{nullptr};
+    LifespanInspector* mLifespanInspector{nullptr};
+    TerminationInspector* mTerminationInspector{nullptr};
+    EmissionInspector* mEmissionInspector{nullptr};
+    VelocityInspector* mVelocityInspector{nullptr};
+    VolumeInspector* mVolumeInspector{nullptr};
+    ColorInspector* mColorInspector{nullptr};
+    AlphaAnimInspector* mAlphaAnimInspector{nullptr};
+    RotationInspector* mRotationInspector{nullptr};
+    ScaleAnimInspector* mScaleAnimInspector{nullptr};
+    TextureInspector* mTextureInspector{nullptr};
+    CombinerInspector* mCombinerInspector{nullptr};
+    StripeInspector* mStripeInspector{nullptr};
+    FluctuationInspector* mFluctuationInspector{nullptr};
 
     QTabWidget* mTabWidget{nullptr};
 
