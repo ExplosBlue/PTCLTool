@@ -2,7 +2,7 @@
 
 #include "ptcl/ptclDocument.h"
 #include "editor/emitterSetWidget.h"
-#include "editor/emitterWidget/emitterWidget.h"
+#include "editor/emitterWidget/inspectorPanel.h"
 #include "editor/ptclListWidget.h"
 #include "editor/textureListWidget.h"
 
@@ -95,7 +95,7 @@ private:
     QUndoView mUndoView{};
 
     PtclEditor::PtclList mPtclList{};
-    PtclEditor::EmitterWidget mEmitterWidget{};
+    PtclEditor::InspectorPanel mInspector{};
     PtclEditor::EmitterSetWidget mEmitterSetWidget{};
     PtclEditor::TextureListWidget mTextureWidget{};
 

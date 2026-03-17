@@ -1,5 +1,5 @@
 
-#include "editor/emitterWidget/emitterWidget.h"
+#include "editor/emitterWidget/inspectorPanel.h"
 
 #include "editor/emitterWidget/alphaPropertiesWidget.h"
 #include "editor/emitterWidget/basicPropertiesWidget.h"
@@ -26,7 +26,7 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-EmitterWidget::EmitterWidget(QWidget* parent) :
+InspectorPanel::InspectorPanel(QWidget* parent) :
     QWidget{parent} {
 
     mBasicProperties = new BasicPropertiesWidget(this);
@@ -61,7 +61,7 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     setupConnections();
 }
 
-void EmitterWidget::rebuildTabs() {
+void InspectorPanel::rebuildTabs() {
     if (!mSelection) {
         return;
     }
@@ -86,7 +86,7 @@ void EmitterWidget::rebuildTabs() {
     }
 }
 
-QWidget* EmitterWidget::wrapInScroll(QWidget* widget) {
+QWidget* InspectorPanel::wrapInScroll(QWidget* widget) {
     auto* container = new QWidget;
     auto* layout = new QVBoxLayout(container);
     layout->addWidget(widget);
@@ -101,7 +101,7 @@ QWidget* EmitterWidget::wrapInScroll(QWidget* widget) {
     return scroll;
 }
 
-void EmitterWidget::buildEmitterTabs() {
+void InspectorPanel::buildEmitterTabs() {
     mTabWidget->addTab(wrapInScroll(mBasicProperties), "General");
 
     if (mEmitter->hasStripeData()) {
@@ -123,21 +123,21 @@ void EmitterWidget::buildEmitterTabs() {
     mTabWidget->addTab(wrapInScroll(mScaleProperties), "Scale");
 }
 
-void EmitterWidget::buildChildTabs() {
+void InspectorPanel::buildChildTabs() {
     mTabWidget->addTab(wrapInScroll(mChildEditorWidget), "Child");
     // TODO
 }
 
-void EmitterWidget::buildFluxTabs() {
+void InspectorPanel::buildFluxTabs() {
     mTabWidget->addTab(wrapInScroll(mFluctuationEditorWidget), "Fluctuation");
 }
 
-void EmitterWidget::buildFieldTabs() {
+void InspectorPanel::buildFieldTabs() {
     mTabWidget->addTab(wrapInScroll(mFieldEditorWidget), "Field");
     // TODO
 }
 
-void EmitterWidget::setupConnections() {
+void InspectorPanel::setupConnections() {
     // Child Editor Widget
     connect(mChildEditorWidget, &ChildEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::ChildFlag>& childFlags) {
         if (!mEmitter) { return; }
@@ -155,7 +155,7 @@ void EmitterWidget::setupConnections() {
     });
 }
 
-void EmitterWidget::setDocument(Ptcl::Document* document) {
+void InspectorPanel::setDocument(Ptcl::Document* document) {
     if (mDocument) {
         mDocument->disconnect(this);
     }
@@ -195,7 +195,7 @@ void EmitterWidget::setDocument(Ptcl::Document* document) {
     }
 }
 
-void EmitterWidget::setSelection(Ptcl::Selection* selection) {
+void InspectorPanel::setSelection(Ptcl::Selection* selection) {
     if (mSelection) {
         mSelection->disconnect(this);
     }
@@ -240,7 +240,7 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
     }
 }
 
-void EmitterWidget::populateProperties() {
+void InspectorPanel::populateProperties() {
     QSignalBlocker b15(mChildEditorWidget);
     QSignalBlocker b17(mFieldEditorWidget);
     QSignalBlocker b18(mStripeEditorWidget);

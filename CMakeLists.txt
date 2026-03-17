@@ -53,7 +53,7 @@ set(PROJECT_SOURCES
     src/editor/emitterWidget/colorPropertiesWidget.cpp
     src/editor/emitterWidget/combinerPropertiesWidget.cpp
     src/editor/emitterWidget/emissionPropertiesWidget.cpp
-    src/editor/emitterWidget/emitterWidget.cpp
+    src/editor/emitterWidget/inspectorPanel.cpp
     src/editor/emitterWidget/emitterWidgetBase.cpp
     src/editor/emitterWidget/fluctuationEditorWidget.cpp
     src/editor/emitterWidget/gravityPropertiesWidget.cpp
@@ -125,7 +125,7 @@ set(PROJECT_HEADERS
     include/editor/emitterWidget/colorPropertiesWidget.h
     include/editor/emitterWidget/combinerPropertiesWidget.h
     include/editor/emitterWidget/emissionPropertiesWidget.h
-    include/editor/emitterWidget/emitterWidget.h
+    include/editor/emitterWidget/inspectorPanel.h
     include/editor/emitterWidget/emitterWidgetBase.h
     include/editor/emitterWidget/fluctuationEditorWidget.h
     include/editor/emitterWidget/gravityPropertiesWidget.h
