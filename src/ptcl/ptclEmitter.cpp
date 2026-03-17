@@ -124,7 +124,15 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mStripeHistoryStep = mStripeHistoryStep;
     newEmitter->mStripeDirInterpolate = mStripeDirInterpolate;
 
-    newEmitter->mFieldData = mFieldData;
+    // Field Properties
+    newEmitter->mFieldFlags = mFieldFlags;
+    newEmitter->mFieldRandom = mFieldRandom;
+    newEmitter->mFieldMagnet = mFieldMagnet;
+    newEmitter->mFieldSpin = mFieldSpin;
+    newEmitter->mFieldCollision = mFieldCollision;
+    newEmitter->mFieldConvergence = mFieldConvergence;
+    newEmitter->mFieldPosAdd = mFieldPosAdd;
+
     return newEmitter;
 }
 
@@ -148,10 +156,6 @@ void Emitter::setChildFlags(const BitFlag<ChildFlag>& childFlags) {
     mComplexProperties.childFlags = childFlags;
 }
 
-void Emitter::setFieldFlags(const BitFlag<FieldFlag>& fieldFlags) {
-    mComplexProperties.fieldFlags = fieldFlags;
-}
-
 const ChildData& Emitter::childData() const {
     return mChildData;
 }
@@ -160,22 +164,54 @@ ChildData& Emitter::childData() {
     return mChildData;
 }
 
+void Emitter::initFieldRandom(const BinFieldRandomData& randomData) {
+    mFieldRandom = {
+        .randomBlank = randomData.fieldRandomBlank,
+        .randomVelAdd = Math::Vector3f(randomData.fieldRandomVelAdd.x, randomData.fieldRandomVelAdd.y, randomData.fieldRandomVelAdd.z)
+    };
+}
+
+void Emitter::initFieldMagnet(const BinFieldMagnetData& magnetData) {
+    mFieldMagnet = {
+        .magnetPower = magnetData.fieldMagnetPower,
+        .magnetPos = Math::Vector3f(magnetData.fieldMagnetPos.x, magnetData.fieldMagnetPos.y, magnetData.fieldMagnetPos.z),
+        .magnetFlag = magnetData.fieldMagnetFlag,
+    };
+}
+
+void Emitter::initFieldSpin(const BinFieldSpinData& spinData) {
+    mFieldSpin = {
+        .spinRotate = spinData.fieldSpinRotate,
+        .spinAxis = spinData.fieldSpinAxis
+    };
+}
+
+void Emitter::initFieldCollision(const BinFieldCollisionData& collisionData) {
+    mFieldCollision = {
+        .collisionType = collisionData.fieldCollisionType,
+        .collisionIsWorld = collisionData.fieldCollisionIsWorld > 0,
+        .collisionCoord = collisionData.fieldCollisionCoord,
+        .collisionCoef = collisionData.fieldCollisionCoef
+    };
+}
+
+void Emitter::initFieldConvergence(const BinFieldConvergenceData& convergenceData) {
+    mFieldConvergence = {
+        .convergenceType = convergenceData.fieldConvergenceType,
+        .convergencePos = Math::Vector3f(convergenceData.fieldConvergencePos.x, convergenceData.fieldConvergencePos.y, convergenceData.fieldConvergencePos.z)
+    };
+}
+
+void Emitter::initFieldPosAdd(const BinFieldPosAddData& posAddData) {
+    mFieldPosAdd = {
+        .posAdd = Math::Vector3f(posAddData.fieldPosAdd.x, posAddData.fieldPosAdd.y, posAddData.fieldPosAdd.z)
+    };
+}
+
 void Emitter::initFluctuationData(const BinFluctuationData& fluctuationData) {
     mFluctuationScale = fluctuationData.fluctuationScale;
     mFluctuationFreq = fluctuationData.fluctuationFreq;
     mFluctuationPhaseRnd = static_cast<bool>(fluctuationData.fluctuationPhaseRnd);
-}
-
-const FieldData& Emitter::fieldData() const {
-    return mFieldData;
-}
-
-FieldData& Emitter::fieldData() {
-    return mFieldData;
-}
-
-void Emitter::setFieldData(const FieldData& fieldData) {
-    mFieldData = fieldData;
 }
 
 void Emitter::initStripeData(const BinStripeData& stripeData) {
@@ -307,9 +343,9 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 void Emitter::initComplexFromBinary(const BinComplexEmitterData& emitterData) {
     mComplexProperties = {
         .childFlags = emitterData.childFlag,
-        .fieldFlags = emitterData.fieldFlag,
     };
 
+    mFieldFlags = emitterData.fieldFlag,
     mFluctuationFlags = emitterData.fluctuationFlag;
     mStripeFlags = emitterData.stripeFlag;
 }

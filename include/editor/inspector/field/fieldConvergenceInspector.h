@@ -2,7 +2,7 @@
 
 #include "editor/components/enumComboBox.h"
 #include "editor/components/vectorSpinBox.h"
-#include "editor/fieldEditor/fieldEditorWidget.h"
+#include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QCheckBox>
 #include <QSpinBox>
@@ -15,23 +15,16 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class FieldEditorWidget::ConvergenceDataWidget final : public QWidget {
+class FieldConvergenceInspector final : public InspectorWidgetBase {
     Q_OBJECT
 public:
-    explicit ConvergenceDataWidget(QWidget* parent = nullptr);
-
-    void setData(const Ptcl::FieldData::FieldConvergenceData& data, bool isEnabled);
-
-signals:
-    void dataUpdated(const Ptcl::FieldData::FieldConvergenceData& data);
-    void isEnabledUpdated(bool isEnabled);
+    explicit FieldConvergenceInspector(QWidget* parent = nullptr);
 
 private:
+    void populateProperties() final;
     void setupConnections();
 
 private:
-    Ptcl::FieldData::FieldConvergenceData mData{};
-
     QWidget* mControlsWidget{nullptr};
     EnumComboBox<Ptcl::FieldConvergenceType> mTypeSpinBox{};
     VectorSpinBox<Math::Vector3f> mPosSpinBox{};

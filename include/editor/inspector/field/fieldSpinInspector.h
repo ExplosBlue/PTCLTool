@@ -1,7 +1,7 @@
 #pragma once
 
 #include "editor/components/enumComboBox.h"
-#include "editor/fieldEditor/fieldEditorWidget.h"
+#include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QCheckBox>
 #include <QDoubleSpinBox>
@@ -14,23 +14,16 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class FieldEditorWidget::SpinDataWidget final : public QWidget {
+class FieldSpinInspector final : public InspectorWidgetBase {
     Q_OBJECT
 public:
-    explicit SpinDataWidget(QWidget* parent = nullptr);
-
-    void setData(const Ptcl::FieldData::FieldSpinData& data, bool isEnabled);
-
-signals:
-    void dataUpdated(const Ptcl::FieldData::FieldSpinData& data);
-    void isEnabledUpdated(bool isEnabled);
+    explicit FieldSpinInspector(QWidget* parent = nullptr);
 
 private:
+    void populateProperties() final;
     void setupConnections();
 
 private:
-    Ptcl::FieldData::FieldSpinData mData{};
-
     QWidget* mControlsWidget{nullptr};
     QDoubleSpinBox mSpinRotateSpinBox{};
     EnumComboBox<Ptcl::FieldSpinAxis> mSpinAxisSpinBox{};
