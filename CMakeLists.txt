@@ -66,13 +66,12 @@ set(PROJECT_SOURCES
     src/editor/inspector/transformInspector.cpp
     src/editor/inspector/velocityInspector.cpp
     src/editor/inspector/volumeInspector.cpp
-    src/editor/fieldEditor/collisionDataWidget.cpp
-    src/editor/fieldEditor/convergenceDataWidget.cpp
-    src/editor/fieldEditor/fieldEditorWidget.cpp
-    src/editor/fieldEditor/magnetDataWidget.cpp
-    src/editor/fieldEditor/posAddDataWidget.cpp
-    src/editor/fieldEditor/randomDataWidget.cpp
-    src/editor/fieldEditor/spinDataWidget.cpp
+    src/editor/inspector/field/fieldCollisionInspector.cpp
+    src/editor/inspector/field/fieldConvergenceInspector.cpp
+    src/editor/inspector/field/fieldMagnetInspector.cpp
+    src/editor/inspector/field/fieldPosAddInspector.cpp
+    src/editor/inspector/field/fieldRandomInspector.cpp
+    src/editor/inspector/field/fieldSpinInspector.cpp
     src/etc1/rg_etc1.cpp
     src/ptcl/ptcl.cpp
     src/ptcl/ptclBinary.cpp
@@ -80,7 +79,6 @@ set(PROJECT_SOURCES
     src/ptcl/ptclDocument.cpp
     src/ptcl/ptclEmitter.cpp
     src/ptcl/ptclEmitterSet.cpp
-    src/ptcl/ptclFieldData.cpp
     src/ptcl/ptclSeed.cpp
     src/ptcl/ptclTexture.cpp
     src/util/imageUtil.cpp
@@ -138,13 +136,12 @@ set(PROJECT_HEADERS
     include/editor/inspector/transformInspector.h
     include/editor/inspector/velocityInspector.h
     include/editor/inspector/volumeInspector.h
-    include/editor/fieldEditor/collisionDataWidget.h
-    include/editor/fieldEditor/convergenceDataWidget.h
-    include/editor/fieldEditor/fieldEditorWidget.h
-    include/editor/fieldEditor/magnetDataWidget.h
-    include/editor/fieldEditor/posAddDataWidget.h
-    include/editor/fieldEditor/randomDataWidget.h
-    include/editor/fieldEditor/spinDataWidget.h
+    include/editor/inspector/field/fieldCollisionInspector.h
+    include/editor/inspector/field/fieldConvergenceInspector.h
+    include/editor/inspector/field/fieldMagnetInspector.h
+    include/editor/inspector/field/fieldPosAddInspector.h
+    include/editor/inspector/field/fieldRandomInspector.h
+    include/editor/inspector/field/fieldSpinInspector.h
     include/etc1/rg_etc1.h
     include/math/matrix.h
     include/math/util.h
@@ -157,7 +154,7 @@ set(PROJECT_HEADERS
     include/ptcl/ptclEmitter.h
     include/ptcl/ptclEmitterSet.h
     include/ptcl/ptclEnum.h
-    include/ptcl/ptclFieldData.h
+
     include/ptcl/ptclSeed.h
     include/ptcl/ptclTexture.h
     include/util/bitflagUtil.h
