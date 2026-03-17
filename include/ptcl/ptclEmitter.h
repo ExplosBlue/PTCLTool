@@ -7,7 +7,6 @@
 #include "ptcl/ptclChildData.h"
 #include "ptcl/ptclEnum.h"
 #include "ptcl/ptclFieldData.h"
-#include "ptclFluctuationData.h"
 #include "ptcl/ptclStripeData.h"
 #include "ptcl/ptclSeed.h"
 #include "ptcl/ptclTexture.h"
@@ -59,10 +58,6 @@ public:
             ChildFlag::Unk80
         };
         BitFlag<FieldFlag> fieldFlags{};
-        BitFlag<FluctuationFlag> fluctuationFlags{
-            FluctuationFlag::ApplyAlpha,
-            FluctuationFlag::ApplyScale
-        };
         BitFlag<StripeFlag> stripeFlags{};
     };
 
@@ -379,10 +374,34 @@ public:
     void setIsTexturePatternAnim(bool isAnim) { mIsTexturePatternAnim = isAnim; }
 
     const TextureHandle& textureHandle() const { return mTextureHandle; }
-    // TextureHandle& textureHandle() { return mTextureHandle; }
 
     std::shared_ptr<Texture> texture() const { return mTextureHandle.get(); }
     void setTexture(const std::shared_ptr<Texture>& texture) { mTextureHandle.set(texture); }
+
+    // ----- Fluctuation Properties ----- \\
+
+    void initFluctuationData(const BinFluctuationData& fluctuationData);
+
+    const BitFlag<FluctuationFlag>& fluctuationFlags() const { return mFluctuationFlags; }
+    void setFluctuationFlags(const BitFlag<FluctuationFlag>& fluxFlags) { mFluctuationFlags = fluxFlags; }
+
+    f32 fluctuationScale() const { return mFluctuationScale; }
+    void setFluctuationScale(f32 scale) { mFluctuationScale = scale; }
+
+    f32 fluctuationFrequency() const { return mFluctuationFreq; }
+    void setFluctuationFrequency(f32 frequency) { mFluctuationFreq = frequency; }
+
+    bool isFluctuationPhaseRandom() const { return mFluctuationPhaseRnd; }
+    void setFluctuationPhaseRandom(bool random) { mFluctuationPhaseRnd = random; }
+
+    bool isFluctuationEnabled() const { return mFluctuationFlags.isSet(Ptcl::FluctuationFlag::Enabled); }
+    void setFluctuationEnabled(bool enabled) { mFluctuationFlags.set(Ptcl::FluctuationFlag::Enabled, enabled); }
+
+    bool isFluctuationApplyAlpha() const { return mFluctuationFlags.isSet(Ptcl::FluctuationFlag::ApplyAlpha); }
+    void setFluctuationApplyAlpha(bool apply) { mFluctuationFlags.set(Ptcl::FluctuationFlag::ApplyAlpha, apply); }
+
+    bool isFluctuationApplyScale() const { return mFluctuationFlags.isSet(Ptcl::FluctuationFlag::ApplyScale); }
+    void setFluctuationApplyScale(bool apply) { mFluctuationFlags.set(Ptcl::FluctuationFlag::ApplyScale, apply); }
 
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag>& flags() const;
@@ -391,16 +410,11 @@ public:
     void setComplexProperties(const ComplexProperties& complexProperties);
 
     void setChildFlags(const BitFlag<ChildFlag>& childFlags);
-    void setFluctuationFlags(const BitFlag<FluctuationFlag>& fluxFlags);
     void setFieldFlags(const BitFlag<FieldFlag>& fieldFlags);
     void setStripeFlags(const BitFlag<StripeFlag>& stripeFlags);
 
     const ChildData& childData() const;
     ChildData& childData();
-
-    const FluctuationData& fluctuationData() const;
-    void setFluctuationData(const FluctuationData& fluctuationData);
-    void initFluctuationData(const BinFluctuationData& fluctuationData);
 
     const FieldData& fieldData() const;
     FieldData& fieldData();
@@ -525,12 +539,21 @@ private:
     bool mIsTexturePatternAnim{false};
     TextureHandle mTextureHandle{};
 
+    // ----- Complex Properties ----- \\
+
     ComplexProperties mComplexProperties{};
 
-    ChildData mChildData{};
-    FluctuationData mFluctuationData{};
-    FieldData mFieldData{};
+    // Fluctuation Properties
+    f32 mFluctuationScale{1.0f};
+    f32 mFluctuationFreq{20.0f};
+    bool mFluctuationPhaseRnd{false};
+    BitFlag<FluctuationFlag> mFluctuationFlags{
+        FluctuationFlag::ApplyAlpha,
+        FluctuationFlag::ApplyScale
+    };
 
+    ChildData mChildData{};
+    FieldData mFieldData{};
     StripeData mStripeData{};
 };
 

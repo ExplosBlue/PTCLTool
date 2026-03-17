@@ -107,7 +107,12 @@ std::unique_ptr<Emitter> Emitter::clone() const {
 
     newEmitter->mComplexProperties = mComplexProperties;
     newEmitter->mChildData = std::move(*mChildData.clone());
-    newEmitter->mFluctuationData = mFluctuationData;
+
+    // Fluctuation Properties
+    newEmitter->mFluctuationScale = mFluctuationScale;
+    newEmitter->mFluctuationFreq = mFluctuationFreq;
+    newEmitter->mFluctuationPhaseRnd = mFluctuationPhaseRnd;
+
     newEmitter->mFieldData = mFieldData;
     newEmitter->mStripeData = mStripeData;
     return newEmitter;
@@ -133,10 +138,6 @@ void Emitter::setChildFlags(const BitFlag<ChildFlag>& childFlags) {
     mComplexProperties.childFlags = childFlags;
 }
 
-void Emitter::setFluctuationFlags(const BitFlag<FluctuationFlag>& fluxFlags) {
-    mComplexProperties.fluctuationFlags = fluxFlags;
-}
-
 void Emitter::setFieldFlags(const BitFlag<FieldFlag>& fieldFlags) {
     mComplexProperties.fieldFlags = fieldFlags;
 }
@@ -153,20 +154,10 @@ ChildData& Emitter::childData() {
     return mChildData;
 }
 
-const FluctuationData& Emitter::fluctuationData() const {
-    return mFluctuationData;
-}
-
-void Emitter::setFluctuationData(const FluctuationData& fluctuationData) {
-    mFluctuationData = fluctuationData;
-}
-
 void Emitter::initFluctuationData(const BinFluctuationData& fluctuationData) {
-    mFluctuationData = {
-        .fluctuationScale = fluctuationData.fluctuationScale,
-        .fluctuationFreq = fluctuationData.fluctuationFreq,
-        .fluctuationPhaseRnd = static_cast<bool>(fluctuationData.fluctuationPhaseRnd)
-    };
+    mFluctuationScale = fluctuationData.fluctuationScale;
+    mFluctuationFreq = fluctuationData.fluctuationFreq;
+    mFluctuationPhaseRnd = static_cast<bool>(fluctuationData.fluctuationPhaseRnd);
 }
 
 const FieldData& Emitter::fieldData() const {
@@ -321,9 +312,10 @@ void Emitter::initComplexFromBinary(const BinComplexEmitterData& emitterData) {
     mComplexProperties = {
         .childFlags = emitterData.childFlag,
         .fieldFlags = emitterData.fieldFlag,
-        .fluctuationFlags = emitterData.fluctuationFlag,
         .stripeFlags = emitterData.stripeFlag
     };
+
+    mFluctuationFlags = emitterData.fluctuationFlag;
 }
 
 

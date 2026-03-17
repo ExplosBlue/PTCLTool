@@ -1,8 +1,6 @@
 #pragma once
 
-#include "ptcl/ptclEnum.h"
-#include "ptcl/ptclFluctuationData.h"
-#include "util/bitflagUtil.h"
+#include "editor/emitterWidget/emitterWidgetBase.h"
 
 #include <QDoubleSpinBox>
 #include <QCheckBox>
@@ -16,24 +14,16 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class FluctuationEditorWidget final : public QWidget {
+class FluctuationEditorWidget final : public EmitterWidgetBase {
     Q_OBJECT
 public:
     explicit FluctuationEditorWidget(QWidget* parent = nullptr);
 
-    void setData(const Ptcl::FluctuationData& data, const BitFlag<Ptcl::FluctuationFlag>& fluxFlag);
-
-signals:
-    void dataUpdated(const Ptcl::FluctuationData& data);
-    void flagsUpdated(const BitFlag<Ptcl::FluctuationFlag>& fluxFlags);
-
 private:
+    void populateProperties() final;
     void setupConnections();
 
 private:
-    Ptcl::FluctuationData mData{};
-    BitFlag<Ptcl::FluctuationFlag> mFluxFlag{};
-
     QWidget* mControlsContainer{nullptr};
     QDoubleSpinBox mScaleSpinBox{};
     QDoubleSpinBox mFreqSpinBox{};

@@ -515,7 +515,7 @@ struct alignas(4) BinFluctuationData {
     s32 fluctuationPhaseRnd;    // 0x08
 
     BinFluctuationData() = default;
-    BinFluctuationData(const Ptcl::FluctuationData& fluctuationData);
+    BinFluctuationData(const Ptcl::Emitter& emitterData);
 
     friend QDataStream& operator>>(QDataStream& in, BinFluctuationData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinFluctuationData& item);

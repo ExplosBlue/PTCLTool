@@ -6,6 +6,7 @@
 #include "editor/emitterWidget/colorPropertiesWidget.h"
 #include "editor/emitterWidget/combinerPropertiesWidget.h"
 #include "editor/emitterWidget/emissionPropertiesWidget.h"
+#include "editor/emitterWidget/fluctuationEditorWidget.h"
 #include "editor/emitterWidget/gravityPropertiesWidget.h"
 #include "editor/emitterWidget/lifespanPropertiesWidget.h"
 #include "editor/emitterWidget/rotationPropertiesWidget.h"
@@ -121,20 +122,6 @@ void EmitterWidget::setupConnections() {
         emit propertiesChanged();
     });
 
-    // Fluctuation Editor Widget
-    connect(mFluctuationEditorWidget, &FluctuationEditorWidget::dataUpdated, this, [this](const Ptcl::FluctuationData& data) {
-        if (!mEmitter) { return; }
-        mEmitter->setFluctuationData(data);
-        emit propertiesChanged();
-    });
-
-    connect(mFluctuationEditorWidget, &FluctuationEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::FluctuationFlag>& fluxFlags) {
-        if (!mEmitter) { return; }
-        mEmitter->setFluctuationFlags(fluxFlags);
-        emit complexFlagsChanged();
-        emit propertiesChanged();
-    });
-
     // Field Editor Widget
     connect(mFieldEditorWidget, &FieldEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::FieldFlag>& fieldFlags) {
         if (!mEmitter) { return; }
@@ -176,6 +163,7 @@ void EmitterWidget::setDocument(Ptcl::Document* document) {
     mCombinerProperties->setDocument(document);
     mColorProperties->setDocument(document);
     mTextureProperties->setDocument(document);
+    mFluctuationEditorWidget->setDocument(document);
 }
 
 void EmitterWidget::setSelection(Ptcl::Selection* selection) {
@@ -195,6 +183,7 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
     mCombinerProperties->setSelection(selection);
     mColorProperties->setSelection(selection);
     mTextureProperties->setSelection(selection);
+    mFluctuationEditorWidget->setSelection(selection);
 
     connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
         if (!mDocument) {
@@ -232,14 +221,12 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
 
 void EmitterWidget::populateProperties() {
     QSignalBlocker b15(mChildEditorWidget);
-    QSignalBlocker b16(mFluctuationEditorWidget);
     QSignalBlocker b17(mFieldEditorWidget);
     QSignalBlocker b18(mStripeEditorWidget);
 
     mChildEditorWidget->setChildData(&mEmitter->childData(), mEmitter->complexProperties().childFlags);
     mChildEditorWidget->setParentColor0(mEmitter->primaryColor());
 
-    mFluctuationEditorWidget->setData(mEmitter->fluctuationData(), mEmitter->complexProperties().fluctuationFlags);
     mFieldEditorWidget->setData(&mEmitter->fieldData(), mEmitter->complexProperties().fieldFlags);
     mStripeEditorWidget->setData(mEmitter->stripeData(), mEmitter->complexProperties().stripeFlags);
 
