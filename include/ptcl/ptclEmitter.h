@@ -7,7 +7,6 @@
 #include "ptcl/ptclChildData.h"
 #include "ptcl/ptclEnum.h"
 #include "ptcl/ptclFieldData.h"
-#include "ptcl/ptclStripeData.h"
 #include "ptcl/ptclSeed.h"
 #include "ptcl/ptclTexture.h"
 
@@ -58,7 +57,6 @@ public:
             ChildFlag::Unk80
         };
         BitFlag<FieldFlag> fieldFlags{};
-        BitFlag<StripeFlag> stripeFlags{};
     };
 
 public:
@@ -403,6 +401,39 @@ public:
     bool isFluctuationApplyScale() const { return mFluctuationFlags.isSet(Ptcl::FluctuationFlag::ApplyScale); }
     void setFluctuationApplyScale(bool apply) { mFluctuationFlags.set(Ptcl::FluctuationFlag::ApplyScale, apply); }
 
+    // ----- Stripe Properties ----- \\
+
+    void initStripeData(const BinStripeData& stripeData);
+
+    const BitFlag<StripeFlag>& stripeFlags() const { return mStripeFlags; }
+    void setStripeFlags(const BitFlag<StripeFlag>& stripeFlags) { mStripeFlags = stripeFlags; }
+
+    bool hasStripeData() const;
+
+    StripeType stripeType() const { return mStripeType; }
+    void setStripeType(StripeType type) { mStripeType = type; }
+
+    s32 stripeNumHistory() const { return mStripeNumHistory; }
+    void setStripeNumHistory(s32 num) { mStripeNumHistory = num; }
+
+    f32 stripeStartAlpha() const { return mStripeStartAlpha; }
+    void setStripeStartAlpha(f32 alpha) { mStripeStartAlpha = alpha; }
+
+    f32 stripeEndAlpha() const { return mStripeEndAlpha; }
+    void setStripeEndAlpha(f32 alpha) { mStripeEndAlpha = alpha; }
+
+    const Math::Vector2f& stripeUVScrollSpeed() const { return mStripeUVScrollSpeed; }
+    void setStripeUVScrollSpeed(const Math::Vector2f& speed) { mStripeUVScrollSpeed = speed; }
+
+    s32 stripeHistoryStep() const { return mStripeHistoryStep; }
+    void setStripeHistoryStep(s32 step) { mStripeHistoryStep = step; }
+
+    f32 stripeDirInterpolate() const { return mStripeDirInterpolate; }
+    void setStripeDirInterpolate(f32 interp) { mStripeDirInterpolate = interp; }
+
+    bool isStripeEmitterCoord() const { return mStripeFlags.isSet(Ptcl::StripeFlag::EmitterCoord); }
+    void setStripeEmitterCoord(bool emitterCoord) { mStripeFlags.set(Ptcl::StripeFlag::EmitterCoord, emitterCoord); }
+
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag>& flags() const;
 
@@ -411,7 +442,6 @@ public:
 
     void setChildFlags(const BitFlag<ChildFlag>& childFlags);
     void setFieldFlags(const BitFlag<FieldFlag>& fieldFlags);
-    void setStripeFlags(const BitFlag<StripeFlag>& stripeFlags);
 
     const ChildData& childData() const;
     ChildData& childData();
@@ -419,12 +449,6 @@ public:
     const FieldData& fieldData() const;
     FieldData& fieldData();
     void setFieldData(const FieldData& fieldData);
-
-    const StripeData& stripeData() const;
-    void setStripeData(const StripeData& stripeData);
-    void initStripeData(const BinStripeData& stripeData);
-
-    bool hasStripeData() const;
 
     void initFromBinary(const BinCommonEmitterData& emitterData);
     void initComplexFromBinary(const BinComplexEmitterData& emitterData);
@@ -552,9 +576,18 @@ private:
         FluctuationFlag::ApplyScale
     };
 
+    // Stripe Properties
+    StripeType mStripeType{StripeType::Billboard};
+    s32 mStripeNumHistory{60};
+    f32 mStripeStartAlpha{1.0f};
+    f32 mStripeEndAlpha{1.0f};
+    Math::Vector2f mStripeUVScrollSpeed{0.0f, 0.0f};
+    s32 mStripeHistoryStep{1};
+    f32 mStripeDirInterpolate{1.0f};
+    BitFlag<StripeFlag> mStripeFlags{};
+
     ChildData mChildData{};
     FieldData mFieldData{};
-    StripeData mStripeData{};
 };
 
 

@@ -11,6 +11,7 @@
 #include "editor/emitterWidget/lifespanPropertiesWidget.h"
 #include "editor/emitterWidget/rotationPropertiesWidget.h"
 #include "editor/emitterWidget/scalePropertiesWidget.h"
+#include "editor/emitterWidget/stripeEditorWidget.h"
 #include "editor/emitterWidget/terminationPropertiesWidget.h"
 #include "editor/emitterWidget/texturePropertiesWidget.h"
 #include "editor/emitterWidget/transformPropertiesWidget.h"
@@ -129,24 +130,13 @@ void EmitterWidget::setupConnections() {
         emit complexFlagsChanged();
         emit propertiesChanged();
     });
-
-    // Stripe Editor Widget
-    connect(mStripeEditorWidget, &StripeEditorWidget::dataUpdated, this, [this](const Ptcl::StripeData& data) {
-        if (!mEmitter) { return; }
-        mEmitter->setStripeData(data);
-        emit propertiesChanged();
-    });
-
-    connect(mStripeEditorWidget, &StripeEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::StripeFlag>& stripeFlags) {
-        if (!mEmitter) { return; }
-        mEmitter->setStripeFlags(stripeFlags);
-        emit complexFlagsChanged();
-        emit propertiesChanged();
-    });
-
 }
 
 void EmitterWidget::setDocument(Ptcl::Document* document) {
+    if (mDocument) {
+        mDocument->disconnect(this);
+    }
+
     mDocument = document;
 
     mBasicProperties->setDocument(document);
@@ -164,9 +154,28 @@ void EmitterWidget::setDocument(Ptcl::Document* document) {
     mColorProperties->setDocument(document);
     mTextureProperties->setDocument(document);
     mFluctuationEditorWidget->setDocument(document);
+    mStripeEditorWidget->setDocument(document);
+
+    if (mDocument) {
+        connect(mDocument, &Ptcl::Document::emitterChanged, this, [this](s32 setIndex, s32 emitterIndex) {
+            if (!mEmitter) {
+                return;
+            }
+
+            if (setIndex != mSelection->emitterSetIndex() || emitterIndex != mSelection->emitterIndex()) {
+                return;
+            }
+
+            populateProperties();
+        });
+    }
 }
 
 void EmitterWidget::setSelection(Ptcl::Selection* selection) {
+    if (mSelection) {
+        mSelection->disconnect(this);
+    }
+
     mSelection = selection;
 
     mBasicProperties->setSelection(selection);
@@ -184,39 +193,42 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
     mColorProperties->setSelection(selection);
     mTextureProperties->setSelection(selection);
     mFluctuationEditorWidget->setSelection(selection);
+    mStripeEditorWidget->setSelection(selection);
 
-    connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
-        if (!mDocument) {
-            mEmitter = nullptr;
-            setEnabled(false);
-            return;
-        }
+    if (mSelection) {
+        connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
+            if (!mDocument) {
+                mEmitter = nullptr;
+                setEnabled(false);
+                return;
+            }
 
-        mEmitter = mDocument->emitter(setIndex, emitterIndex);
+            mEmitter = mDocument->emitter(setIndex, emitterIndex);
 
-        switch (type) {
-        case Ptcl::Selection::Type::Emitter:
-            mStackedWidget->setCurrentIndex(0);
-            break;
-        case Ptcl::Selection::Type::EmitterChild:
-            mStackedWidget->setCurrentWidget(mChildEditorWidget);
-            break;
-        case Ptcl::Selection::Type::EmitterFlux:
-            mStackedWidget->setCurrentWidget(mFluctuationEditorWidget);
-            break;
-        case Ptcl::Selection::Type::EmitterField:
-            mStackedWidget->setCurrentWidget(mFieldEditorWidget);
-            break;
-        default:
-            break;
-        }
+            switch (type) {
+            case Ptcl::Selection::Type::Emitter:
+                mStackedWidget->setCurrentIndex(0);
+                break;
+            case Ptcl::Selection::Type::EmitterChild:
+                mStackedWidget->setCurrentWidget(mChildEditorWidget);
+                break;
+            case Ptcl::Selection::Type::EmitterFlux:
+                mStackedWidget->setCurrentWidget(mFluctuationEditorWidget);
+                break;
+            case Ptcl::Selection::Type::EmitterField:
+                mStackedWidget->setCurrentWidget(mFieldEditorWidget);
+                break;
+            default:
+                break;
+            }
 
-        // TODO: Have child widgets handle this themselves
-        mChildEditorWidget->setTextureList(mTextureList);
+            // TODO: Have child widgets handle this themselves
+            mChildEditorWidget->setTextureList(mTextureList);
 
-        setEnabled(true);
-        populateProperties();
-    });
+            setEnabled(true);
+            populateProperties();
+        });
+    }
 }
 
 void EmitterWidget::populateProperties() {
@@ -228,7 +240,6 @@ void EmitterWidget::populateProperties() {
     mChildEditorWidget->setParentColor0(mEmitter->primaryColor());
 
     mFieldEditorWidget->setData(&mEmitter->fieldData(), mEmitter->complexProperties().fieldFlags);
-    mStripeEditorWidget->setData(mEmitter->stripeData(), mEmitter->complexProperties().stripeFlags);
 
     updateStripeVisibility();
 }

@@ -3,7 +3,6 @@
 #include "editor/childEditor/childEditorWidget.h"
 #include "editor/components/collapsibleWidget.h"
 #include "editor/fieldEditor/fieldEditorWidget.h"
-#include "editor/stripeEditorWidget.h"
 
 #include "ptcl/ptclDocument.h"
 #include "ptcl/ptclEmitter.h"
@@ -36,6 +35,7 @@ class CombinerPropertiesWidget;
 class ColorPropertiesWidget;
 class TexturePropertiesWidget;
 class FluctuationEditorWidget;
+class StripeEditorWidget;
 
 
 // ========================================================================== //

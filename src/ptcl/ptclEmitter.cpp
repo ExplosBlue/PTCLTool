@@ -109,12 +109,22 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mChildData = std::move(*mChildData.clone());
 
     // Fluctuation Properties
+    newEmitter->mFluctuationFlags = mFluctuationFlags;
     newEmitter->mFluctuationScale = mFluctuationScale;
     newEmitter->mFluctuationFreq = mFluctuationFreq;
     newEmitter->mFluctuationPhaseRnd = mFluctuationPhaseRnd;
 
+    // Stripe Properties
+    newEmitter->mStripeFlags = mStripeFlags;
+    newEmitter->mStripeType = mStripeType;
+    newEmitter->mStripeNumHistory = mStripeNumHistory;
+    newEmitter->mStripeStartAlpha = mStripeStartAlpha;
+    newEmitter->mStripeEndAlpha = mStripeEndAlpha;
+    newEmitter->mStripeUVScrollSpeed = mStripeUVScrollSpeed;
+    newEmitter->mStripeHistoryStep = mStripeHistoryStep;
+    newEmitter->mStripeDirInterpolate = mStripeDirInterpolate;
+
     newEmitter->mFieldData = mFieldData;
-    newEmitter->mStripeData = mStripeData;
     return newEmitter;
 }
 
@@ -140,10 +150,6 @@ void Emitter::setChildFlags(const BitFlag<ChildFlag>& childFlags) {
 
 void Emitter::setFieldFlags(const BitFlag<FieldFlag>& fieldFlags) {
     mComplexProperties.fieldFlags = fieldFlags;
-}
-
-void Emitter::setStripeFlags(const BitFlag<StripeFlag>& stripeFlags) {
-    mComplexProperties.stripeFlags = stripeFlags;
 }
 
 const ChildData& Emitter::childData() const {
@@ -172,24 +178,14 @@ void Emitter::setFieldData(const FieldData& fieldData) {
     mFieldData = fieldData;
 }
 
-const StripeData& Emitter::stripeData() const {
-    return mStripeData;
-}
-
-void Emitter::setStripeData(const StripeData& stripeData) {
-    mStripeData = stripeData;
-}
-
 void Emitter::initStripeData(const BinStripeData& stripeData) {
-    mStripeData = {
-        .type = stripeData.stripeType,
-        .numHistory = stripeData.stripeNumHistory,
-        .startAlpha = stripeData.stripeStartAlpha,
-        .endAlpha = stripeData.stripeEndAlpha,
-        .uvScrollSpeed = {stripeData.uvScrollSpeed.x, stripeData.uvScrollSpeed.y},
-        .historyStep = stripeData.stripeHistoryStep,
-        .dirInterpolate = stripeData.stripeDirInterpolate
-    };
+    mStripeType = stripeData.stripeType;
+    mStripeNumHistory = stripeData.stripeNumHistory;
+    mStripeStartAlpha = stripeData.stripeStartAlpha;
+    mStripeEndAlpha = stripeData.stripeEndAlpha;
+    mStripeUVScrollSpeed = {stripeData.uvScrollSpeed.x, stripeData.uvScrollSpeed.y};
+    mStripeHistoryStep = stripeData.stripeHistoryStep;
+    mStripeDirInterpolate = stripeData.stripeDirInterpolate;
 }
 
 bool Emitter::hasStripeData() const {
@@ -312,10 +308,10 @@ void Emitter::initComplexFromBinary(const BinComplexEmitterData& emitterData) {
     mComplexProperties = {
         .childFlags = emitterData.childFlag,
         .fieldFlags = emitterData.fieldFlag,
-        .stripeFlags = emitterData.stripeFlag
     };
 
     mFluctuationFlags = emitterData.fluctuationFlag;
+    mStripeFlags = emitterData.stripeFlag;
 }
 
 
