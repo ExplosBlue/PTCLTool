@@ -1,9 +1,7 @@
 #pragma once
 
 #include "editor/components/vectorSpinBox.h"
-#include "ptcl/ptclEnum.h"
-#include "ptcl/ptclStripeData.h"
-#include "util/bitflagUtil.h"
+#include "editor/emitterWidget/emitterWidgetBase.h"
 
 #include <QDoubleSpinBox>
 #include <QCheckBox>
@@ -18,24 +16,16 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class StripeEditorWidget final : public QWidget {
+class StripeEditorWidget final : public EmitterWidgetBase {
     Q_OBJECT
 public:
     explicit StripeEditorWidget(QWidget* parent = nullptr);
 
-    void setData(const Ptcl::StripeData& data, const BitFlag<Ptcl::StripeFlag>& stripeFlag);
-
-signals:
-    void dataUpdated(const Ptcl::StripeData& data);
-    void flagsUpdated(const BitFlag<Ptcl::StripeFlag>& stripeFlags);
-
 private:
+    void populateProperties() final;
     void setupConnections();
 
 private:
-    Ptcl::StripeData mData{};
-    BitFlag<Ptcl::StripeFlag> mStripeFlag{};
-
     QComboBox mTypeComboBox{};
     QSpinBox mNumHistSpinBox{};
     QDoubleSpinBox mStartAlphaSpinBox{};
@@ -45,6 +35,7 @@ private:
     QDoubleSpinBox mDirIntepolateSpinBox{};
     QCheckBox mEmitterCoordCheckBox{};
 };
+
 
 // ========================================================================== //
 
