@@ -2,7 +2,7 @@
 
 #include "ptcl/ptclDocument.h"
 #include "editor/emitterSetWidget.h"
-#include "editor/emitterWidget/inspectorPanel.h"
+#include "editor/inspector/inspectorPanel.h"
 #include "editor/ptclListWidget.h"
 #include "editor/textureListWidget.h"
 
