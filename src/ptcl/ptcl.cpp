@@ -156,38 +156,36 @@ void PtclBinaryReader::readComplexData(Emitter& emitter, const BinCommonEmitterD
     }
 
     // FieldData
-    Ptcl::FieldData fieldData;
     if (complex.fieldFlag.isSet(FieldFlag::Random)) {
         BinFieldRandomData randomData{};
         mStream >> randomData;
-        fieldData.initRandomData(randomData);
+        emitter.initFieldRandom(randomData);
     }
     if (complex.fieldFlag.isSet(FieldFlag::Magnet)) {
         BinFieldMagnetData magnetData{};
         mStream >> magnetData;
-        fieldData.initMagnetData(magnetData);
+        emitter.initFieldMagnet(magnetData);
     }
     if (complex.fieldFlag.isSet(FieldFlag::Spin)) {
         BinFieldSpinData spinData{};
         mStream >> spinData;
-        fieldData.initSpinData(spinData);
+        emitter.initFieldSpin(spinData);
     }
     if (complex.fieldFlag.isSet(FieldFlag::Collision)) {
         BinFieldCollisionData collisionData{};
         mStream >> collisionData;
-        fieldData.initCollisionData(collisionData);
+        emitter.initFieldCollision(collisionData);
     }
     if (complex.fieldFlag.isSet(FieldFlag::Convergence)) {
         BinFieldConvergenceData convergenceData{};
         mStream >> convergenceData;
-        fieldData.initConvergenceData(convergenceData);
+        emitter.initFieldConvergence(convergenceData);
     }
     if (complex.fieldFlag.isSet(FieldFlag::PosAdd)) {
         BinFieldPosAddData posAddData{};
         mStream >> posAddData;
-        fieldData.initPosAddData(posAddData);
+        emitter.initFieldPosAdd(posAddData);
     }
-    emitter.setFieldData(fieldData);
 
     // FluctuationData
     if (complex.fluctuationFlag.isSet(FluctuationFlag::Enabled)) {
@@ -348,7 +346,7 @@ void PtclBinaryWriter::writeComplexEmitter(const Emitter& emitter) {
     // Field
     emitterData.fieldDataOffset = emitterDataSize;
 
-    const auto& fieldFlags = emitter.complexProperties().fieldFlags;
+    const auto& fieldFlags = emitter.fieldFlags();
 
     const bool hasRandom      = fieldFlags.isSet(FieldFlag::Random);
     const bool hasMagnet      = fieldFlags.isSet(FieldFlag::Magnet);
@@ -387,12 +385,12 @@ void PtclBinaryWriter::writeComplexEmitter(const Emitter& emitter) {
 
     // Sub-Blocks
     if (hasChild)       { mEmitterData.emplace_back(childData); }
-    if (hasRandom)      { mEmitterData.emplace_back(BinFieldRandomData{emitter.fieldData().randomData()}); }
-    if (hasMagnet)      { mEmitterData.emplace_back(BinFieldMagnetData{emitter.fieldData().magnetData()}); }
-    if (hasSpin)        { mEmitterData.emplace_back(BinFieldSpinData{emitter.fieldData().spinData()}); }
-    if (hasCollision)   { mEmitterData.emplace_back(BinFieldCollisionData{emitter.fieldData().collisionData()}); }
-    if (hasConvergence) { mEmitterData.emplace_back(BinFieldConvergenceData{emitter.fieldData().convergenceData()}); }
-    if (hasPosAdd)      { mEmitterData.emplace_back(BinFieldPosAddData{emitter.fieldData().posAddData()}); }
+    if (hasRandom)      { mEmitterData.emplace_back(BinFieldRandomData{emitter}); }
+    if (hasMagnet)      { mEmitterData.emplace_back(BinFieldMagnetData{emitter}); }
+    if (hasSpin)        { mEmitterData.emplace_back(BinFieldSpinData{emitter}); }
+    if (hasCollision)   { mEmitterData.emplace_back(BinFieldCollisionData{emitter}); }
+    if (hasConvergence) { mEmitterData.emplace_back(BinFieldConvergenceData{emitter}); }
+    if (hasPosAdd)      { mEmitterData.emplace_back(BinFieldPosAddData{emitter}); }
     if (hasFluctuation) { mEmitterData.emplace_back(BinFluctuationData{emitter}); }
     if (hasStripe)      { mEmitterData.emplace_back(BinStripeData{emitter}); }
 }

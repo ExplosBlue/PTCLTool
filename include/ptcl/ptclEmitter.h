@@ -6,7 +6,6 @@
 #include "ptcl/ptclBinary.h"
 #include "ptcl/ptclChildData.h"
 #include "ptcl/ptclEnum.h"
-#include "ptcl/ptclFieldData.h"
 #include "ptcl/ptclSeed.h"
 #include "ptcl/ptclTexture.h"
 
@@ -56,7 +55,6 @@ public:
             ChildFlag::IsFollow,
             ChildFlag::Unk80
         };
-        BitFlag<FieldFlag> fieldFlags{};
     };
 
 public:
@@ -434,6 +432,106 @@ public:
     bool isStripeEmitterCoord() const { return mStripeFlags.isSet(Ptcl::StripeFlag::EmitterCoord); }
     void setStripeEmitterCoord(bool emitterCoord) { mStripeFlags.set(Ptcl::StripeFlag::EmitterCoord, emitterCoord); }
 
+    // ----- Field Properties ----- \\
+
+    bool isFieldEnabled() const { return mFieldFlags.isSet(FieldFlag::Enabled); }
+
+    const BitFlag<FieldFlag>& fieldFlags() const { return mFieldFlags; }
+    void setFieldFlags(const BitFlag<FieldFlag>& fieldFlags) { mFieldFlags = fieldFlags; }
+
+    // Field Random
+
+    void initFieldRandom(const BinFieldRandomData& randomData);
+
+    bool isFieldRandomEnabled() const { return mFieldFlags.isSet(FieldFlag::Random); }
+    void setFieldRandomEnabled(bool enabled) { mFieldFlags.set(FieldFlag::Random, enabled); }
+
+    s32 fieldRandomBlank() const { return mFieldRandom.randomBlank; }
+    void setFieldRandomBlank(s32 blank) { mFieldRandom.randomBlank = blank; }
+
+    const Math::Vector3f& fieldRandomVelAdd() const { return mFieldRandom.randomVelAdd; }
+    void setFieldRandomVelAdd(const Math::Vector3f& velAdd) { mFieldRandom.randomVelAdd = velAdd; }
+
+    // Field Magnet
+
+
+    void initFieldMagnet(const BinFieldMagnetData& magnetData);
+
+    bool isFieldMagnetEnabled() const { return mFieldFlags.isSet(FieldFlag::Magnet); }
+    void setFieldMagnetEnabled(bool enabled) { mFieldFlags.set(FieldFlag::Magnet, enabled); }
+
+    f32 fieldMagnetPower() const { return mFieldMagnet.magnetPower; }
+    void setFieldMagnetPower(f32 power) { mFieldMagnet.magnetPower = power; }
+
+    const Math::Vector3f& fieldMagnetPos() const { return mFieldMagnet.magnetPos; }
+    void setFieldMagnetPos(const Math::Vector3f& pos) { mFieldMagnet.magnetPos = pos; }
+
+    const BitFlag<FieldMagnetFlag>& fieldMagnetFlag() const { return mFieldMagnet.magnetFlag; }
+
+    bool isFieldMagnetAxisTargetX() const { return mFieldMagnet.magnetFlag.isSet(FieldMagnetFlag::AxisTargetX); }
+    void setFieldMagnetAxisTargetX(bool enabled) { mFieldMagnet.magnetFlag.set(FieldMagnetFlag::AxisTargetX, enabled); }
+
+    bool isFieldMagnetAxisTargetY() const { return mFieldMagnet.magnetFlag.isSet(FieldMagnetFlag::AxisTargetY); }
+    void setFieldMagnetAxisTargetY(bool enabled) { mFieldMagnet.magnetFlag.set(FieldMagnetFlag::AxisTargetY, enabled); }
+
+    bool isFieldMagnetAxisTargetZ() const { return mFieldMagnet.magnetFlag.isSet(FieldMagnetFlag::AxisTargetZ); }
+    void setFieldMagnetAxisTargetZ(bool enabled) { mFieldMagnet.magnetFlag.set(FieldMagnetFlag::AxisTargetZ, enabled); }
+
+    // Field Spin
+
+    void initFieldSpin(const BinFieldSpinData& spinData);
+
+    bool isFieldSpinEnabled() const { return mFieldFlags.isSet(FieldFlag::Spin); }
+    void setFieldSpinEnabled(bool enabled) { mFieldFlags.set(FieldFlag::Spin, enabled); }
+
+    s32 fieldSpinRotate() const { return mFieldSpin.spinRotate; }
+    void setFieldSpinRotate(s32 rotate) { mFieldSpin.spinRotate = rotate; }
+
+    FieldSpinAxis fieldSpinAxis() const { return mFieldSpin.spinAxis; }
+    void setFieldSpinAxis(FieldSpinAxis axis) { mFieldSpin.spinAxis = axis; }
+
+    // Field Collision
+
+    void initFieldCollision(const BinFieldCollisionData& collisionData);
+
+    bool isFieldCollisionEnabled() const { return mFieldFlags.isSet(FieldFlag::Collision); }
+    void setFieldCollisionEnabled(bool enabled) { mFieldFlags.set(FieldFlag::Collision, enabled); }
+
+    FieldCollisionType fieldCollisionType() const { return mFieldCollision.collisionType; }
+    void setFieldCollisionType(FieldCollisionType type) { mFieldCollision.collisionType = type; }
+
+    bool fieldCollisionIsWorld() const { return mFieldCollision.collisionIsWorld; }
+    void setFieldCollisionIsWorld(bool isWorld) { mFieldCollision.collisionIsWorld = isWorld; }
+
+    f32 fieldCollisionCoord() const { return mFieldCollision.collisionCoord; }
+    void setFieldCollisionCoord(f32 coord) { mFieldCollision.collisionCoord = coord; }
+
+    f32 fieldCollisionCoef() const { return mFieldCollision.collisionCoef; }
+    void setFieldCollisionCoef(f32 coef) { mFieldCollision.collisionCoef = coef; }
+
+    // Field Convergence
+
+    void initFieldConvergence(const BinFieldConvergenceData& convergenceData);
+
+    bool isFieldConvergenceEnabled() const { return mFieldFlags.isSet(FieldFlag::Convergence); }
+    void setFieldConvergenceEnabled(bool enabled) { mFieldFlags.set(FieldFlag::Convergence, enabled); }
+
+    FieldConvergenceType fieldConvergenceType() const { return mFieldConvergence.convergenceType; }
+    void setFieldConvergenceType(FieldConvergenceType type) { mFieldConvergence.convergenceType = type; }
+
+    const Math::Vector3f& fieldConvergencePos() const { return mFieldConvergence.convergencePos; }
+    void setFieldConvergencePos(const Math::Vector3f& pos) { mFieldConvergence.convergencePos = pos; }
+
+    // Field PosAdd
+
+    void initFieldPosAdd(const BinFieldPosAddData& posAddData);
+
+    bool isFieldPosAddEnabled() const { return mFieldFlags.isSet(FieldFlag::PosAdd); }
+    void setFieldPosAddEnabled(bool enabled) { mFieldFlags.set(FieldFlag::PosAdd, enabled); }
+
+    const Math::Vector3f& fieldPosAddPosition() const { return mFieldPosAdd.posAdd; }
+    void setFieldPosAddPosition(const Math::Vector3f& pos) { mFieldPosAdd.posAdd = pos; }
+
     BitFlag<EmitterFlag>& flags();
     const BitFlag<EmitterFlag>& flags() const;
 
@@ -441,14 +539,9 @@ public:
     void setComplexProperties(const ComplexProperties& complexProperties);
 
     void setChildFlags(const BitFlag<ChildFlag>& childFlags);
-    void setFieldFlags(const BitFlag<FieldFlag>& fieldFlags);
 
     const ChildData& childData() const;
     ChildData& childData();
-
-    const FieldData& fieldData() const;
-    FieldData& fieldData();
-    void setFieldData(const FieldData& fieldData);
 
     void initFromBinary(const BinCommonEmitterData& emitterData);
     void initComplexFromBinary(const BinComplexEmitterData& emitterData);
@@ -586,8 +679,46 @@ private:
     f32 mStripeDirInterpolate{1.0f};
     BitFlag<StripeFlag> mStripeFlags{};
 
+    // Field Properties
+    struct {
+        s32 randomBlank{1};
+        Math::Vector3f randomVelAdd{0.0f, 0.0f, 0.0f};
+    } mFieldRandom;
+
+    struct {
+        f32 magnetPower{0.0f};
+        Math::Vector3f magnetPos{0.0f, 0.0f, 0.0f};
+        BitFlag<FieldMagnetFlag> magnetFlag{
+            FieldMagnetFlag::AxisTargetX,
+            FieldMagnetFlag::AxisTargetY,
+            FieldMagnetFlag::AxisTargetZ
+        };
+    } mFieldMagnet;
+
+    struct {
+        s32 spinRotate{0};
+        FieldSpinAxis spinAxis{FieldSpinAxis::AxisX};
+    } mFieldSpin;
+
+    struct {
+        FieldCollisionType collisionType{FieldCollisionType::Die};
+        bool collisionIsWorld{false};
+        f32 collisionCoord{0.0f};
+        f32 collisionCoef{0.0f};
+    } mFieldCollision;
+
+    struct {
+        FieldConvergenceType convergenceType{FieldConvergenceType::AssignedPos};
+        Math::Vector3f convergencePos{0.0f, 0.0f, 0.0f};
+    } mFieldConvergence;
+
+    struct {
+        Math::Vector3f posAdd{0.0f, 0.0f, 0.0f};
+    } mFieldPosAdd;
+
+    BitFlag<FieldFlag> mFieldFlags{};
+
     ChildData mChildData{};
-    FieldData mFieldData{};
 };
 
 

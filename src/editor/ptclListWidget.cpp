@@ -412,7 +412,7 @@ void PtclList::addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emi
         "Field",
         setIndex,
         emitterIndex,
-        props.fieldFlags.isSet(Ptcl::FieldFlag::Enabled)
+        emitter->isFieldEnabled()
     );
 }
 

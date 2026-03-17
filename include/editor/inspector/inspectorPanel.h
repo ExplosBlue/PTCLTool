@@ -2,7 +2,6 @@
 
 #include "editor/childEditor/childEditorWidget.h"
 #include "editor/components/collapsibleWidget.h"
-#include "editor/fieldEditor/fieldEditorWidget.h"
 
 #include "ptcl/ptclDocument.h"
 #include "ptcl/ptclEmitter.h"
@@ -37,12 +36,46 @@ class TextureInspector;
 class FluctuationInspector;
 class StripeInspector;
 
+class FieldCollisionInspector;
+class FieldConvergenceInspector;
+class FieldMagnetInspector;
+class FieldPosAddInspector;
+class FieldRandomInspector;
+class FieldSpinInspector;
+
 
 // ========================================================================== //
 
 
 class InspectorPanel final : public QWidget {
     Q_OBJECT
+private:
+    enum class TabId {
+        General,
+        Gravity,
+        Transform,
+        Lifespan,
+        Termination,
+        Emission,
+        Velocity,
+        Volume,
+        Color,
+        AlphaAnim,
+        Rotation,
+        ScaleAnim,
+        Texture,
+        Combiner,
+        Stripe,
+        Fluctuation,
+        FieldCollision,
+        FieldConvergence,
+        FieldMagnet,
+        FieldPosAdd,
+        FieldRandom,
+        FieldSpin,
+        Child
+    };
+
 public:
     explicit InspectorPanel(QWidget* parent = nullptr);
 
@@ -60,13 +93,9 @@ private:
     void setupConnections();
     void populateProperties();
 
-    void rebuildTabs();
-    void buildEmitterTabs();
-    void buildChildTabs();
-    void buildFluxTabs();
-    void buildFieldTabs();
-
-    QWidget* wrapInScroll(QWidget* widget);
+    s32 addTab(QWidget* widget, const QString& label, TabId id);
+    void buildTabs();
+    void updateTabVisibility();
 
 private:
     Ptcl::Document* mDocument{nullptr};
@@ -92,12 +121,20 @@ private:
     StripeInspector* mStripeInspector{nullptr};
     FluctuationInspector* mFluctuationInspector{nullptr};
 
-    QTabWidget* mTabWidget{nullptr};
-
     ChildEditorWidget* mChildEditorWidget{nullptr};
-    FieldEditorWidget* mFieldEditorWidget{nullptr};
 
-    CollapsibleWidget* mStripeSection{nullptr};
+    FieldCollisionInspector* mFieldCollisionInspector{nullptr};
+    FieldConvergenceInspector* mFieldConvergenceInspector{nullptr};
+    FieldMagnetInspector* mFieldMagnetInspector{nullptr};
+    FieldPosAddInspector* mFieldPosAddInspector{nullptr};
+    FieldRandomInspector* mFieldRandomInspector{nullptr};
+    FieldSpinInspector* mFieldSpinInspector{nullptr};
+
+    QTabWidget* mTabWidget{nullptr};
+    QHash<TabId, s32> mTabIndex{};
+
+    Ptcl::EmitterType mLastEmitterType{};
+    bool mLastEmitterHasStripe{};
 };
 
 

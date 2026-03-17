@@ -1,4 +1,4 @@
-#include "editor/fieldEditor/convergenceDataWidget.h"
+#include "editor/inspector/field/fieldConvergenceInspector.h"
 
 #include <QFormLayout>
 
@@ -9,8 +9,8 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-FieldEditorWidget::ConvergenceDataWidget::ConvergenceDataWidget(QWidget* parent) :
-    QWidget{parent} {
+FieldConvergenceInspector::FieldConvergenceInspector(QWidget* parent) :
+    InspectorWidgetBase{parent} {
 
     // TODO: Better ranges?
     mPosSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
@@ -28,35 +28,52 @@ FieldEditorWidget::ConvergenceDataWidget::ConvergenceDataWidget(QWidget* parent)
     setupConnections();
 }
 
-void FieldEditorWidget::ConvergenceDataWidget::setupConnections() {
+void FieldConvergenceInspector::setupConnections() {
     // Is Enabled
     connect(&mEnabledCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
-        emit isEnabledUpdated(checked);
-        mControlsWidget->setEnabled(checked);
+        setEmitterProperty(
+            "Toggle Field Convergence",
+            "ToggleFieldConvergence",
+            &Ptcl::Emitter::isFieldConvergenceEnabled,
+            &Ptcl::Emitter::setFieldConvergenceEnabled,
+            checked
+        );
     });
 
     // Type
     connect(&mTypeSpinBox, &QComboBox::currentIndexChanged, this, [this]() {
-        mData.convergenceType = mTypeSpinBox.currentEnum();
-        emit dataUpdated(mData);
+        const auto type = mTypeSpinBox.currentEnum();
+        setEmitterProperty(
+            "Set Field Convergence Type",
+            "SetFieldConvergenceType",
+            &Ptcl::Emitter::fieldConvergenceType,
+            &Ptcl::Emitter::setFieldConvergenceType,
+            type
+        );
     });
 
     // Position
     connect(&mPosSpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
-        mData.convergencePos = mPosSpinBox.getVector();
-        emit dataUpdated(mData);
+        const auto pos = mPosSpinBox.getVector();
+        setEmitterProperty(
+            "Set Field Convergence Pos",
+            "SetFieldConvergencePos",
+            &Ptcl::Emitter::fieldConvergencePos,
+            &Ptcl::Emitter::setFieldConvergencePos,
+            pos
+        );
     });
 }
 
-void FieldEditorWidget::ConvergenceDataWidget::setData(const Ptcl::FieldData::FieldConvergenceData& data, bool isEnabled) {
+void FieldConvergenceInspector::populateProperties() {
     QSignalBlocker b1(mTypeSpinBox);
     QSignalBlocker b2(mPosSpinBox);
     QSignalBlocker b3(mEnabledCheckBox);
 
-    mData = data;
+    mTypeSpinBox.setCurrentEnum(mEmitter->fieldConvergenceType());
+    mPosSpinBox.setVector(mEmitter->fieldConvergencePos());
 
-    mTypeSpinBox.setCurrentEnum(mData.convergenceType);
-    mPosSpinBox.setVector(mData.convergencePos);
+    const bool isEnabled = mEmitter->isFieldConvergenceEnabled();
     mEnabledCheckBox.setChecked(isEnabled);
     mControlsWidget->setEnabled(isEnabled);
 }

@@ -1,8 +1,7 @@
-#include "editor/fieldEditor/posAddDataWidget.h"
-
-#include "math/util.h"
+#include "editor/inspector/field/fieldPosAddInspector.h"
 
 #include <QFormLayout>
+
 
 namespace PtclEditor {
 
@@ -10,8 +9,8 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-FieldEditorWidget::PosAddDataWidget::PosAddDataWidget(QWidget* parent) :
-    QWidget{parent} {
+FieldPosAddInspector::FieldPosAddInspector(QWidget* parent) :
+    InspectorWidgetBase{parent} {
 
     // TODO: Set better limits?
     mPosSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
@@ -28,27 +27,38 @@ FieldEditorWidget::PosAddDataWidget::PosAddDataWidget(QWidget* parent) :
     setupConnections();
 }
 
-void FieldEditorWidget::PosAddDataWidget::setupConnections() {
+void FieldPosAddInspector::setupConnections() {
     // Is Enabled
     connect(&mEnabledCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
-        emit isEnabledUpdated(checked);
-        mControlsWidget->setEnabled(checked);
+        setEmitterProperty(
+            "Toggle Field PosAdd",
+            "ToggleFieldPosAdd",
+            &Ptcl::Emitter::isFieldPosAddEnabled,
+            &Ptcl::Emitter::setFieldPosAddEnabled,
+            checked
+        );
     });
 
     // Pos Add
     connect(&mPosSpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
-        mData.posAdd = mPosSpinBox.getVector();
-        emit dataUpdated(mData);
+        const auto pos = mPosSpinBox.getVector();
+        setEmitterProperty(
+            "Set Field PosAdd Position",
+            "SetFieldPosAdd",
+            &Ptcl::Emitter::fieldPosAddPosition,
+            &Ptcl::Emitter::setFieldPosAddPosition,
+            pos
+        );
     });
 }
 
-void FieldEditorWidget::PosAddDataWidget::setData(const Ptcl::FieldData::FieldPosAddData& data, bool isEnabled) {
+void FieldPosAddInspector::populateProperties() {
     QSignalBlocker b1(mPosSpinBox);
     QSignalBlocker b2(mEnabledCheckBox);
 
-    mData = data;
+    mPosSpinBox.setVector(mEmitter->fieldPosAddPosition());
 
-    mPosSpinBox.setVector(mData.posAdd);
+    const bool isEnabled = mEmitter->isFieldPosAddEnabled();
     mEnabledCheckBox.setChecked(isEnabled);
     mControlsWidget->setEnabled(isEnabled);
 }

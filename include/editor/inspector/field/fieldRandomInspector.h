@@ -1,7 +1,7 @@
 #pragma once
 
 #include "editor/components/vectorSpinBox.h"
-#include "editor/fieldEditor/fieldEditorWidget.h"
+#include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QCheckBox>
 #include <QSpinBox>
@@ -14,23 +14,16 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class FieldEditorWidget::RandomDataWidget final : public QWidget {
+class FieldRandomInspector final : public InspectorWidgetBase {
     Q_OBJECT
 public:
-    explicit RandomDataWidget(QWidget* parent = nullptr);
-
-    void setData(const Ptcl::FieldData::FieldRandomData& data, bool isEnabled);
-
-signals:
-    void dataUpdated(const Ptcl::FieldData::FieldRandomData& data);
-    void isEnabledUpdated(bool isEnabled);
+    explicit FieldRandomInspector(QWidget* parent = nullptr);
 
 private:
+    void populateProperties() final;
     void setupConnections();
 
 private:
-    Ptcl::FieldData::FieldRandomData mData{};
-
     QWidget* mControlsWidget{nullptr};
     QSpinBox mRandomBlankSpinBox{};
     VectorSpinBox<Math::Vector3f> mRandomVelAddSpinBox{};

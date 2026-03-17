@@ -1,4 +1,4 @@
-#include "editor/fieldEditor/randomDataWidget.h"
+#include "editor/inspector/field/fieldRandomInspector.h"
 
 #include <QFormLayout>
 
@@ -8,8 +8,8 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-FieldEditorWidget::RandomDataWidget::RandomDataWidget(QWidget* parent) :
-    QWidget{parent} {
+FieldRandomInspector::FieldRandomInspector(QWidget* parent) :
+    InspectorWidgetBase{parent} {
 
     // TODO: Better ranges?
     mRandomVelAddSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
@@ -28,35 +28,51 @@ FieldEditorWidget::RandomDataWidget::RandomDataWidget(QWidget* parent) :
     setupConnections();
 }
 
-void FieldEditorWidget::RandomDataWidget::setupConnections() {
+void FieldRandomInspector::setupConnections() {
     // Is Enabled
     connect(&mEnabledCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
-        emit isEnabledUpdated(checked);
-        mControlsWidget->setEnabled(checked);
+        setEmitterProperty(
+            "Toggle Field Random",
+            "ToggleFieldRandom",
+            &Ptcl::Emitter::isFieldRandomEnabled,
+            &Ptcl::Emitter::setFieldRandomEnabled,
+            checked
+        );
     });
 
     // Random Vel Add
     connect(&mRandomVelAddSpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
-        mData.randomVelAdd = mRandomVelAddSpinBox.getVector();
-        emit dataUpdated(mData);
+        const auto velocity = mRandomVelAddSpinBox.getVector();
+        setEmitterProperty(
+            "Set Field Random Velocity",
+            "SetFieldRandomVelAdd",
+            &Ptcl::Emitter::fieldRandomVelAdd,
+            &Ptcl::Emitter::setFieldRandomVelAdd,
+            velocity
+        );
     });
 
     // Random Blank
     connect(&mRandomBlankSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
-        mData.randomBlank = value;
-        emit dataUpdated(mData);
+        setEmitterProperty(
+            "Set Field Random Blank",
+            "SetFieldRandomBlank",
+            &Ptcl::Emitter::fieldRandomBlank,
+            &Ptcl::Emitter::setFieldRandomBlank,
+            value
+        );
     });
 }
 
-void FieldEditorWidget::RandomDataWidget::setData(const Ptcl::FieldData::FieldRandomData& data, bool isEnabled) {
+void FieldRandomInspector::populateProperties() {
     QSignalBlocker b1(mRandomBlankSpinBox);
     QSignalBlocker b2(mRandomVelAddSpinBox);
     QSignalBlocker b3(mEnabledCheckBox);
 
-    mData = data;
+    mRandomBlankSpinBox.setValue(mEmitter->fieldRandomBlank());
+    mRandomVelAddSpinBox.setVector(mEmitter->fieldRandomVelAdd());
 
-    mRandomBlankSpinBox.setValue(mData.randomBlank);
-    mRandomVelAddSpinBox.setVector(mData.randomVelAdd);
+    const bool isEnabled = mEmitter->isFieldRandomEnabled();
     mEnabledCheckBox.setChecked(isEnabled);
     mControlsWidget->setEnabled(isEnabled);
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "editor/components/vectorSpinBox.h"
-#include "editor/fieldEditor/fieldEditorWidget.h"
+#include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QCheckBox>
 #include <QDoubleSpinBox>
@@ -14,23 +14,16 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class FieldEditorWidget::PosAddDataWidget final : public QWidget {
+class FieldPosAddInspector final : public InspectorWidgetBase {
     Q_OBJECT
 public:
-    explicit PosAddDataWidget(QWidget* parent = nullptr);
-
-    void setData(const Ptcl::FieldData::FieldPosAddData& data, bool isEnabled);
-
-signals:
-    void dataUpdated(const Ptcl::FieldData::FieldPosAddData& data);
-    void isEnabledUpdated(bool isEnabled);
+    explicit FieldPosAddInspector(QWidget* parent = nullptr);
 
 private:
+    void populateProperties() final;
     void setupConnections();
 
 private:
-    Ptcl::FieldData::FieldPosAddData mData{};
-
     QWidget* mControlsWidget{nullptr};
     VectorSpinBox<Math::Vector3f> mPosSpinBox{};
     QCheckBox mEnabledCheckBox{};

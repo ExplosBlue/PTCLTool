@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ptcl/ptclEnum.h"
-#include "ptcl/ptclFieldData.h"
 #include "typedefs.h"
 #include "util/bitflagUtil.h"
 #include "math/matrix.h"
@@ -406,7 +405,7 @@ struct alignas(4) BinFieldRandomData {
     binVec3f fieldRandomVelAdd; // 0x04
 
     BinFieldRandomData() = default;
-    BinFieldRandomData(const Ptcl::FieldData::FieldRandomData& fieldRandomData);
+    BinFieldRandomData(const Ptcl::Emitter& emitterData);
 
     friend QDataStream& operator>>(QDataStream& in, BinFieldRandomData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinFieldRandomData& item);
@@ -424,7 +423,7 @@ struct alignas(4) BinFieldMagnetData {
     BitFlag<FieldMagnetFlag> fieldMagnetFlag;   // 0x10
 
     BinFieldMagnetData() = default;
-    BinFieldMagnetData(const Ptcl::FieldData::FieldMagnetData& fieldMagnetData);
+    BinFieldMagnetData(const Ptcl::Emitter& emitterData);
 
     friend QDataStream& operator>>(QDataStream& in, BinFieldMagnetData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinFieldMagnetData& item);
@@ -441,7 +440,7 @@ struct alignas(4) BinFieldSpinData {
     FieldSpinAxis fieldSpinAxis;    // 0x04
 
     BinFieldSpinData() = default;
-    BinFieldSpinData(const Ptcl::FieldData::FieldSpinData& fieldSpinData);
+    BinFieldSpinData(const Ptcl::Emitter& emitterData);
 
     friend QDataStream& operator>>(QDataStream& in, BinFieldSpinData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinFieldSpinData& item);
@@ -461,7 +460,7 @@ struct alignas(4) BinFieldCollisionData {
     f32 fieldCollisionCoef;                 // 0x08
 
     BinFieldCollisionData() = default;
-    BinFieldCollisionData(const Ptcl::FieldData::FieldCollisionData& fieldCollisionData);
+    BinFieldCollisionData(const Ptcl::Emitter& emitterData);
 
     friend QDataStream& operator>>(QDataStream& in, BinFieldCollisionData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinFieldCollisionData& item);
@@ -479,7 +478,7 @@ struct alignas(4) BinFieldConvergenceData {
     binVec3f fieldConvergencePos;               // 0x04
 
     BinFieldConvergenceData() = default;
-    BinFieldConvergenceData(const Ptcl::FieldData::FieldConvergenceData& fieldConvergenceData);
+    BinFieldConvergenceData(const Ptcl::Emitter& emitterData);
 
     friend QDataStream& operator>>(QDataStream& in, BinFieldConvergenceData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinFieldConvergenceData& item);
@@ -496,7 +495,7 @@ struct alignas(4) BinFieldPosAddData {
     binVec3f fieldPosAdd;   // 0x00
 
     BinFieldPosAddData() = default;
-    BinFieldPosAddData(const Ptcl::FieldData::FieldPosAddData& fieldPosAddData);
+    BinFieldPosAddData(const Ptcl::Emitter& emitterData);
 
     friend QDataStream& operator>>(QDataStream& in, BinFieldPosAddData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinFieldPosAddData& item);
