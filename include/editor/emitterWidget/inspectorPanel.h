@@ -41,10 +41,10 @@ class StripeEditorWidget;
 // ========================================================================== //
 
 
-class EmitterWidget final : public QWidget {
+class InspectorPanel final : public QWidget {
     Q_OBJECT
 public:
-    explicit EmitterWidget(QWidget* parent = nullptr);
+    explicit InspectorPanel(QWidget* parent = nullptr);
 
     void setDocument(Ptcl::Document* document);
     void setSelection(Ptcl::Selection* selection);
