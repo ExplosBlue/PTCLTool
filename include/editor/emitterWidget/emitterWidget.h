@@ -14,7 +14,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QSpinBox>
-#include <QStackedWidget>
+#include <QTabWidget>
 #include <QWidget>
 
 
@@ -57,10 +57,16 @@ signals:
     void propertiesChanged();
 
 private:
-    void setupStandardLayout(QVBoxLayout* mainLayout);
     void setupConnections();
-    void updateStripeVisibility();
     void populateProperties();
+
+    void rebuildTabs();
+    void buildEmitterTabs();
+    void buildChildTabs();
+    void buildFluxTabs();
+    void buildFieldTabs();
+
+    QWidget* wrapInScroll(QWidget* widget);
 
 private:
     Ptcl::Document* mDocument{nullptr};
@@ -83,12 +89,13 @@ private:
     ScalePropertiesWidget* mScaleProperties{nullptr};
     TexturePropertiesWidget* mTextureProperties{nullptr};
     CombinerPropertiesWidget* mCombinerProperties{nullptr};
-
-    QStackedWidget* mStackedWidget{nullptr};
-    ChildEditorWidget* mChildEditorWidget{nullptr};
-    FluctuationEditorWidget* mFluctuationEditorWidget{nullptr};
-    FieldEditorWidget* mFieldEditorWidget{nullptr};
     StripeEditorWidget* mStripeEditorWidget{nullptr};
+    FluctuationEditorWidget* mFluctuationEditorWidget{nullptr};
+
+    QTabWidget* mTabWidget{nullptr};
+
+    ChildEditorWidget* mChildEditorWidget{nullptr};
+    FieldEditorWidget* mFieldEditorWidget{nullptr};
 
     CollapsibleWidget* mStripeSection{nullptr};
 };
