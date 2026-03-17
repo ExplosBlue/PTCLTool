@@ -402,7 +402,7 @@ void PtclList::addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emi
         "Fluctuation",
         setIndex,
         emitterIndex,
-        props.fluctuationFlags.isSet(Ptcl::FluctuationFlag::Enabled)
+        emitter->isFluctuationEnabled()
     );
 
     // Field

@@ -365,7 +365,7 @@ void PtclBinaryWriter::writeComplexEmitter(const Emitter& emitter) {
     if (hasPosAdd)      { emitterDataSize += sizeof(BinFieldPosAddData); }
 
     // Fluctuation
-    const bool hasFluctuation = emitter.complexProperties().fluctuationFlags.isSet(FluctuationFlag::Enabled);
+    const bool hasFluctuation = emitter.fluctuationFlags().isSet(FluctuationFlag::Enabled);
 
     if (hasFluctuation) {
         emitterData.fluctuationDataOffset = emitterDataSize;
@@ -393,7 +393,7 @@ void PtclBinaryWriter::writeComplexEmitter(const Emitter& emitter) {
     if (hasCollision)   { mEmitterData.emplace_back(BinFieldCollisionData{emitter.fieldData().collisionData()}); }
     if (hasConvergence) { mEmitterData.emplace_back(BinFieldConvergenceData{emitter.fieldData().convergenceData()}); }
     if (hasPosAdd)      { mEmitterData.emplace_back(BinFieldPosAddData{emitter.fieldData().posAddData()}); }
-    if (hasFluctuation) { mEmitterData.emplace_back(BinFluctuationData{emitter.fluctuationData()}); }
+    if (hasFluctuation) { mEmitterData.emplace_back(BinFluctuationData{emitter}); }
     if (hasStripe)      { mEmitterData.emplace_back(BinStripeData{emitter.stripeData()}); }
 }
 

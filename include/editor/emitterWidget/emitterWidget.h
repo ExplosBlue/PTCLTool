@@ -2,7 +2,6 @@
 
 #include "editor/childEditor/childEditorWidget.h"
 #include "editor/components/collapsibleWidget.h"
-#include "editor/fluctuationEditorWidget.h"
 #include "editor/fieldEditor/fieldEditorWidget.h"
 #include "editor/stripeEditorWidget.h"
 
@@ -36,6 +35,7 @@ class AlphaPropertiesWidget;
 class CombinerPropertiesWidget;
 class ColorPropertiesWidget;
 class TexturePropertiesWidget;
+class FluctuationEditorWidget;
 
 
 // ========================================================================== //
