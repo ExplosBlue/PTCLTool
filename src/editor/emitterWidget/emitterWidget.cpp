@@ -45,73 +45,96 @@ EmitterWidget::EmitterWidget(QWidget* parent) :
     mCombinerProperties = new CombinerPropertiesWidget(this);
     mStripeEditorWidget = new StripeEditorWidget(this);
 
-    mStackedWidget = new QStackedWidget(this);
-
-    // Standard Widget
-    auto* standardWidget = new QWidget(this);
-    auto* mainLayout = new QVBoxLayout(standardWidget);
-    standardWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-    standardWidget->setMinimumWidth(400);
-
-    auto* scrollArea = new QScrollArea(this);
-    scrollArea->setWidget(standardWidget);
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    scrollArea->setFrameShape(QFrame::NoFrame);
-
-    mStackedWidget->addWidget(scrollArea);
-
-    // Child editor
     mChildEditorWidget = new ChildEditorWidget(this);
-    mStackedWidget->addWidget(mChildEditorWidget);
-
-    // Fluctuation editor
     mFluctuationEditorWidget = new FluctuationEditorWidget(this);
-    mStackedWidget->addWidget(mFluctuationEditorWidget);
-
-    // Field editor
     mFieldEditorWidget = new FieldEditorWidget(this);
-    mStackedWidget->addWidget(mFieldEditorWidget);
 
-    mStackedWidget->setCurrentIndex(0);
+    mTabWidget = new QTabWidget(this);
+    mTabWidget->setTabPosition(QTabWidget::West);
 
-    auto* outerLayout = new QVBoxLayout(this);
-    outerLayout->addWidget(mStackedWidget);
-    outerLayout->setContentsMargins(0, 0, 0, 0);
-    setLayout(outerLayout);
+    auto* layout = new QVBoxLayout(this);
+    layout->addWidget(mTabWidget);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    setupStandardLayout(mainLayout);
     setupConnections();
 }
 
-void EmitterWidget::setupStandardLayout(QVBoxLayout* mainLayout) {
-    auto addSection = [mainLayout](const QString& title, QWidget* widget) {
-        auto* section = new CollapsibleWidget(title);
-        section->setContent(widget);
-        mainLayout->addWidget(section);
-        return section;
-    };
+void EmitterWidget::rebuildTabs() {
+    if (!mSelection) {
+        return;
+    }
 
-    addSection("Basic properties", mBasicProperties);
-    mStripeSection = addSection("Stripe properties", mStripeEditorWidget);
-    addSection("Lifespan properties", mLifespanProperties);
-    addSection("Termination properties", mTerminationProperties);
-    addSection("Gravity properties", mGravityProperties);
-    addSection("Emission properties", mEmissionProperties);
-    addSection("Volume properties", mVolumeProperties);
-    addSection("Velocity properties", mVelocityProperties);
-    addSection("Texture properties", mTextureProperties);
-    addSection("Color properties", mColorProperties);
-    addSection("Combiner properties", mCombinerProperties);
-    addSection("Alpha properties", mAlphaProperties);
-    addSection("Transform properties", mTransformProperties);
-    addSection("Rotation properties", mRotationProperties);
-    addSection("Scale properties", mScaleProperties);
+    mTabWidget->clear();
 
-    mainLayout->addStretch();
+    switch (mSelection->type()) {
+    case Ptcl::Selection::Type::Emitter:
+        buildEmitterTabs();
+        break;
+    case Ptcl::Selection::Type::EmitterChild:
+        buildChildTabs();
+        break;
+    case Ptcl::Selection::Type::EmitterFlux:
+        buildFluxTabs();
+        break;
+    case Ptcl::Selection::Type::EmitterField:
+        buildFieldTabs();
+        break;
+    default:
+        break;
+    }
+}
+
+QWidget* EmitterWidget::wrapInScroll(QWidget* widget) {
+    auto* container = new QWidget;
+    auto* layout = new QVBoxLayout(container);
+    layout->addWidget(widget);
+    layout->addStretch();
+
+    auto* scroll = new QScrollArea;
+    scroll->setWidget(container);
+    scroll->setWidgetResizable(true);
+    scroll->setFrameShape(QFrame::NoFrame);
+    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    return scroll;
+}
+
+void EmitterWidget::buildEmitterTabs() {
+    mTabWidget->addTab(wrapInScroll(mBasicProperties), "General");
+
+    if (mEmitter->hasStripeData()) {
+        mTabWidget->addTab(wrapInScroll(mStripeEditorWidget), "Stripe");
+    }
+
+    mTabWidget->addTab(wrapInScroll(mLifespanProperties), "Life");
+    mTabWidget->addTab(wrapInScroll(mTerminationProperties), "Termination");
+    mTabWidget->addTab(wrapInScroll(mGravityProperties), "Gravity");
+    mTabWidget->addTab(wrapInScroll(mEmissionProperties), "Emission");
+    mTabWidget->addTab(wrapInScroll(mVolumeProperties), "Volume");
+    mTabWidget->addTab(wrapInScroll(mVelocityProperties), "Velocity");
+    mTabWidget->addTab(wrapInScroll(mTextureProperties), "Texture");
+    mTabWidget->addTab(wrapInScroll(mColorProperties), "Color");
+    mTabWidget->addTab(wrapInScroll(mCombinerProperties), "Combiner");
+    mTabWidget->addTab(wrapInScroll(mAlphaProperties), "Alpha");
+    mTabWidget->addTab(wrapInScroll(mTransformProperties), "Transform");
+    mTabWidget->addTab(wrapInScroll(mRotationProperties), "Rotation");
+    mTabWidget->addTab(wrapInScroll(mScaleProperties), "Scale");
+}
+
+void EmitterWidget::buildChildTabs() {
+    mTabWidget->addTab(wrapInScroll(mChildEditorWidget), "Child");
+    // TODO
+}
+
+void EmitterWidget::buildFluxTabs() {
+    mTabWidget->addTab(wrapInScroll(mFluctuationEditorWidget), "Fluctuation");
+}
+
+void EmitterWidget::buildFieldTabs() {
+    mTabWidget->addTab(wrapInScroll(mFieldEditorWidget), "Field");
+    // TODO
 }
 
 void EmitterWidget::setupConnections() {
@@ -167,6 +190,7 @@ void EmitterWidget::setDocument(Ptcl::Document* document) {
             }
 
             populateProperties();
+            rebuildTabs();
         });
     }
 }
@@ -205,22 +229,7 @@ void EmitterWidget::setSelection(Ptcl::Selection* selection) {
 
             mEmitter = mDocument->emitter(setIndex, emitterIndex);
 
-            switch (type) {
-            case Ptcl::Selection::Type::Emitter:
-                mStackedWidget->setCurrentIndex(0);
-                break;
-            case Ptcl::Selection::Type::EmitterChild:
-                mStackedWidget->setCurrentWidget(mChildEditorWidget);
-                break;
-            case Ptcl::Selection::Type::EmitterFlux:
-                mStackedWidget->setCurrentWidget(mFluctuationEditorWidget);
-                break;
-            case Ptcl::Selection::Type::EmitterField:
-                mStackedWidget->setCurrentWidget(mFieldEditorWidget);
-                break;
-            default:
-                break;
-            }
+            rebuildTabs();
 
             // TODO: Have child widgets handle this themselves
             mChildEditorWidget->setTextureList(mTextureList);
@@ -240,23 +249,8 @@ void EmitterWidget::populateProperties() {
     mChildEditorWidget->setParentColor0(mEmitter->primaryColor());
 
     mFieldEditorWidget->setData(&mEmitter->fieldData(), mEmitter->complexProperties().fieldFlags);
-
-    updateStripeVisibility();
 }
 
-void EmitterWidget::updateStripeVisibility() {
-    if (!mEmitter || !mStripeSection) {
-        return;
-    }
-
-    const auto eType = mEmitter->type();
-    const auto bbType = mEmitter->billboardType();
-
-    const bool show = (eType == Ptcl::EmitterType::Complex || eType == Ptcl::EmitterType::Compact) &&
-                      (bbType == Ptcl::BillboardType::Stripe || bbType == Ptcl::BillboardType::ComplexStripe);
-
-    mStripeSection->setVisible(show);
-}
 
 // ========================================================================== //
 
