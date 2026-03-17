@@ -394,7 +394,7 @@ void PtclBinaryWriter::writeComplexEmitter(const Emitter& emitter) {
     if (hasConvergence) { mEmitterData.emplace_back(BinFieldConvergenceData{emitter.fieldData().convergenceData()}); }
     if (hasPosAdd)      { mEmitterData.emplace_back(BinFieldPosAddData{emitter.fieldData().posAddData()}); }
     if (hasFluctuation) { mEmitterData.emplace_back(BinFluctuationData{emitter}); }
-    if (hasStripe)      { mEmitterData.emplace_back(BinStripeData{emitter.stripeData()}); }
+    if (hasStripe)      { mEmitterData.emplace_back(BinStripeData{emitter}); }
 }
 
 void PtclBinaryWriter::writeFile() {

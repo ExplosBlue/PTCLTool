@@ -1,4 +1,4 @@
-#include "editor/stripeEditorWidget.h"
+#include "editor/emitterWidget/stripeEditorWidget.h"
 
 #include <QFormLayout>
 
@@ -9,7 +9,7 @@ namespace PtclEditor {
 
 
 StripeEditorWidget::StripeEditorWidget(QWidget* parent) :
-    QWidget{parent} {
+    EmitterWidgetBase{parent} {
 
     mTypeComboBox.addItem("Billboard Stripe", QVariant::fromValue(Ptcl::StripeType::Billboard));
     mTypeComboBox.addItem("Emitter Maxtrix", QVariant::fromValue(Ptcl::StripeType::EmitterMatrix));
@@ -39,55 +39,97 @@ StripeEditorWidget::StripeEditorWidget(QWidget* parent) :
 void StripeEditorWidget::setupConnections() {
     // Type
     connect(&mTypeComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
+        Q_UNUSED(index);
         const auto type = mTypeComboBox.currentData().value<Ptcl::StripeType>();
-        mData.type = type;
-        emit dataUpdated(mData);
+        setEmitterProperty(
+            "Set Stripe Type",
+            "SetStripeType",
+            &Ptcl::Emitter::stripeType,
+            &Ptcl::Emitter::setStripeType,
+            type
+        );
     });
 
     // Num Hist
     connect(&mNumHistSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
-        mData.numHistory = value;
-        emit dataUpdated(mData);
+        setEmitterProperty(
+            "Set Stripe History Size",
+            "SetStripeNumHist",
+            &Ptcl::Emitter::stripeNumHistory,
+            &Ptcl::Emitter::setStripeNumHistory,
+            value
+        );
     });
 
     // Start Alpha
     connect(&mStartAlphaSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
-        mData.startAlpha = static_cast<f32>(value);
-        emit dataUpdated(mData);
+        setEmitterProperty(
+            "Set Stripe Start Alpha",
+            "SetStripeStartAlpha",
+            &Ptcl::Emitter::stripeStartAlpha,
+            &Ptcl::Emitter::setStripeStartAlpha,
+            static_cast<f32>(value)
+        );
     });
 
     // End Alpha
     connect(&mEndAlphaSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
-        mData.endAlpha = static_cast<f32>(value);
-        emit dataUpdated(mData);
+        setEmitterProperty(
+            "Set Stripe End Alpha",
+            "SetStripeEndAlpha",
+            &Ptcl::Emitter::stripeEndAlpha,
+            &Ptcl::Emitter::setStripeEndAlpha,
+            static_cast<f32>(value)
+        );
     });
 
     // UV Scroll Speed
     connect(&mUVScrollSpeedSpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
-        mData.uvScrollSpeed = mUVScrollSpeedSpinBox.getVector();
-        emit dataUpdated(mData);
+        const auto speed = mUVScrollSpeedSpinBox.getVector();
+        setEmitterProperty(
+            "Set Stripe UV Scroll Speed",
+            "SetStripeUVSpeed",
+            &Ptcl::Emitter::stripeUVScrollSpeed,
+            &Ptcl::Emitter::setStripeUVScrollSpeed,
+            speed
+        );
     });
 
     // Hist Step
     connect(&mHistStepSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
-        mData.historyStep = value;
-        emit dataUpdated(mData);
+        setEmitterProperty(
+            "Set Stripe History Spacing",
+            "SetStripeHistStep",
+            &Ptcl::Emitter::stripeHistoryStep,
+            &Ptcl::Emitter::setStripeHistoryStep,
+            value
+        );
     });
 
     // Dir Interpolate
     connect(&mDirIntepolateSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
-        mData.dirInterpolate = static_cast<f32>(value);
-        emit dataUpdated(mData);
+        setEmitterProperty(
+            "Set Stripe Interpolation Ratio",
+            "SetStripeDirInterp",
+            &Ptcl::Emitter::stripeDirInterpolate,
+            &Ptcl::Emitter::setStripeDirInterpolate,
+            static_cast<f32>(value)
+        );
     });
 
     // Emitter Coord
     connect(&mEmitterCoordCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
-        mStripeFlag.set(Ptcl::StripeFlag::EmitterCoord, checked);
-        emit flagsUpdated(mStripeFlag);
+        setEmitterProperty(
+            "Toggle Stripe Follow Emitter",
+            "SetStripeEmitterCoord",
+            &Ptcl::Emitter::isStripeEmitterCoord,
+            &Ptcl::Emitter::setStripeEmitterCoord,
+            checked
+        );
     });
 }
 
-void StripeEditorWidget::setData(const Ptcl::StripeData& data, const BitFlag<Ptcl::StripeFlag>& stripeFlag) {
+void StripeEditorWidget::populateProperties() {
     QSignalBlocker b1(mTypeComboBox);
     QSignalBlocker b2(mNumHistSpinBox);
     QSignalBlocker b3(mStartAlphaSpinBox);
@@ -97,19 +139,16 @@ void StripeEditorWidget::setData(const Ptcl::StripeData& data, const BitFlag<Ptc
     QSignalBlocker b7(mDirIntepolateSpinBox);
     QSignalBlocker b8(mEmitterCoordCheckBox);
 
-    mData = data;
-    mStripeFlag = stripeFlag;
-
-    const s32 typeIndex = mTypeComboBox.findData(QVariant::fromValue(mData.type));
+    const s32 typeIndex = mTypeComboBox.findData(QVariant::fromValue(mEmitter->stripeType()));
     mTypeComboBox.setCurrentIndex(typeIndex);
 
-    mNumHistSpinBox.setValue(mData.numHistory);
-    mStartAlphaSpinBox.setValue(mData.startAlpha);
-    mEndAlphaSpinBox.setValue(mData.endAlpha);
-    mUVScrollSpeedSpinBox.setVector(mData.uvScrollSpeed);
-    mHistStepSpinBox.setValue(mData.historyStep);
-    mDirIntepolateSpinBox.setValue(mData.dirInterpolate);
-    mEmitterCoordCheckBox.setChecked(stripeFlag.isSet(Ptcl::StripeFlag::EmitterCoord));
+    mNumHistSpinBox.setValue(mEmitter->stripeNumHistory());
+    mStartAlphaSpinBox.setValue(mEmitter->stripeStartAlpha());
+    mEndAlphaSpinBox.setValue(mEmitter->stripeEndAlpha());
+    mUVScrollSpeedSpinBox.setVector(mEmitter->stripeUVScrollSpeed());
+    mHistStepSpinBox.setValue(mEmitter->stripeHistoryStep());
+    mDirIntepolateSpinBox.setValue(mEmitter->stripeDirInterpolate());
+    mEmitterCoordCheckBox.setChecked(mEmitter->isStripeEmitterCoord());
 }
 
 

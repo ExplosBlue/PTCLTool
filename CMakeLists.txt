@@ -25,7 +25,6 @@ set(PROJECT_SOURCES
     src/editor/mainWindow.cpp
     src/editor/emitterSetWidget.cpp
     src/editor/ptclListWidget.cpp
-    src/editor/stripeEditorWidget.cpp
     src/editor/textureListWidget.cpp
     src/editor/textureImportDialog.cpp
     src/editor/textureSelectDialog.cpp
@@ -61,6 +60,7 @@ set(PROJECT_SOURCES
     src/editor/emitterWidget/lifespanPropertiesWidget.cpp
     src/editor/emitterWidget/rotationPropertiesWidget.cpp
     src/editor/emitterWidget/scalePropertiesWidget.cpp
+    src/editor/emitterWidget/stripeEditorWidget.cpp
     src/editor/emitterWidget/terminationPropertiesWidget.cpp
     src/editor/emitterWidget/texturePropertiesWidget.cpp
     src/editor/emitterWidget/transformPropertiesWidget.cpp
@@ -94,7 +94,6 @@ set(PROJECT_HEADERS
     include/editor/mainWindow.h
     include/editor/emitterSetWidget.h
     include/editor/ptclListWidget.h
-    include/editor/stripeEditorWidget.h
     include/editor/textureImportDialog.h
     include/editor/textureListWidget.h
     include/editor/textureSelectDialog.h
@@ -133,6 +132,7 @@ set(PROJECT_HEADERS
     include/editor/emitterWidget/lifespanPropertiesWidget.h
     include/editor/emitterWidget/rotationPropertiesWidget.h
     include/editor/emitterWidget/scalePropertiesWidget.h
+    include/editor/emitterWidget/stripeEditorWidget.h
     include/editor/emitterWidget/terminationPropertiesWidget.h
     include/editor/emitterWidget/texturePropertiesWidget.h
     include/editor/emitterWidget/transformPropertiesWidget.h
@@ -159,7 +159,6 @@ set(PROJECT_HEADERS
     include/ptcl/ptclEnum.h
     include/ptcl/ptclFieldData.h
     include/ptcl/ptclSeed.h
-    include/ptcl/ptclStripeData.h
     include/ptcl/ptclTexture.h
     include/util/bitflagUtil.h
     include/util/imageUtil.h

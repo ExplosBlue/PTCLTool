@@ -538,7 +538,7 @@ struct alignas(4) BinStripeData {
     f32 stripeDirInterpolate;   // 0x1C
 
     BinStripeData() = default;
-    BinStripeData(const Ptcl::StripeData& stripeData);
+    BinStripeData(const Ptcl::Emitter& emitterData);
 
     friend QDataStream& operator>>(QDataStream& in, BinStripeData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinStripeData& item);

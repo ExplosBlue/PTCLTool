@@ -655,7 +655,7 @@ BinComplexEmitterData::BinComplexEmitterData(const Ptcl::Emitter& emitter) :
     childFlag = emitter.complexProperties().childFlags;
     fieldFlag = emitter.complexProperties().fieldFlags;
     fluctuationFlag = emitter.fluctuationFlags();
-    stripeFlag = emitter.complexProperties().stripeFlags;
+    stripeFlag = emitter.stripeFlags();
 
     childDataOffset = 0;
     fieldDataOffset = 0;
@@ -1008,14 +1008,14 @@ QDataStream& operator<<(QDataStream& out, const BinFluctuationData& item) {
 // ========================================================================== //
 
 
-BinStripeData::BinStripeData(const Ptcl::StripeData& stripeData) {
-    stripeType = stripeData.type;
-    stripeNumHistory = stripeData.numHistory;
-    stripeStartAlpha = stripeData.startAlpha;
-    stripeEndAlpha = stripeData.endAlpha;
-    uvScrollSpeed = stripeData.uvScrollSpeed;
-    stripeHistoryStep = stripeData.historyStep;
-    stripeDirInterpolate = stripeData.dirInterpolate;
+BinStripeData::BinStripeData(const Ptcl::Emitter& emitterData) {
+    stripeType = emitterData.stripeType();
+    stripeNumHistory = emitterData.stripeNumHistory();
+    stripeStartAlpha = emitterData.stripeStartAlpha();
+    stripeEndAlpha = emitterData.stripeEndAlpha();
+    uvScrollSpeed = emitterData.stripeUVScrollSpeed();
+    stripeHistoryStep = emitterData.stripeHistoryStep();
+    stripeDirInterpolate = emitterData.stripeDirInterpolate();
 }
 
 QDataStream& operator>>(QDataStream& in, BinStripeData& item) {
