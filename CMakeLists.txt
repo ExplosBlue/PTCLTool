@@ -24,7 +24,6 @@ set(PROJECT_SOURCES
     src/main.cpp
     src/editor/mainWindow.cpp
     src/editor/emitterSetWidget.cpp
-    src/editor/fluctuationEditorWidget.cpp
     src/editor/ptclListWidget.cpp
     src/editor/stripeEditorWidget.cpp
     src/editor/textureListWidget.cpp
@@ -57,6 +56,7 @@ set(PROJECT_SOURCES
     src/editor/emitterWidget/emissionPropertiesWidget.cpp
     src/editor/emitterWidget/emitterWidget.cpp
     src/editor/emitterWidget/emitterWidgetBase.cpp
+    src/editor/emitterWidget/fluctuationEditorWidget.cpp
     src/editor/emitterWidget/gravityPropertiesWidget.cpp
     src/editor/emitterWidget/lifespanPropertiesWidget.cpp
     src/editor/emitterWidget/rotationPropertiesWidget.cpp
@@ -93,7 +93,6 @@ set(PROJECT_HEADERS
     include/typedefs.h
     include/editor/mainWindow.h
     include/editor/emitterSetWidget.h
-    include/editor/fluctuationEditorWidget.h
     include/editor/ptclListWidget.h
     include/editor/stripeEditorWidget.h
     include/editor/textureImportDialog.h
@@ -129,6 +128,7 @@ set(PROJECT_HEADERS
     include/editor/emitterWidget/emissionPropertiesWidget.h
     include/editor/emitterWidget/emitterWidget.h
     include/editor/emitterWidget/emitterWidgetBase.h
+    include/editor/emitterWidget/fluctuationEditorWidget.h
     include/editor/emitterWidget/gravityPropertiesWidget.h
     include/editor/emitterWidget/lifespanPropertiesWidget.h
     include/editor/emitterWidget/rotationPropertiesWidget.h
@@ -158,7 +158,6 @@ set(PROJECT_HEADERS
     include/ptcl/ptclEmitterSet.h
     include/ptcl/ptclEnum.h
     include/ptcl/ptclFieldData.h
-    include/ptcl/ptclFluctuationData.h
     include/ptcl/ptclSeed.h
     include/ptcl/ptclStripeData.h
     include/ptcl/ptclTexture.h

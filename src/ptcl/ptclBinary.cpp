@@ -654,7 +654,7 @@ BinComplexEmitterData::BinComplexEmitterData(const Ptcl::Emitter& emitter) :
     BinCommonEmitterData{emitter} {
     childFlag = emitter.complexProperties().childFlags;
     fieldFlag = emitter.complexProperties().fieldFlags;
-    fluctuationFlag = emitter.complexProperties().fluctuationFlags;
+    fluctuationFlag = emitter.fluctuationFlags();
     stripeFlag = emitter.complexProperties().stripeFlags;
 
     childDataOffset = 0;
@@ -984,10 +984,10 @@ QDataStream& operator<<(QDataStream& out, const BinFieldPosAddData& item) {
 // ========================================================================== //
 
 
-BinFluctuationData::BinFluctuationData(const Ptcl::FluctuationData& fluctuationData) {
-    fluctuationScale = fluctuationData.fluctuationScale;
-    fluctuationFreq = fluctuationData.fluctuationFreq;
-    fluctuationPhaseRnd = fluctuationData.fluctuationPhaseRnd;
+BinFluctuationData::BinFluctuationData(const Ptcl::Emitter& emitterData) {
+    fluctuationScale = emitterData.fluctuationScale();
+    fluctuationFreq = emitterData.fluctuationFrequency();
+    fluctuationPhaseRnd = emitterData.isFluctuationPhaseRandom();
 }
 
 QDataStream& operator>>(QDataStream& in, BinFluctuationData& item) {
