@@ -62,11 +62,26 @@ InspectorPanel::InspectorPanel(QWidget* parent) :
     mChildEditorWidget = new ChildEditorWidget(this);
     mFluctuationInspector = new FluctuationInspector(this);
 
-    mTabWidget = new QTabWidget(this);
-    mTabWidget->setTabPosition(QTabWidget::West);
+    mTabStack = new QStackedWidget(this);
+
+    mEmitterTabs = new QTabWidget(this);
+    mEmitterTabs->setTabPosition(QTabWidget::West);
+    mTabStack->addWidget(mEmitterTabs);
+
+    mChildTabs = new QTabWidget(this);
+    mChildTabs->setTabPosition(QTabWidget::West);
+    mTabStack->addWidget(mChildTabs);
+
+    mFieldTabs = new QTabWidget(this);
+    mFieldTabs->setTabPosition(QTabWidget::West);
+    mTabStack->addWidget(mFieldTabs);
+
+    mFluxTabs = new QTabWidget(this);
+    mFluxTabs->setTabPosition(QTabWidget::West);
+    mTabStack->addWidget(mFluxTabs);
 
     auto* layout = new QVBoxLayout(this);
-    layout->addWidget(mTabWidget);
+    layout->addWidget(mTabStack);
     layout->setContentsMargins(0, 0, 0, 0);
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -75,44 +90,48 @@ InspectorPanel::InspectorPanel(QWidget* parent) :
     setupConnections();
 }
 
-s32 InspectorPanel::addTab(QWidget* widget, const QString& label, TabId id) {
-    s32 idx = mTabWidget->addTab(widget, label);
-    mTabWidget->tabBar()->setTabData(idx, QVariant::fromValue(id));
-    mTabIndex[id] = idx;
-    return idx;
-}
-
 void InspectorPanel::buildTabs() {
+    // This is dumb, but fixes some issues with some tabs being incorrectly sized
+    // Individual inspector widgets should probably be adjusted instead so this can be removed
+    auto wrapInScroll = [this](QWidget* content) {
+        auto* scroll = new QScrollArea;
+        scroll->setWidget(content);
+        scroll->setWidgetResizable(true);
+        scroll->setFrameShape(QFrame::NoFrame);
+        scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        return scroll;
+    };
+
     // Emitter
-    addTab(mGeneralInspector, "General", TabId::General);
-    addTab(mStripeInspector, "Stripe", TabId::Stripe);
-    addTab(mLifespanInspector, "Life", TabId::Lifespan);
-    addTab(mTerminationInspector, "Termination", TabId::Termination);
-    addTab(mGravityInspector, "Gravity", TabId::Gravity);
-    addTab(mEmissionInspector, "Emission", TabId::Emission);
-    addTab(mVolumeInspector, "Volume", TabId::Volume);
-    addTab(mVelocityInspector, "Velocity", TabId::Velocity);
-    addTab(mTextureInspector, "Texture", TabId::Texture);
-    addTab(mColorInspector, "Color", TabId::Color);
-    addTab(mCombinerInspector, "Combiner", TabId::Combiner);
-    addTab(mAlphaAnimInspector, "Alpha", TabId::AlphaAnim);
-    addTab(mTransformInspector, "Transform", TabId::Transform);
-    addTab(mRotationInspector, "Rotation", TabId::Rotation);
-    addTab(mScaleAnimInspector, "Scale", TabId::ScaleAnim);
+    mEmitterTabs->addTab(wrapInScroll(mGeneralInspector), "General");
+    mEmitterTabs->addTab(mStripeInspector, "Stripe");
+    mEmitterTabs->addTab(wrapInScroll(mLifespanInspector), "Life");
+    mEmitterTabs->addTab(wrapInScroll(mTerminationInspector), "Termination");
+    mEmitterTabs->addTab(wrapInScroll(mGravityInspector), "Gravity");
+    mEmitterTabs->addTab(wrapInScroll(mEmissionInspector), "Emission");
+    mEmitterTabs->addTab(wrapInScroll(mVolumeInspector), "Volume");
+    mEmitterTabs->addTab(wrapInScroll(mVelocityInspector), "Velocity");
+    mEmitterTabs->addTab(wrapInScroll(mTextureInspector), "Texture");
+    mEmitterTabs->addTab(wrapInScroll(mColorInspector), "Color");
+    mEmitterTabs->addTab(wrapInScroll(mCombinerInspector), "Combiner");
+    mEmitterTabs->addTab(wrapInScroll(mAlphaAnimInspector), "Alpha");
+    mEmitterTabs->addTab(wrapInScroll(mTransformInspector), "Transform");
+    mEmitterTabs->addTab(wrapInScroll(mRotationInspector), "Rotation");
+    mEmitterTabs->addTab(wrapInScroll(mScaleAnimInspector), "Scale");
 
     // Fluctuation
-    addTab(mFluctuationInspector, "Fluctuation",TabId::Fluctuation);
+    mFluxTabs->addTab(mFluctuationInspector, "Fluctuation");
 
     // Field
-    addTab(mFieldCollisionInspector, "Collision", TabId::FieldCollision);
-    addTab(mFieldConvergenceInspector, "Convergence", TabId::FieldConvergence);
-    addTab(mFieldMagnetInspector, "Magnet", TabId::FieldMagnet);
-    addTab(mFieldPosAddInspector, "Pos Add", TabId::FieldPosAdd);
-    addTab(mFieldRandomInspector, "Random", TabId::FieldRandom);
-    addTab(mFieldSpinInspector, "Spin", TabId::FieldSpin);
+    mFieldTabs->addTab(mFieldCollisionInspector, "Collision");
+    mFieldTabs->addTab(mFieldConvergenceInspector, "Convergence");
+    mFieldTabs->addTab(mFieldMagnetInspector, "Magnet");
+    mFieldTabs->addTab(mFieldPosAddInspector, "Pos Add");
+    mFieldTabs->addTab(mFieldRandomInspector, "Random");
+    mFieldTabs->addTab(mFieldSpinInspector, "Spin");
 
     // Child
-    addTab(mChildEditorWidget, "Child", TabId::Child);
+    mChildTabs->addTab(mChildEditorWidget, "Child");
     // TODO
 }
 
@@ -121,83 +140,23 @@ void InspectorPanel::updateTabVisibility() {
         return;
     }
 
-    TabId currentId{};
-    bool hasCurrent = false;
-
-    s32 currentIndex = mTabWidget->currentIndex();
-    if (currentIndex >= 0) {
-        QVariant data = mTabWidget->tabBar()->tabData(currentIndex);
-        if (data.isValid()) {
-            currentId = data.value<TabId>();
-            hasCurrent = true;
-        }
-    }
-
     const auto type = mSelection->type();
-
-    auto setVisible = [this](TabId id, bool visible) {
-        if (!mTabIndex.contains(id)) {
-            return;
-        }
-        mTabWidget->setTabVisible(mTabIndex[id], visible);
-    };
-
-    for (auto [id, _] : mTabIndex.asKeyValueRange()) {
-        setVisible(id, false);
-    }
 
     switch (type) {
     case Ptcl::Selection::Type::Emitter:
-        setVisible(TabId::General, true);
-        setVisible(TabId::Gravity, true);
-        setVisible(TabId::Transform, true);
-        setVisible(TabId::Lifespan, true);
-        setVisible(TabId::Termination, true);
-        setVisible(TabId::Emission, true);
-        setVisible(TabId::Velocity, true);
-        setVisible(TabId::Volume, true);
-        setVisible(TabId::Color, true);
-        setVisible(TabId::AlphaAnim, true);
-        setVisible(TabId::Rotation, true);
-        setVisible(TabId::ScaleAnim, true);
-        setVisible(TabId::Texture, true);
-        setVisible(TabId::Combiner, true);
-
-        if (mEmitter && mEmitter->hasStripeData()) {
-            setVisible(TabId::Stripe, true);
-        }
+        mTabStack->setCurrentWidget(mEmitterTabs);
         break;
     case Ptcl::Selection::Type::EmitterChild:
-        setVisible(TabId::Child, true);
+        mTabStack->setCurrentWidget(mChildTabs);
         break;
     case Ptcl::Selection::Type::EmitterFlux:
-        setVisible(TabId::Fluctuation, true);
+        mTabStack->setCurrentWidget(mFluxTabs);
         break;
     case Ptcl::Selection::Type::EmitterField:
-        setVisible(TabId::FieldCollision, true);
-        setVisible(TabId::FieldConvergence, true);
-        setVisible(TabId::FieldMagnet, true);
-        setVisible(TabId::FieldPosAdd, true);
-        setVisible(TabId::FieldRandom, true);
-        setVisible(TabId::FieldSpin, true);
+        mTabStack->setCurrentWidget(mFieldTabs);
         break;
     default:
         break;
-    }
-
-    if (hasCurrent && mTabIndex.contains(currentId)) {
-        s32 index = mTabIndex[currentId];
-        if (mTabWidget->isTabVisible(index)) {
-            mTabWidget->setCurrentIndex(index);
-            return;
-        }
-    }
-
-    for (s32 i = 0; i < mTabWidget->count(); ++i) {
-        if (mTabWidget->isTabVisible(i)) {
-            mTabWidget->setCurrentIndex(i);
-            break;
-        }
     }
 }
 
@@ -253,13 +212,6 @@ void InspectorPanel::setDocument(Ptcl::Document* document) {
             }
 
             populateProperties();
-
-            if (mLastEmitterType != mEmitter->type() || mLastEmitterHasStripe != mEmitter->hasStripeData()) {
-                updateTabVisibility();
-
-                mLastEmitterType = mEmitter->type();
-                mLastEmitterHasStripe = mEmitter->hasStripeData();
-            }
         });
     }
 }
@@ -305,10 +257,8 @@ void InspectorPanel::setSelection(Ptcl::Selection* selection) {
 
             mEmitter = mDocument->emitter(setIndex, emitterIndex);
 
-            updateTabVisibility();
-
             // TODO: Have child widgets handle this themselves
-            mChildEditorWidget->setTextureList(mTextureList);
+            mChildEditorWidget->setTextureList(nullptr);
 
             setEnabled(true);
             populateProperties();
@@ -317,11 +267,20 @@ void InspectorPanel::setSelection(Ptcl::Selection* selection) {
 }
 
 void InspectorPanel::populateProperties() {
-    QSignalBlocker b15(mChildEditorWidget);
-    QSignalBlocker b18(mStripeInspector);
+    QSignalBlocker b1(mChildEditorWidget);
 
     mChildEditorWidget->setChildData(&mEmitter->childData(), mEmitter->complexProperties().childFlags);
     mChildEditorWidget->setParentColor0(mEmitter->primaryColor());
+
+    if (mLastSelectionType != mSelection->type()) {
+        mLastSelectionType = mSelection->type();
+        updateTabVisibility();
+    }
+
+    // TODO - Stripe should be combined some other tab, this shouldn't be handled by the inspector
+    const s32 stripeIdx = mEmitterTabs->indexOf(mStripeInspector);
+    const bool hasStripe = mEmitter->hasStripeData();
+    mEmitterTabs->setTabVisible(stripeIdx, hasStripe);
 }
 
 
