@@ -1,11 +1,9 @@
 #pragma once
 
 #include "editor/childEditor/childEditorWidget.h"
-#include "editor/components/collapsibleWidget.h"
 
 #include "ptcl/ptclDocument.h"
 #include "ptcl/ptclEmitter.h"
-#include "ptcl/ptcl.h"
 
 #include <QComboBox>
 #include <QDoubleSpinBox>
@@ -49,33 +47,6 @@ class FieldSpinInspector;
 
 class InspectorPanel final : public QWidget {
     Q_OBJECT
-private:
-    enum class TabId {
-        General,
-        Gravity,
-        Transform,
-        Lifespan,
-        Termination,
-        Emission,
-        Velocity,
-        Volume,
-        Color,
-        AlphaAnim,
-        Rotation,
-        ScaleAnim,
-        Texture,
-        Combiner,
-        Stripe,
-        Fluctuation,
-        FieldCollision,
-        FieldConvergence,
-        FieldMagnet,
-        FieldPosAdd,
-        FieldRandom,
-        FieldSpin,
-        Child
-    };
-
 public:
     explicit InspectorPanel(QWidget* parent = nullptr);
 
@@ -83,9 +54,6 @@ public:
     void setSelection(Ptcl::Selection* selection);
 
 signals:
-    void nameUpdated(const QString& name);
-    void emitterTypeChanged();
-    void emitterNameChanged();
     void complexFlagsChanged();
     void propertiesChanged();
 
@@ -93,7 +61,6 @@ private:
     void setupConnections();
     void populateProperties();
 
-    s32 addTab(QWidget* widget, const QString& label, TabId id);
     void buildTabs();
     void updateTabVisibility();
 
@@ -101,8 +68,6 @@ private:
     Ptcl::Document* mDocument{nullptr};
     const Ptcl::Selection* mSelection{nullptr};
     Ptcl::Emitter* mEmitter{nullptr};
-
-    const Ptcl::TextureList* mTextureList{nullptr};
 
     GeneralEmitterInspector* mGeneralInspector{nullptr};
     GravityInspector* mGravityInspector{nullptr};
@@ -130,11 +95,13 @@ private:
     FieldRandomInspector* mFieldRandomInspector{nullptr};
     FieldSpinInspector* mFieldSpinInspector{nullptr};
 
-    QTabWidget* mTabWidget{nullptr};
-    QHash<TabId, s32> mTabIndex{};
+    QStackedWidget* mTabStack{nullptr};
+    QTabWidget* mEmitterTabs{nullptr};
+    QTabWidget* mChildTabs{nullptr};
+    QTabWidget* mFieldTabs{nullptr};
+    QTabWidget* mFluxTabs{nullptr};
 
-    Ptcl::EmitterType mLastEmitterType{};
-    bool mLastEmitterHasStripe{};
+    Ptcl::Selection::Type mLastSelectionType{};
 };
 
 
