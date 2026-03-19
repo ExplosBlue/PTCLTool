@@ -6,7 +6,6 @@
 #include "editor/inspector/colorInspector.h"
 #include "editor/inspector/combinerInspector.h"
 #include "editor/inspector/emissionInspector.h"
-#include "editor/inspector/fluctuationInspector.h"
 #include "editor/inspector/gravityInspector.h"
 #include "editor/inspector/lifespanInspector.h"
 #include "editor/inspector/rotationInspector.h"
@@ -18,6 +17,18 @@
 #include "editor/inspector/velocityInspector.h"
 #include "editor/inspector/volumeInspector.h"
 
+#include "editor/inspector/fluctuationInspector.h"
+
+#include "editor/inspector/child/childAlphaInspector.h"
+#include "editor/inspector/child/childColorInspector.h"
+#include "editor/inspector/child/childCombinerInspector.h"
+#include "editor/inspector/child/childEmissionInspector.h"
+#include "editor/inspector/child/childGeneralInspector.h"
+#include "editor/inspector/child/childRotationInspector.h"
+#include "editor/inspector/child/childScaleInspector.h"
+#include "editor/inspector/child/childTextureInspector.h"
+#include "editor/inspector/child/childVelocityInspector.h"
+
 #include "editor/inspector/field/fieldCollisionInspector.h"
 #include "editor/inspector/field/fieldConvergenceInspector.h"
 #include "editor/inspector/field/fieldMagnetInspector.h"
@@ -26,6 +37,7 @@
 #include "editor/inspector/field/fieldSpinInspector.h"
 
 #include <QScrollArea>
+
 
 namespace PtclEditor {
 
@@ -59,7 +71,16 @@ InspectorPanel::InspectorPanel(QWidget* parent) :
     mFieldRandomInspector = new FieldRandomInspector(this);
     mFieldSpinInspector = new FieldSpinInspector(this);
 
-    mChildEditorWidget = new ChildEditorWidget(this);
+    mChildAlphaInspector = new ChildAlphaInspector(this);
+    mChildColorInspector = new ChildColorInspector(this);
+    mChildCombinerInspector = new ChildCombinerInspector(this);
+    mChildEmissionInspector = new ChildEmissionInspector(this);
+    mChildGeneralInspector = new ChildGeneralInspector(this);
+    mChildRotationInspector = new ChildRotationInspector(this);
+    mChildScaleInspector = new ChildScaleInspector(this);
+    mChildTextureInspector = new ChildTextureInspector(this);
+    mChildVelocityInspector = new ChildVelocityInspector(this);
+
     mFluctuationInspector = new FluctuationInspector(this);
 
     mTabStack = new QStackedWidget(this);
@@ -87,7 +108,6 @@ InspectorPanel::InspectorPanel(QWidget* parent) :
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     buildTabs();
-    setupConnections();
 }
 
 void InspectorPanel::buildTabs() {
@@ -131,8 +151,15 @@ void InspectorPanel::buildTabs() {
     mFieldTabs->addTab(mFieldSpinInspector, "Spin");
 
     // Child
-    mChildTabs->addTab(mChildEditorWidget, "Child");
-    // TODO
+    mChildTabs->addTab(mChildGeneralInspector, "General");
+    mChildTabs->addTab(mChildColorInspector, "Color");
+    mChildTabs->addTab(mChildAlphaInspector, "Alpha");
+    mChildTabs->addTab(mChildCombinerInspector, "Combiner");
+    mChildTabs->addTab(mChildEmissionInspector, "Emission");
+    mChildTabs->addTab(mChildRotationInspector, "Rotation");
+    mChildTabs->addTab(mChildScaleInspector, "Scale");
+    mChildTabs->addTab(mChildTextureInspector, "Texture");
+    mChildTabs->addTab(mChildVelocityInspector, "Velocity");
 }
 
 void InspectorPanel::updateTabVisibility() {
@@ -160,16 +187,6 @@ void InspectorPanel::updateTabVisibility() {
     }
 }
 
-void InspectorPanel::setupConnections() {
-    // Child Editor Widget
-    connect(mChildEditorWidget, &ChildEditorWidget::flagsUpdated, this, [this](const BitFlag<Ptcl::ChildFlag>& childFlags) {
-        if (!mEmitter) { return; }
-        mEmitter->setChildFlags(childFlags);
-        emit complexFlagsChanged();
-        emit propertiesChanged();
-    });
-}
-
 void InspectorPanel::setDocument(Ptcl::Document* document) {
     if (mDocument) {
         mDocument->disconnect(this);
@@ -191,8 +208,9 @@ void InspectorPanel::setDocument(Ptcl::Document* document) {
     mCombinerInspector->setDocument(document);
     mColorInspector->setDocument(document);
     mTextureInspector->setDocument(document);
-    mFluctuationInspector->setDocument(document);
     mStripeInspector->setDocument(document);
+
+    mFluctuationInspector->setDocument(document);
 
     mFieldCollisionInspector->setDocument(document);
     mFieldConvergenceInspector->setDocument(document);
@@ -201,13 +219,19 @@ void InspectorPanel::setDocument(Ptcl::Document* document) {
     mFieldRandomInspector->setDocument(document);
     mFieldSpinInspector->setDocument(document);
 
+    mChildAlphaInspector->setDocument(document);
+    mChildColorInspector->setDocument(document);
+    mChildCombinerInspector->setDocument(document);
+    mChildEmissionInspector->setDocument(document);
+    mChildGeneralInspector->setDocument(document);
+    mChildRotationInspector->setDocument(document);
+    mChildScaleInspector->setDocument(document);
+    mChildTextureInspector->setDocument(document);
+    mChildVelocityInspector->setDocument(document);
+
     if (mDocument) {
         connect(mDocument, &Ptcl::Document::emitterChanged, this, [this](s32 setIndex, s32 emitterIndex) {
-            if (!mEmitter) {
-                return;
-            }
-
-            if (setIndex != mSelection->emitterSetIndex() || emitterIndex != mSelection->emitterIndex()) {
+            if (!mEmitter || setIndex != mSelection->emitterSetIndex() || emitterIndex != mSelection->emitterIndex()) {
                 return;
             }
 
@@ -247,6 +271,16 @@ void InspectorPanel::setSelection(Ptcl::Selection* selection) {
     mFieldRandomInspector->setSelection(selection);
     mFieldSpinInspector->setSelection(selection);
 
+    mChildAlphaInspector->setSelection(selection);
+    mChildColorInspector->setSelection(selection);
+    mChildCombinerInspector->setSelection(selection);
+    mChildEmissionInspector->setSelection(selection);
+    mChildGeneralInspector->setSelection(selection);
+    mChildRotationInspector->setSelection(selection);
+    mChildScaleInspector->setSelection(selection);
+    mChildTextureInspector->setSelection(selection);
+    mChildVelocityInspector->setSelection(selection);
+
     if (mSelection) {
         connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
             if (!mDocument) {
@@ -256,10 +290,6 @@ void InspectorPanel::setSelection(Ptcl::Selection* selection) {
             }
 
             mEmitter = mDocument->emitter(setIndex, emitterIndex);
-
-            // TODO: Have child widgets handle this themselves
-            mChildEditorWidget->setTextureList(nullptr);
-
             setEnabled(true);
             populateProperties();
         });
@@ -267,11 +297,6 @@ void InspectorPanel::setSelection(Ptcl::Selection* selection) {
 }
 
 void InspectorPanel::populateProperties() {
-    QSignalBlocker b1(mChildEditorWidget);
-
-    mChildEditorWidget->setChildData(&mEmitter->childData(), mEmitter->complexProperties().childFlags);
-    mChildEditorWidget->setParentColor0(mEmitter->primaryColor());
-
     if (mLastSelectionType != mSelection->type()) {
         mLastSelectionType = mSelection->type();
         updateTabVisibility();

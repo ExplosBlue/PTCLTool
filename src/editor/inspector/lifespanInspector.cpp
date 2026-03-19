@@ -33,7 +33,7 @@ LifespanInspector::LifespanInspector(QWidget* parent) :
 void LifespanInspector::setupConnections() {
     connect(&mLifeSpanSpinBox, &QSpinBox::valueChanged, this, [this](u64 value) {
         setEmitterProperty(
-            "Set LifeSpan",
+            "Set Lifespan",
             "SetLifeSpan",
             &Ptcl::Emitter::ptclLife,
             &Ptcl::Emitter::setPtclLife,

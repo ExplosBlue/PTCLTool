@@ -38,16 +38,6 @@ set(PROJECT_SOURCES
     src/editor/components/loadingSpinner.cpp
     src/editor/components/rgbaColorWidget.cpp
     src/editor/components/thumbnailWidget.cpp
-    src/editor/childEditor/alphaPropertiesWidget.cpp
-    src/editor/childEditor/basicPropertiesWidget.cpp
-    src/editor/childEditor/childEditorWidget.cpp
-    src/editor/childEditor/colorPropertiesWidget.cpp
-    src/editor/childEditor/combinerPropertiesWidget.cpp
-    src/editor/childEditor/emissionPropertiesWidget.cpp
-    src/editor/childEditor/rotationPropertiesWidget.cpp
-    src/editor/childEditor/scalePropertiesWidget.cpp
-    src/editor/childEditor/texturePropertiesWidget.cpp
-    src/editor/childEditor/velocityPropertiesWidget.cpp
     src/editor/inspector/alphaAnimInspector.cpp
     src/editor/inspector/generalEmitterInspector.cpp
     src/editor/inspector/colorInspector.cpp
@@ -66,6 +56,15 @@ set(PROJECT_SOURCES
     src/editor/inspector/transformInspector.cpp
     src/editor/inspector/velocityInspector.cpp
     src/editor/inspector/volumeInspector.cpp
+    src/editor/inspector/child/childAlphaInspector.cpp
+    src/editor/inspector/child/childColorInspector.cpp
+    src/editor/inspector/child/childCombinerInspector.cpp
+    src/editor/inspector/child/childEmissionInspector.cpp
+    src/editor/inspector/child/childGeneralInspector.cpp
+    src/editor/inspector/child/childRotationInspector.cpp
+    src/editor/inspector/child/childScaleInspector.cpp
+    src/editor/inspector/child/childTextureInspector.cpp
+    src/editor/inspector/child/childVelocityInspector.cpp
     src/editor/inspector/field/fieldCollisionInspector.cpp
     src/editor/inspector/field/fieldConvergenceInspector.cpp
     src/editor/inspector/field/fieldMagnetInspector.cpp
@@ -108,16 +107,6 @@ set(PROJECT_HEADERS
     include/editor/components/sizedSpinBox.h
     include/editor/components/thumbnailWidget.h
     include/editor/components/vectorSpinBox.h
-    include/editor/childEditor/alphaPropertiesWidget.h
-    include/editor/childEditor/basicPropertiesWidget.h
-    include/editor/childEditor/childEditorWidget.h
-    include/editor/childEditor/colorPropertiesWidget.h
-    include/editor/childEditor/combinerPropertiesWidget.h
-    include/editor/childEditor/emissionPropertiesWidget.h
-    include/editor/childEditor/rotationPropertiesWidget.h
-    include/editor/childEditor/scalePropertiesWidget.h
-    include/editor/childEditor/texturePropertiesWidget.h
-    include/editor/childEditor/velocityPropertiesWidget.h
     include/editor/inspector/alphaAnimInspector.h
     include/editor/inspector/generalEmitterInspector.h
     include/editor/inspector/colorInspector.h
@@ -136,6 +125,15 @@ set(PROJECT_HEADERS
     include/editor/inspector/transformInspector.h
     include/editor/inspector/velocityInspector.h
     include/editor/inspector/volumeInspector.h
+    include/editor/inspector/child/childAlphaInspector.h
+    include/editor/inspector/child/childColorInspector.h
+    include/editor/inspector/child/childEmissionInspector.h
+    include/editor/inspector/child/childGeneralInspector.h
+    include/editor/inspector/child/childCombinerInspector.h
+    include/editor/inspector/child/childRotationInspector.h
+    include/editor/inspector/child/childScaleInspector.h
+    include/editor/inspector/child/childTextureInspector.h
+    include/editor/inspector/child/childVelocityInspector.h
     include/editor/inspector/field/fieldCollisionInspector.h
     include/editor/inspector/field/fieldConvergenceInspector.h
     include/editor/inspector/field/fieldMagnetInspector.h
@@ -154,7 +152,6 @@ set(PROJECT_HEADERS
     include/ptcl/ptclEmitter.h
     include/ptcl/ptclEmitterSet.h
     include/ptcl/ptclEnum.h
-
     include/ptcl/ptclSeed.h
     include/ptcl/ptclTexture.h
     include/util/bitflagUtil.h
