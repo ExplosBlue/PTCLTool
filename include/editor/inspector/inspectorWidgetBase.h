@@ -41,7 +41,7 @@ protected slots:
 protected:
     Ptcl::Document* mDocument{nullptr};
     const Ptcl::Selection* mSelection{nullptr};
-    Ptcl::Emitter* mEmitter{nullptr};
+    const Ptcl::Emitter* mEmitter{nullptr};
 };
 
 

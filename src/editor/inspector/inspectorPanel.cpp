@@ -35,9 +35,9 @@
 #include "editor/inspector/field/fieldPosAddInspector.h"
 #include "editor/inspector/field/fieldRandomInspector.h"
 #include "editor/inspector/field/fieldSpinInspector.h"
+#include "util/nameValidator.h"
 
 #include <QScrollArea>
-
 
 namespace PtclEditor {
 
@@ -47,6 +47,14 @@ namespace PtclEditor {
 
 InspectorPanel::InspectorPanel(QWidget* parent) :
     QWidget{parent} {
+
+    mProjNameLineEdit = new QLineEdit(this);
+    mProjNameLineEdit->setPlaceholderText("PTCLProject");
+    mProjNameLineEdit->setValidator(new EmitterNameValidator(mProjNameLineEdit));
+
+    connect(mProjNameLineEdit, &QLineEdit::textChanged, this, [this](const QString& text) {
+        mDocument->setProjectName(text);
+    });
 
     mGeneralInspector = new GeneralEmitterInspector(this);
     mGravityInspector = new GravityInspector(this);
@@ -83,6 +91,11 @@ InspectorPanel::InspectorPanel(QWidget* parent) :
 
     mFluctuationInspector = new FluctuationInspector(this);
 
+    // Project Properties
+    auto* projectPropertiesLayout = new QHBoxLayout;
+    projectPropertiesLayout->addWidget(new QLabel("Project Name"));
+    projectPropertiesLayout->addWidget(mProjNameLineEdit);
+
     mTabStack = new QStackedWidget(this);
 
     mEmitterTabs = new QTabWidget(this);
@@ -102,6 +115,7 @@ InspectorPanel::InspectorPanel(QWidget* parent) :
     mTabStack->addWidget(mFluxTabs);
 
     auto* layout = new QVBoxLayout(this);
+    layout->addLayout(projectPropertiesLayout);
     layout->addWidget(mTabStack);
     layout->setContentsMargins(0, 0, 0, 0);
 
@@ -230,6 +244,9 @@ void InspectorPanel::setDocument(Ptcl::Document* document) {
     mChildVelocityInspector->setDocument(document);
 
     if (mDocument) {
+        QSignalBlocker b1(mProjNameLineEdit);
+        mProjNameLineEdit->setText(document->projectName());
+
         connect(mDocument, &Ptcl::Document::emitterChanged, this, [this](s32 setIndex, s32 emitterIndex) {
             if (!mEmitter || setIndex != mSelection->emitterSetIndex() || emitterIndex != mSelection->emitterIndex()) {
                 return;
@@ -237,6 +254,12 @@ void InspectorPanel::setDocument(Ptcl::Document* document) {
 
             populateProperties();
         });
+
+        connect(mDocument, &Ptcl::Document::projectChanged, this, [this]() {
+            QSignalBlocker b1(mProjNameLineEdit);
+            mProjNameLineEdit->setText(mDocument->projectName());
+        });
+
     }
 }
 

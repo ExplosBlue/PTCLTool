@@ -103,10 +103,10 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mTexturePatternFrequency = mTexturePatternFrequency;
     newEmitter->mTexturePatternTblUse = mTexturePatternTblUse;
     newEmitter->mIsTexturePatternAnim = mIsTexturePatternAnim;
-    newEmitter->mTextureHandle = mTextureHandle.clone();
+    newEmitter->mTextureHandle = mTextureHandle;
 
     newEmitter->mChildFlags = mChildFlags;
-    newEmitter->mChild = mChild; // TODO - texture handle clone?
+    newEmitter->mChild = mChild;
 
     // Fluctuation Properties
     newEmitter->mFluctuationFlags = mFluctuationFlags;

@@ -282,7 +282,7 @@ void PtclList::populateList() {
     }
 
     mListModel.clear();
-    const auto& sets = mDocument->data().getEmitterSets();
+    const auto& sets = mDocument->emitterSets();
     for (s32 setIndex = 0; setIndex < sets.size(); ++setIndex) {
         insertEmitterSetNode(setIndex);
     }
@@ -573,7 +573,7 @@ void PtclList::addEmitterSet() {
         return;
     }
 
-    const s32 setIndex = mDocument->data().emitterSetCount();
+    const s32 setIndex = mDocument->emitterSetCount();
     mDocument->data().addNewEmitterSet();
 
     insertEmitterSetNode(setIndex);
@@ -741,11 +741,11 @@ void PtclList::copyItem() {
 
     if (type == NodeType::EmitterSet) {
         const s32 setIndex = item->data(sRoleSetIdx).toInt();
-        mClipboardSet = mDocument->data().emitterSet(setIndex)->clone();
+        mClipboardSet = mDocument->emitterSet(setIndex)->clone();
     } else if (type == NodeType::Emitter) {
         const s32 setIndex = item->parent()->data(sRoleSetIdx).toInt();
         const s32 emitterIndex = item->data(sRoleEmitterIdx).toInt();
-        mClipboardEmitter = mDocument->data().emitter(setIndex, emitterIndex)->clone();
+        mClipboardEmitter = mDocument->emitter(setIndex, emitterIndex)->clone();
     }
 
     updateToolbarForSelection(item);
@@ -766,13 +766,13 @@ void PtclList::pasteItem() {
         auto& newSet = mDocument->data().appendEmitterSet(mClipboardSet);
         mClipboardSet = newSet->clone();
 
-        const s32 setIndex = mDocument->data().emitterSetCount() - 1;
+        const s32 setIndex = mDocument->emitterSetCount() - 1;
         insertEmitterSetNode(setIndex);
         mSelection->set(setIndex, 0, Ptcl::Selection::Type::EmitterSet);
     } else if (mClipboardEmitter && type == NodeType::Emitter) {
         const auto& setItem = item->parent();
         const s32 setIndex = item->data(sRoleSetIdx).toInt();
-        auto set = mDocument->data().emitterSet(setIndex);
+        auto set = mDocument->emitterSet(setIndex);
 
         auto& newEmitter = set->appendEmitter(mClipboardEmitter);
         mClipboardEmitter = newEmitter->clone();
