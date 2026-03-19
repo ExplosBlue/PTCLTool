@@ -151,10 +151,6 @@ TextureHandle& TextureHandle::operator=(TextureHandle&& other) noexcept {
     return *this;
 }
 
-TextureHandle TextureHandle::clone() const {
-    return *this;
-}
-
 void TextureHandle::invalidate() {
     mTexturePtr = nullptr;
 }

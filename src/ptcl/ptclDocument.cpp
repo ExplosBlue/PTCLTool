@@ -1,3 +1,4 @@
+#include "ptcl/ptclCommand.h"
 #include "ptcl/ptclDocument.h"
 
 
@@ -34,6 +35,10 @@ bool Document::save(const QString& filePath) {
     mFilePath = filePath;
     mModified = false;
     return mData.save(filePath);
+}
+
+void Document::setProjectName(const QString& name) {
+    mUndoStack.push(new RenameProjectNameCommand(this, name));
 }
 
 

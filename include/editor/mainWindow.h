@@ -87,8 +87,6 @@ private:
     QSplitter* mTopSplitter{nullptr};
     QSplitter* mBottomSplitter{nullptr};
 
-    QLineEdit mProjNameLineEdit{};
-
     QStackedWidget* mPropertiesStack{nullptr};
     QGroupBox mPropertiesGroup{};
 
