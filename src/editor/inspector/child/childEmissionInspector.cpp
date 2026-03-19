@@ -1,6 +1,7 @@
-#include "editor/childEditor/emissionPropertiesWidget.h"
+#include "editor/inspector/child/childEmissionInspector.h"
 
 #include <QFormLayout>
+
 
 namespace PtclEditor {
 
@@ -8,8 +9,8 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-ChildEditorWidget::EmissionPropertiesWidget::EmissionPropertiesWidget(QWidget* parent) :
-    QWidget{parent} {
+ChildEmissionInspector::ChildEmissionInspector(QWidget* parent) :
+    InspectorWidgetBase{parent} {
 
     // Emission Rate
     mEmitRateSpinBox.setRange(0, std::numeric_limits<s32>::max());
@@ -47,55 +48,75 @@ ChildEditorWidget::EmissionPropertiesWidget::EmissionPropertiesWidget(QWidget* p
     setupConnections();
 }
 
-void ChildEditorWidget::EmissionPropertiesWidget::setupConnections() {
+void ChildEmissionInspector::setupConnections() {
     // Emission Rate
     connect(&mEmitRateSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
-        mProps.emitRate = value;
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Child Emission Rate",
+            "SetChildEmissionRate",
+            &Ptcl::Emitter::childEmitRate,
+            &Ptcl::Emitter::setChildEmitRate,
+            value
+        );
     });
 
     // Emission Timing
     connect(&mEmitTimingSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
-        mProps.emitTiming = value;
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Child Emission Start Time",
+            "SetChildEmissionStartTime",
+            &Ptcl::Emitter::childEmitTiming,
+            &Ptcl::Emitter::setChildEmitTiming,
+            value
+        );
     });
 
     // Lifespan
     connect(&mLifeSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
-        mProps.life = value;
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Child Lifespan",
+            "SetChildLifespan",
+            &Ptcl::Emitter::childLife,
+            &Ptcl::Emitter::setChildLife,
+            value
+        );
     });
 
     // Infinite Life
     connect(&mInfiniteLifeCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
-        QSignalBlocker b1(mLifeSpinBox);
-
-        mProps.life = checked ? sLifeInfinite : 100;
-        mLifeSpinBox.setValue(mProps.life);
-        mLifeSpinBox.setEnabled(!checked);
-        emit propertiesUpdated(mProps);
+        const s32 newLife = checked ? sLifeInfinite : 100;
+        setEmitterProperty(
+            "Toggle Child Infinite Life",
+            "ToggleChildInfiniteLife",
+            &Ptcl::Emitter::childLife,
+            &Ptcl::Emitter::setChildLife,
+            newLife
+        );
     });
 
     // Emission Step
     connect(&mEmitStepSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
-        mProps.emitStep = value;
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Toggle Child Emission Interval",
+            "ToggleChildEmitStep",
+            &Ptcl::Emitter::childEmitStep,
+            &Ptcl::Emitter::setChildEmitStep,
+            value
+        );
     });
 }
 
-void ChildEditorWidget::EmissionPropertiesWidget::setProperties(const Ptcl::ChildData::EmissionProperties& properties) {
+void ChildEmissionInspector::populateProperties() {
     QSignalBlocker b1(mEmitRateSpinBox);
     QSignalBlocker b2(mEmitTimingSpinBox);
     QSignalBlocker b3(mLifeSpinBox);
     QSignalBlocker b4(mEmitStepSpinBox);
 
-    mProps = properties;
+    mEmitRateSpinBox.setValue(mEmitter->childEmitRate());
+    mEmitTimingSpinBox.setValue(mEmitter->childEmitTiming());
+    mEmitStepSpinBox.setValue(mEmitter->childEmitStep());
 
-    mEmitRateSpinBox.setValue(mProps.emitRate);
-    mEmitTimingSpinBox.setValue(mProps.emitTiming);
-    mEmitStepSpinBox.setValue(mProps.emitStep);
-
-    const s32 lifeSpan = mProps.life;
+    const s32 lifeSpan = mEmitter->childLife();
     const bool infiniteLife = (lifeSpan == sLifeInfinite);
     mLifeSpinBox.setValue(lifeSpan);
     mLifeSpinBox.setDisabled(infiniteLife);

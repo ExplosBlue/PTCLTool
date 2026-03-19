@@ -387,7 +387,7 @@ struct alignas(4) BinChildData {
     f32 childAirResist;                         // 0xE8
 
     BinChildData() = default;
-    BinChildData(const Ptcl::ChildData& childData);
+    BinChildData(const Ptcl::Emitter& emitterData);
 
     friend QDataStream& operator>>(QDataStream& in, BinChildData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinChildData& item);

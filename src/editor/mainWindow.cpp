@@ -159,14 +159,6 @@ void MainWindow::setupConnections() {
         setDirty(true);
     });
 
-    connect(&mInspector, &InspectorPanel::complexFlagsChanged, this, [this]() {
-        mPtclList.updateEmitter(mSelection.emitterSetIndex(), mSelection.emitterIndex());
-    });
-
-    connect(&mInspector, &InspectorPanel::propertiesChanged, this, [this]() {
-        setDirty(true);
-    });
-
     // EmitterSet Widget
     connect(&mEmitterSetWidget, &EmitterSetWidget::emitterSetNamedChanged, this, [this]() {
         mPtclList.updateEmitterSetName(mSelection.emitterSetIndex());

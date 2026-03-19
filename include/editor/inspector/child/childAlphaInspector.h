@@ -1,6 +1,6 @@
 #pragma once
 
-#include "editor/childEditor/childEditorWidget.h"
+#include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QCheckBox>
 #include <QDoubleSpinBox>
@@ -14,23 +14,16 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class ChildEditorWidget::AlphaPropertiesWidget final : public QWidget {
+class ChildAlphaInspector final : public InspectorWidgetBase {
     Q_OBJECT
 public:
-    explicit AlphaPropertiesWidget(QWidget* parent = nullptr);
-
-    void setProperties(const Ptcl::ChildData::AlphaProperties& properties, bool inheritAlpha);
-
-signals:
-    void propertiesUpdated(const Ptcl::ChildData::AlphaProperties& properties);
-    void inheritAlphaUpdated(bool inherit);
+    explicit ChildAlphaInspector(QWidget* parent = nullptr);
 
 private:
+    void populateProperties() final;
     void setupConnections();
 
 private:
-    Ptcl::ChildData::AlphaProperties mProps{};
-
     QDoubleSpinBox mAlphaSpinBox{};
     QDoubleSpinBox mAlphaTargetSpinBox{};
     QDoubleSpinBox mAlphaInitSpinBox{};

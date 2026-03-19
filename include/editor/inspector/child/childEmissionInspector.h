@@ -1,9 +1,9 @@
 #pragma once
 
-#include "editor/childEditor/childEditorWidget.h"
+#include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QCheckBox>
-#include <QLineEdit>
+#include <QSpinBox>
 #include <QWidget>
 
 
@@ -13,22 +13,16 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class ChildEditorWidget::EmissionPropertiesWidget final : public QWidget {
+class ChildEmissionInspector final : public InspectorWidgetBase {
     Q_OBJECT
 public:
-    explicit EmissionPropertiesWidget(QWidget* parent = nullptr);
-
-    void setProperties(const Ptcl::ChildData::EmissionProperties& properties);
-
-signals:
-    void propertiesUpdated(const Ptcl::ChildData::EmissionProperties& properties);
+    explicit ChildEmissionInspector(QWidget* parent = nullptr);
 
 private:
+    void populateProperties() final;
     void setupConnections();
 
 private:
-    Ptcl::ChildData::EmissionProperties mProps{};
-
     QSpinBox mEmitRateSpinBox{};
     QSpinBox mEmitTimingSpinBox{};
     QSpinBox mLifeSpinBox{};

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "editor/childEditor/childEditorWidget.h"
-
 #include "ptcl/ptclDocument.h"
 #include "ptcl/ptclEmitter.h"
 
@@ -11,6 +9,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QStackedWidget>
 #include <QTabWidget>
 #include <QWidget>
 
@@ -31,8 +30,9 @@ class AlphaAnimInspector;
 class CombinerInspector;
 class ColorInspector;
 class TextureInspector;
-class FluctuationInspector;
 class StripeInspector;
+
+class FluctuationInspector;
 
 class FieldCollisionInspector;
 class FieldConvergenceInspector;
@@ -40,6 +40,16 @@ class FieldMagnetInspector;
 class FieldPosAddInspector;
 class FieldRandomInspector;
 class FieldSpinInspector;
+
+class ChildAlphaInspector;
+class ChildColorInspector;
+class ChildCombinerInspector;
+class ChildEmissionInspector;
+class ChildGeneralInspector;
+class ChildRotationInspector;
+class ChildScaleInspector;
+class ChildTextureInspector;
+class ChildVelocityInspector;
 
 
 // ========================================================================== //
@@ -52,10 +62,6 @@ public:
 
     void setDocument(Ptcl::Document* document);
     void setSelection(Ptcl::Selection* selection);
-
-signals:
-    void complexFlagsChanged();
-    void propertiesChanged();
 
 private:
     void setupConnections();
@@ -84,9 +90,8 @@ private:
     TextureInspector* mTextureInspector{nullptr};
     CombinerInspector* mCombinerInspector{nullptr};
     StripeInspector* mStripeInspector{nullptr};
-    FluctuationInspector* mFluctuationInspector{nullptr};
 
-    ChildEditorWidget* mChildEditorWidget{nullptr};
+    FluctuationInspector* mFluctuationInspector{nullptr};
 
     FieldCollisionInspector* mFieldCollisionInspector{nullptr};
     FieldConvergenceInspector* mFieldConvergenceInspector{nullptr};
@@ -94,6 +99,16 @@ private:
     FieldPosAddInspector* mFieldPosAddInspector{nullptr};
     FieldRandomInspector* mFieldRandomInspector{nullptr};
     FieldSpinInspector* mFieldSpinInspector{nullptr};
+
+    ChildAlphaInspector* mChildAlphaInspector{nullptr};
+    ChildColorInspector* mChildColorInspector{nullptr};
+    ChildCombinerInspector* mChildCombinerInspector{nullptr};
+    ChildEmissionInspector* mChildEmissionInspector{nullptr};
+    ChildGeneralInspector* mChildGeneralInspector{nullptr};
+    ChildRotationInspector* mChildRotationInspector{nullptr};
+    ChildScaleInspector* mChildScaleInspector{nullptr};
+    ChildTextureInspector* mChildTextureInspector{nullptr};
+    ChildVelocityInspector* mChildVelocityInspector{nullptr};
 
     QStackedWidget* mTabStack{nullptr};
     QTabWidget* mEmitterTabs{nullptr};

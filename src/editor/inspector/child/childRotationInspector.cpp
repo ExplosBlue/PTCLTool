@@ -1,4 +1,4 @@
-#include "editor/childEditor/rotationPropertiesWidget.h"
+#include "editor/inspector/child/childRotationInspector.h"
 
 #include "math/util.h"
 
@@ -11,8 +11,8 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-ChildEditorWidget::RotationPropertiesWidget::RotationPropertiesWidget(QWidget* parent) :
-    QWidget{parent} {
+ChildRotationInspector::ChildRotationInspector(QWidget* parent) :
+    InspectorWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
 
@@ -29,7 +29,7 @@ ChildEditorWidget::RotationPropertiesWidget::RotationPropertiesWidget(QWidget* p
     setupConnections();
 }
 
-void ChildEditorWidget::RotationPropertiesWidget::setupConnections() {
+void ChildRotationInspector::setupConnections() {
     auto deg2idxVec = [](const Math::Vector3f& v) {
         Math::Vector3i result {
             Math::Util::deg2idx(v.getX()),
@@ -41,48 +41,89 @@ void ChildEditorWidget::RotationPropertiesWidget::setupConnections() {
 
     // Inherit Rotation
     connect(&mInheritRotCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
-        emit inheritRotationUpdated(checked);
+        setEmitterProperty(
+            "Toggle Child Inherit Rotation",
+            "ToggleChildInheritRot",
+            &Ptcl::Emitter::isChildInheritRotation,
+            &Ptcl::Emitter::setChildInheritRotation,
+            checked
+        );
     });
 
     // RotType
     connect(&mRotTypeSpinBox, &QComboBox::currentIndexChanged, this, [this]() {
-        mProps.rotType = mRotTypeSpinBox.currentEnum();
-        updateAxis();
-        emit propertiesUpdated(mProps);
+        const auto type = mRotTypeSpinBox.currentEnum();
+        setEmitterProperty(
+            "Set Child Rotation Type",
+            "SetChildRotationType",
+            &Ptcl::Emitter::childRotationType,
+            &Ptcl::Emitter::setChildRotationType,
+            type
+        );
     });
 
     // Initial Rotation
     connect(&mInitRotSpinBox, &VectorSpinBoxBase::valueChanged, this, [this, deg2idxVec]() {
-        mProps.initRot = deg2idxVec(mInitRotSpinBox.getVector());
-        emit propertiesUpdated(mProps);
+        const auto rot = deg2idxVec(mInitRotSpinBox.getVector());
+        setEmitterProperty(
+            "Set Child Initial Rotation",
+            "SetChildInitRotation",
+            &Ptcl::Emitter::childInitialRotation,
+            &Ptcl::Emitter::setChildInitialRotation,
+            rot
+        );
     });
 
     // Initial Rotation Rand
     connect(&mInitRotRandSpinBox, &VectorSpinBoxBase::valueChanged, this, [this, deg2idxVec]() {
-        mProps.initRotRand = deg2idxVec(mInitRotRandSpinBox.getVector());
-        emit propertiesUpdated(mProps);
+        const auto rot = deg2idxVec(mInitRotRandSpinBox.getVector());
+        setEmitterProperty(
+            "Set Child Initial Rotation Random",
+            "SetChildInitRotationRand",
+            &Ptcl::Emitter::childInitialRotationRandom,
+            &Ptcl::Emitter::setChildInitialRotationRandom,
+            rot
+        );
     });
 
     // Rotation Speed
     connect(&mRotVelSpinBox, &VectorSpinBoxBase::valueChanged, this, [this, deg2idxVec]() {
-        mProps.rotVel = deg2idxVec(mRotVelSpinBox.getVector());
-        emit propertiesUpdated(mProps);
+        const auto speed = deg2idxVec(mRotVelSpinBox.getVector());
+        setEmitterProperty(
+            "Set Child Rotation Speed",
+            "SetChildRotVel",
+            &Ptcl::Emitter::childRotationVelocity,
+            &Ptcl::Emitter::setChildRotationVelocity,
+            speed
+        );
     });
 
     // Rotation Speed Rand
     connect(&mRotVelRandSpinBox, &VectorSpinBoxBase::valueChanged, this, [this, deg2idxVec]() {
-        mProps.rotVelRand = deg2idxVec(mRotVelRandSpinBox.getVector());
-        emit propertiesUpdated(mProps);
+        const auto vel = deg2idxVec(mRotVelRandSpinBox.getVector());
+        setEmitterProperty(
+            "Set Child Rotation Speed Rand",
+            "SetChildRotVelRand",
+            &Ptcl::Emitter::childRotationVelocityRandom,
+            &Ptcl::Emitter::setChildRotationVelocityRandom,
+            vel
+        );
     });
 
     // Rotation Pivot
     connect(&mRotBasisSpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
-        mProps.rotBasis = mRotBasisSpinBox.getVector();
-        emit propertiesUpdated(mProps);
+        const auto pivot = mRotBasisSpinBox.getVector();
+        setEmitterProperty(
+            "Set Child Rotation Pivot",
+            "SetChildRotBasis",
+            &Ptcl::Emitter::childRotationBasis,
+            &Ptcl::Emitter::setChildRotationBasis,
+            pivot
+        );
     });
 }
 
-void ChildEditorWidget::RotationPropertiesWidget::setProperties(const Ptcl::ChildData::RotationProperties& properties, bool inheritRotation) {
+void ChildRotationInspector::populateProperties() {
     QSignalBlocker b1(mRotTypeSpinBox);
     QSignalBlocker b2(mInitRotSpinBox);
     QSignalBlocker b3(mInitRotRandSpinBox);
@@ -90,8 +131,6 @@ void ChildEditorWidget::RotationPropertiesWidget::setProperties(const Ptcl::Chil
     QSignalBlocker b5(mRotVelRandSpinBox);
     QSignalBlocker b6(mRotBasisSpinBox);
     QSignalBlocker b7(mInheritRotCheckBox);
-
-    mProps = properties;
 
     auto idx2degVec = [](const Math::Vector3i& v) {
         return Math::Vector3f {
@@ -101,21 +140,21 @@ void ChildEditorWidget::RotationPropertiesWidget::setProperties(const Ptcl::Chil
         };
     };
 
-    mRotTypeSpinBox.setCurrentEnum(mProps.rotType);
-    mInitRotSpinBox.setVector(idx2degVec(mProps.initRot));
-    mInitRotRandSpinBox.setVector(idx2degVec(mProps.initRotRand));
-    mRotVelSpinBox.setVector(idx2degVec(mProps.rotVel));
-    mRotVelRandSpinBox.setVector(idx2degVec(mProps.rotVelRand));
-    mRotBasisSpinBox.setVector(mProps.rotBasis);
-    mInheritRotCheckBox.setChecked(inheritRotation);
+    mRotTypeSpinBox.setCurrentEnum(mEmitter->childRotationType());
+    mInitRotSpinBox.setVector(idx2degVec(mEmitter->childInitialRotation()));
+    mInitRotRandSpinBox.setVector(idx2degVec(mEmitter->childInitialRotationRandom()));
+    mRotVelSpinBox.setVector(idx2degVec(mEmitter->childRotationVelocity()));
+    mRotVelRandSpinBox.setVector(idx2degVec(mEmitter->childRotationVelocityRandom()));
+    mRotBasisSpinBox.setVector(mEmitter->childRotationBasis());
+    mInheritRotCheckBox.setChecked(mEmitter->isChildInheritRotation());
 
     updateAxis();
 }
 
-void ChildEditorWidget::RotationPropertiesWidget::updateAxis() {
+void ChildRotationInspector::updateAxis() {
     using Axis = VectorSpinBoxBase::Axis;
 
-    switch (mProps.rotType) {
+    switch (mEmitter->childRotationType()) {
     case Ptcl::RotType::None:
         mInitRotSpinBox.setEnabledAxis(Axis::None);
         mInitRotRandSpinBox.setEnabledAxis(Axis::None);

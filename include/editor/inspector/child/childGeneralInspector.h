@@ -1,6 +1,6 @@
 #pragma once
 
-#include "editor/childEditor/childEditorWidget.h"
+#include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -13,23 +13,14 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class ChildEditorWidget::BasicPropertiesWidget final : public QWidget {
+class ChildGeneralInspector final : public InspectorWidgetBase {
     Q_OBJECT
 public:
-    explicit BasicPropertiesWidget(QWidget* parent = nullptr);
-
-    void setProperties(const Ptcl::ChildData::BasicProperties& properties, bool isFollow, bool isParentField, bool isPreDraw);
-
-signals:
-    void propertiesUpdated(const Ptcl::ChildData::BasicProperties& properties);
-    void isFollowUpdated(bool isFollow);
-    void isParentFieldUpdated(bool isField);
-    void isPolygonUpdated(bool isPolygon);
-    void isPreDrawUpdated(bool isPreDraw);
+    explicit ChildGeneralInspector(QWidget* parent = nullptr);
 
 private:
+    void populateProperties() final;
     void setupConnections();
-    void populateBillboardType();
 
 private:
     static constexpr std::array<Ptcl::BillboardType, 6> sChildBillboardTypes{
@@ -47,10 +38,9 @@ private:
     };
 
 private:
-    Ptcl::ChildData::BasicProperties mProps{};
-
     QComboBox mBillboardComboBox{};
     QComboBox mDrawOrderComboBox{};
+    QCheckBox mEnabledCheckBox{};
     QCheckBox mFollowCheckBox{};
     QCheckBox mParentFieldCheckBox{};
 };

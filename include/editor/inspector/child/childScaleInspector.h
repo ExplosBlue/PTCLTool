@@ -1,7 +1,7 @@
 #pragma once
 
 #include "editor/components/vectorSpinBox.h"
-#include "editor/childEditor/childEditorWidget.h"
+#include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QDoubleSpinBox>
 #include <QCheckBox>
@@ -15,23 +15,16 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class ChildEditorWidget::ScalePropertiesWidget final : public QWidget {
+class ChildScaleInspector final : public InspectorWidgetBase {
     Q_OBJECT
 public:
-    explicit ScalePropertiesWidget(QWidget* parent = nullptr);
-
-    void setProperties(const Ptcl::ChildData::ScaleProperties& properties, bool inheritScale);
-
-signals:
-    void propertiesUpdated(const Ptcl::ChildData::ScaleProperties& properties);
-    void inheritScaleUpdated(bool inherit);
+    explicit ChildScaleInspector(QWidget* parent = nullptr);
 
 private:
+    void populateProperties() final;
     void setupConnections();
 
 private:
-    Ptcl::ChildData::ScaleProperties mProps{};
-
     VectorSpinBox<Math::Vector2f> mScaleSpinBox{};
     VectorSpinBox<Math::Vector2f> mScaleTargetSpinBox{};
     QDoubleSpinBox mInheritRateSpinBox{};

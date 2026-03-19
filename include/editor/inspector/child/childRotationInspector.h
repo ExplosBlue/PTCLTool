@@ -2,7 +2,7 @@
 
 #include "editor/components/enumComboBox.h"
 #include "editor/components/vectorSpinBox.h"
-#include "editor/childEditor/childEditorWidget.h"
+#include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QCheckBox>
 #include <QLineEdit>
@@ -15,24 +15,17 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class ChildEditorWidget::RotationPropertiesWidget final : public QWidget {
+class ChildRotationInspector final : public InspectorWidgetBase {
     Q_OBJECT
 public:
-    explicit RotationPropertiesWidget(QWidget* parent = nullptr);
-
-    void setProperties(const Ptcl::ChildData::RotationProperties& properties, bool inheritRotation);
-
-signals:
-    void propertiesUpdated(const Ptcl::ChildData::RotationProperties& properties);
-    void inheritRotationUpdated(bool inherit);
+    explicit ChildRotationInspector(QWidget* parent = nullptr);
 
 private:
+    void populateProperties() final;
     void setupConnections();
     void updateAxis();
 
 private:
-    Ptcl::ChildData::RotationProperties mProps{};
-
     EnumComboBox<Ptcl::RotType> mRotTypeSpinBox{};
     VectorSpinBox<Math::Vector3f> mInitRotSpinBox{};
     VectorSpinBox<Math::Vector3f> mInitRotRandSpinBox{};
