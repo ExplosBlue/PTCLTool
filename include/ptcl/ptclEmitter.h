@@ -4,7 +4,6 @@
 #include "math/util.h"
 
 #include "ptcl/ptclBinary.h"
-#include "ptcl/ptclChildData.h"
 #include "ptcl/ptclEnum.h"
 #include "ptcl/ptclSeed.h"
 #include "ptcl/ptclTexture.h"
@@ -47,16 +46,6 @@ public:
         bool operator==(const AlphaAnim&) const = default;
     };
 
-    struct ComplexProperties {
-        BitFlag<ChildFlag> childFlags{
-            ChildFlag::AlphaInherit,
-            ChildFlag::ScaleInherit,
-            ChildFlag::RotateInherit,
-            ChildFlag::IsFollow,
-            ChildFlag::Unk80
-        };
-    };
-
 public:
     Emitter() = default;
 
@@ -64,6 +53,12 @@ public:
     Emitter& operator=(const Emitter&) = delete;
 
     std::unique_ptr<Emitter> clone() const;
+
+    BitFlag<EmitterFlag>& flags();
+    const BitFlag<EmitterFlag>& flags() const;
+
+    void initFromBinary(const BinCommonEmitterData& emitterData);
+    void initComplexFromBinary(const BinComplexEmitterData& emitterData);
 
     // ----- Basic Properties ----- \\
 
@@ -454,7 +449,6 @@ public:
 
     // Field Magnet
 
-
     void initFieldMagnet(const BinFieldMagnetData& magnetData);
 
     bool isFieldMagnetEnabled() const { return mFieldFlags.isSet(FieldFlag::Magnet); }
@@ -532,19 +526,178 @@ public:
     const Math::Vector3f& fieldPosAddPosition() const { return mFieldPosAdd.posAdd; }
     void setFieldPosAddPosition(const Math::Vector3f& pos) { mFieldPosAdd.posAdd = pos; }
 
-    BitFlag<EmitterFlag>& flags();
-    const BitFlag<EmitterFlag>& flags() const;
+    // ----- Child Properties ----- \\
 
-    const ComplexProperties& complexProperties() const;
-    void setComplexProperties(const ComplexProperties& complexProperties);
+    void initChild(const BinChildData& childData);
 
-    void setChildFlags(const BitFlag<ChildFlag>& childFlags);
+    const BitFlag<ChildFlag>& childFlags() const { return mChildFlags; }
+    void setChildFlags(const BitFlag<ChildFlag>& childFlags) { mChildFlags = childFlags; }
 
-    const ChildData& childData() const;
-    ChildData& childData();
+    bool isChildEnabled() const { return mChildFlags.isSet(ChildFlag::Enabled); }
+    void setChildEnabled(bool inherit) { mChildFlags.set(ChildFlag::Enabled, inherit); }
 
-    void initFromBinary(const BinCommonEmitterData& emitterData);
-    void initComplexFromBinary(const BinComplexEmitterData& emitterData);
+    bool isChildInheritAlpha() const { return mChildFlags.isSet(ChildFlag::AlphaInherit); }
+    void setChildInheritAlpha(bool inherit) { mChildFlags.set(ChildFlag::AlphaInherit, inherit); }
+
+    bool isChildFollow() const { return mChildFlags.isSet(ChildFlag::IsFollow); }
+    void setChildFollow(bool follow) { mChildFlags.set(ChildFlag::IsFollow, follow); }
+
+    bool isChildParentField() const { return mChildFlags.isSet(ChildFlag::ParentField); }
+    void setChildParentField(bool isField) { mChildFlags.set(ChildFlag::ParentField, isField); }
+
+    bool isChildPreDraw() const { return mChildFlags.isSet(ChildFlag::PreChildDraw); }
+    void setChildPreDraw(bool preDraw) { mChildFlags.set(ChildFlag::PreChildDraw, preDraw); }
+
+    bool isChildInheritParentColor() const { return mChildFlags.isSet(ChildFlag::Color0Inherit); }
+    void setChildInheritParentColor(bool inherit) { mChildFlags.set(ChildFlag::Color0Inherit, inherit); }
+
+    bool isChildInheritRotation() const { return mChildFlags.isSet(ChildFlag::RotateInherit); }
+    void setChildInheritRotation(bool inherit) { mChildFlags.set(ChildFlag::RotateInherit, inherit); }
+
+    bool isChildInheritScale() const { return mChildFlags.isSet(ChildFlag::ScaleInherit); }
+    void setChildInheritScale(bool inherit) { mChildFlags.set(ChildFlag::ScaleInherit, inherit); }
+
+    bool isChildInheritVelocity() const { return mChildFlags.isSet(ChildFlag::VelInherit); }
+    void setChildInheritVelocity(bool inherit) { mChildFlags.set(ChildFlag::VelInherit, inherit); }
+
+    // Child Basic
+
+    BillboardType childBillboardType() const { return mChild.billboardType; }
+    void setChildBillboardType(BillboardType type) {
+        mChild.billboardType = type;
+
+        const bool isPolygon = (type == Ptcl::BillboardType::PolygonXY || type == Ptcl::BillboardType::PolygonXZ);
+        mChildFlags.set(ChildFlag::IsPolygon, isPolygon);
+    }
+
+    // Child Emission
+
+    s32 childEmitRate() const { return mChild.emitRate; }
+    void setChildEmitRate(s32 rate) { mChild.emitRate = rate; }
+
+    s32 childEmitTiming() const { return mChild.emitTiming; }
+    void setChildEmitTiming(s32 timing) { mChild.emitTiming = timing; }
+
+    s32 childLife() const { return mChild.life; }
+    void setChildLife(s32 life) { mChild.life = life; }
+
+    s32 childEmitStep() const { return mChild.emitStep; }
+    void setChildEmitStep(s32 step) { mChild.emitStep = step; }
+
+    // Child Velocity
+
+    const Math::Vector3f& childRandVelocity() const { return mChild.randVel; }
+    void setChildRandVelocity(const Math::Vector3f& vel) { mChild.randVel = vel; }
+
+    const Math::Vector3f& childGravity() const { return mChild.gravity; }
+    void setChildGravity(const Math::Vector3f& gravity) { mChild.gravity = gravity; }
+
+    f32 childVelocityInheritRate() const { return mChild.velInheritRate; }
+    void setChildVelocityInheritRate(f32 rate) { mChild.velInheritRate = rate; }
+
+    f32 childInitalPositionRand() const { return mChild.initPosRand; }
+    void setChildInitialPositionRand(f32 rand) { mChild.initPosRand = rand; }
+
+    f32 childFigureVelocity() const { return mChild.figurVel; }
+    void setChildFigureVelocity(f32 vel) { mChild.figurVel = vel; }
+
+    f32 childAirResistance() const { return mChild.airResist; }
+    void setChildAirResistance(f32 resist) { mChild.airResist = resist; }
+
+    // Child Rotation
+
+    RotType childRotationType() const { return mRotType; }
+    void setChildRotationType(RotType type) { mRotType = type; }
+
+    const Math::Vector3i& childInitialRotation() const { return mChild.initRot; }
+    void setChildInitialRotation(const Math::Vector3i& rotation) { mChild.initRot = rotation; }
+
+    const Math::Vector3i& childInitialRotationRandom() const { return mChild.initRotRand; }
+    void setChildInitialRotationRandom(const Math::Vector3i& rotation) { mChild.initRotRand = rotation; }
+
+    const Math::Vector3i& childRotationVelocity() const { return mChild.rotVel; }
+    void setChildRotationVelocity(const Math::Vector3i& velocity) { mChild.rotVel = velocity; }
+
+    const Math::Vector3i& childRotationVelocityRandom() const { return mChild.rotVelRand; }
+    void setChildRotationVelocityRandom(const Math::Vector3i& random) { mChild.rotVelRand = random; }
+
+    const Math::Vector2f& childRotationBasis() const { return mChild.rotBasis; }
+    void setChildRotationBasis(const Math::Vector2f& basis) { mChild.rotBasis = basis; }
+
+    // Child Scale
+
+    const Math::Vector2f& childScale() const { return mChild.scale; }
+    void setChildScale(const Math::Vector2f& scale) { mChild.scale = scale; }
+
+    const Math::Vector2f& childScaleTarget() const { return mChild.scaleTarget; }
+    void setChildScaleTarget(const Math::Vector2f& scale) { mChild.scaleTarget = scale; }
+
+    f32 childScaleInheritRate() const { return mChild.scaleInheritRate; }
+    void setChildScaleInheritRate(f32 rate) { mChild.scaleInheritRate = rate; }
+
+    s32 childScaleStartFrame() const { return mChild.scaleStartFrame; }
+    void setChildScaleStartFrame(s32 frame) { mChild.scaleStartFrame = frame; }
+
+    // Child Texture
+
+    TextureWrap childTextureWrapT() const { return mTextureWrapT; }
+    void setChildTextureWrapT(TextureWrap wrap) { mTextureWrapT = wrap; }
+
+    TextureWrap childTextureWrapS() const { return mChild.textureWrapS; }
+    void setChildTextureWrapS(TextureWrap wrap) { mChild.textureWrapS = wrap; }
+
+    TextureFilter childTextureMagFilter() const { return mChild.textureMagFilter; }
+    void setChildTextureMagFilter(TextureFilter filter) { mChild.textureMagFilter = filter; }
+
+    TextureFilter childTextureMinFilter() const { return mChild.textureMinFilter; }
+    void setChildTextureMinFilter(TextureFilter filter) { mChild.textureMinFilter = filter; }
+
+    TextureMipFilter childTextureMipFilter() const { return mChild.textureMipFilter; }
+    void setChildTextureMipFilter(TextureMipFilter filter) { mChild.textureMipFilter = filter; }
+
+    const Math::Vector2f& childTextureUVScale() const { return mChild.texUVScale; }
+    void setChildTextureUVScale(const Math::Vector2f& scale) { mChild.texUVScale = scale; }
+
+    const TextureHandle& childTextureHandle() const { return mChild.textureHandle; }
+
+    std::shared_ptr<Texture> childTexture() const { return mChild.textureHandle.get(); }
+    void setChildTexture(const std::shared_ptr<Texture>& texture) { mChild.textureHandle.set(texture); }
+
+    // Child Color
+
+    const binColor4f& childPrimaryColor() const { return mChild.color0; }
+    void setChildPrimaryColor(const binColor4f& color) { mChild.color0 = color; }
+
+    const binColor3f& childSecondaryColor() const { return mChild.color1; }
+    void setChildSecondaryColor(const binColor3f& color) { mChild.color1 = color; }
+
+    // Child Alpha
+
+    f32 childAlpha() const { return mChild.alpha; }
+    void setChildAlpha(f32 alpha) { mChild.alpha = alpha; }
+
+    f32 childAlphaTarget() const { return mChild.alphaTarget; }
+    void setChildAlphaTarget(f32 alpha) { mChild.alphaTarget = alpha; }
+
+    f32 childAlphaInit() const { return mChild.alphaInit; }
+    void setChildAlphaInit(f32 alpha) { mChild.alphaInit = alpha; }
+
+    s32 childAlphaStartFrame() const { return mChild.alphaStartFrame; }
+    void setChildAlphaStartFrame(s32 frame) { mChild.alphaStartFrame = frame; }
+
+    s32 childAlphaBaseFrame() const { return mChild.alphaBaseFrame; }
+    void setChildAlphaBaseFrame(s32 frame) { mChild.alphaBaseFrame = frame; }
+
+    // Child Combiner
+
+    BlendFuncType childBlendFunc() const { return mChild.blendFunc; }
+    void setChildBlendFunc(BlendFuncType type) { mChild.blendFunc = type; }
+
+    DepthFuncType childDepthFunc() const { return mChild.depthFunc; }
+    void setChildDepthFunc(DepthFuncType type) { mChild.depthFunc = type; }
+
+    ColorCombinerFuncType childCombinerFunc() const { return mChild.combinerFunc; }
+    void setChildCombinerFunc(ColorCombinerFuncType type) { mChild.combinerFunc = type; }
 
 private:
     BitFlag<EmitterFlag> mFlag{};
@@ -658,8 +811,6 @@ private:
 
     // ----- Complex Properties ----- \\
 
-    ComplexProperties mComplexProperties{};
-
     // Fluctuation Properties
     f32 mFluctuationScale{1.0f};
     f32 mFluctuationFreq{20.0f};
@@ -718,7 +869,72 @@ private:
 
     BitFlag<FieldFlag> mFieldFlags{};
 
-    ChildData mChildData{};
+    // Child Propertiies
+    struct {
+        // Basic Properties
+        BillboardType billboardType{BillboardType::Billboard};
+
+        // Emission Properties
+        s32 emitRate{1};
+        s32 emitTiming{0};
+        s32 life{10};
+        s32 emitStep{1};
+
+        // Velocity Properties
+        Math::Vector3f randVel{0.0f, 0.0f, 0.0f};
+        Math::Vector3f gravity{0.0f, -1.0f, 0.0f};
+        f32 velInheritRate{1.0f};
+        f32 initPosRand{0.0f};
+        f32 figurVel{0.1f};
+        f32 airResist{1.0f};
+
+        // Rotation Properties
+        RotType rotType{RotType::None};
+        Math::Vector3i initRot{0, 0, 0};
+        Math::Vector3i initRotRand{0, 0, 0};
+        Math::Vector3i rotVel{0, 0, 0};
+        Math::Vector3i rotVelRand{0, 0, 0};
+        Math::Vector2f rotBasis{0.0f, 0.0f};
+
+        // Scale properties
+        Math::Vector2f scale{1.0f, 1.0f};
+        Math::Vector2f scaleTarget{1.0f, 1.0f};
+        f32 scaleInheritRate{1.0f};
+        s32 scaleStartFrame{0};
+
+        // Texture Properties
+        TextureWrap textureWrapT{TextureWrap::ClampToEdge};
+        TextureWrap textureWrapS{TextureWrap::ClampToEdge};
+        TextureFilter textureMagFilter{TextureFilter::Nearest};
+        TextureFilter textureMinFilter{TextureFilter::Nearest};
+        TextureMipFilter textureMipFilter{TextureMipFilter::None};
+        Math::Vector2f texUVScale{1.0f, 1.0f};
+        TextureHandle textureHandle{};
+
+        // Color Properties
+        binColor4f color0{1.0f, 1.0f, 1.0f, 1.0f};
+        binColor3f color1{255.0f, 255.0f, 255.0f};
+
+        // Alpha Properties
+        f32 alpha{1.0f};
+        f32 alphaTarget{1.0f};
+        f32 alphaInit{1.0f};
+        s32 alphaStartFrame{1};
+        s32 alphaBaseFrame{1};
+
+        // Combiner Properties
+        BlendFuncType blendFunc{BlendFuncType::Translucent};
+        DepthFuncType depthFunc{DepthFuncType::Unk0};
+        ColorCombinerFuncType combinerFunc{ColorCombinerFuncType::CombinerConfig0};
+    } mChild;
+
+    BitFlag<ChildFlag> mChildFlags{
+        ChildFlag::AlphaInherit,
+        ChildFlag::ScaleInherit,
+        ChildFlag::RotateInherit,
+        ChildFlag::IsFollow,
+        ChildFlag::Unk80
+    };
 };
 
 

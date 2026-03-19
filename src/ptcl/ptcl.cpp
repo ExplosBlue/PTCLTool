@@ -142,9 +142,9 @@ void PtclBinaryReader::readComplexData(Emitter& emitter, const BinCommonEmitterD
     if (complex.childFlag.isSet(ChildFlag::Enabled)) {
         BinChildData childData{};
         mStream >> childData;
-        emitter.childData().initFromBinary(childData);
+        emitter.initChild(childData);
 
-        emitter.childData().setTexture(
+        emitter.setChildTexture(
             loadTexture(
                 childData.childTexturePos,
                 childData.childTextureSize,
@@ -332,12 +332,12 @@ void PtclBinaryWriter::writeComplexEmitter(const Emitter& emitter) {
     // Child
     const bool hasChild = emitterData.childFlag.isSet(ChildFlag::Enabled);
 
-    BinChildData childData(emitter.childData());
+    BinChildData childData(emitter);
     emitterData.childDataOffset = emitterDataSize;
 
     if (hasChild) {
         emitterDataSize += sizeof(BinChildData);
-        childData.childTexturePos = appendTexture(emitter.childData().textureHandle(), childData.childTextureSize);
+        childData.childTexturePos = appendTexture(emitter.childTextureHandle(), childData.childTextureSize);
     }
 
     // Main Texture

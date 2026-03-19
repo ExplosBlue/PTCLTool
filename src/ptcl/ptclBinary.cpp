@@ -651,7 +651,7 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
 
 BinComplexEmitterData::BinComplexEmitterData(const Ptcl::Emitter& emitter) :
     BinCommonEmitterData{emitter} {
-    childFlag = emitter.complexProperties().childFlags;
+    childFlag = emitter.childFlags();
     fieldFlag = emitter.fieldFlags();
     fluctuationFlag = emitter.fluctuationFlags();
     stripeFlag = emitter.stripeFlags();
@@ -708,29 +708,29 @@ void BinComplexEmitterData::printData(u32 indentationLevel) {
 // ========================================================================== //
 
 
-BinChildData::BinChildData(const Ptcl::ChildData& childData) {
-    childEmitRate = childData.emissionProperties().emitRate;
-    childEmitTiming = childData.emissionProperties().emitTiming;
-    childLife = childData.emissionProperties().life;
-    childEmitStep = childData.emissionProperties().emitStep;
-    childVelInheritRate = childData.velocityProperties().velInheritRate;
-    childFigurVel = childData.velocityProperties().figurVel;
-    childRandVel = childData.velocityProperties().randVel;
-    childInitPosRand = childData.velocityProperties().initPosRand;
+BinChildData::BinChildData(const Ptcl::Emitter& emitterData) {
+    childEmitRate = emitterData.childEmitRate();
+    childEmitTiming = emitterData.childEmitTiming();
+    childLife = emitterData.childLife();
+    childEmitStep = emitterData.childEmitStep();
+    childVelInheritRate = emitterData.childVelocityInheritRate();
+    childFigurVel = emitterData.childFigureVelocity();
+    childRandVel = emitterData.childRandVelocity();
+    childInitPosRand = emitterData.childInitalPositionRand();
 
-    childBlendType = childData.combinerProperties().blendFunc;
-    childBillboardType = childData.basicProperties().billboardType;
-    childDepthType = childData.combinerProperties().depthFunc;
+    childBlendType = emitterData.childBlendFunc();
+    childBillboardType = emitterData.childBillboardType();
+    childDepthType = emitterData.childDepthFunc();
 
-    if (childData.textureHandle().isValid()) {
+    if (emitterData.childTextureHandle().isValid()) {
         childTextureRes = {
-            .width = static_cast<u16>(childData.textureHandle()->textureData().width()),
-            .height = static_cast<u16>(childData.textureHandle()->textureData().height()),
-            .format = childData.textureHandle()->textureFormat(),
-            .wrapT = childData.textureProperties().textureWrapT,
-            .wrapS = childData.textureProperties().textureWrapS,
-            .magFilter = childData.textureProperties().textureMagFilter,
-            .minMipFilter = static_cast<u8>((static_cast<u8>(childData.textureProperties().textureMinFilter) & 0x1) | ((static_cast<u8>(childData.textureProperties().textureMipFilter) & 0x3) << 1)),
+            .width = static_cast<u16>(emitterData.childTextureHandle()->textureData().width()),
+            .height = static_cast<u16>(emitterData.childTextureHandle()->textureData().height()),
+            .format = emitterData.childTextureHandle()->textureFormat(),
+            .wrapT = emitterData.childTextureWrapT(),
+            .wrapS = emitterData.childTextureWrapS(),
+            .magFilter = emitterData.childTextureMagFilter(),
+            .minMipFilter = static_cast<u8>((static_cast<u8>(emitterData.childTextureMinFilter()) & 0x1) | ((static_cast<u8>(emitterData.childTextureMipFilter()) & 0x3) << 1)),
         };
     } else {
         childTextureRes = {};
@@ -740,28 +740,28 @@ BinChildData::BinChildData(const Ptcl::ChildData& childData) {
     childTexturePos = 0; // To be assigned after construction...
     childTextureHandlePtr = 0;
 
-    childColor0 = childData.colorProperties().color0;
-    childColor1 = childData.colorProperties().color1;
-    childAlpha = childData.alphaProperties().alpha;
-    childAlphaTarget = childData.alphaProperties().alphaTarget;
-    childAlphaInit = childData.alphaProperties().alphaInit;
-    childScaleInheritRate = childData.scaleProperties().scaleInheritRate;
-    childScale = childData.scaleProperties().scale;
-    childRotType = childData.rotationProperties().rotType;
-    childInitRot = childData.rotationProperties().initRot;
-    childInitRotRand = childData.rotationProperties().initRotRand;
-    childRotVel = childData.rotationProperties().rotVel;
-    childRotVelRand = childData.rotationProperties().rotVelRand;
-    childRotBasis = childData.rotationProperties().rotBasis;
-    childGravity = childData.velocityProperties().gravity;
-    childAlphaStartFrame = childData.alphaProperties().alphaStartFrame;
-    childAlphaBaseFrame = childData.alphaProperties().alphaBaseFrame;
-    childScaleStartFrame = childData.scaleProperties().scaleStartFrame;
-    childScaleTarget = childData.scaleProperties().scaleTarget;
-    childTexUScale = childData.textureProperties().texUVScale.getX();
-    childTexVScale = childData.textureProperties().texUVScale.getY();
-    childCombinerType = childData.combinerProperties().combinerFunc;
-    childAirResist = childData.velocityProperties().airResist;
+    childColor0 = emitterData.childPrimaryColor();
+    childColor1 = emitterData.childSecondaryColor();
+    childAlpha = emitterData.childAlpha();
+    childAlphaTarget = emitterData.childAlphaTarget();
+    childAlphaInit = emitterData.childAlphaInit();
+    childScaleInheritRate = emitterData.childScaleInheritRate();
+    childScale = emitterData.childScale();
+    childRotType = emitterData.childRotationType();
+    childInitRot = emitterData.childInitialRotation();
+    childInitRotRand = emitterData.childInitialRotationRandom();
+    childRotVel = emitterData.childRotationVelocity();
+    childRotVelRand = emitterData.childRotationVelocityRandom();
+    childRotBasis = emitterData.childRotationBasis();
+    childGravity = emitterData.childGravity();
+    childAlphaStartFrame = emitterData.childAlphaStartFrame();
+    childAlphaBaseFrame = emitterData.childAlphaBaseFrame();
+    childScaleStartFrame = emitterData.childScaleStartFrame();
+    childScaleTarget = emitterData.childScaleTarget();
+    childTexUScale = emitterData.childTextureUVScale().getX();
+    childTexVScale = emitterData.childTextureUVScale().getY();
+    childCombinerType = emitterData.childCombinerFunc();
+    childAirResist = emitterData.childAirResistance();
 }
 
 

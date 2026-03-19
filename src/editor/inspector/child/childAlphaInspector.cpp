@@ -1,4 +1,4 @@
-#include "editor/childEditor/alphaPropertiesWidget.h"
+#include "editor/inspector/child/childAlphaInspector.h"
 
 #include <QFormLayout>
 
@@ -9,8 +9,8 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-ChildEditorWidget::AlphaPropertiesWidget::AlphaPropertiesWidget(QWidget* parent) :
-    QWidget{parent} {
+ChildAlphaInspector::ChildAlphaInspector(QWidget* parent) :
+    InspectorWidgetBase{parent} {
 
     mAlphaSpinBox.setRange(0.0f, 1.0f);
     mAlphaSpinBox.setSingleStep(0.1f);
@@ -38,44 +38,75 @@ ChildEditorWidget::AlphaPropertiesWidget::AlphaPropertiesWidget(QWidget* parent)
     setupConnections();
 }
 
-void ChildEditorWidget::AlphaPropertiesWidget::setupConnections() {
+void ChildAlphaInspector::setupConnections() {
     // Inherit Alpha
     connect(&mInheritAlphaCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
-        emit inheritAlphaUpdated(checked);
+        setEmitterProperty(
+            "Toggle Child Inherit Alpha",
+            "ToggleChildInheritAlpha",
+            &Ptcl::Emitter::isChildInheritAlpha,
+            &Ptcl::Emitter::setChildInheritAlpha,
+            checked
+        );
     });
 
     // Alpha
     connect(&mAlphaSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
-        mProps.alpha = static_cast<f32>(value);
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Child Alpha",
+            "SetChildAlpha",
+            &Ptcl::Emitter::childAlpha,
+            &Ptcl::Emitter::setChildAlpha,
+            static_cast<f32>(value)
+        );
     });
 
     // Alpha Target
     connect(&mAlphaTargetSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
-        mProps.alphaTarget = static_cast<f32>(value);
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Child Alpha Target",
+            "SetChildAlphaTarget",
+            &Ptcl::Emitter::childAlphaTarget,
+            &Ptcl::Emitter::setChildAlphaTarget,
+            static_cast<f32>(value)
+        );
     });
 
     // Alpha Init
     connect(&mAlphaInitSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
-        mProps.alphaInit = static_cast<f32>(value);
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Child Alpha Init",
+            "SetChildAlphaInit",
+            &Ptcl::Emitter::childAlphaInit,
+            &Ptcl::Emitter::setChildAlphaInit,
+            static_cast<f32>(value)
+        );
     });
 
     // Start Frame
     connect(&mStartFrameSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
-        mProps.alphaStartFrame = value;
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Child Alpha Start Frame",
+            "SetChildAlphaStartFrame",
+            &Ptcl::Emitter::childAlphaStartFrame,
+            &Ptcl::Emitter::setChildAlphaStartFrame,
+            value
+        );
     });
 
     // Base Frame
     connect(&mBaseFrameSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
-        mProps.alphaBaseFrame = value;
-        emit propertiesUpdated(mProps);
+        setEmitterProperty(
+            "Set Child Alpha Base Frame",
+            "SetChildAlphaBaseFrame",
+            &Ptcl::Emitter::childAlphaBaseFrame,
+            &Ptcl::Emitter::setChildAlphaBaseFrame,
+            value
+        );
     });
 }
 
-void ChildEditorWidget::AlphaPropertiesWidget::setProperties(const Ptcl::ChildData::AlphaProperties& properties, bool inheritAlpha) {
+void ChildAlphaInspector::populateProperties() {
     QSignalBlocker b1(mAlphaSpinBox);
     QSignalBlocker b2(mAlphaTargetSpinBox);
     QSignalBlocker b3(mAlphaInitSpinBox);
@@ -83,15 +114,13 @@ void ChildEditorWidget::AlphaPropertiesWidget::setProperties(const Ptcl::ChildDa
     QSignalBlocker b5(mBaseFrameSpinBox);
     QSignalBlocker b6(mInheritAlphaCheckBox);
 
-    mProps = properties;
+    mAlphaSpinBox.setValue(mEmitter->childAlpha());
+    mAlphaTargetSpinBox.setValue(mEmitter->childAlphaTarget());
+    mAlphaInitSpinBox.setValue(mEmitter->childAlphaInit());
+    mStartFrameSpinBox.setValue(mEmitter->childAlphaStartFrame());
+    mBaseFrameSpinBox.setValue(mEmitter->childAlphaBaseFrame());
 
-    mAlphaSpinBox.setValue(mProps.alpha);
-    mAlphaTargetSpinBox.setValue(mProps.alphaTarget);
-    mAlphaInitSpinBox.setValue(mProps.alphaInit);
-    mStartFrameSpinBox.setValue(mProps.alphaStartFrame);
-    mBaseFrameSpinBox.setValue(mProps.alphaBaseFrame);
-
-    mInheritAlphaCheckBox.setChecked(inheritAlpha);
+    mInheritAlphaCheckBox.setChecked(mEmitter->isChildInheritAlpha());
 }
 
 

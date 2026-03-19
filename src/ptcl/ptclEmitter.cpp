@@ -105,8 +105,8 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mIsTexturePatternAnim = mIsTexturePatternAnim;
     newEmitter->mTextureHandle = mTextureHandle.clone();
 
-    newEmitter->mComplexProperties = mComplexProperties;
-    newEmitter->mChildData = std::move(*mChildData.clone());
+    newEmitter->mChildFlags = mChildFlags;
+    newEmitter->mChild = mChild; // TODO - texture handle clone?
 
     // Fluctuation Properties
     newEmitter->mFluctuationFlags = mFluctuationFlags;
@@ -142,26 +142,6 @@ BitFlag<EmitterFlag>& Emitter::flags() {
 
 const BitFlag<EmitterFlag>& Emitter::flags() const {
     return mFlag;
-}
-
-const Emitter::ComplexProperties& Emitter::complexProperties() const {
-    return mComplexProperties;
-}
-
-void Emitter::setComplexProperties(const ComplexProperties& complexProperties) {
-    mComplexProperties = complexProperties;
-}
-
-void Emitter::setChildFlags(const BitFlag<ChildFlag>& childFlags) {
-    mComplexProperties.childFlags = childFlags;
-}
-
-const ChildData& Emitter::childData() const {
-    return mChildData;
-}
-
-ChildData& Emitter::childData() {
-    return mChildData;
 }
 
 void Emitter::initFieldRandom(const BinFieldRandomData& randomData) {
@@ -222,6 +202,56 @@ void Emitter::initStripeData(const BinStripeData& stripeData) {
     mStripeUVScrollSpeed = {stripeData.uvScrollSpeed.x, stripeData.uvScrollSpeed.y};
     mStripeHistoryStep = stripeData.stripeHistoryStep;
     mStripeDirInterpolate = stripeData.stripeDirInterpolate;
+}
+
+void Emitter::initChild(const BinChildData& childData) {
+    mChild = {
+        .billboardType = childData.childBillboardType,
+
+        .emitRate = childData.childEmitRate,
+        .emitTiming = childData.childEmitTiming,
+        .life = childData.childLife,
+        .emitStep = childData.childEmitStep,
+
+        .randVel = { childData.childRandVel.x, childData.childRandVel.y, childData.childRandVel.z },
+        .gravity = { childData.childGravity.x, childData.childGravity.y, childData.childGravity.z },
+        .velInheritRate = childData.childVelInheritRate,
+        .initPosRand = childData.childInitPosRand,
+        .figurVel = childData.childFigurVel,
+        .airResist = childData.childAirResist,
+
+        .rotType = childData.childRotType,
+        .initRot = { childData.childInitRot.x, childData.childInitRot.y, childData.childInitRot.z },
+        .initRotRand = { childData.childInitRotRand.x, childData.childInitRotRand.y, childData.childInitRotRand.z },
+        .rotVel = { childData.childRotVel.x, childData.childRotVel.y, childData.childRotVel.z },
+        .rotVelRand = { childData.childRotVelRand.x, childData.childRotVelRand.y, childData.childRotVelRand.z },
+        .rotBasis = { childData.childRotBasis.x, childData.childRotBasis.y },
+
+        .scale = { childData.childScale.x, childData.childScale.y },
+        .scaleTarget = { childData.childScaleTarget.x, childData.childScaleTarget.y },
+        .scaleInheritRate = childData.childScaleInheritRate,
+        .scaleStartFrame = childData.childScaleStartFrame,
+
+        .textureWrapT = childData.childTextureRes.wrapT,
+        .textureWrapS = childData.childTextureRes.wrapS,
+        .textureMagFilter = childData.childTextureRes.magFilter,
+        .textureMinFilter = static_cast<TextureFilter>(childData.childTextureRes.minMipFilter & 0x1),
+        .textureMipFilter = static_cast<TextureMipFilter>((childData.childTextureRes.minMipFilter >> 1) & 0x3),
+        .texUVScale = { childData.childTexUScale, childData.childTexVScale },
+
+        .color0 = childData.childColor0,
+        .color1 = childData.childColor1,
+
+        .alpha = childData.childAlpha,
+        .alphaTarget = childData.childAlphaTarget,
+        .alphaInit = childData.childAlphaInit,
+        .alphaStartFrame = childData.childAlphaStartFrame,
+        .alphaBaseFrame = childData.childAlphaBaseFrame,
+
+        .blendFunc = childData.childBlendType,
+        .depthFunc = childData.childDepthType,
+        .combinerFunc = childData.childCombinerType
+    };
 }
 
 bool Emitter::hasStripeData() const {
@@ -341,10 +371,7 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 }
 
 void Emitter::initComplexFromBinary(const BinComplexEmitterData& emitterData) {
-    mComplexProperties = {
-        .childFlags = emitterData.childFlag,
-    };
-
+    mChildFlags = emitterData.childFlag,
     mFieldFlags = emitterData.fieldFlag,
     mFluctuationFlags = emitterData.fluctuationFlag;
     mStripeFlags = emitterData.stripeFlag;

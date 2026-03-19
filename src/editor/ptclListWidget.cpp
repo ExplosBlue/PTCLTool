@@ -383,7 +383,6 @@ void PtclList::selectionChanged(const QItemSelection& selection) {
 
 void PtclList::addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emitterIndex) {
     const auto& emitter = mDocument->emitter(setIndex, emitterIndex);
-    const auto& props = emitter->complexProperties();
 
     // ChildData
     ensureComplexNode(
@@ -392,7 +391,7 @@ void PtclList::addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emi
         "ChildData",
         setIndex,
         emitterIndex,
-        props.childFlags.isSet(Ptcl::ChildFlag::Enabled)
+        emitter->isChildEnabled()
     );
 
     // Fluctuation
