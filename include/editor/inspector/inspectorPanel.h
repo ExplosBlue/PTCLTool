@@ -3,12 +3,7 @@
 #include "ptcl/ptclDocument.h"
 #include "ptcl/ptclEmitter.h"
 
-#include <QComboBox>
-#include <QDoubleSpinBox>
-#include <QGridLayout>
-#include <QLabel>
 #include <QLineEdit>
-#include <QSpinBox>
 #include <QStackedWidget>
 #include <QTabWidget>
 #include <QWidget>
@@ -73,7 +68,9 @@ private:
 private:
     Ptcl::Document* mDocument{nullptr};
     const Ptcl::Selection* mSelection{nullptr};
-    Ptcl::Emitter* mEmitter{nullptr};
+    const Ptcl::Emitter* mEmitter{nullptr};
+
+    QLineEdit* mProjNameLineEdit{nullptr};
 
     GeneralEmitterInspector* mGeneralInspector{nullptr};
     GravityInspector* mGravityInspector{nullptr};

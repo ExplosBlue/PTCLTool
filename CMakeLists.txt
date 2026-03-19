@@ -74,7 +74,6 @@ set(PROJECT_SOURCES
     src/etc1/rg_etc1.cpp
     src/ptcl/ptcl.cpp
     src/ptcl/ptclBinary.cpp
-    src/ptcl/ptclChildData.cpp
     src/ptcl/ptclDocument.cpp
     src/ptcl/ptclEmitter.cpp
     src/ptcl/ptclEmitterSet.cpp
@@ -146,7 +145,6 @@ set(PROJECT_HEADERS
     include/math/vector.h
     include/ptcl/ptcl.h
     include/ptcl/ptclBinary.h
-    include/ptcl/ptclChildData.h
     include/ptcl/ptclCommand.h
     include/ptcl/ptclDocument.h
     include/ptcl/ptclEmitter.h

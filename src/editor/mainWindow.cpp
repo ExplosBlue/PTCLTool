@@ -44,21 +44,11 @@ void MainWindow::setupUi() {
     emitterGroupLayout->setContentsMargins(0, 0, 0, 0);
     emitterGroupLayout->addWidget(mPropertiesStack);
 
-    // Project Name
-    mProjNameLineEdit.setPlaceholderText("PTCLProject");
-    mProjNameLineEdit.setValidator(new EmitterNameValidator(&mProjNameLineEdit));
-    mProjNameLineEdit.setEnabled(false);
-
-    auto* projectSettingsLayout = new QFormLayout;
-    projectSettingsLayout->setContentsMargins(0, 0, 0, 0);
-    projectSettingsLayout->addRow("Project Name:", &mProjNameLineEdit);
-
     auto* propertiesContainer = new QWidget(this);
     auto* propertiesLayout = new QVBoxLayout(propertiesContainer);
     propertiesLayout->setContentsMargins(0, 0, 0, 0);
     propertiesLayout->setSpacing(4);
 
-    propertiesLayout->addLayout(projectSettingsLayout);
     propertiesLayout->addWidget(&mPropertiesGroup);
 
     // Top Splitter
@@ -116,12 +106,6 @@ void MainWindow::setupUi() {
 }
 
 void MainWindow::setupConnections() {
-    // Proj Name
-    connect(&mProjNameLineEdit, &QLineEdit::textChanged, this, [this](const QString& text) {
-        mDocument->data().setName(text);
-        setDirty(true);
-    });
-
     connect(&mSelection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
         if (!mDocument) {
             return;
@@ -407,7 +391,6 @@ void MainWindow::loadPtclRes(const QString& path) {
     mEmitterSetWidget.setDocument(nullptr);
     mTextureWidget.setDocument(nullptr);
 
-    mProjNameLineEdit.setEnabled(false);
     mSaveAsAction.setEnabled(false);
 
     mDocument = std::make_unique<Ptcl::Document>();
@@ -429,17 +412,13 @@ void MainWindow::loadPtclRes(const QString& path) {
     mEmitterSetWidget.setDocument(mDocument.get());
     mTextureWidget.setDocument(mDocument.get());
 
-    QSignalBlocker b1(mProjNameLineEdit);
-    mProjNameLineEdit.setText(mDocument->data().name());
-
-    if (mDocument->data().emitterSetCount() != 0) {
+    if (mDocument->emitterSetCount() != 0) {
         mSelection.set(0, 0, Ptcl::Selection::Type::EmitterSet);
     }
 
     updateStatusBar();
     updateWindowTitle();
 
-    mProjNameLineEdit.setEnabled(true);
     mSaveAsAction.setEnabled(true);
 }
 

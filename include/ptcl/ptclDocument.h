@@ -46,6 +46,8 @@ private:
 // ========================================================================== //
 
 
+class DocumentCommandBase;
+
 template<typename T>
 class SetEmitterPropertyCommand;
 
@@ -58,20 +60,24 @@ class Document final : public QObject {
 public:
     explicit Document(QObject* parent = nullptr);
 
+    // TODO: Remove this
+    EmitterSet* emitterSet(s32 index) { return mData.emitterSet(index); }
+    // TODO: Remove this
+    TextureList& textures() { return mData.textures(); }
+    // TODO: Remove this
+    PtclRes& data() { return mData; }
+
     bool load(const QString& filePath);
     bool save(const QString& filePath);
 
-    PtclRes& data() { return mData; }
-    const PtclRes& data() const { return mData; }
-
-    EmitterSet* emitterSet(s32 index) { return mData.emitterSet(index); }
+    const Emitter* emitter(s32 setIndex, s32 emitterIndex) const { return mData.emitter(setIndex, emitterIndex); }
     const EmitterSet* emitterSet(s32 index) const { return mData.emitterSet(index); }
 
-    Emitter* emitter(s32 setIndex, s32 emitterIndex) { return mData.emitter(setIndex, emitterIndex); }
-    const Emitter* emitter(s32 setIndex, s32 emitterIndex) const { return mData.emitter(setIndex, emitterIndex); }
-
-    TextureList& textures() { return mData.textures(); }
+    const EmitterSetList& emitterSets() const { return mData.getEmitterSets(); }
     const TextureList& textures() const { return mData.textures(); }
+
+    const QString& projectName() const { return mData.name(); }
+    void setProjectName(const QString& name);
 
     bool isModified() const { return mModified; }
     QString filePath() const  { return mFilePath; }
@@ -83,10 +89,25 @@ public:
         mUndoStack.push(new SetEmitterPropertyCommand<T>(this, setIndex, emitterIndex, label, key, getter, setter, value));
     }
 
+    s32 emitterCount(s32 setIndex) const { return mData.emitterCount(setIndex); }
+    s32 emitterSetCount() const { return mData.emitterSetCount(); }
+
+private:
+    TextureList& texturesMutable() { return mData.textures(); }
+    Emitter* emitterMutable(s32 setIndex, s32 emitterIndex) { return mData.emitter(setIndex, emitterIndex); }
+    EmitterSet* emitterSetMutable(s32 index) { return mData.emitterSet(index); }
+    PtclRes& dataMutable() { return mData; }
+
     void notifyEmitterChanged(s32 setIndex, s32 emitterIndex) { emit emitterChanged(setIndex, emitterIndex); }
+    void notifyEmitterSetChanged(s32 setIndex) { emit emitterSetChanged(setIndex); }
+    void notifyProjectChanged() { emit projectChanged(); }
+
+    friend class DocumentCommandBase;
 
 signals:
     void emitterChanged(s32 setIndex, s32 emitterIndex);
+    void emitterSetChanged(s32 setIndex);
+    void projectChanged();
 
 private:
     PtclRes mData{};
