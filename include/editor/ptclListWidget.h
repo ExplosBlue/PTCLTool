@@ -83,7 +83,6 @@ signals:
     void itemRemoved();
 
 private slots:
-    void selectionChanged(const QItemSelection& selection);
     void filterList(const QString& text);
 
 private:
@@ -110,6 +109,9 @@ private:
 
     void reindexEmitters(QStandardItem* setItem, s32 setIndex);
     void reindexEmitterSets();
+
+    void selectNearestValidEmitter(s32 setIndex, s32 preferredEmitter);
+    void selectNearestValidEmitterSet(s32 preferredSet);
 
     void expandSourceIndex(const QModelIndex& sourceIndex);
 
