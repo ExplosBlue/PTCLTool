@@ -284,15 +284,14 @@ public:
 
     void undo() override {
         auto* set = emitterSet(mSetIndex);
-        mNewEmitter = std::move(set->emitters()[mEmitterIndex]);
-        set->removeEmitter(mEmitterIndex);
+        mNewEmitter = set->removeEmitter(mEmitterIndex);
         notifyEmitterRemoved(mSetIndex, mEmitterIndex);
     }
 
     void redo() override {
         auto* set = emitterSet(mSetIndex);
-        set->emitters().push_back(std::move(mNewEmitter));
-        mEmitterIndex = set->emitterCount() - 1;
+        mEmitterIndex = set->emitterCount();
+        set->insertEmitter(mEmitterIndex, std::move(mNewEmitter));
         notifyEmitterAdded(mSetIndex, mEmitterIndex);
     }
 
@@ -312,11 +311,6 @@ class RemoveEmitterCommand final : public DocumentCommandBase {
 public:
     RemoveEmitterCommand(Document* doc, s32 setIndex, s32 emitterIndex, QUndoCommand* parent = nullptr) :
         DocumentCommandBase{doc, std::move("Remove Emitter"), parent}, mSetIndex{setIndex}, mEmitterIndex{emitterIndex} {
-
-        auto* set = emitterSet(mSetIndex);
-        if (mEmitterIndex < set->emitterCount()) {
-            mRemovedEmitter = std::move(set->emitters()[mEmitterIndex]);
-        }
     }
 
     s32 id() const override {
@@ -325,14 +319,13 @@ public:
 
     void undo() override {
         auto* set = emitterSet(mSetIndex);
-        set->emitters().insert(set->emitters().begin() + mEmitterIndex, std::move(mRemovedEmitter));
+        set->insertEmitter(mEmitterIndex, std::move(mRemovedEmitter));
         notifyEmitterAdded(mSetIndex, mEmitterIndex);
     }
 
     void redo() override {
         auto* set = emitterSet(mSetIndex);
-        mRemovedEmitter = std::move(set->emitters()[mEmitterIndex]);
-        set->removeEmitter(mEmitterIndex);
+        mRemovedEmitter = set->removeEmitter(mEmitterIndex);
         notifyEmitterRemoved(mSetIndex, mEmitterIndex);
     }
 

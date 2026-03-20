@@ -41,18 +41,16 @@ void EmitterSet::setUserData(u32 data) {
     mUserData = data;
 }
 
-void EmitterSet::addNewEmitter() {
-    auto newEmitter = std::make_unique<Ptcl::Emitter>();
-    newEmitter->setName("New_Emitter_" + QString::number(emitterCount()));
-    mEmitters.push_back(std::move(newEmitter));
+void EmitterSet::insertEmitter(s32 emitterIndex, std::unique_ptr<Emitter> emitter) {
+    mEmitters.insert(mEmitters.begin() + emitterIndex, std::move(emitter));
 }
 
-void EmitterSet::removeEmitter(s32 emitterIndex) {
-    if (emitterIndex >= mEmitters.size()) {
-        return;
-    }
+std::unique_ptr<Emitter> EmitterSet::removeEmitter(s32 emitterIndex) {
+    auto it = mEmitters.begin() + emitterIndex;
 
-    mEmitters.erase(mEmitters.begin() + emitterIndex);
+    std::unique_ptr<Emitter> removed = std::move(*it);
+    mEmitters.erase(it);
+    return removed;
 }
 
 std::unique_ptr<EmitterSet> EmitterSet::clone() const {
