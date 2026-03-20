@@ -1,6 +1,8 @@
 
 #include "editor/inspector/inspectorPanel.h"
 
+#include "editor/inspector/emitterSetInspector.h"
+
 #include "editor/inspector/alphaAnimInspector.h"
 #include "editor/inspector/generalEmitterInspector.h"
 #include "editor/inspector/colorInspector.h"
@@ -56,6 +58,8 @@ InspectorPanel::InspectorPanel(QWidget* parent) :
         mDocument->setProjectName(text);
     });
 
+    mEmitterSetInspector = new EmitterSetInspector(this);
+
     mGeneralInspector = new GeneralEmitterInspector(this);
     mGravityInspector = new GravityInspector(this);
     mTransformInspector = new TransformInspector(this);
@@ -98,6 +102,10 @@ InspectorPanel::InspectorPanel(QWidget* parent) :
 
     mTabStack = new QStackedWidget(this);
 
+    mEmitterSetTabs = new QTabWidget(this);
+    mEmitterSetTabs->setTabPosition(QTabWidget::West);
+    mTabStack->addWidget(mEmitterSetTabs);
+
     mEmitterTabs = new QTabWidget(this);
     mEmitterTabs->setTabPosition(QTabWidget::West);
     mTabStack->addWidget(mEmitterTabs);
@@ -135,6 +143,9 @@ void InspectorPanel::buildTabs() {
         scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         return scroll;
     };
+
+    // EmitterSet
+    mEmitterSetTabs->addTab(mEmitterSetInspector, "EmitterSet");
 
     // Emitter
     mEmitterTabs->addTab(wrapInScroll(mGeneralInspector), "General");
@@ -184,6 +195,9 @@ void InspectorPanel::updateTabVisibility() {
     const auto type = mSelection->type();
 
     switch (type) {
+    case Ptcl::Selection::Type::EmitterSet:
+        mTabStack->setCurrentWidget(mEmitterSetTabs);
+        break;
     case Ptcl::Selection::Type::Emitter:
         mTabStack->setCurrentWidget(mEmitterTabs);
         break;
@@ -207,6 +221,8 @@ void InspectorPanel::setDocument(Ptcl::Document* document) {
     }
 
     mDocument = document;
+
+    mEmitterSetInspector->setDocument(document);
 
     mGeneralInspector->setDocument(document);
     mGravityInspector->setDocument(document);
@@ -269,6 +285,8 @@ void InspectorPanel::setSelection(Ptcl::Selection* selection) {
     }
 
     mSelection = selection;
+
+    mEmitterSetInspector->setSelection(selection);
 
     mGeneralInspector->setSelection(selection);
     mGravityInspector->setSelection(selection);

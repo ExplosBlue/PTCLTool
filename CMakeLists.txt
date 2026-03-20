@@ -23,7 +23,6 @@ endif()
 set(PROJECT_SOURCES
     src/main.cpp
     src/editor/mainWindow.cpp
-    src/editor/emitterSetWidget.cpp
     src/editor/ptclListWidget.cpp
     src/editor/textureListWidget.cpp
     src/editor/textureImportDialog.cpp
@@ -39,10 +38,11 @@ set(PROJECT_SOURCES
     src/editor/components/rgbaColorWidget.cpp
     src/editor/components/thumbnailWidget.cpp
     src/editor/inspector/alphaAnimInspector.cpp
-    src/editor/inspector/generalEmitterInspector.cpp
     src/editor/inspector/colorInspector.cpp
     src/editor/inspector/combinerInspector.cpp
     src/editor/inspector/emissionInspector.cpp
+    src/editor/inspector/emitterSetInspector.cpp
+    src/editor/inspector/generalEmitterInspector.cpp
     src/editor/inspector/inspectorPanel.cpp
     src/editor/inspector/inspectorWidgetBase.cpp
     src/editor/inspector/fluctuationInspector.cpp
@@ -88,7 +88,6 @@ set(PROJECT_SOURCES
 set(PROJECT_HEADERS
     include/typedefs.h
     include/editor/mainWindow.h
-    include/editor/emitterSetWidget.h
     include/editor/ptclListWidget.h
     include/editor/textureImportDialog.h
     include/editor/textureListWidget.h
@@ -107,10 +106,11 @@ set(PROJECT_HEADERS
     include/editor/components/thumbnailWidget.h
     include/editor/components/vectorSpinBox.h
     include/editor/inspector/alphaAnimInspector.h
-    include/editor/inspector/generalEmitterInspector.h
     include/editor/inspector/colorInspector.h
     include/editor/inspector/combinerInspector.h
+    include/editor/inspector/emitterSetInspector.h
     include/editor/inspector/emissionInspector.h
+    include/editor/inspector/generalEmitterInspector.h
     include/editor/inspector/inspectorPanel.h
     include/editor/inspector/inspectorWidgetBase.h
     include/editor/inspector/fluctuationInspector.h

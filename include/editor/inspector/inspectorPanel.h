@@ -11,6 +11,8 @@
 
 namespace PtclEditor {
 
+class EmitterSetInspector;
+
 class GeneralEmitterInspector;
 class GravityInspector;
 class TransformInspector;
@@ -72,6 +74,8 @@ private:
 
     QLineEdit* mProjNameLineEdit{nullptr};
 
+    EmitterSetInspector* mEmitterSetInspector{nullptr};
+
     GeneralEmitterInspector* mGeneralInspector{nullptr};
     GravityInspector* mGravityInspector{nullptr};
     TransformInspector* mTransformInspector{nullptr};
@@ -108,6 +112,7 @@ private:
     ChildVelocityInspector* mChildVelocityInspector{nullptr};
 
     QStackedWidget* mTabStack{nullptr};
+    QTabWidget* mEmitterSetTabs{nullptr};
     QTabWidget* mEmitterTabs{nullptr};
     QTabWidget* mChildTabs{nullptr};
     QTabWidget* mFieldTabs{nullptr};

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ptcl/ptclDocument.h"
-#include "editor/emitterSetWidget.h"
 #include "editor/inspector/inspectorPanel.h"
 #include "editor/ptclListWidget.h"
 #include "editor/textureListWidget.h"
@@ -26,16 +25,6 @@ namespace PtclEditor {
 
 class MainWindow final : public QMainWindow {
     Q_OBJECT
-
-private:
-    enum class PropertiesView {
-        EmitterSet,
-        Emitter,
-        EmitterChild,
-        EmitterFlux,
-        EmitterField
-    };
-
 public:
     MainWindow(QWidget* parent = nullptr);
 
@@ -58,9 +47,6 @@ private:
     void setupUi();
     void setupConnections();
     void setupMenus();
-
-    void setPropertiesView(PropertiesView view);
-    void updatePropertiesStatus();
 
     void updateWindowTitle();
     void updateStatusBar();
@@ -87,17 +73,11 @@ private:
     QSplitter* mTopSplitter{nullptr};
     QSplitter* mBottomSplitter{nullptr};
 
-    QStackedWidget* mPropertiesStack{nullptr};
-    QGroupBox mPropertiesGroup{};
-
     QUndoView mUndoView{};
 
     PtclEditor::PtclList mPtclList{};
     PtclEditor::InspectorPanel mInspector{};
-    PtclEditor::EmitterSetWidget mEmitterSetWidget{};
     PtclEditor::TextureListWidget mTextureWidget{};
-
-    PropertiesView mCurPropertiesView{PropertiesView::EmitterSet};
 
     QLabel* mStatusLabel{nullptr};
     bool mHasUnsavedChanges{false};

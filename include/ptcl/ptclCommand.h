@@ -105,7 +105,6 @@ private:
     const s32 mId{};
 };
 
-
 // ========================================================================== //
 
 
@@ -116,9 +115,94 @@ Emitter& SetEmitterPropertyCommand<T>::getEmitter() {
 
 template <typename T>
 void SetEmitterPropertyCommand<T>::apply(const T& value) {
-    auto& emitter = getEmitter();
-    mSetter(emitter, value);
+    auto& emitterSet = getEmitter();
+    mSetter(emitterSet, value);
     notifyEmitterChanged(mSetIndex, mEmitterIndex);
+}
+
+
+// ========================================================================== //
+
+
+template<typename T>
+class SetEmitterSetPropertyCommand final : public DocumentCommandBase {
+public:
+    using Getter = std::function<T(const EmitterSet&)>;
+    using Setter = std::function<void(EmitterSet&, const T&)>;
+
+    SetEmitterSetPropertyCommand(Document* document, s32 setIndex, QString label,
+        QString key, Getter getter, Setter setter, const T& newValue, QUndoCommand* parent = nullptr) :
+        DocumentCommandBase{document, std::move(label), parent},
+        mSetIndex{setIndex},
+        mPropertyKey{std::move(key)},
+        mGetter{std::move(getter)},
+        mSetter{std::move(setter)},
+        mNewValue{newValue},
+        mId{static_cast<s32>(qHash(mPropertyKey))}
+    {
+        auto& emitterSet = getEmitterSet();
+        mOldValue = mGetter(emitterSet);
+
+        if (mOldValue == mNewValue) {
+            setObsolete(true);
+        }
+    }
+
+    s32 id() const override {
+        return mId;
+    }
+
+    bool mergeWith(const QUndoCommand* other) override {
+        if (other->id() != id()) {
+            return false;
+        }
+
+        auto otherCmd = static_cast<const SetEmitterSetPropertyCommand*>(other);
+
+        if (document() != otherCmd->document() || mSetIndex != otherCmd->mSetIndex ||
+            mPropertyKey != otherCmd->mPropertyKey) {
+            return false;
+        }
+
+        mNewValue = otherCmd->mNewValue;
+        return true;
+    }
+
+    void undo() override { apply(mOldValue); }
+    void redo() override { apply(mNewValue); }
+
+private:
+    EmitterSet& getEmitterSet();
+    void apply(const T& value);
+
+private:
+    s32 mSetIndex{};
+
+    QString mPropertyKey{};
+
+    Getter mGetter{};
+    Setter mSetter{};
+
+    T mOldValue{};
+    T mNewValue{};
+
+    const s32 mId{};
+};
+
+
+// ========================================================================== //
+
+
+template <typename T>
+EmitterSet& SetEmitterSetPropertyCommand<T>::getEmitterSet() {
+    return *emitterSet(mSetIndex);
+}
+
+template <typename T>
+void SetEmitterSetPropertyCommand<T>::apply(const T& value) {
+    auto& emitterSet = getEmitterSet();
+    mSetter(emitterSet, value);
+    notifyEmitterSetChanged(mSetIndex);
 }
 
 
