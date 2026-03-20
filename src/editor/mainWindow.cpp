@@ -33,28 +33,10 @@ void MainWindow::setupUi() {
     // MainWindow
     setAcceptDrops(true);
 
-    // Properties
-    mPropertiesStack = new QStackedWidget(this);
-    mPropertiesStack->addWidget(&mEmitterSetWidget);
-    mPropertiesStack->addWidget(&mInspector);
-    mPropertiesStack->setCurrentIndex(0);
-
-    mPropertiesGroup.setFlat(false);
-    auto* emitterGroupLayout = new QVBoxLayout(&mPropertiesGroup);
-    emitterGroupLayout->setContentsMargins(0, 0, 0, 0);
-    emitterGroupLayout->addWidget(mPropertiesStack);
-
-    auto* propertiesContainer = new QWidget(this);
-    auto* propertiesLayout = new QVBoxLayout(propertiesContainer);
-    propertiesLayout->setContentsMargins(0, 0, 0, 0);
-    propertiesLayout->setSpacing(4);
-
-    propertiesLayout->addWidget(&mPropertiesGroup);
-
     // Top Splitter
     mTopSplitter = new QSplitter(Qt::Horizontal, this);
     mTopSplitter->addWidget(&mPtclList);
-    mTopSplitter->addWidget(propertiesContainer);
+    mTopSplitter->addWidget(&mInspector);
     mTopSplitter->setStretchFactor(0, 0);
     mTopSplitter->setStretchFactor(1, 1);
 
@@ -80,10 +62,6 @@ void MainWindow::setupUi() {
     mInspector.setEnabled(false);
     mInspector.setSelection(&mSelection);
 
-    // EmitterSet Widget
-    mEmitterSetWidget.setEnabled(false);
-    mEmitterSetWidget.setSelection(&mSelection);
-
     // Texture Widget
     mTextureWidget.setEnabled(false);
 
@@ -106,50 +84,11 @@ void MainWindow::setupUi() {
 }
 
 void MainWindow::setupConnections() {
-    connect(&mSelection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
-        if (!mDocument) {
-            return;
-        }
-
-        switch (type) {
-        case Ptcl::Selection::Type::EmitterSet:
-            setPropertiesView(PropertiesView::EmitterSet);
-            break;
-        case Ptcl::Selection::Type::Emitter:
-            setPropertiesView(PropertiesView::Emitter);
-            break;
-        case Ptcl::Selection::Type::EmitterChild:
-            setPropertiesView(PropertiesView::EmitterChild);
-            break;
-        case Ptcl::Selection::Type::EmitterFlux:
-            setPropertiesView(PropertiesView::EmitterFlux);
-            break;
-        case Ptcl::Selection::Type::EmitterField:
-            setPropertiesView(PropertiesView::EmitterField);
-            break;
-        case Ptcl::Selection::Type::None:
-            // TODO
-            break;
-        }
-
-        updatePropertiesStatus();
-    });
-
     connect(&mPtclList, &PtclList::itemAdded, this, [this]() {
         setDirty(true);
     });
 
     connect(&mPtclList, &PtclList::itemRemoved, this, [this]() {
-        setDirty(true);
-    });
-
-    // EmitterSet Widget
-    connect(&mEmitterSetWidget, &EmitterSetWidget::emitterSetNamedChanged, this, [this]() {
-        mPtclList.updateEmitterSetName(mSelection.emitterSetIndex());
-        updatePropertiesStatus();
-    });
-
-    connect(&mEmitterSetWidget, &EmitterSetWidget::propertiesChanged, this, [this]() {
         setDirty(true);
     });
 }
@@ -388,7 +327,6 @@ void MainWindow::updateRecentFileList() {
 void MainWindow::loadPtclRes(const QString& path) {
     mPtclList.setDocument(nullptr);
     mInspector.setDocument(nullptr);
-    mEmitterSetWidget.setDocument(nullptr);
     mTextureWidget.setDocument(nullptr);
 
     mSaveAsAction.setEnabled(false);
@@ -409,7 +347,6 @@ void MainWindow::loadPtclRes(const QString& path) {
 
     mPtclList.setDocument(mDocument.get());
     mInspector.setDocument(mDocument.get());
-    mEmitterSetWidget.setDocument(mDocument.get());
     mTextureWidget.setDocument(mDocument.get());
 
     if (mDocument->emitterSetCount() != 0) {
@@ -420,61 +357,6 @@ void MainWindow::loadPtclRes(const QString& path) {
     updateWindowTitle();
 
     mSaveAsAction.setEnabled(true);
-}
-
-void MainWindow::setPropertiesView(PropertiesView view) {
-    if (view == mCurPropertiesView) {
-        return;
-    }
-
-    mCurPropertiesView = view;
-
-    switch (mCurPropertiesView) {
-        case PropertiesView::EmitterSet:
-            mPropertiesStack->setCurrentWidget(&mEmitterSetWidget);
-            break;
-        case PropertiesView::Emitter:
-        case PropertiesView::EmitterChild:
-        case PropertiesView::EmitterFlux:
-        case PropertiesView::EmitterField:
-            mPropertiesStack->setCurrentWidget(&mInspector);
-            break;
-    }
-}
-
-void MainWindow::updatePropertiesStatus() {
-    mPropertiesGroup.setTitle({});
-
-    if (!mDocument) {
-        return;
-    }
-
-    const auto& emitterSet = mDocument->emitterSet(mSelection.emitterSetIndex());
-    const auto& emitter = mDocument->emitter(mSelection.emitterSetIndex(), mSelection.emitterIndex());
-
-    QString title = emitterSet->name();
-
-    if (mCurPropertiesView != PropertiesView::EmitterSet) {
-        title += QStringLiteral(" > %1").arg(emitter->name());
-    }
-
-    switch (mCurPropertiesView) {
-    case PropertiesView::EmitterChild:
-        title += QStringLiteral(" > Child Properties:");
-        break;
-    case PropertiesView::EmitterFlux:
-        title += QStringLiteral(" > Fluctuation Properties:");
-        break;
-    case PropertiesView::EmitterField:
-        title += QStringLiteral(" > Field Properties:");
-        break;
-    case PropertiesView::Emitter:
-    case PropertiesView::EmitterSet:
-        title += QStringLiteral(" Properties:");
-        break;
-    }
-
-    mPropertiesGroup.setTitle(title);
 }
 
 void MainWindow::updateWindowTitle() {
