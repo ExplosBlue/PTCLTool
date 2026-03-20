@@ -6,6 +6,9 @@ namespace Ptcl {
 
 // ========================================================================== //
 
+Emitter::Emitter(QString name) :
+    mName{std::move(name)} {}
+
 std::unique_ptr<Emitter> Emitter::clone() const {
     auto newEmitter = std::make_unique<Emitter>();
 

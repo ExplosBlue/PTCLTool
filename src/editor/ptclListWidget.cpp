@@ -256,6 +256,16 @@ void PtclList::setDocument(Ptcl::Document* document) {
         reindexEmitters(setItem, setIndex);
     });
 
+    connect(mDocument, &Ptcl::Document::emitterSetAdded, this, [this](s32 setIndex) {
+        insertEmitterSetNode(setIndex);
+        reindexEmitterSets();
+    });
+
+    connect(mDocument, &Ptcl::Document::emitterSetRemoved, this, [this](s32 setIndex) {
+        mListModel.removeRow(setIndex);
+        reindexEmitterSets();
+    });
+
     mListModel.clear();
     populateList();
     setEnabled(true);
@@ -594,9 +604,8 @@ void PtclList::addEmitterSet() {
     }
 
     const s32 setIndex = mDocument->emitterSetCount();
-    mDocument->data().addNewEmitterSet();
+    mDocument->addEmitterSet();
 
-    insertEmitterSetNode(setIndex);
     mSelection->set(setIndex, 0, Ptcl::Selection::Type::EmitterSet);
     expandSourceIndex(mListModel.index(setIndex, 0));
     emit itemAdded();
@@ -622,7 +631,6 @@ void PtclList::addEmitter() {
     const s32 emitterIndex = emitterSet->emitterCount();
 
     mDocument->addEmitter(setIndex);
-
     mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::Emitter);
     expandSourceIndex(mListModel.indexFromItem(setItem));
     emit itemAdded();
@@ -686,9 +694,7 @@ void PtclList::removeEmitterSet(QStandardItem* setItem) {
         return;
     }
 
-    mDocument->data().removeEmitterSet(setIndex);
-    mListModel.removeRow(setIndex);
-    reindexEmitterSets();
+    mDocument->removeEmitterSet(setIndex);
 
     const s32 remainingCount = mListModel.rowCount();
 

@@ -21,6 +21,8 @@ public:
 
 protected:
     Document* document() const { return mDocument; }
+    PtclRes& resource() { return mDocument->dataMutable(); }
+
     Emitter* emitter(s32 setIndex, s32 emitterIndex) { return mDocument->emitterMutable(setIndex, emitterIndex); }
     EmitterSet* emitterSet(s32 setIndex) { return mDocument->emitterSetMutable(setIndex); }
 
@@ -31,8 +33,12 @@ protected:
     void notifyEmitterChanged(s32 setIndex, s32 emitterIndex) { mDocument->notifyEmitterChanged(setIndex, emitterIndex); }
     void notifyEmitterSetChanged(s32 setIndex) { mDocument->notifyEmitterSetChanged(setIndex); }
     void notifyProjectChanged() { mDocument->notifyProjectChanged(); }
+
     void notifyEmitterAdded(s32 setIndex, s32 emitterIndex) { mDocument->notifyEmitterAdded(setIndex, emitterIndex); }
     void notifyEmitterRemoved(s32 setIndex, s32 emitterIndex) { mDocument->notifyEmitterRemoved(setIndex, emitterIndex); }
+
+    void notifyEmitterSetAdded(s32 setIndex) { mDocument->notifyEmitterSetAdded(setIndex); }
+    void notifyEmitterSetRemoved(s32 setIndex) { mDocument->notifyEmitterSetRemoved(setIndex); }
 
 private:
     Document* mDocument;
@@ -271,8 +277,7 @@ public:
         if (emitter) {
             mNewEmitter = std::move(emitter);
         } else {
-            auto newEmitterPtr = std::make_unique<Emitter>();
-            newEmitterPtr->setName("New_Emitter_" + QString::number(document()->emitterCount(mSetIndex)));
+            auto newEmitterPtr = std::make_unique<Emitter>("New_Emitter_" + QString::number(document()->emitterCount(mSetIndex)));
             mNewEmitter = std::move(newEmitterPtr);
         }
 
@@ -339,5 +344,89 @@ private:
 
 
 // ========================================================================== //
+
+
+class AddEmitterSetCommand final : public DocumentCommandBase {
+public:
+    AddEmitterSetCommand(Document* doc, std::unique_ptr<EmitterSet> emitterSet = nullptr, QUndoCommand* parent = nullptr) :
+        DocumentCommandBase{doc, std::move("Add EmitterSet"), parent} {
+
+        if (emitterSet) {
+            mNewEmitterSet = std::move(emitterSet);
+        } else {
+            auto newEmitterSetPtr = std::make_unique<EmitterSet>("New_EmitterSet_" + QString::number(document()->emitterSetCount()));
+            mNewEmitterSet = std::move(newEmitterSetPtr);
+        }
+    }
+
+    s32 id() const override {
+        return mId;
+    }
+
+    void undo() override {
+        auto removed = resource().removeEmitterSet(mSetIndex);
+        if (!removed) {
+            Q_ASSERT(false && "removeEmitterSet returned null");
+            return;
+        }
+
+        mNewEmitterSet = std::move(removed);
+        notifyEmitterSetRemoved(mSetIndex);
+
+    }
+
+    void redo() override {
+        mSetIndex = resource().emitterSetCount();
+        resource().insertEmitterSet(mSetIndex, std::move(mNewEmitterSet));
+        notifyEmitterSetAdded(mSetIndex);
+    }
+
+private:
+    s32 mSetIndex{0};
+    std::unique_ptr<EmitterSet> mNewEmitterSet{};
+
+    const s32 mId{static_cast<s32>(qHash("AddEmitterSet"))};
+};
+
+
+// ========================================================================== //
+
+
+class RemoveEmitterSetCommand final : public DocumentCommandBase {
+public:
+    RemoveEmitterSetCommand(Document* doc, s32 setIndex, QUndoCommand* parent = nullptr) :
+        DocumentCommandBase{doc, std::move("Remove EmitterSet"), parent}, mSetIndex{setIndex} {
+    }
+
+    s32 id() const override {
+        return mId;
+    }
+
+    void undo() override {
+        resource().insertEmitterSet(mSetIndex, std::move(mRemovedEmitterSet));
+        notifyEmitterSetAdded(mSetIndex);
+    }
+
+    void redo() override {
+        auto removed = resource().removeEmitterSet(mSetIndex);
+        if (!removed) {
+            Q_ASSERT(false && "removeEmitterSet returned null");
+            return;
+        }
+
+        mRemovedEmitterSet = std::move(removed);
+        notifyEmitterSetRemoved(mSetIndex);
+    }
+
+private:
+    s32 mSetIndex{0};
+    std::unique_ptr<EmitterSet> mRemovedEmitterSet{};
+
+    const s32 mId{static_cast<s32>(qHash("RemoveEmitterSet"))};
+};
+
+
+// ========================================================================== //
+
 
 } // namespace Ptcl
