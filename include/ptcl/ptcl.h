@@ -140,8 +140,8 @@ public:
     const TextureList& textures() const;
     TextureList& textures();
 
-    void addNewEmitterSet();
-    void removeEmitterSet(s32 setIndex);
+    void insertEmitterSet(s32 setIndex, std::unique_ptr<EmitterSet> emitterSet);
+    std::unique_ptr<EmitterSet> removeEmitterSet(s32 setIndex);
 
     s32 emitterSetCount() const;
     s32 emitterCount(s32 setIndex) const;
