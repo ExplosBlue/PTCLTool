@@ -48,6 +48,7 @@ public:
 
 public:
     Emitter() = default;
+    Emitter(QString name);
 
     Emitter(const Emitter&) = delete;
     Emitter& operator=(const Emitter&) = delete;

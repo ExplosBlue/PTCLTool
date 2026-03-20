@@ -538,19 +538,16 @@ TextureList& PtclRes::textures() {
     return mTextures;
 }
 
-void PtclRes::addNewEmitterSet() {
-    auto newSet = std::make_unique<Ptcl::EmitterSet>();
-    newSet->setName("New_EmitterSet_" + QString::number(emitterSetCount()));
-    newSet->addEmitter();
-    mEmitterSets.push_back(std::move(newSet));
+void PtclRes::insertEmitterSet(s32 setIndex, std::unique_ptr<EmitterSet> emitterSet) {
+    mEmitterSets.insert(mEmitterSets.begin() + setIndex, std::move(emitterSet));
 }
 
-void PtclRes::removeEmitterSet(s32 setIndex) {
-    if (setIndex >= mEmitterSets.size()) {
-        return;
-    }
+std::unique_ptr<EmitterSet> PtclRes::removeEmitterSet(s32 setIndex) {
+    auto it = mEmitterSets.begin() + setIndex;
 
-    mEmitterSets.erase(mEmitterSets.begin() + setIndex);
+    std::unique_ptr<EmitterSet> removed = std::move(*it);
+    mEmitterSets.erase(it);
+    return removed;
 }
 
 const std::unique_ptr<EmitterSet>& PtclRes::appendEmitterSet(std::unique_ptr<EmitterSet>& newSet) {

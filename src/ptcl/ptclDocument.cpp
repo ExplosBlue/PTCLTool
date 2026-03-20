@@ -49,6 +49,13 @@ void Document::removeEmitter(s32 setIndex, s32 emitterIndex) {
     mUndoStack.push(new RemoveEmitterCommand(this, setIndex, emitterIndex));
 }
 
+void Document::addEmitterSet(std::unique_ptr<EmitterSet> emitterSet) {
+    mUndoStack.push(new AddEmitterSetCommand(this, std::move(emitterSet)));
+}
+
+void Document::removeEmitterSet(s32 setIndex) {
+    mUndoStack.push(new RemoveEmitterSetCommand(this, setIndex));
+}
 
 // ========================================================================== //
 

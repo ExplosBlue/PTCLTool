@@ -6,6 +6,12 @@ namespace Ptcl {
 
 // ========================================================================== //
 
+EmitterSet::EmitterSet(QString name) :
+    mName{std::move(name)} {
+    auto emitter = std::make_unique<Emitter>("New_Emitter_0");
+    insertEmitter(0, std::move(emitter));
+}
+
 
 EmitterSet::EmitterSet(const BinEmitterSet& binEmitterSet) {}
 

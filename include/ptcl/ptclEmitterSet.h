@@ -23,6 +23,7 @@ class EmitterSet
 {
 public:
     EmitterSet() = default;
+    EmitterSet(QString emitterName);
     EmitterSet(const BinEmitterSet& binEmitterSet);
 
     EmitterList& emitters();
@@ -45,11 +46,11 @@ public:
     const std::unique_ptr<Emitter>& appendEmitter(std::unique_ptr<Emitter>& newEmitter);
 
 private:
-    QString mName;
-    EmitterList mEmitters;
+    QString mName{};
+    EmitterList mEmitters{};
 
-    u32 mUserData;
-    u32 mLastUpdateDate; // TODO: check this
+    u32 mUserData{0};
+    u32 mLastUpdateDate{0}; // TODO: check this
 };
 
 
