@@ -51,6 +51,8 @@ class DocumentCommandBase;
 template<typename T>
 class SetEmitterPropertyCommand;
 
+template<typename T>
+class SetEmitterSetPropertyCommand;
 
 // ========================================================================== //
 
@@ -87,6 +89,11 @@ public:
     template<typename T, typename Getter, typename Setter>
     void setEmitterProperty(s32 setIndex, s32 emitterIndex, QString label, QString key, Getter getter, Setter setter, const T& value) {
         mUndoStack.push(new SetEmitterPropertyCommand<T>(this, setIndex, emitterIndex, label, key, getter, setter, value));
+    }
+
+    template<typename T, typename Getter, typename Setter>
+    void setEmitterSetProperty(s32 setIndex, QString label, QString key, Getter getter, Setter setter, const T& value) {
+        mUndoStack.push(new SetEmitterSetPropertyCommand<T>(this, setIndex, label, key, getter, setter, value));
     }
 
     s32 emitterCount(s32 setIndex) const { return mData.emitterCount(setIndex); }
