@@ -666,9 +666,6 @@ void PtclList::removeEmitter(QStandardItem* setItem, QStandardItem* emitterItem)
 
     mDocument->removeEmitter(setIndex, emitterIndex);
 
-    setItem->removeRow(emitterIndex);
-    reindexEmitters(setItem, setIndex);
-
     const s32 remainingCount = setItem->rowCount();
     if (remainingCount > 0) {
         const s32 nextIndex = std::min(emitterIndex, remainingCount - 1);

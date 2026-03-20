@@ -541,7 +541,7 @@ TextureList& PtclRes::textures() {
 void PtclRes::addNewEmitterSet() {
     auto newSet = std::make_unique<Ptcl::EmitterSet>();
     newSet->setName("New_EmitterSet_" + QString::number(emitterSetCount()));
-    newSet->addNewEmitter();
+    newSet->addEmitter();
     mEmitterSets.push_back(std::move(newSet));
 }
 
