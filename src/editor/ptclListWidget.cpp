@@ -172,7 +172,41 @@ PtclList::PtclList(QWidget* parent) :
     // Tree View
     mTreeView.setModel(&mProxyModel);
     mTreeView.setHeaderHidden(true);
-    connect(mTreeView.selectionModel(), &QItemSelectionModel::selectionChanged, this, &PtclList::selectionChanged);
+    connect(&mTreeView, &QTreeView::clicked, this, [this](const QModelIndex& proxyIndex) {
+        const QModelIndex sourceIndex = mProxyModel.mapToSource(proxyIndex);
+        QStandardItem* item = mListModel.itemFromIndex(sourceIndex);
+
+        if (!item || !mSelection || !mDocument) {
+            return;
+        }
+
+        updateToolbarForSelection(item);
+
+        const auto type = static_cast<NodeType>(item->data(sRoleNodeType).toUInt());
+
+        const s32 setIndex = item->data(sRoleSetIdx).toInt();
+        const s32 emitterIndex = item->data(sRoleEmitterIdx).toInt();
+
+        switch (type) {
+        case NodeType::EmitterSet:
+            mSelection->set(setIndex, 0, Ptcl::Selection::Type::EmitterSet);
+            break;
+        case NodeType::Emitter:
+            mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::Emitter);
+            break;
+        case NodeType::ChildData:
+            mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::EmitterChild);
+            break;
+        case NodeType::Fluctuation:
+            mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::EmitterFlux);
+            break;
+        case NodeType::Field:
+            mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::EmitterField);
+            break;
+        default:
+            break;
+        }
+    });
 
     // Search Layout
     auto* searchLayout = new QHBoxLayout;
@@ -296,7 +330,6 @@ void PtclList::setSelection(Ptcl::Selection* selection) {
         }
 
         auto* selectionModel = mTreeView.selectionModel();
-        selectionModel->clearSelection();
         selectionModel->setCurrentIndex(proxyIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
         mTreeView.scrollTo(proxyIndex);
     });
@@ -361,54 +394,35 @@ void PtclList::filterList(const QString& text) {
     mProxyModel.setFilterFixedString(text);
 }
 
-void PtclList::selectionChanged(const QItemSelection& selection) {
-    if (selection.indexes().isEmpty()) {
+void PtclList::selectNearestValidEmitter(s32 setIndex, s32 prefferedEmitter) {
+    if (!mDocument || !mSelection) {
         return;
     }
 
-    QModelIndex proxyIndex = selection.indexes().first();
-    QModelIndex sourceIndex = mProxyModel.mapToSource(proxyIndex);
-    QStandardItem* item = mListModel.itemFromIndex(sourceIndex);
+    const auto& set = mDocument->emitterSet(setIndex);
+    const s32 count = set ? set->emitterCount() : 0;
 
-    updateToolbarForSelection(item);
-
-    if (!item) {
+    if (count <= 0) {
+        mSelection->set(setIndex, 0, Ptcl::Selection::Type::EmitterSet);
         return;
     }
 
-    auto type = static_cast<NodeType>(item->data(sRoleNodeType).toUInt());
+    const s32 clamped = std::clamp(prefferedEmitter, 0, count - 1);
+    mSelection->set(setIndex, clamped, Ptcl::Selection::Type::Emitter);
+}
 
-    switch (type) {
-        case NodeType::EmitterSet: {
-            const s32 setIndex = sourceIndex.row();
-            mSelection->set(setIndex, 0, Ptcl::Selection::Type::EmitterSet);
-            break;
-        }
-        case NodeType::Emitter: {
-            const s32 emitterIndex = sourceIndex.row();
-            const s32 setIndex = sourceIndex.parent().row();
-            mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::Emitter);
-            break;
-        }
-        case NodeType::ChildData: {
-            const s32 emitterIndex = sourceIndex.parent().row();
-            const s32 setIndex = sourceIndex.parent().parent().row();
-            mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::EmitterChild);
-            break;
-        }
-        case NodeType::Fluctuation: {
-            const s32 emitterIndex = sourceIndex.parent().row();
-            const s32 setIndex = sourceIndex.parent().parent().row();
-            mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::EmitterFlux);
-            break;
-        }
-        case NodeType::Field: {
-            const s32 emitterIndex = sourceIndex.parent().row();
-            const s32 setIndex = sourceIndex.parent().parent().row();
-            mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::EmitterField);
-            break;
-        }
+void PtclList::selectNearestValidEmitterSet(s32 prefferedEmitterSet) {
+    if (!mDocument || !mSelection) {
+        return;
     }
+    const s32 count = mDocument->emitterSetCount();
+
+    if (count <= 0) {
+        return;
+    }
+
+    const s32 clamped = std::clamp(prefferedEmitterSet, 0, count - 1);
+    mSelection->set(clamped, 0, Ptcl::Selection::Type::EmitterSet);
 }
 
 void PtclList::addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emitterIndex) {
@@ -672,13 +686,9 @@ void PtclList::removeEmitter(QStandardItem* setItem, QStandardItem* emitterItem)
         return;
     }
 
+    const s32 nextPreferred = emitterIndex;
     mDocument->removeEmitter(setIndex, emitterIndex);
-
-    const s32 remainingCount = setItem->rowCount();
-    if (remainingCount > 0) {
-        const s32 nextIndex = std::min(emitterIndex, remainingCount - 1);
-        mSelection->set(setIndex, nextIndex, Ptcl::Selection::Type::Emitter);
-    }
+    selectNearestValidEmitter(setIndex, nextPreferred);
 }
 
 void PtclList::removeEmitterSet(QStandardItem* setItem) {
@@ -694,14 +704,9 @@ void PtclList::removeEmitterSet(QStandardItem* setItem) {
         return;
     }
 
+    const s32 nextPreferred = setIndex;
     mDocument->removeEmitterSet(setIndex);
-
-    const s32 remainingCount = mListModel.rowCount();
-
-    if (remainingCount > 0) {
-        const s32 nextIndex = std::min(setIndex, remainingCount - 1);
-        mSelection->set(nextIndex, 0, Ptcl::Selection::Type::EmitterSet);
-    }
+    selectNearestValidEmitterSet(nextPreferred);
 }
 
 void PtclList::reindexEmitters(QStandardItem* setItem, s32 setIndex) {
