@@ -480,6 +480,10 @@ void PtclRes::setName(const QString& name) {
     mName = name;
 }
 
+EmitterSetList& PtclRes::getEmitterSets() {
+    return mEmitterSets;
+}
+
 const EmitterSetList& PtclRes::getEmitterSets() const {
     return mEmitterSets;
 }
