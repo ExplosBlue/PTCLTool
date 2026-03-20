@@ -38,11 +38,10 @@ public:
     u32 userData() const;
     void setUserData(u32 data);
 
-    void addNewEmitter();
-    void removeEmitter(s32 emitterIndex);
+    void insertEmitter(s32 emitterIndex, std::unique_ptr<Emitter> emitter);
+    std::unique_ptr<Emitter> removeEmitter(s32 emitterIndex);
 
     std::unique_ptr<EmitterSet> clone() const;
-
     const std::unique_ptr<Emitter>& appendEmitter(std::unique_ptr<Emitter>& newEmitter);
 
 private:
