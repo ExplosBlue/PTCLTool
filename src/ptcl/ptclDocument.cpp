@@ -41,16 +41,16 @@ void Document::setProjectName(const QString& name) {
     mUndoStack.push(new RenameProjectNameCommand(this, name));
 }
 
-void Document::addEmitter(s32 setIndex, std::unique_ptr<Emitter> emitter) {
-    mUndoStack.push(new AddEmitterCommand(this, setIndex, std::move(emitter)));
+void Document::addEmitter(QString label, s32 setIndex, std::unique_ptr<Emitter> emitter) {
+    mUndoStack.push(new AddEmitterCommand(this, setIndex, label, std::move(emitter)));
 }
 
 void Document::removeEmitter(s32 setIndex, s32 emitterIndex) {
     mUndoStack.push(new RemoveEmitterCommand(this, setIndex, emitterIndex));
 }
 
-void Document::addEmitterSet(std::unique_ptr<EmitterSet> emitterSet) {
-    mUndoStack.push(new AddEmitterSetCommand(this, std::move(emitterSet)));
+void Document::addEmitterSet(QString label, std::unique_ptr<EmitterSet> emitterSet) {
+    mUndoStack.push(new AddEmitterSetCommand(this, label, std::move(emitterSet)));
 }
 
 void Document::removeEmitterSet(s32 setIndex) {

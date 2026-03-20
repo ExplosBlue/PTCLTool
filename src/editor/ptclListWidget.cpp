@@ -365,7 +365,7 @@ void PtclList::insertEmitterSetNode(s32 setIndex) {
     setItem->setIcon(QIcon(":/res/icons/emitterset.png"));
 
     // Emitters
-    for (s32 emitterIndex = 0; emitterIndex < set->emitters().size(); ++emitterIndex) {
+    for (s32 emitterIndex = 0; emitterIndex < mDocument->emitterCount(setIndex); ++emitterIndex) {
         insertEmitterNode(setItem, setIndex, emitterIndex);
     }
     mListModel.appendRow(setItem);
@@ -618,7 +618,7 @@ void PtclList::addEmitterSet() {
     }
 
     const s32 setIndex = mDocument->emitterSetCount();
-    mDocument->addEmitterSet();
+    mDocument->addEmitterSet("Add New EmitterSet");
 
     mSelection->set(setIndex, 0, Ptcl::Selection::Type::EmitterSet);
     expandSourceIndex(mListModel.index(setIndex, 0));
@@ -644,7 +644,7 @@ void PtclList::addEmitter() {
     const auto& emitterSet = mDocument->emitterSet(setIndex);
     const s32 emitterIndex = emitterSet->emitterCount();
 
-    mDocument->addEmitter(setIndex);
+    mDocument->addEmitter("Add New Emitter", setIndex);
     mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::Emitter);
     expandSourceIndex(mListModel.indexFromItem(setItem));
     emit itemAdded();
@@ -784,30 +784,25 @@ void PtclList::pasteItem() {
     QModelIndex sourceIndex = mProxyModel.mapToSource(proxyModel);
     QStandardItem* item = mListModel.itemFromIndex(sourceIndex);
 
-    if (!item) {
+    if (!item || !mDocument || !mSelection) {
         return;
     }
 
     const auto type = static_cast<NodeType>(item->data(sRoleNodeType).toUInt());
 
-    if (mClipboardSet && type == NodeType::EmitterSet) {
-        auto& newSet = mDocument->data().appendEmitterSet(mClipboardSet);
-        mClipboardSet = newSet->clone();
+    if (mClipboardSet && type == NodeType::EmitterSet) {        
+        mDocument->addEmitterSet("Paste EmitterSet", mClipboardSet->clone());
 
         const s32 setIndex = mDocument->emitterSetCount() - 1;
-        insertEmitterSetNode(setIndex);
         mSelection->set(setIndex, 0, Ptcl::Selection::Type::EmitterSet);
     } else if (mClipboardEmitter && type == NodeType::Emitter) {
         const auto& setItem = item->parent();
         const s32 setIndex = item->data(sRoleSetIdx).toInt();
         auto set = mDocument->emitterSet(setIndex);
 
-        auto& newEmitter = set->appendEmitter(mClipboardEmitter);
-        mClipboardEmitter = newEmitter->clone();
+        mDocument->addEmitter("Paste Emitter", setIndex, mClipboardEmitter->clone());
 
         const s32 emitterIndex = set->emitterCount() - 1;
-        insertEmitterNode(setItem, setIndex, emitterIndex);
-
         mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::Emitter);
     }
 }
