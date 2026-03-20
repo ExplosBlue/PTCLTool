@@ -271,8 +271,8 @@ private:
 
 class AddEmitterCommand final : public DocumentCommandBase {
 public:
-    AddEmitterCommand(Document* doc, s32 setIndex, std::unique_ptr<Emitter> emitter = nullptr, QUndoCommand* parent = nullptr) :
-        DocumentCommandBase{doc, std::move("Add Emitter"), parent}, mSetIndex{setIndex} {
+    AddEmitterCommand(Document* doc, s32 setIndex, QString label, std::unique_ptr<Emitter> emitter = nullptr, QUndoCommand* parent = nullptr) :
+        DocumentCommandBase{doc, std::move(label), parent}, mSetIndex{setIndex} {
 
         if (emitter) {
             mNewEmitter = std::move(emitter);
@@ -348,8 +348,8 @@ private:
 
 class AddEmitterSetCommand final : public DocumentCommandBase {
 public:
-    AddEmitterSetCommand(Document* doc, std::unique_ptr<EmitterSet> emitterSet = nullptr, QUndoCommand* parent = nullptr) :
-        DocumentCommandBase{doc, std::move("Add EmitterSet"), parent} {
+    AddEmitterSetCommand(Document* doc, QString label, std::unique_ptr<EmitterSet> emitterSet = nullptr, QUndoCommand* parent = nullptr) :
+        DocumentCommandBase{doc, std::move(label), parent} {
 
         if (emitterSet) {
             mNewEmitterSet = std::move(emitterSet);
