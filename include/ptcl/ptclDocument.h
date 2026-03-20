@@ -63,11 +63,7 @@ public:
     explicit Document(QObject* parent = nullptr);
 
     // TODO: Remove this
-    EmitterSet* emitterSet(s32 index) { return mData.emitterSet(index); }
-    // TODO: Remove this
     TextureList& textures() { return mData.textures(); }
-    // TODO: Remove this
-    PtclRes& data() { return mData; }
 
     bool load(const QString& filePath);
     bool save(const QString& filePath);
@@ -99,10 +95,10 @@ public:
     s32 emitterCount(s32 setIndex) const { return mData.emitterCount(setIndex); }
     s32 emitterSetCount() const { return mData.emitterSetCount(); }
 
-    void addEmitter(s32 setIndex, std::unique_ptr<Emitter> emitter = nullptr);
+    void addEmitter(QString label, s32 setIndex, std::unique_ptr<Emitter> emitter = nullptr);
     void removeEmitter(s32 setIndex, s32 emitterIndex);
 
-    void addEmitterSet(std::unique_ptr<EmitterSet> emitterSet = nullptr);
+    void addEmitterSet(QString label, std::unique_ptr<EmitterSet> emitterSet = nullptr);
     void removeEmitterSet(s32 setIndex);
 
 private:
