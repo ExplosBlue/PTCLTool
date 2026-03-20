@@ -128,6 +128,7 @@ public:
     const QString& name() const;
     void setName(const QString& name);
 
+    EmitterSetList& getEmitterSets();
     const EmitterSetList& getEmitterSets() const;
 
     EmitterSet* emitterSet(s32 index);

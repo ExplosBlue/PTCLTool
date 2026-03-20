@@ -224,8 +224,8 @@ void PtclList::setupFilterMenu() {
 }
 
 void PtclList::setDocument(Ptcl::Document* document) {
-    if (mDocument == document) {
-        return;
+    if (mDocument) {
+        mDocument->disconnect(this);
     }
 
     mDocument = document;
@@ -235,6 +235,26 @@ void PtclList::setDocument(Ptcl::Document* document) {
         setEnabled(false);
         return;
     }
+
+    connect(mDocument, &Ptcl::Document::emitterAdded, this, [this](s32 setIndex, s32 emitterIndex) {
+        QStandardItem* setItem = mListModel.item(setIndex);
+        if (!setItem) {
+            return;
+        }
+
+        insertEmitterNode(setItem, setIndex, emitterIndex);
+        reindexEmitters(setItem, setIndex);
+    });
+
+    connect(mDocument, &Ptcl::Document::emitterRemoved, this, [this](s32 setIndex, s32 emitterIndex) {
+        QStandardItem* setItem = mListModel.item(setIndex);
+        if (!setItem) {
+            return;
+        }
+
+        setItem->removeRow(emitterIndex);
+        reindexEmitters(setItem, setIndex);
+    });
 
     mListModel.clear();
     populateList();
@@ -601,9 +621,8 @@ void PtclList::addEmitter() {
     const auto& emitterSet = mDocument->emitterSet(setIndex);
     const s32 emitterIndex = emitterSet->emitterCount();
 
-    emitterSet->addNewEmitter();
+    mDocument->addEmitter(setIndex);
 
-    insertEmitterNode(setItem, setIndex, emitterIndex);
     mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::Emitter);
     expandSourceIndex(mListModel.indexFromItem(setItem));
     emit itemAdded();
@@ -645,7 +664,8 @@ void PtclList::removeEmitter(QStandardItem* setItem, QStandardItem* emitterItem)
         return;
     }
 
-    emitterSet->removeEmitter(emitterIndex);
+    mDocument->removeEmitter(setIndex, emitterIndex);
+
     setItem->removeRow(emitterIndex);
     reindexEmitters(setItem, setIndex);
 
