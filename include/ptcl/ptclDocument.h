@@ -99,15 +99,22 @@ public:
     s32 emitterCount(s32 setIndex) const { return mData.emitterCount(setIndex); }
     s32 emitterSetCount() const { return mData.emitterSetCount(); }
 
+    void addEmitter(s32 setIndex, std::unique_ptr<Emitter> emitter = nullptr);
+    void removeEmitter(s32 setIndex, s32 emitterIndex);
+
 private:
     TextureList& texturesMutable() { return mData.textures(); }
     Emitter* emitterMutable(s32 setIndex, s32 emitterIndex) { return mData.emitter(setIndex, emitterIndex); }
     EmitterSet* emitterSetMutable(s32 index) { return mData.emitterSet(index); }
+    EmitterSetList& emitterSetsMutable() { return mData.getEmitterSets(); }
+
     PtclRes& dataMutable() { return mData; }
 
     void notifyEmitterChanged(s32 setIndex, s32 emitterIndex) { emit emitterChanged(setIndex, emitterIndex); }
     void notifyEmitterSetChanged(s32 setIndex) { emit emitterSetChanged(setIndex); }
     void notifyProjectChanged() { emit projectChanged(); }
+    void notifyEmitterAdded(s32 setIndex, s32 emitterIndex) { emit emitterAdded(setIndex, emitterIndex); }
+    void notifyEmitterRemoved(s32 setIndex, s32 emitterIndex) { emit emitterRemoved(setIndex, emitterIndex); }
 
     friend class DocumentCommandBase;
 
@@ -115,6 +122,9 @@ signals:
     void emitterChanged(s32 setIndex, s32 emitterIndex);
     void emitterSetChanged(s32 setIndex);
     void projectChanged();
+
+    void emitterAdded(s32 setIndex, s32 emitterIndex);
+    void emitterRemoved(s32 setIndex, s32 emitterIndex);
 
 private:
     PtclRes mData{};
