@@ -570,11 +570,6 @@ std::unique_ptr<Texture> PtclRes::removeTexture(s32 index) {
     return removed;
 }
 
-const std::unique_ptr<EmitterSet>& PtclRes::appendEmitterSet(std::unique_ptr<EmitterSet>& newSet) {
-    mEmitterSets.push_back(std::move(newSet));
-    return mEmitterSets.at(emitterSetCount() - 1);
-}
-
 
 // ========================================================================== //
 

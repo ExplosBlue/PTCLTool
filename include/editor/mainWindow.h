@@ -27,6 +27,7 @@ class MainWindow final : public QMainWindow {
     Q_OBJECT
 public:
     MainWindow(QWidget* parent = nullptr);
+    ~MainWindow() final;
 
 protected:
     void closeEvent(QCloseEvent* event) final;

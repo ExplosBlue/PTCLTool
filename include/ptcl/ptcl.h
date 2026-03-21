@@ -119,6 +119,11 @@ class PtclRes {
 public:
     PtclRes() = default;
 
+    ~PtclRes() {
+        mEmitterSets.clear();
+        mTextures.clear();
+    }
+
     PtclRes(const PtclRes&) = delete;
     PtclRes& operator=(const PtclRes&) = delete;
 
@@ -151,8 +156,6 @@ public:
     s32 emitterCount(s32 setIndex) const;
     u32 totalEmitterCount() const;
     s32 textureCount() const;
-
-    const std::unique_ptr<EmitterSet>& appendEmitterSet(std::unique_ptr<EmitterSet>& newSet);
 
 private:
     QString mName;
