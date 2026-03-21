@@ -318,9 +318,7 @@ void TextureInspector::populateProperties() {
     QSignalBlocker b14(mTexRepetitionsY);
     QSignalBlocker b15(mAnimModeComboBox);
 
-    if (mEmitter->textureHandle().isValid()) {
-        mTexturePreview.setPixmap(QPixmap::fromImage(mEmitter->textureHandle()->textureData()));
-    }
+    mTexturePreview.setPixmap(QPixmap::fromImage(mEmitter->textureHandle()->textureData()));
 
     mWrapTComboBox.setCurrentEnum(mEmitter->textureWrapT());
     mWrapSComboBox.setCurrentEnum(mEmitter->textureWrapS());
@@ -398,9 +396,9 @@ void TextureInspector::changeTexture() {
 
     TextureSelectDialog dialog(textureList, this);
     if (dialog.exec() == QDialog::Accepted) {
-        s32 selectedInded = dialog.selectedIndex();
-        if (selectedInded >= 0 && static_cast<size_t>(selectedInded) < textureList.size()) {
-            const auto texture = textureList.at(selectedInded).get();
+        s32 selectedIndex = dialog.selectedIndex();
+        if (selectedIndex >= 0 && static_cast<size_t>(selectedIndex) < textureList.size()) {
+            const auto texture = textureList.at(selectedIndex).get();
             setEmitterProperty(
                 "Set Texture",
                 "SetEmitterTexture",

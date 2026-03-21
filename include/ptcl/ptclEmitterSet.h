@@ -43,7 +43,6 @@ public:
     std::unique_ptr<Emitter> removeEmitter(s32 emitterIndex);
 
     std::unique_ptr<EmitterSet> clone() const;
-    const std::unique_ptr<Emitter>& appendEmitter(std::unique_ptr<Emitter>& newEmitter);
 
 private:
     QString mName{};
