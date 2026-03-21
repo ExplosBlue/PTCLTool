@@ -367,8 +367,8 @@ public:
 
     const TextureHandle& textureHandle() const { return mTextureHandle; }
 
-    std::shared_ptr<Texture> texture() const { return mTextureHandle.get(); }
-    void setTexture(const std::shared_ptr<Texture>& texture) { mTextureHandle.set(texture); }
+    Texture* texture() const { return mTextureHandle.get(); }
+    void setTexture(Texture* texture) { mTextureHandle.set(texture); }
 
     // ----- Fluctuation Properties ----- \\
 
@@ -661,8 +661,8 @@ public:
 
     const TextureHandle& childTextureHandle() const { return mChild.textureHandle; }
 
-    std::shared_ptr<Texture> childTexture() const { return mChild.textureHandle.get(); }
-    void setChildTexture(const std::shared_ptr<Texture>& texture) { mChild.textureHandle.set(texture); }
+    Texture* childTexture() const { return mChild.textureHandle.get(); }
+    void setChildTexture(Texture* texture) { mChild.textureHandle.set(texture); }
 
     // Child Color
 

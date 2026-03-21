@@ -62,9 +62,6 @@ class Document final : public QObject {
 public:
     explicit Document(QObject* parent = nullptr);
 
-    // TODO: Remove this
-    TextureList& textures() { return mData.textures(); }
-
     bool load(const QString& filePath);
     bool save(const QString& filePath);
 
@@ -101,6 +98,10 @@ public:
     void addEmitterSet(QString label, std::unique_ptr<EmitterSet> emitterSet = nullptr);
     void removeEmitterSet(s32 setIndex);
 
+    void addTexture(std::unique_ptr<Texture> texture);
+    void removeTexture(s32 index);
+    void replaceTexture(s32 index, std::unique_ptr<Texture> texture);
+
 private:
     TextureList& texturesMutable() { return mData.textures(); }
     Emitter* emitterMutable(s32 setIndex, s32 emitterIndex) { return mData.emitter(setIndex, emitterIndex); }
@@ -111,6 +112,7 @@ private:
 
     void notifyEmitterChanged(s32 setIndex, s32 emitterIndex) { emit emitterChanged(setIndex, emitterIndex); }
     void notifyEmitterSetChanged(s32 setIndex) { emit emitterSetChanged(setIndex); }
+    void notifyTextureChanged(s32 index) { emit textureChanged(index); }
     void notifyProjectChanged() { emit projectChanged(); }
 
     void notifyEmitterAdded(s32 setIndex, s32 emitterIndex) { emit emitterAdded(setIndex, emitterIndex); }
@@ -118,6 +120,9 @@ private:
 
     void notifyEmitterSetAdded(s32 setIndex) { emit emitterSetAdded(setIndex); }
     void notifyEmitterSetRemoved(s32 setIndex) { emit emitterSetRemoved(setIndex); }
+
+    void notifyTextureAdded(s32 index) { emit textureAdded(index); }
+    void notifyTextureRemoved(s32 index) { emit textureRemoved(index); }
 
     friend class DocumentCommandBase;
 
@@ -131,6 +136,10 @@ signals:
 
     void emitterSetAdded(s32 setIndex);
     void emitterSetRemoved(s32 setIndex);
+
+    void textureAdded(s32 index);
+    void textureRemoved(s32 index);
+    void textureChanged(s32 index);
 
 private:
     PtclRes mData{};

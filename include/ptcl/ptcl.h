@@ -14,7 +14,7 @@ namespace Ptcl {
 // ========================================================================== //
 
 
-using TextureList = std::vector<std::shared_ptr<Texture>>;
+using TextureList = std::vector<std::unique_ptr<Texture>>;
 using EmitterSetList = std::vector<std::unique_ptr<EmitterSet>>;
 
 
@@ -31,7 +31,7 @@ public:
     TextureList takeTextures();
 
 private:
-    std::shared_ptr<Texture> loadTexture(u32 texturePos, u32 size, u32 width, u32 height, TextureFormat format);
+    Texture* loadTexture(u32 texturePos, u32 size, u32 width, u32 height, TextureFormat format);
 
     std::unique_ptr<EmitterSet> readEmitterSet(s32 index);
     void readComplexData(Emitter& emitter, const BinCommonEmitterData& common);
@@ -137,15 +137,20 @@ public:
     Emitter* emitter(s32 setIndex, s32 emitterIndex);
     const Emitter* emitter(s32 setIndex, s32 emitterIndex) const;
 
-    const TextureList& textures() const;
     TextureList& textures();
+    const TextureList& textures() const;
 
     void insertEmitterSet(s32 setIndex, std::unique_ptr<EmitterSet> emitterSet);
     std::unique_ptr<EmitterSet> removeEmitterSet(s32 setIndex);
 
+    void insertTexture(s32 index, std::unique_ptr<Texture> texture);
+    void swapTexture(s32 index, std::unique_ptr<Texture>& texture);
+    std::unique_ptr<Texture> removeTexture(s32 index);
+
     s32 emitterSetCount() const;
     s32 emitterCount(s32 setIndex) const;
     u32 totalEmitterCount() const;
+    s32 textureCount() const;
 
     const std::unique_ptr<EmitterSet>& appendEmitterSet(std::unique_ptr<EmitterSet>& newSet);
 
