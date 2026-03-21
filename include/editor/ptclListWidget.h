@@ -78,10 +78,6 @@ public:
     void updateEmitterSetName(s32 setIndex);
     void refresh();
 
-signals:
-    void itemAdded();
-    void itemRemoved();
-
 private slots:
     void filterList(const QString& text);
 

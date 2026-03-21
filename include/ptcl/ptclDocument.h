@@ -77,7 +77,7 @@ public:
     const QString& projectName() const { return mData.name(); }
     void setProjectName(const QString& name);
 
-    bool isModified() const { return mModified; }
+    bool isDirty() const { return !mUndoStack.isClean(); }
     QString filePath() const  { return mFilePath; }
 
     QUndoStack* undoStack() { return &mUndoStack; }
@@ -136,8 +136,6 @@ private:
     PtclRes mData{};
     QString mFilePath{};
     QUndoStack mUndoStack{};
-
-    bool mModified{false};
 };
 
 
