@@ -60,6 +60,18 @@ void Document::removeEmitterSet(s32 setIndex) {
     mUndoStack.push(new RemoveEmitterSetCommand(this, setIndex));
 }
 
+void Document::addTexture(std::unique_ptr<Texture> texture) {
+    mUndoStack.push(new AddTextureCommand(this, std::move(texture)));
+}
+
+void Document::removeTexture(s32 index) {
+    mUndoStack.push(new RemoveTextureCommand(this, index));
+}
+
+void Document::replaceTexture(s32 index, std::unique_ptr<Texture> texture) {
+    mUndoStack.push(new ReplaceTextureCommand(this, index, std::move(texture)));
+}
+
 
 // ========================================================================== //
 

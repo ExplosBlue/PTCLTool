@@ -51,16 +51,19 @@ public:
 public:
     explicit TextureListModel(QObject* parent = nullptr);
 
-    void setTextures(Ptcl::TextureList* textures);
+    void setTextures(const Ptcl::TextureList* textures);
 
     s32 rowCount(const QModelIndex& parent = {}) const final;
     QVariant data(const QModelIndex& index, s32 role) const final;
+
+    void onTextureAdded(s32 index);
+    void onTextureRemoved(s32 index);
 
 private:
     void emitRowChangedFor(Ptcl::Texture* texture);
 
 private:
-    Ptcl::TextureList* mTextures{nullptr};
+    const Ptcl::TextureList* mTextures{nullptr};
 };
 
 
@@ -71,18 +74,21 @@ class TextureDetailsPanel final : public QWidget {
 public:
     explicit TextureDetailsPanel(QWidget* parent = nullptr);
 
-    void setTexture(Ptcl::Texture* texture);
+    void setTexture(const QModelIndex& index, Ptcl::Texture* texture);
 
 signals:
     void exportRequested(Ptcl::Texture* texture);
-    void replaceRequested(Ptcl::Texture* texture);
+    void replaceRequested(const QModelIndex& index);
+    void deleteRequested(const QModelIndex& index);
 
 private:
     Ptcl::Texture* mTexturePtr{nullptr};
+    QModelIndex mIndex;
 
     ThumbnailWidget mThumbnailWidget{};
     QPushButton mExportButton{};
     QPushButton mReplaceButton{};
+    QPushButton mDeleteButton{};
 
 };
 
@@ -100,7 +106,8 @@ private slots:
     void exportAll();
     void importTexture();
     void exportTexture(Ptcl::Texture* texture);
-    void replaceTexture(Ptcl::Texture* texture);
+    void replaceTexture(const QModelIndex& index);
+    void deleteTexture(const QModelIndex& index);
 
 private:
     void setupToolbar();
@@ -111,7 +118,6 @@ private:
 
 private:
     Ptcl::Document* mDocument{nullptr};
-    Ptcl::TextureList* mTexturesPtr{nullptr};
 
     QToolBar mToolbar{};
     QAction* mActionExportAll{nullptr};

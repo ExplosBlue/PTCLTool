@@ -83,7 +83,7 @@ QSize TextureItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QM
 TextureListModel::TextureListModel(QObject* parent) :
     QAbstractListModel{parent} {}
 
-void TextureListModel::setTextures(Ptcl::TextureList* textures) {
+void TextureListModel::setTextures(const Ptcl::TextureList* textures) {
     beginResetModel();
 
     mTextures = textures;
@@ -153,14 +153,39 @@ void TextureListModel::emitRowChangedFor(Ptcl::Texture* texture) {
     }
 }
 
+void TextureListModel::onTextureAdded(s32 index) {
+    if (!mTextures) {
+        return;
+    }
+
+    beginInsertRows(QModelIndex(), index, index);
+
+    auto* texture = (*mTextures)[index].get();
+    texture->setUserCountCallback([this, texture]() {
+        emitRowChangedFor(texture);
+    });
+
+    endInsertRows();
+}
+
+void TextureListModel::onTextureRemoved(s32 index) {
+    if (!mTextures) {
+        return;
+    }
+
+    beginRemoveRows(QModelIndex(), index, index);
+    endRemoveRows();
+}
+
 
 // ========================================================================== //
 
 TextureDetailsPanel::TextureDetailsPanel(QWidget* parent) :
     QWidget{parent} {
     mThumbnailWidget.setThumbnailSize({256, 256});
-    mExportButton.setText("Export Texture");
-    mReplaceButton.setText("Replace Texture");
+    mExportButton.setText("Export");
+    mReplaceButton.setText("Replace");
+    mDeleteButton.setText("Delete");
 
     auto* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
@@ -170,6 +195,7 @@ TextureDetailsPanel::TextureDetailsPanel(QWidget* parent) :
     auto* buttonLayout = new QHBoxLayout;
     buttonLayout->addWidget(&mExportButton);
     buttonLayout->addWidget(&mReplaceButton);
+    buttonLayout->addWidget(&mDeleteButton);
     mainLayout->addLayout(buttonLayout);
     mainLayout->addStretch(1);
 
@@ -182,16 +208,24 @@ TextureDetailsPanel::TextureDetailsPanel(QWidget* parent) :
 
     connect(&mReplaceButton, &QPushButton::clicked, this, [this](bool checked) {
         Q_UNUSED(checked);
-        if (mTexturePtr) {
-            emit replaceRequested(mTexturePtr);
+        if (mIndex.isValid()) {
+            emit replaceRequested(mIndex);
+        }
+    });
+
+    connect(&mDeleteButton, &QPushButton::clicked, this, [this](bool checked) {
+        Q_UNUSED(checked);
+        if (mIndex.isValid()) {
+            emit deleteRequested(mIndex);
         }
     });
 
     setEnabled(false);
 }
 
-void TextureDetailsPanel::setTexture(Ptcl::Texture* texture) {
+void TextureDetailsPanel::setTexture(const QModelIndex& index, Ptcl::Texture* texture) {
     mTexturePtr = texture;
+    mIndex = index;
 
     if (!mTexturePtr) {
         setEnabled(false);
@@ -217,6 +251,7 @@ TextureListWidget::TextureListWidget(QWidget *parent) :
 
     connect(&mDetailsPanel, &TextureDetailsPanel::exportRequested, this, &TextureListWidget::exportTexture);
     connect(&mDetailsPanel, &TextureDetailsPanel::replaceRequested, this, &TextureListWidget::replaceTexture);
+    connect(&mDetailsPanel, &TextureDetailsPanel::deleteRequested, this, &TextureListWidget::deleteTexture);
 }
 
 void TextureListWidget::setupToolbar() {
@@ -257,8 +292,11 @@ void TextureListWidget::setupContextMenu() {
         menu.addAction("Export", this, [this, texture] {
             exportTexture(texture);
         });
-        menu.addAction("Replace", this, [this, texture] {
-            replaceTexture(texture);
+        menu.addAction("Replace", this, [this, index] {
+            replaceTexture(index);
+        });
+        menu.addAction("Delete", this, [this, index] {
+            deleteTexture(index);
         });
 
         menu.exec(mView.viewport()->mapToGlobal(pos));
@@ -284,15 +322,18 @@ void TextureListWidget::setupSelectionHandling() {
         if (current.isValid()) {
             texture = static_cast<Ptcl::Texture*>(current.data(TextureListModel::Roles::TexturePtrRole).value<void*>());
         }
-        mDetailsPanel.setTexture(texture);
+        mDetailsPanel.setTexture(current, texture);
     });
 }
 
 void TextureListWidget::setDocument(Ptcl::Document* document) {
+    if (mDocument) {
+        mDocument->disconnect(this);
+    }
+
     mDocument = document;
 
     if (!mDocument) {
-        mTexturesPtr = nullptr;
         mModel.setTextures(nullptr);
 
         mActionExportAll->setEnabled(false);
@@ -302,8 +343,20 @@ void TextureListWidget::setDocument(Ptcl::Document* document) {
         return;
     }
 
-    mTexturesPtr = &mDocument->textures();
-    mModel.setTextures(mTexturesPtr);
+    connect(mDocument, &Ptcl::Document::textureChanged, this, [this](s32 index) {
+        QModelIndex idx = mModel.index(index);
+        emit mModel.dataChanged(idx, idx);
+    });
+
+    connect(mDocument, &Ptcl::Document::textureAdded, this, [this](s32 index) {
+        mModel.onTextureAdded(index);
+    });
+
+    connect(mDocument, &Ptcl::Document::textureRemoved, this, [this](s32 index) {
+        mModel.onTextureRemoved(index);
+    });
+
+    mModel.setTextures(&mDocument->textures());
 
     mActionExportAll->setEnabled(true);
     mActionImportTexture->setEnabled(true);
@@ -312,7 +365,7 @@ void TextureListWidget::setDocument(Ptcl::Document* document) {
 }
 
 void TextureListWidget::exportAll() {
-    if (!mTexturesPtr) {
+    if (!mDocument) {
         return;
     }
 
@@ -332,8 +385,9 @@ void TextureListWidget::exportAll() {
         return;
     }
 
-    for (s32 idx = 0; idx < mTexturesPtr->size(); ++idx) {
-        const auto& texture = (*mTexturesPtr)[idx];
+    const auto& textures = mDocument->textures();
+    for (s32 idx = 0; idx < textures.size(); ++idx) {
+        const auto& texture = textures[idx];
         texture->textureData().save(QString("%1/tex_%2.png").arg(dirPath).arg(idx));
     }
 
@@ -341,7 +395,7 @@ void TextureListWidget::exportAll() {
 }
 
 void TextureListWidget::importTexture() {
-    if (!mTexturesPtr) {
+    if (!mDocument) {
         return;
     }
 
@@ -365,8 +419,7 @@ void TextureListWidget::importTexture() {
     dialog.setFilePath(filePath);
 
     if (dialog.exec() == QDialog::Accepted) {
-        mTexturesPtr->push_back(std::move(dialog.getTexture()));
-        mModel.setTextures(mTexturesPtr);
+        mDocument->addTexture(dialog.getTexture());
     }
 
     SettingsUtil::SettingsMgr::instance().setLastImportPath(QFileInfo(filePath).absolutePath());
@@ -402,10 +455,12 @@ void TextureListWidget::exportTexture(Ptcl::Texture* texture) {
     SettingsUtil::SettingsMgr::instance().setLastExportPath(QFileInfo(filePath).absolutePath());
 }
 
-void TextureListWidget::replaceTexture(Ptcl::Texture* texture) {
-    if (!texture) {
+void TextureListWidget::replaceTexture(const QModelIndex& index) {
+    if (!mDocument || !index.isValid()) {
         return;
     }
+
+    const s32 textureIndex = index.row();
 
     QString basePath = SettingsUtil::SettingsMgr::instance().lastImportPath();
     if (basePath.isEmpty()) {
@@ -427,14 +482,20 @@ void TextureListWidget::replaceTexture(Ptcl::Texture* texture) {
     dialog.setFilePath(filePath);
 
     if (dialog.exec() == QDialog::Accepted) {
-        texture->replaceTexture(*dialog.getTexture());
-        mModel.setTextures(mTexturesPtr);
-        mDetailsPanel.setTexture(texture);
+        auto newTexture = dialog.getTexture();
+        mDocument->replaceTexture(textureIndex, std::move(newTexture));
     }
 
     SettingsUtil::SettingsMgr::instance().setLastImportPath(QFileInfo(filePath).absolutePath());
+}
 
-    texture->textureData().save(filePath);
+void TextureListWidget::deleteTexture(const QModelIndex& index) {
+    if (!mDocument || !index.isValid()) {
+        return;
+    }
+
+    const s32 textureIndex = index.row();
+    mDocument->removeTexture(textureIndex);
 }
 
 

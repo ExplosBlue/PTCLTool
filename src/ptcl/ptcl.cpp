@@ -52,12 +52,12 @@ EmitterSetList PtclBinaryReader::readEmitterSets() {
     return std::move(setList);
 }
 
-std::shared_ptr<Texture> PtclBinaryReader::loadTexture(u32 texturePos, u32 size, u32 width, u32 height, TextureFormat format) {
+Texture* PtclBinaryReader::loadTexture(u32 texturePos, u32 size, u32 width, u32 height, TextureFormat format) {
     const u32 offset = mTextureTblPos + texturePos;
 
     auto it = mTextureOffsetMap.find(offset);
     if (it != mTextureOffsetMap.end()) {
-        return mTextures[it->second];
+        return mTextures[it->second].get();
     }
 
     mFile.seek(offset);
@@ -69,13 +69,13 @@ std::shared_ptr<Texture> PtclBinaryReader::loadTexture(u32 texturePos, u32 size,
         qWarning() << "Expected to read" << size << "bytes, got" << bytesRead << "bytes.";
     }
 
-    auto texture = std::make_shared<Texture>(&textureData, width, height, format);
+    auto texture = std::make_unique<Texture>(&textureData, width, height, format);
 
     const u32 idx = static_cast<u32>(mTextures.size());
-    mTextures.push_back(texture);
+    mTextures.push_back(std::move(texture));
     mTextureOffsetMap.emplace(offset, idx);
 
-    return texture;
+    return mTextures.back().get();
 }
 
 std::unique_ptr<EmitterSet> PtclBinaryReader::readEmitterSet(s32 index) {
@@ -464,6 +464,10 @@ u32 PtclRes::totalEmitterCount() const {
     return count;
 }
 
+s32 PtclRes::textureCount() const {
+    return mTextures.size();
+}
+
 bool PtclRes::save(const QString& filePath) {
     PtclBinaryWriter writer(filePath);
     writer.write(*this);
@@ -547,6 +551,22 @@ std::unique_ptr<EmitterSet> PtclRes::removeEmitterSet(s32 setIndex) {
 
     std::unique_ptr<EmitterSet> removed = std::move(*it);
     mEmitterSets.erase(it);
+    return removed;
+}
+
+void PtclRes::insertTexture(s32 index, std::unique_ptr<Texture> texture) {
+    mTextures.insert(mTextures.begin() + index, std::move(texture));
+}
+
+void PtclRes::swapTexture(s32 index, std::unique_ptr<Texture>& texture) {
+    mTextures[index]->swapTexture(*texture);
+}
+
+std::unique_ptr<Texture> PtclRes::removeTexture(s32 index) {
+    auto it = mTextures.begin() + index;
+
+    std::unique_ptr<Texture> removed = std::move(*it);
+    mTextures.erase(it);
     return removed;
 }
 
