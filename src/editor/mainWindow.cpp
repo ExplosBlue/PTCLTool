@@ -1,5 +1,4 @@
 #include "editor/mainWindow.h"
-#include "util/nameValidator.h"
 #include "util/settingsUtil.h"
 
 #include <QDataStream>
@@ -25,7 +24,6 @@ namespace PtclEditor {
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow{parent} {
     setupUi();
-    setupConnections();
     updateRecentFileList();
 }
 
@@ -81,16 +79,6 @@ void MainWindow::setupUi() {
     restoreState(settings.windowState());
 
     updateWindowTitle();
-}
-
-void MainWindow::setupConnections() {
-    connect(&mPtclList, &PtclList::itemAdded, this, [this]() {
-        setDirty(true);
-    });
-
-    connect(&mPtclList, &PtclList::itemRemoved, this, [this]() {
-        setDirty(true);
-    });
 }
 
 void MainWindow::setupMenus() {
@@ -156,7 +144,7 @@ void MainWindow::setupMenus() {
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
-    if (!mDocument || !mHasUnsavedChanges) {
+    if (!mDocument || !mDocument->isDirty()) {
         auto& settings = SettingsUtil::SettingsMgr::instance();
         settings.setWindowGeometry(saveGeometry());
         settings.setWindowState(saveState());
@@ -246,7 +234,6 @@ void MainWindow::saveFile() {
 
     mDocument->save(mDocument->filePath());
 
-    setDirty(false);
     statusBar()->showMessage("File Saved", 2000);
 
     SettingsUtil::SettingsMgr::instance().addRecentFile(mDocument->filePath());
@@ -280,7 +267,6 @@ void MainWindow::saveFileAs() {
 
     mDocument->save(filePath);
 
-    setDirty(false);
     statusBar()->showMessage("File Saved", 2000);
 
     mDocument->filePath() = filePath;
@@ -339,7 +325,6 @@ void MainWindow::loadPtclRes(const QString& path) {
     }
 
     bindUndoStack();
-    setDirty(false);
 
     SettingsUtil::SettingsMgr::instance().addRecentFile(path);
     SettingsUtil::SettingsMgr::instance().setLastOpenPath(QFileInfo(path).absolutePath());
@@ -364,7 +349,7 @@ void MainWindow::updateWindowTitle() {
     if (mDocument && !mDocument->filePath().isEmpty()) {
         title += " - " + QFileInfo(mDocument->filePath()).fileName();
     }
-    if (mHasUnsavedChanges) {
+    if (mDocument && mDocument->isDirty()) {
         title += " *";
     }
     setWindowTitle(title);
@@ -377,18 +362,11 @@ void MainWindow::updateStatusBar() {
 
     if (!mDocument) {
         mStatusLabel->setText("No file loaded");
-    } else if (mHasUnsavedChanges) {
+    } else if (mDocument->isDirty()) {
         mStatusLabel->setText("Unsaved changes");
     } else {
         mStatusLabel->setText("All changes saved");
     }
-}
-
-void MainWindow::setDirty(bool dirty) {
-    mHasUnsavedChanges = dirty;
-    mSaveAction.setEnabled(dirty);
-    updateStatusBar();
-    updateWindowTitle();
 }
 
 void MainWindow::bindUndoStack() {
@@ -415,6 +393,13 @@ void MainWindow::bindUndoStack() {
 
     connect(stack, &QUndoStack::redoTextChanged, this, [this](const QString& text) {
         mRedoAction->setText(text.isEmpty() ? "Redo" : "Redo " + text);
+    });
+
+    connect(stack, &QUndoStack::cleanChanged, this, [this](bool clean) {
+        const bool dirty = !clean;
+        mSaveAction.setEnabled(dirty);
+        updateStatusBar();
+        updateWindowTitle();
     });
 
     mUndoAction->setEnabled(stack->canUndo());

@@ -45,12 +45,10 @@ private:
     void loadPtclRes(const QString& path);
 
     void setupUi();
-    void setupConnections();
     void setupMenus();
 
     void updateWindowTitle();
     void updateStatusBar();
-    void setDirty(bool dirty);
 
     void bindUndoStack();
 
@@ -80,7 +78,6 @@ private:
     PtclEditor::TextureListWidget mTextureWidget{};
 
     QLabel* mStatusLabel{nullptr};
-    bool mHasUnsavedChanges{false};
 };
 
 

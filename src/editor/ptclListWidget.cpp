@@ -622,7 +622,6 @@ void PtclList::addEmitterSet() {
 
     mSelection->set(setIndex, 0, Ptcl::Selection::Type::EmitterSet);
     expandSourceIndex(mListModel.index(setIndex, 0));
-    emit itemAdded();
 }
 
 void PtclList::addEmitter() {
@@ -647,7 +646,6 @@ void PtclList::addEmitter() {
     mDocument->addEmitter("Add New Emitter", setIndex);
     mSelection->set(setIndex, emitterIndex, Ptcl::Selection::Type::Emitter);
     expandSourceIndex(mListModel.indexFromItem(setItem));
-    emit itemAdded();
 }
 
 void PtclList::removeItem() {
@@ -666,7 +664,6 @@ void PtclList::removeItem() {
     } else if (type == NodeType::EmitterSet) {
         removeEmitterSet(item);
     }
-    emit itemRemoved();
 }
 
 
