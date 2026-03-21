@@ -31,10 +31,9 @@ public:
 
     bool isPlaceholder() const;
 
-    void replaceTexture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format);
-    void replaceTexture(const Texture& other);
+    void swapTexture(Texture& other);
 
-    static const std::shared_ptr<Texture>& placeholder();
+    static Texture* placeholder();
 
     void setUserCountCallback(UserCountCallback callback);
 
@@ -68,7 +67,7 @@ private:
 
 class TextureHandle {
 public:
-    TextureHandle(std::shared_ptr<Texture> texture = nullptr);
+    TextureHandle(Texture* texture = nullptr);
     TextureHandle(const TextureHandle& other);
     TextureHandle(TextureHandle&& other) noexcept;
 
@@ -82,18 +81,18 @@ public:
     void invalidate();
     bool isValid() const;
 
-    std::shared_ptr<Texture> get() const;
-    void set(const std::shared_ptr<Texture>& texture);
+    Texture* get() const;
+    void set(Texture* texture);
 
-    TextureHandle& operator=(const std::shared_ptr<Texture>& texture);
-    std::shared_ptr<Texture> operator->() const;
+    TextureHandle& operator=(Texture* texture);
+    Texture* operator->() const;
 
 private:
     void incrementCount();
     void decrementCount();
 
 private:
-    std::shared_ptr<Texture> mTexturePtr;
+    Texture* mTexturePtr;
 };
 
 

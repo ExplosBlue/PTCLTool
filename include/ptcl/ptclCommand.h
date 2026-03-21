@@ -32,6 +32,7 @@ protected:
 
     void notifyEmitterChanged(s32 setIndex, s32 emitterIndex) { mDocument->notifyEmitterChanged(setIndex, emitterIndex); }
     void notifyEmitterSetChanged(s32 setIndex) { mDocument->notifyEmitterSetChanged(setIndex); }
+    void notifyTextureChanged(s32 index) { mDocument->notifyTextureChanged(index); }
     void notifyProjectChanged() { mDocument->notifyProjectChanged(); }
 
     void notifyEmitterAdded(s32 setIndex, s32 emitterIndex) { mDocument->notifyEmitterAdded(setIndex, emitterIndex); }
@@ -39,6 +40,9 @@ protected:
 
     void notifyEmitterSetAdded(s32 setIndex) { mDocument->notifyEmitterSetAdded(setIndex); }
     void notifyEmitterSetRemoved(s32 setIndex) { mDocument->notifyEmitterSetRemoved(setIndex); }
+
+    void notifyTextureAdded(s32 index) { mDocument->notifyTextureAdded(index); }
+    void notifyTextureRemoved(s32 index) { mDocument->notifyTextureRemoved(index); }
 
 private:
     Document* mDocument;
@@ -428,5 +432,112 @@ private:
 
 // ========================================================================== //
 
+
+class AddTextureCommand final : public DocumentCommandBase {
+public:
+    AddTextureCommand(Document* doc, std::unique_ptr<Texture> texture, QUndoCommand* parent = nullptr) :
+        DocumentCommandBase{doc, std::move("Add Texture"), parent}, mNewTexture{std::move(texture)} {
+    }
+
+    s32 id() const override {
+        return mId;
+    }
+
+    void undo() override {
+        auto removed = resource().removeTexture(mIndex);
+        if (!removed) {
+            Q_ASSERT(false && "removeTexture returned null");
+            return;
+        }
+
+        mNewTexture = std::move(removed);
+        notifyTextureRemoved(mIndex);
+
+    }
+
+    void redo() override {
+        mIndex = resource().textureCount();
+        resource().insertTexture(mIndex, std::move(mNewTexture));
+        notifyTextureAdded(mIndex);
+    }
+
+private:
+    s32 mIndex{0};
+    std::unique_ptr<Texture> mNewTexture{};
+
+    const s32 mId{static_cast<s32>(qHash("AddTexture"))};
+};
+
+
+// ========================================================================== //
+
+
+class ReplaceTextureCommand final : public DocumentCommandBase {
+public:
+    ReplaceTextureCommand(Document* doc, s32 index, std::unique_ptr<Texture> texture, QUndoCommand* parent = nullptr) :
+        DocumentCommandBase{doc, std::move("Replace Texture"), parent}, mIndex{index}, mTexture{std::move(texture)} {
+    }
+
+    s32 id() const override {
+        return mId;
+    }
+
+    void undo() override {
+        resource().swapTexture(mIndex, mTexture);
+        notifyTextureChanged(mIndex);
+
+    }
+
+    void redo() override {
+        resource().swapTexture(mIndex, mTexture);
+        notifyTextureChanged(mIndex);
+    }
+
+private:
+    s32 mIndex{0};
+    std::unique_ptr<Texture> mTexture{};
+
+    const s32 mId{static_cast<s32>(qHash("ReplaceTexture"))};
+};
+
+
+// ========================================================================== //
+
+
+class RemoveTextureCommand final : public DocumentCommandBase {
+public:
+    RemoveTextureCommand(Document* doc, s32 index, QUndoCommand* parent = nullptr) :
+        DocumentCommandBase{doc, std::move("Remove Texture"), parent}, mIndex{index} {
+    }
+
+    s32 id() const override {
+        return mId;
+    }
+
+    void undo() override {
+        resource().insertTexture(mIndex, std::move(mRemovedTexture));
+        notifyTextureAdded(mIndex);
+    }
+
+    void redo() override {
+        auto removed = resource().removeTexture(mIndex);
+        if (!removed) {
+            Q_ASSERT(false && "removeTexture returned null");
+            return;
+        }
+
+        mRemovedTexture = std::move(removed);
+        notifyTextureRemoved(mIndex);
+    }
+
+private:
+    s32 mIndex{0};
+    std::unique_ptr<Texture> mRemovedTexture{};
+
+    const s32 mId{static_cast<s32>(qHash("RemoveTexture"))};
+};
+
+
+// ========================================================================== //
 
 } // namespace Ptcl

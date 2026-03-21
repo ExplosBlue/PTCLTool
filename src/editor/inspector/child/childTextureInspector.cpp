@@ -156,13 +156,13 @@ void ChildTextureInspector::populateProperties() {
 }
 
 void ChildTextureInspector::changeTexture() {
-    const auto textureList = mDocument->textures();
+    const auto& textureList = mDocument->textures();
 
     TextureSelectDialog dialog(textureList, this);
     if (dialog.exec() == QDialog::Accepted) {
         s32 selectedInded = dialog.selectedIndex();
         if (selectedInded >= 0 && static_cast<size_t>(selectedInded) < textureList.size()) {
-            const auto& texture = textureList.at(selectedInded);
+            const auto texture = textureList.at(selectedInded).get();
             setEmitterProperty(
                 "Set Child Texture",
                 "SetChildTexture",
