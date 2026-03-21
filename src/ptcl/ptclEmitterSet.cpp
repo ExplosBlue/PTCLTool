@@ -74,11 +74,6 @@ std::unique_ptr<EmitterSet> EmitterSet::clone() const {
     return newSet;
 }
 
-const std::unique_ptr<Emitter>& EmitterSet::appendEmitter(std::unique_ptr<Emitter>& newSet) {
-    mEmitters.push_back(std::move(newSet));
-    return mEmitters.at(emitterCount() - 1);
-}
-
 
 // ========================================================================== //
 

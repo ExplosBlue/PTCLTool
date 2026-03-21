@@ -81,6 +81,12 @@ void MainWindow::setupUi() {
     updateWindowTitle();
 }
 
+MainWindow::~MainWindow() {
+    mPtclList.setDocument(nullptr);
+    mInspector.setDocument(nullptr);
+    mTextureWidget.setDocument(nullptr);
+}
+
 void MainWindow::setupMenus() {
     // Open File
     mOpenAction.setText("Open File");
