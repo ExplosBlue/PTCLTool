@@ -236,6 +236,7 @@ void RGBAColorWidget::openColorDialog() {
             newColor.alphaF()
         };
         setColor(newColorFloat);
+        emit colorChanged();
     }
 }
 
