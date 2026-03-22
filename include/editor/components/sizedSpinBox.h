@@ -164,9 +164,9 @@ protected:
     }
 
 private:
-    T mCurrentValue;
-    T mMin;
-    T mMax;
+    T mCurrentValue{};
+    T mMin{std::numeric_limits<T>::min()};
+    T mMax{std::numeric_limits<T>::max()};
 };
 
 
