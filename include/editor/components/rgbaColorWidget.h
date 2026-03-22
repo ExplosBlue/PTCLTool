@@ -26,6 +26,7 @@ public:
 signals:
     void spinChanged(double value);
     void sliderChanged(s32 value);
+    void sliderReleased();
 
 private:
     QLabel mLabel{};
