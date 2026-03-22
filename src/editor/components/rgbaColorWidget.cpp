@@ -36,6 +36,7 @@ ColorChannelRow::ColorChannelRow(const QString& name, QSlider* slider, QWidget* 
 
     connect(&mSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ColorChannelRow::spinChanged);
     connect(mSlider, &QSlider::valueChanged, this, &ColorChannelRow::sliderChanged);
+    connect(mSlider, &QSlider::sliderReleased, this, &ColorChannelRow::sliderReleased);
 }
 
 
@@ -75,6 +76,9 @@ RGBAColorWidget::RGBAColorWidget(QWidget* parent) :
         mSliderLayout->addWidget(row);
         connect(row, &ColorChannelRow::spinChanged, this, &RGBAColorWidget::updateColorFromSpinBoxes);
         connect(row, &ColorChannelRow::sliderChanged, this, &RGBAColorWidget::updateColorFromSliders);
+        connect(row, &ColorChannelRow::sliderReleased, this, [this]() {
+            emit colorChanged();
+        });
     }
 
     mRowsContainer = new QWidget(this);
@@ -182,7 +186,6 @@ void RGBAColorWidget::updateColorFromSliders() {
     blockSignals(false);
 
     updatePreview();
-    emit colorChanged();
 }
 
 void RGBAColorWidget::updateColorFromSpinBoxes() {
