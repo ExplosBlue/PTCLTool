@@ -22,7 +22,7 @@ void CombinerStageWidget::setStage(Combiner::Stage stage, s32 num) {
     updateGeometry();
 }
 
-void CombinerStageWidget::setCombinerSrc(const Ptcl::TextureHandle* texture, const Ptcl::binColor3f* constant, const Ptcl::binColor4f* primary, const QImage* previous) {
+void CombinerStageWidget::setCombinerSrc(const Ptcl::TextureHandle* texture, const Gfx::Color* constant, const Gfx::Color* primary, const QImage* previous) {
     mTextureSrc = texture;
     mConstantSrc = constant;
     mPrimarySrc = primary;
@@ -296,16 +296,16 @@ QImage CombinerStageWidget::getTransformedInput(s32 inputIdx) const {
         if (mConstantSrc) {
             QColor c;
             c.setRgbF(
-                mConstantSrc->r / 255.0f,
-                mConstantSrc->g / 255.0f,
-                mConstantSrc->b / 255.0f);
+                mConstantSrc->r(),
+                mConstantSrc->g(),
+                mConstantSrc->b());
             src = colorToImage(c);
         }
         break;
     case Combiner::Input::Primary:
         if (mPrimarySrc) {
             QColor c;
-            c.setRgbF(mPrimarySrc->r, mPrimarySrc->g, mPrimarySrc->b);
+            c.setRgbF(mPrimarySrc->r(), mPrimarySrc->g(), mPrimarySrc->b());
             src = colorToImage(c);
         }
         break;
@@ -513,7 +513,7 @@ void CombinerPreviewWidget::setConfig(s32 configIdx) {
     mAlphaStage1.setStage(Combiner::configurations[mConfigIdx].alphaStage[1], 1);
 }
 
-void CombinerPreviewWidget::setCombinerSrc(const Ptcl::TextureHandle* texture, const Ptcl::binColor3f* constant, const Ptcl::binColor4f* primary) {
+void CombinerPreviewWidget::setCombinerSrc(const Ptcl::TextureHandle* texture, const Gfx::Color* constant, const Gfx::Color* primary) {
     mColorStage0.setCombinerSrc(texture, constant, primary, nullptr);
     mColorStage1.setCombinerSrc(texture, constant, primary, &mColorStage0.getStageOutput());
     mAlphaStage0.setCombinerSrc(texture, constant, primary, nullptr);

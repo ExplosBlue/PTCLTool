@@ -165,6 +165,7 @@ set(PROJECT_HEADERS
 qt_add_executable(PTCLTool
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES} ${PROJECT_HEADERS}
+    include/gfx/color.h src/gfx/color.cpp
 )
 
 qt_add_resources(PTCLTool "icons"

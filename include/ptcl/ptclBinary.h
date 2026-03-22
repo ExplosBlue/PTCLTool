@@ -5,6 +5,7 @@
 #include "util/bitflagUtil.h"
 #include "math/matrix.h"
 #include "math/vector.h"
+#include "gfx/color.h"
 
 #include <QColor>
 #include <QDataStream>
@@ -121,7 +122,9 @@ struct alignas(4) binColor4f {
 
     binColor4f();
     binColor4f(f32 r, f32 g, f32 b, f32 a);
-    binColor4f(const QColor& color);
+
+    Gfx::Color toColor() const;
+    static binColor4f fromColor(const Gfx::Color& color);
 
     friend QDataStream& operator>>(QDataStream& in, binColor4f& item);
     friend QDataStream& operator<<(QDataStream& out, const binColor4f& item);
@@ -145,7 +148,9 @@ struct alignas(4) binColor3f {
 
     binColor3f();
     binColor3f(f32 r, f32 g, f32 b);
-    binColor3f(const QColor& color);
+
+    Gfx::Color toColor() const;
+    static binColor3f fromColor(const Gfx::Color& color);
 
     friend QDataStream& operator>>(QDataStream& in, binColor3f& item);
     friend QDataStream& operator<<(QDataStream& out, const binColor3f& item);
