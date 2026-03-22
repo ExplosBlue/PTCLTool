@@ -193,19 +193,12 @@ void ColorInspector::setupConnections() {
     // Secondary Color
     connect(&mSecondaryColorWidget, &RGBAColorWidget::colorChanged, this, [this]() {
         const auto& color = mSecondaryColorWidget.color();
-
-        Ptcl::binColor3f newColor{
-            color.r * 255.0f,
-            color.g * 255.0f,
-            color.b * 255.0f
-        };
-
         setEmitterProperty(
             "Set Secondary Color",
             "SetSecondaryColor",
             &Ptcl::Emitter::secondaryColor,
             &Ptcl::Emitter::setSecondaryColor,
-            newColor
+            color
         );
     });
 }
@@ -240,25 +233,18 @@ void ColorInspector::populateProperties() {
     );
 
     const auto& startColor = mEmitter->startColor();
-    mColorSections.setInitialColor(QColor::fromRgbF(startColor.r, startColor.g, startColor.b));
+    mColorSections.setInitialColor(QColor::fromRgbF(startColor.r(), startColor.g(), startColor.b()));
 
     const auto& midColor = mEmitter->midColor();
-    mColorSections.setPeakColor(QColor::fromRgbF(midColor.r, midColor.g, midColor.b));
+    mColorSections.setPeakColor(QColor::fromRgbF(midColor.r(), midColor.g(), midColor.b()));
 
     const auto& endColor = mEmitter->endColor();
-    mColorSections.setEndColor(QColor::fromRgbF(endColor.r, endColor.g, endColor.b));
+    mColorSections.setEndColor(QColor::fromRgbF(endColor.r(), endColor.g(), endColor.b()));
 
     mColorSections.setRepetitionCount(mEmitter->colorNumRepeat());
     mColorNumRepeatSpinBox.setValue(mEmitter->colorNumRepeat());
     mColorCalcTypeSpinBox.setCurrentEnum(mEmitter->colorCalcType());
-
-    Ptcl::binColor4f secondaryColor{
-        std::clamp(mEmitter->secondaryColor().r / 255.0f, 0.0f, 1.0f),
-        std::clamp(mEmitter->secondaryColor().g / 255.0f, 0.0f, 1.0f),
-        std::clamp(mEmitter->secondaryColor().b / 255.0f, 0.0f, 1.0f),
-        1.0f
-    };
-    mSecondaryColorWidget.setColor(secondaryColor);
+    mSecondaryColorWidget.setColor(mEmitter->secondaryColor());
 
     Behavior behavior = Behavior::Constant;
     if (mEmitter->isColorRandom()) {

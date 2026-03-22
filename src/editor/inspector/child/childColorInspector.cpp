@@ -52,19 +52,12 @@ void ChildColorInspector::setupConnections() {
     // Color 1
     connect(&mColor1Widget, &RGBAColorWidget::colorChanged, this, [this]() {
         const auto color = mColor1Widget.color();
-
-        Ptcl::binColor3f newColor{
-            color.r * 255.0f,
-            color.g * 255.0f,
-            color.b * 255.0f
-        };
-
         setEmitterProperty(
             "Set Child Secondary Color",
             "SetChildSecondaryColor",
             &Ptcl::Emitter::childSecondaryColor,
             &Ptcl::Emitter::setChildSecondaryColor,
-            newColor
+            color
         );
     });
 }
@@ -79,13 +72,7 @@ void ChildColorInspector::populateProperties() {
     mColor0Widget.setColor(mEmitter->childPrimaryColor());
     mColor0Widget.setDisabled(inheritParentColor);
 
-    Ptcl::binColor4f color1{
-        std::clamp(mEmitter->childSecondaryColor().r / 255.0f, 0.0f, 1.0f),
-        std::clamp(mEmitter->childSecondaryColor().g / 255.0f, 0.0f, 1.0f),
-        std::clamp(mEmitter->childSecondaryColor().b / 255.0f, 0.0f, 1.0f),
-        1.0f
-    };
-    mColor1Widget.setColor(color1);
+    mColor1Widget.setColor(mEmitter->childSecondaryColor());
     mInheritColorCheckBox.setChecked(inheritParentColor);
 }
 

@@ -138,8 +138,17 @@ binColor4f::binColor4f(f32 r, f32 g, f32 b, f32 a) :
     r(r), g(g), b(b), a(a) {
 }
 
-binColor4f::binColor4f(const QColor& color) :
-    r(color.redF()), g(color.greenF()), b(color.blueF()), a(color.alphaF()) {
+Gfx::Color binColor4f::toColor() const {
+    return { r, g, b, a };
+}
+
+binColor4f binColor4f::fromColor(const Gfx::Color& color) {
+    return {
+        color.r(),
+        color.g(),
+        color.b(),
+        color.a()
+    };
 }
 
 QDataStream& operator>>(QDataStream& in, binColor4f& item) {
@@ -170,8 +179,20 @@ binColor3f::binColor3f(f32 r, f32 g, f32 b) :
     r(r), g(g), b(b) {
 }
 
-binColor3f::binColor3f(const QColor& color) :
-    r(color.redF()), g(color.greenF()), b(color.blueF()) {
+Gfx::Color binColor3f::toColor() const {
+    return {
+        std::clamp(r / 255.0f, 0.0f, 1.0f),
+        std::clamp(g / 255.0f, 0.0f, 1.0f),
+        std::clamp(b / 255.0f, 0.0f, 1.0f),
+    };
+}
+
+binColor3f binColor3f::fromColor(const Gfx::Color& color) {
+    return {
+        color.r() * 255.0f,
+        color.g() * 255.0f,
+        color.b() * 255.0f,
+    };
 }
 
 QDataStream& operator>>(QDataStream& in, binColor3f& item) {
@@ -361,8 +382,10 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     billboardType = emitter.billboardType();
     depthFunc = emitter.depthFunction();
     gravity = emitter.gravity();
-    color0 = emitter.color0();
-    color1 = emitter.secondaryColor();
+    for (size_t i = 0; i < color0.size(); ++i) {
+        color0[i] = Ptcl::binColor4f::fromColor(emitter.color0()[i]);
+    }
+    color1 = binColor3f::fromColor(emitter.secondaryColor());
     colorSection1 = emitter.colorSection1();
     colorSection2 = emitter.colorSection2();
     colorSection3 = emitter.colorSection3();
@@ -740,8 +763,8 @@ BinChildData::BinChildData(const Ptcl::Emitter& emitterData) {
     childTexturePos = 0; // To be assigned after construction...
     childTextureHandlePtr = 0;
 
-    childColor0 = emitterData.childPrimaryColor();
-    childColor1 = emitterData.childSecondaryColor();
+    childColor0 = binColor4f::fromColor(emitterData.childPrimaryColor());
+    childColor1 = binColor3f::fromColor(emitterData.childSecondaryColor());
     childAlpha = emitterData.childAlpha();
     childAlphaTarget = emitterData.childAlphaTarget();
     childAlphaInit = emitterData.childAlphaInit();

@@ -75,7 +75,7 @@ void RGBAColorWidget::enableAlpha(bool enabled) {
     }
 }
 
-void RGBAColorWidget::setColor(const Ptcl::binColor4f& color) {
+void RGBAColorWidget::setColor(const Gfx::Color& color) {
     QSignalBlocker b1(mSliderR);
     QSignalBlocker b2(mSliderG);
     QSignalBlocker b3(mSliderB);
@@ -86,10 +86,10 @@ void RGBAColorWidget::setColor(const Ptcl::binColor4f& color) {
     QSignalBlocker b7(mSpinBoxB);
     QSignalBlocker b8(mSpinBoxA);
 
-    s32 r = static_cast<s32>(std::round(color.r * 255.0f));
-    s32 g = static_cast<s32>(std::round(color.g * 255.0f));
-    s32 b = static_cast<s32>(std::round(color.b * 255.0f));
-    s32 a = static_cast<s32>(std::round(color.a * 255.0f));
+    s32 r = static_cast<s32>(std::round(color.r() * 255.0f));
+    s32 g = static_cast<s32>(std::round(color.g() * 255.0f));
+    s32 b = static_cast<s32>(std::round(color.b() * 255.0f));
+    s32 a = static_cast<s32>(std::round(color.a() * 255.0f));
 
     mSliderR.setRgbValues(r, g, b);
     mSliderG.setRgbValues(r, g, b);
@@ -101,23 +101,22 @@ void RGBAColorWidget::setColor(const Ptcl::binColor4f& color) {
     mSliderB.setValue(b);
     mSliderA.setValue(a);
 
-    mSpinBoxR.setValue(color.r);
-    mSpinBoxG.setValue(color.g);
-    mSpinBoxB.setValue(color.b);
-    mSpinBoxA.setValue(color.a);
+    mSpinBoxR.setValue(color.r());
+    mSpinBoxG.setValue(color.g());
+    mSpinBoxB.setValue(color.b());
+    mSpinBoxA.setValue(color.a());
 
     updatePreview();
     update();
 }
 
-Ptcl::binColor4f RGBAColorWidget::color() const {
-    Ptcl::binColor4f result;
-
-    result.r = static_cast<f32>(mSpinBoxR.value());
-    result.g = static_cast<f32>(mSpinBoxG.value());
-    result.b = static_cast<f32>(mSpinBoxB.value());
-    result.a = static_cast<f32>(mSpinBoxA.value());
-    return result;
+Gfx::Color RGBAColorWidget::color() const {
+    return {
+        static_cast<f32>(mSpinBoxR.value()),
+        static_cast<f32>(mSpinBoxG.value()),
+        static_cast<f32>(mSpinBoxB.value()),
+        static_cast<f32>(mSpinBoxA.value()),
+    };
 }
 
 QColor RGBAColorWidget::toQColor() const {
@@ -198,11 +197,12 @@ void RGBAColorWidget::openColorDialog() {
     if (colorDialog.exec() == QDialog::Accepted) {
         QColor newColor = colorDialog.selectedColor();
 
-        Ptcl::binColor4f newColorFloat;
-        newColorFloat.r = newColor.redF();
-        newColorFloat.g = newColor.greenF();
-        newColorFloat.b = newColor.blueF();
-        newColorFloat.a = newColor.alphaF();
+        Gfx::Color newColorFloat {
+            newColor.redF(),
+            newColor.greenF(),
+            newColor.blueF(),
+            newColor.alphaF()
+        };
         setColor(newColorFloat);
     }
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gfx/color.h"
+
 #include "math/matrix.h"
 #include "math/util.h"
 
@@ -265,28 +267,28 @@ public:
 
     // ----- Color Properties ----- \\
 
-    const std::array<binColor4f, 3>& color0() const { return mColor0; }
+    const std::array<Gfx::Color, 3>& color0() const { return mColor0; }
 
-    const binColor4f& primaryColor() const { return mColor0[0]; }
-    void setPrimaryColor(const binColor4f& color) { mColor0[0] = color; }
+    const Gfx::Color& primaryColor() const { return mColor0[0]; }
+    void setPrimaryColor(const Gfx::Color& color) { mColor0[0] = color; }
 
-    const binColor4f& randomColorA() const { return mColor0[0]; }
-    void setRandomColorA(const binColor4f& color) { mColor0[0] = color; }
+    const Gfx::Color& randomColorA() const { return mColor0[0]; }
+    void setRandomColorA(const Gfx::Color& color) { mColor0[0] = color; }
 
-    const binColor4f& randomColorB() const { return mColor0[1]; }
-    void setRandomColorB(const binColor4f& color) { mColor0[1] = color; }
+    const Gfx::Color& randomColorB() const { return mColor0[1]; }
+    void setRandomColorB(const Gfx::Color& color) { mColor0[1] = color; }
 
-    const binColor4f& randomColorC() const { return mColor0[2]; }
-    void setRandomColorC(const binColor4f& color) { mColor0[2] = color; }
+    const Gfx::Color& randomColorC() const { return mColor0[2]; }
+    void setRandomColorC(const Gfx::Color& color) { mColor0[2] = color; }
 
-    const binColor4f& startColor() const { return mColor0[0]; }
-    void setStartColor(const binColor4f& color) { mColor0[0] = color; }
+    const Gfx::Color& startColor() const { return mColor0[0]; }
+    void setStartColor(const Gfx::Color& color) { mColor0[0] = color; }
 
-    const binColor4f& midColor() const { return mColor0[1]; }
-    void setMidColor(const binColor4f& color) { mColor0[1] = color; }
+    const Gfx::Color& midColor() const { return mColor0[1]; }
+    void setMidColor(const Gfx::Color& color) { mColor0[1] = color; }
 
-    const binColor4f& endColor() const { return mColor0[2]; }
-    void setEndColor(const binColor4f& color) { mColor0[2] = color; }
+    const Gfx::Color& endColor() const { return mColor0[2]; }
+    void setEndColor(const Gfx::Color& color) { mColor0[2] = color; }
 
     s32 colorSection1() const { return mColorSection1; }
     void setColorSection1(s32 section) { mColorSection1 = section; }
@@ -309,8 +311,8 @@ public:
     ColorCalcType colorCalcType() const { return mColorCalcType; }
     void setColorCalcType(ColorCalcType type) { mColorCalcType = type; }
 
-    const binColor3f& secondaryColor() const { return mColor1; }
-    void setSecondaryColor(const binColor3f& color) { mColor1 = color; }
+    const Gfx::Color& secondaryColor() const { return mColor1; }
+    void setSecondaryColor(const Gfx::Color& color) { mColor1 = color; }
 
     // ----- Texture Properties ----- \\
 
@@ -666,11 +668,11 @@ public:
 
     // Child Color
 
-    const binColor4f& childPrimaryColor() const { return mChild.color0; }
-    void setChildPrimaryColor(const binColor4f& color) { mChild.color0 = color; }
+    const Gfx::Color& childPrimaryColor() const { return mChild.color0; }
+    void setChildPrimaryColor(const Gfx::Color& color) { mChild.color0 = color; }
 
-    const binColor3f& childSecondaryColor() const { return mChild.color1; }
-    void setChildSecondaryColor(const binColor3f& color) { mChild.color1 = color; }
+    const Gfx::Color& childSecondaryColor() const { return mChild.color1; }
+    void setChildSecondaryColor(const Gfx::Color& color) { mChild.color1 = color; }
 
     // Child Alpha
 
@@ -781,10 +783,10 @@ private:
     ColorCombinerFuncType mCombinerFunc{ColorCombinerFuncType::CombinerConfig0};
 
     // Color Properties
-    std::array<binColor4f, 3> mColor0{
-        binColor4f{1.0f, 1.0f, 1.0f, 1.0f},
-        binColor4f{1.0f, 1.0f, 1.0f, 1.0f},
-        binColor4f{1.0f, 1.0f, 1.0f, 1.0f},
+    std::array<Gfx::Color, 3> mColor0{
+        Gfx::Color{1.0f, 1.0f, 1.0f, 1.0f},
+        Gfx::Color{1.0f, 1.0f, 1.0f, 1.0f},
+        Gfx::Color{1.0f, 1.0f, 1.0f, 1.0f},
     };
     s32 mColorSection1{20};
     s32 mColorSection2{60};
@@ -792,7 +794,7 @@ private:
     s32 mColorNumRepeat{1};
     ColorCalcType mColorCalcType{ColorCalcType::None};
 
-    binColor3f mColor1{255.0f, 255.0f, 255.0f};
+    Gfx::Color mColor1{1.0f, 1.0f, 1.0f};
 
     // Texture Properties
     TextureWrap mTextureWrapT{TextureWrap::ClampToEdge};
@@ -913,8 +915,8 @@ private:
         TextureHandle textureHandle{};
 
         // Color Properties
-        binColor4f color0{1.0f, 1.0f, 1.0f, 1.0f};
-        binColor3f color1{255.0f, 255.0f, 255.0f};
+        Gfx::Color color0{1.0f, 1.0f, 1.0f, 1.0f};
+        Gfx::Color color1{1.0f, 1.0f, 1.0f};
 
         // Alpha Properties
         f32 alpha{1.0f};

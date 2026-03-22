@@ -242,8 +242,8 @@ void Emitter::initChild(const BinChildData& childData) {
         .textureMipFilter = static_cast<TextureMipFilter>((childData.childTextureRes.minMipFilter >> 1) & 0x3),
         .texUVScale = { childData.childTexUScale, childData.childTexVScale },
 
-        .color0 = childData.childColor0,
-        .color1 = childData.childColor1,
+        .color0 = childData.childColor0.toColor(),
+        .color1 = childData.childColor1.toColor(),
 
         .alpha = childData.childAlpha,
         .alphaTarget = childData.childAlphaTarget,
@@ -331,13 +331,15 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mVolumeSweepParam = emitterData.volumeSweepParam;
 
     // Color Properties
-    mColor0 = emitterData.color0;
+    for (size_t i = 0; i < mColor0.size(); ++i) {
+        mColor0[i] = emitterData.color0[i].toColor();
+    }
     mColorSection1 = emitterData.colorSection1;
     mColorSection2 = emitterData.colorSection2;
     mColorSection3 = emitterData.colorSection3;
     mColorNumRepeat = emitterData.colorNumRepeat;
     mColorCalcType = static_cast<ColorCalcType>(emitterData.rotCalcType / 5);
-    mColor1 = emitterData.color1;
+    mColor1 = emitterData.color1.toColor();
 
     // Alpha Properties
     mAlphaAnim = {

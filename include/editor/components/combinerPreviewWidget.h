@@ -1,6 +1,7 @@
 #pragma once
 
-#include "ptcl/ptclBinary.h"
+#include "gfx/color.h"
+
 #include "ptcl/ptclTexture.h"
 
 #include <QWidget>
@@ -284,7 +285,7 @@ class CombinerStageWidget final : public QWidget {
 public:
     explicit CombinerStageWidget(QWidget* parent = nullptr);
     void setStage(Combiner::Stage stage, s32 num);
-    void setCombinerSrc(const Ptcl::TextureHandle* texture, const Ptcl::binColor3f* constant, const Ptcl::binColor4f* primary, const QImage* previous);
+    void setCombinerSrc(const Ptcl::TextureHandle* texture, const Gfx::Color* constant, const Gfx::Color* primary, const QImage* previous);
 
     const QImage& getStageOutput() const;
 
@@ -325,8 +326,8 @@ private:
     s32 mStageNum{0};
 
     const Ptcl::TextureHandle* mTextureSrc{nullptr};
-    const Ptcl::binColor3f* mConstantSrc{nullptr};
-    const Ptcl::binColor4f* mPrimarySrc{nullptr};
+    const Gfx::Color* mConstantSrc{nullptr};
+    const Gfx::Color* mPrimarySrc{nullptr};
     const QImage* mPrevSrc{nullptr};
 
     QImage mOutputImage{};
@@ -370,7 +371,7 @@ class CombinerPreviewWidget final : public QWidget {
 public:
     explicit CombinerPreviewWidget(QWidget* parent = nullptr);
     void setConfig(s32 configIdx);
-    void setCombinerSrc(const Ptcl::TextureHandle* texture, const Ptcl::binColor3f* constant, const Ptcl::binColor4f* primary);
+    void setCombinerSrc(const Ptcl::TextureHandle* texture, const Gfx::Color* constant, const Gfx::Color* primary);
 
     void updateStages();
 

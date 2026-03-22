@@ -1,9 +1,10 @@
 #pragma once
 
+#include "gfx/color.h"
+
 #include "editor/components/alphaSlider.h"
 #include "editor/components/clickableLabel.h"
 #include "editor/components/gradientSlider.h"
-#include "ptcl/ptclBinary.h"
 
 #include <QDoubleSpinBox>
 #include <QWidget>
@@ -17,8 +18,8 @@ class RGBAColorWidget : public QWidget {
 public:
     explicit RGBAColorWidget(QWidget* parent = nullptr);
 
-    void setColor(const Ptcl::binColor4f& color);
-    Ptcl::binColor4f color() const;
+    void setColor(const Gfx::Color& color);
+    Gfx::Color color() const;
     QColor toQColor() const;
 
     void enableAlpha(bool enable);
