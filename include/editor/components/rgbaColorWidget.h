@@ -7,7 +7,31 @@
 #include "editor/components/gradientSlider.h"
 
 #include <QDoubleSpinBox>
+#include <QLayoutItem>
+#include <QVBoxLayout>
 #include <QWidget>
+
+
+// ========================================================================== //
+
+
+class ColorChannelRow : public QWidget {
+    Q_OBJECT
+public:
+    explicit ColorChannelRow(const QString& name, QSlider* slider, QWidget* parent = nullptr);
+
+    QSlider* slider() { return mSlider; }
+    QDoubleSpinBox* spinBox() { return &mSpinBox; }
+
+signals:
+    void spinChanged(double value);
+    void sliderChanged(s32 value);
+
+private:
+    QLabel mLabel{};
+    QDoubleSpinBox mSpinBox{};
+    QSlider* mSlider{nullptr};
+};
 
 
 // ========================================================================== //
@@ -36,19 +60,21 @@ private:
     void updatePreview();
 
 private:
-    GradientSlider mSliderR;
-    GradientSlider mSliderG;
-    GradientSlider mSliderB;
-    AlphaSlider mSliderA;
+    GradientSlider* mSliderR{nullptr};
+    GradientSlider* mSliderG{nullptr};
+    GradientSlider* mSliderB{nullptr};
+    AlphaSlider* mSliderA{nullptr};
 
-    QDoubleSpinBox mSpinBoxR{};
-    QDoubleSpinBox mSpinBoxG{};
-    QDoubleSpinBox mSpinBoxB{};
-    QDoubleSpinBox mSpinBoxA{};
+    ColorChannelRow* mRowR{nullptr};
+    ColorChannelRow* mRowG{nullptr};
+    ColorChannelRow* mRowB{nullptr};
+    ColorChannelRow* mRowA{nullptr};
+    std::vector<ColorChannelRow*> mRows{};
+    QWidget* mRowsContainer{nullptr};
 
     ClickableLabel mPreview{};
 
-    QWidget* mAlphaRow{nullptr};
+    QVBoxLayout* mSliderLayout{nullptr};
 };
 
 
