@@ -17,6 +17,53 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
+class TextureDivisionSelector final : public QWidget {
+    Q_OBJECT
+public:
+    explicit TextureDivisionSelector(QWidget* parent = nullptr);
+
+    void setDivisions(s32 x, s32 y);
+    void setTexture(const QImage& image);
+
+    QSize sizeHint() const override;
+
+signals:
+    void divisionsChanged(s32 x, s32 y);
+
+protected:
+    void paintEvent(QPaintEvent* event) override;
+
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
+
+    void resizeEvent(QResizeEvent* event) override;
+
+private:
+    void updateLayoutCache();
+
+private:
+    QImage mTexture{};
+    QPixmap mScaledPixmap{};
+
+    QRect mTexRect{};
+    QSize mScaledSize{};
+    qreal mScale{1.0f};
+
+    s32 mDivX{1};
+    s32 mDivY{1};
+
+    s32 mPreviewDivX{1};
+    s32 mPreviewDivY{1};
+
+    QPoint mDragStart{};
+    bool mDragging{false};
+};
+
+
+// ========================================================================== //
+
+
 class TextureInspector final : public InspectorWidgetBase {
     Q_OBJECT
 public:
@@ -66,10 +113,10 @@ private:
     QComboBox mAnimModeComboBox{};
 
     SizedSpinBox<u16> mNumTexPat{};
-    SizedSpinBox<u8> mTexDivX{};
-    SizedSpinBox<u8> mTexDivY{};
     SizedSpinBox<u16> mTexPatFreq{};
     SizedSpinBox<u16> mTexPatTblUse{};
+
+    TextureDivisionSelector mDivisionSelector{};
 
     SizedSpinBox<u32> mTexRepetitionsX{};
     SizedSpinBox<u32> mTexRepetitionsY{};

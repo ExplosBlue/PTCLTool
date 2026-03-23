@@ -2,6 +2,8 @@
 
 #include "editor/textureSelectDialog.h"
 
+#include "util/paintUtil.h"
+
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -17,13 +19,189 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
+TextureDivisionSelector::TextureDivisionSelector(QWidget* parent) :
+    QWidget{parent} {
+
+    setMouseTracking(true);
+    setFocusPolicy(Qt::StrongFocus);
+
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    setMinimumSize(128, 128);
+    setMaximumSize(512, 512);
+}
+
+QSize TextureDivisionSelector::sizeHint() const {
+    return {256, 256};
+}
+
+void TextureDivisionSelector::setDivisions(s32 x, s32 y) {
+    mDivX = x;
+    mDivY = y;
+    update();
+}
+
+void TextureDivisionSelector::setTexture(const QImage& image) {
+    mTexture = image;
+    updateLayoutCache();
+    update();
+}
+
+void TextureDivisionSelector::updateLayoutCache() {
+    const QSize imgSize = mTexture.size();
+    const QSize widgetSize = size();
+
+    mScale = std::min(
+        widgetSize.width() / static_cast<qreal>(imgSize.width()),
+        widgetSize.height() / static_cast<qreal>(imgSize.height())
+        );
+
+    mScaledSize = QSize{
+        static_cast<s32>(std::floor(imgSize.width() * mScale)),
+        static_cast<s32>(std::floor(imgSize.height() * mScale))
+    };
+
+    const QPoint topLeft{
+        (width() - mScaledSize.width()) / 2,
+        (height() - mScaledSize.height()) / 2
+    };
+
+    mTexRect = QRect(topLeft, mScaledSize);
+
+    mScaledPixmap = QPixmap::fromImage(mTexture).scaled(mScaledSize);
+}
+
+void TextureDivisionSelector::paintEvent(QPaintEvent* event) {
+    Q_UNUSED(event);
+
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing, false);
+
+    const auto& pal = palette();
+
+    painter.fillRect(rect(), pal.color(QPalette::Base));
+
+    if (!mTexture.isNull()) {
+
+        const QRect texRect = mTexRect;
+
+        painter.save();
+        painter.setClipRect(texRect);
+        PaintUtil::drawCheckerboard(painter, texRect);
+        painter.restore();
+
+        const QPoint topLeft{
+            (width() - mScaledSize.width()) / 2,
+            (height() - mScaledSize.height()) / 2
+        };
+
+        painter.drawPixmap(mTexRect.topLeft(), mScaledPixmap);
+
+        const s32 divX = mDragging ? mPreviewDivX : mDivX;
+        const s32 divY = mDragging ? mPreviewDivY : mDivY;
+
+        const f32 cellW = static_cast<f32>(texRect.width()) / static_cast<f32>(divX);
+        const f32 cellH = static_cast<f32>(texRect.height()) / static_cast<f32>(divY);
+
+        auto drawLines = [&painter, divX, divY, cellW, cellH, texRect]() {
+            for (s32 x = 1; x < divX; ++x) {
+                const s32 px = texRect.left() + (texRect.width() * x) / divX;
+                painter.drawLine(px, texRect.top(), px, texRect.bottom());
+            }
+            for (s32 y = 1; y < divY; ++y) {
+                const s32 py = texRect.top() + (texRect.height() * y) / divY;
+                painter.drawLine(texRect.left(), py, texRect.right(), py);
+            }
+        };
+
+        painter.save();
+
+        if (mDragging) {
+            painter.setCompositionMode(QPainter::CompositionMode_Difference);
+            QColor color = Qt::white;
+            color.setAlpha(180);
+            painter.setPen(QPen(color, 2));
+        } else {
+            painter.setPen(QPen(Qt::black, 3));
+            drawLines();
+            painter.setPen(QPen(Qt::white, 1));
+        }
+        drawLines();
+
+        painter.restore();
+    }
+}
+
+void TextureDivisionSelector::mousePressEvent(QMouseEvent* event) {
+    if(!mTexRect.contains(event->pos())) {
+        return;
+    }
+
+    mDragging = true;
+    setCursor(Qt::ClosedHandCursor);
+
+    mDragStart = event->pos();
+    mPreviewDivX = mDivX;
+    mPreviewDivY = mDivY;
+    update();
+}
+
+void TextureDivisionSelector::mouseMoveEvent(QMouseEvent* event) {
+    if (!mDragging) {
+        if (mTexRect.contains(event->pos())) {
+            setCursor(Qt::OpenHandCursor);
+        } else {
+            unsetCursor();
+        }
+        return;
+    }
+
+    const QPoint delta = event->pos() - mDragStart;
+
+    // TODO: should this be derrived from texture size somehow?
+    const s32 maxDiv = 8;
+
+    const f32 normX = static_cast<f32>(delta.x()) / static_cast<f32>(mTexRect.width());
+    const f32 normY = static_cast<f32>(delta.y()) / static_cast<f32>(mTexRect.height());
+
+    mPreviewDivX = std::clamp(mDivX + static_cast<s32>(normX * maxDiv), 1, maxDiv);
+    mPreviewDivY = std::clamp(mDivY + static_cast<s32>(normY * maxDiv), 1, maxDiv);
+
+    update();
+}
+
+void TextureDivisionSelector::mouseReleaseEvent(QMouseEvent* event) {
+    if (!mDragging) {
+        return;
+    }
+
+    mDragging = false;
+    setCursor(Qt::OpenHandCursor);
+
+    if (mPreviewDivX != mDivX || mPreviewDivY != mDivY) {
+        mDivX = mPreviewDivX;
+        mDivY = mPreviewDivY;
+        emit divisionsChanged(mDivX, mDivY);
+    }
+    update();
+}
+
+void TextureDivisionSelector::resizeEvent(QResizeEvent* event) {
+    const s32 side = std::min(width(), height());
+    resize(side, side);
+
+    updateLayoutCache();
+    QWidget::resizeEvent(event);
+}
+
+
+// ========================================================================== //
+
+
 TextureInspector::TextureInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
     // Texture Preview
     mTexturePreview.setThumbnailSize(QSize(64, 64));
-    mTexDivX.setRange(1, 4);
-    mTexDivY.setRange(1, 4);
     mTexPatFreq.setMinimum(1);
     mTexPatTblUse.setRange(2, 16);
 
@@ -61,10 +239,8 @@ TextureInspector::TextureInspector(QWidget* parent) :
     settingsLayout->addWidget(&mMinFilterComboBox, 1, 3);
     settingsLayout->addWidget(new QLabel("Mipmap Filter:"), 2, 2);
     settingsLayout->addWidget(&mMipFilterComboBox, 2, 3);
-    settingsLayout->addWidget(new QLabel("Texture Columns:"), 3, 0);
-    settingsLayout->addWidget(&mTexDivX, 3, 1);
-    settingsLayout->addWidget(new QLabel("Texture Rows:"), 3, 2);
-    settingsLayout->addWidget(&mTexDivY, 3, 3);
+    settingsLayout->addWidget(new QLabel("Texture Divisions:"), 3, 0);
+    settingsLayout->addWidget(&mDivisionSelector, 3, 1, 1, 3);
     settingsLayout->addWidget(new QLabel("Repetitions X:"), 4, 0);
     settingsLayout->addWidget(&mTexRepetitionsX, 4, 1);
     settingsLayout->addWidget(new QLabel("Repetitions Y:"), 4, 2);
@@ -181,24 +357,24 @@ void TextureInspector::setupConnections() {
         );
     });
 
-    connect(&mTexDivX, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
+    connect(&mDivisionSelector, &TextureDivisionSelector::divisionsChanged, this, [this](s32 x, s32 y) {
+        mDocument->undoStack()->beginMacro(formatHistoryLabel("Set Texture Divisions"));
         setEmitterProperty(
             "Set Texture Divisions X",
             "SetTexDivX",
             &Ptcl::Emitter::numTextureDivisionX,
             &Ptcl::Emitter::setNumTextureDivisionX,
-            static_cast<u8>(value)
+            static_cast<u8>(x)
         );
-    });
 
-    connect(&mTexDivY, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
         setEmitterProperty(
             "Set Texture Divisions Y",
             "SetTexDivY",
             &Ptcl::Emitter::numTextureDivisionY,
             &Ptcl::Emitter::setNumTextureDivisionY,
-            static_cast<u8>(value)
+            static_cast<u8>(y)
         );
+        mDocument->undoStack()->endMacro();
     });
 
     connect(&mTexPatFreq, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
@@ -308,8 +484,7 @@ void TextureInspector::populateProperties() {
     QSignalBlocker b4(mMinFilterComboBox);
     QSignalBlocker b5(mMipFilterComboBox);
     QSignalBlocker b6(mNumTexPat);
-    QSignalBlocker b7(mTexDivX);
-    QSignalBlocker b8(mTexDivY);
+
     QSignalBlocker b9(mTexPatFreq);
     QSignalBlocker b10(mTexPatTblUse);
     QSignalBlocker b11(mTexPatTbl);
@@ -320,6 +495,9 @@ void TextureInspector::populateProperties() {
 
     mTexturePreview.setPixmap(QPixmap::fromImage(mEmitter->textureHandle()->textureData()));
 
+    mDivisionSelector.setTexture(mEmitter->textureHandle()->textureData());
+    mDivisionSelector.setDivisions(mEmitter->numTextureDivisionX(), mEmitter->numTextureDivisionY());
+
     mWrapTComboBox.setCurrentEnum(mEmitter->textureWrapT());
     mWrapSComboBox.setCurrentEnum(mEmitter->textureWrapS());
     mMagFilterComboBox.setCurrentEnum(mEmitter->textureMagFilter());
@@ -327,8 +505,6 @@ void TextureInspector::populateProperties() {
     mMipFilterComboBox.setCurrentEnum(mEmitter->textureMipFilter());
 
     mNumTexPat.setValue(mEmitter->numTexturePattern());
-    mTexDivX.setValue(mEmitter->numTextureDivisionX());
-    mTexDivY.setValue(mEmitter->numTextureDivisionY());
 
     const auto freq = mEmitter->texturePatternFrequency();
     const auto mode = freqToAnimMode(freq);
