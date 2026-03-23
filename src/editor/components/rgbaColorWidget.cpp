@@ -11,8 +11,8 @@
 // ========================================================================== //
 
 
-ColorChannelRow::ColorChannelRow(const QString& name, QSlider* slider, QWidget* parent) :
-    QWidget{parent}, mSlider{slider} {
+ColorChannelRow::ColorChannelRow(const QString& name, Gfx::Color::Channel channel, QWidget* parent) :
+    QWidget{parent}, mChannel{channel} {
 
     auto* layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -28,6 +28,8 @@ ColorChannelRow::ColorChannelRow(const QString& name, QSlider* slider, QWidget* 
     mSpinBox.setButtonSymbols(QAbstractSpinBox::NoButtons);
     mSpinBox.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
+    mSlider = new ColorChannelSlider(Qt::Horizontal, this);
+    mSlider->setChannel(mChannel);
     mSlider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
     layout->addWidget(&mLabel);
@@ -36,7 +38,41 @@ ColorChannelRow::ColorChannelRow(const QString& name, QSlider* slider, QWidget* 
 
     connect(&mSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ColorChannelRow::spinChanged);
     connect(mSlider, &QSlider::valueChanged, this, &ColorChannelRow::sliderChanged);
-    connect(mSlider, &QSlider::sliderReleased, this, &ColorChannelRow::sliderReleased);
+    connect(mSlider, &QSlider::sliderReleased, this, [this]() {
+        emit valueCommitted(mChannel, mColor[mChannel]);
+    });
+
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+}
+
+void ColorChannelRow::setColor(const Gfx::Color& color) {
+    mColor = color;
+
+    QSignalBlocker b1(mSlider);
+    QSignalBlocker b2(&mSpinBox);
+
+    const f32 value = color[mChannel];
+    mSpinBox.setValue(value);
+    mSlider->setColor(mColor);
+}
+
+void ColorChannelRow::spinChanged(double value) {
+    mColor[mChannel] = static_cast<f32>(value);
+
+    QSignalBlocker b1(mSlider);
+    mSlider->setColor(mColor);
+    emit valueCommitted(mChannel, static_cast<f32>(value));
+}
+
+void ColorChannelRow::sliderChanged(s32 value) {
+    f32 v = static_cast<f32>(value) / 255.0f;
+    mColor[mChannel] = v;
+
+
+    QSignalBlocker b1(&mSpinBox);
+    mSpinBox.setValue(v);
+
+    emit valueChanging(mChannel, v);
 }
 
 
@@ -54,29 +90,18 @@ RGBAColorWidget::RGBAColorWidget(QWidget* parent) :
     mSliderLayout->setContentsMargins(0, 0, 0 ,0);
     mSliderLayout->setSpacing(2);
 
-    mSliderR = new GradientSlider(Qt::Horizontal, this);
-    mSliderR->setChannel(GradientSlider::ChannelType::Red);
-
-    mSliderG = new GradientSlider(Qt::Horizontal, this);
-    mSliderG->setChannel(GradientSlider::ChannelType::Green);
-
-    mSliderB = new GradientSlider(Qt::Horizontal, this);
-    mSliderB->setChannel(GradientSlider::ChannelType::Blue);
-
-    mSliderA = new AlphaSlider(Qt::Horizontal, this);
-
-    mRowR = new ColorChannelRow("R", mSliderR, this);
-    mRowG = new ColorChannelRow("G", mSliderG, this);
-    mRowB = new ColorChannelRow("B", mSliderB, this);
-    mRowA = new ColorChannelRow("A", mSliderA, this);
+    mRowR = new ColorChannelRow("R", Gfx::Color::Channel::R, this);
+    mRowG = new ColorChannelRow("G", Gfx::Color::Channel::G, this);
+    mRowB = new ColorChannelRow("B", Gfx::Color::Channel::B, this);
+    mRowA = new ColorChannelRow("A", Gfx::Color::Channel::A, this);
 
     mRows = {mRowR, mRowG, mRowB, mRowA};
     for (auto* row : mRows) {
         row->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         mSliderLayout->addWidget(row);
-        connect(row, &ColorChannelRow::spinChanged, this, &RGBAColorWidget::updateColorFromSpinBoxes);
-        connect(row, &ColorChannelRow::sliderChanged, this, &RGBAColorWidget::updateColorFromSliders);
-        connect(row, &ColorChannelRow::sliderReleased, this, [this]() {
+        connect(row, &ColorChannelRow::valueChanging, this, &RGBAColorWidget::onChannelChanged);
+        connect(row, &ColorChannelRow::valueCommitted, this, [this](Gfx::Color::Channel channel, f32 value) {
+            onChannelChanged(channel, value);
             emit colorChanged();
         });
     }
@@ -91,7 +116,7 @@ RGBAColorWidget::RGBAColorWidget(QWidget* parent) :
     mPreview.setAutoFillBackground(true);
     connect(&mPreview, &ClickableLabel::clicked, this, &RGBAColorWidget::openColorDialog);
 
-    mainLayout->addWidget(mRowsContainer);
+    mainLayout->addWidget(mRowsContainer, 0);
     mainLayout->addWidget(&mPreview, 0, Qt::AlignTop);
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -104,125 +129,28 @@ void RGBAColorWidget::enableAlpha(bool enabled) {
 }
 
 void RGBAColorWidget::setColor(const Gfx::Color& color) {
-    QSignalBlocker b1(mSliderR);
-    QSignalBlocker b2(mSliderG);
-    QSignalBlocker b3(mSliderB);
-    QSignalBlocker b4(mSliderA);
+    mColor = color;
 
-    QSignalBlocker b5(mRowR->spinBox());
-    QSignalBlocker b6(mRowB->spinBox());
-    QSignalBlocker b7(mRowG->spinBox());
-    QSignalBlocker b8(mRowA->spinBox());
-
-    s32 r = static_cast<s32>(std::round(color.r() * 255.0f));
-    s32 g = static_cast<s32>(std::round(color.g() * 255.0f));
-    s32 b = static_cast<s32>(std::round(color.b() * 255.0f));
-    s32 a = static_cast<s32>(std::round(color.a() * 255.0f));
-
-    mSliderR->setRgbValues(r, g, b);
-    mSliderG->setRgbValues(r, g, b);
-    mSliderB->setRgbValues(r, g, b);
-    mSliderA->setColor(r, g, b);
-
-    mSliderR->setValue(r);
-    mSliderG->setValue(g);
-    mSliderB->setValue(b);
-    mSliderA->setValue(a);
-
-    mRowR->spinBox()->setValue(color.r());
-    mRowG->spinBox()->setValue(color.g());
-    mRowB->spinBox()->setValue(color.b());
-    mRowA->spinBox()->setValue(color.a());
+    for (auto* row : mRows) {
+        row->setColor(color);
+    }
 
     updatePreview();
     update();
 }
 
-Gfx::Color RGBAColorWidget::color() const {
-    return {
-        static_cast<f32>(mRowR->spinBox()->value()),
-        static_cast<f32>(mRowG->spinBox()->value()),
-        static_cast<f32>(mRowB->spinBox()->value()),
-        static_cast<f32>(mRowA->spinBox()->value()),
-    };
-}
+void RGBAColorWidget::onChannelChanged(Gfx::Color::Channel channel, f32 value) {
+    mColor[channel] = value;
 
-QColor RGBAColorWidget::toQColor() const {
-    return {
-        mSliderR->value(),
-        mSliderG->value(),
-        mSliderB->value(),
-        mSliderA->value()
-    };
-}
-
-void RGBAColorWidget::updateColorFromSliders() {
-    blockSignals(true);
-    QSignalBlocker b1(mRowR->spinBox());
-    QSignalBlocker b2(mRowG->spinBox());
-    QSignalBlocker b3(mRowB->spinBox());
-    QSignalBlocker b4(mRowA->spinBox());
-
-    s32 r = mSliderR->value();
-    s32 g = mSliderG->value();
-    s32 b = mSliderB->value();
-    s32 a = mSliderA->value();
-
-    mSliderR->setRgbValues(0, g, b);
-    mSliderG->setRgbValues(r, 0, b);
-    mSliderB->setRgbValues(r, g, 0);
-    mSliderA->setColor(r, g, b);
-
-    double rFloat = static_cast<double>(r) / 255.0f;
-    double gFloat = static_cast<double>(g) / 255.0f;
-    double bFloat = static_cast<double>(b) / 255.0f;
-    double aFloat = static_cast<double>(a) / 255.0f;
-
-    mRowR->spinBox()->setValue(rFloat);
-    mRowG->spinBox()->setValue(gFloat);
-    mRowB->spinBox()->setValue(bFloat);
-    mRowA->spinBox()->setValue(aFloat);
-
-    blockSignals(false);
+    for (auto* row : mRows) {
+        row->setColor(mColor);
+    }
 
     updatePreview();
-}
-
-void RGBAColorWidget::updateColorFromSpinBoxes() {
-    blockSignals(true);
-    QSignalBlocker b1(mSliderR);
-    QSignalBlocker b2(mSliderG);
-    QSignalBlocker b3(mSliderB);
-    QSignalBlocker b4(mSliderA);
-
-    double rFloat = mRowR->spinBox()->value();
-    double gFloat = mRowG->spinBox()->value();
-    double bFloat = mRowB->spinBox()->value();
-    double aFloat = mRowA->spinBox()->value();
-
-    s32 r = static_cast<s32>(std::round(rFloat * 255.0f));
-    s32 g = static_cast<s32>(std::round(gFloat * 255.0f));
-    s32 b = static_cast<s32>(std::round(bFloat * 255.0f));
-    s32 a = static_cast<s32>(std::round(aFloat * 255.0f));
-
-    mSliderR->setRgbValues(0, g, b);
-    mSliderG->setRgbValues(r, 0, b);
-    mSliderB->setRgbValues(r, g, 0);
-    mSliderA->setColor(r, g, b);
-
-    mSliderR->setValue(r);
-    mSliderG->setValue(g);
-    mSliderB->setValue(b);
-    mSliderA->setValue(a);
-
-    blockSignals(false);
-
-    updatePreview();
-    emit colorChanged();
 }
 
 void RGBAColorWidget::openColorDialog() {
-    QColorDialog colorDialog(toQColor(), this);
+    QColorDialog colorDialog(mColor.toQColor(), this);
     colorDialog.setOption(QColorDialog::ShowAlphaChannel);
     colorDialog.setWindowTitle("Select Color");
 
@@ -261,8 +189,8 @@ void RGBAColorWidget::updatePreview() {
 
     PaintUtil::drawCheckerboard(painter, pixmap.rect(), 6, QColor(220, 220, 220), QColor(180, 180, 180));
 
-    painter.setBrush(toQColor());
-    painter.setPen(toQColor());
+    painter.setBrush(mColor.toQColor());
+    painter.setPen(mColor.toQColor());
     painter.drawRoundedRect(roundedRect, radius, radius);
 
     mPreview.setPixmap(pixmap);

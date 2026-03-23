@@ -2,9 +2,8 @@
 
 #include "gfx/color.h"
 
-#include "editor/components/alphaSlider.h"
 #include "editor/components/clickableLabel.h"
-#include "editor/components/gradientSlider.h"
+#include "editor/components/colorChannelSlider.h"
 
 #include <QDoubleSpinBox>
 #include <QLayoutItem>
@@ -18,20 +17,26 @@
 class ColorChannelRow : public QWidget {
     Q_OBJECT
 public:
-    explicit ColorChannelRow(const QString& name, QSlider* slider, QWidget* parent = nullptr);
+    explicit ColorChannelRow(const QString& name, Gfx::Color::Channel channel, QWidget* parent = nullptr);
 
-    QSlider* slider() { return mSlider; }
-    QDoubleSpinBox* spinBox() { return &mSpinBox; }
+    void setColor(const Gfx::Color& color);
+    Gfx::Color::Channel channel() const { return mChannel; }
 
 signals:
+    void valueChanging(Gfx::Color::Channel channel, f32 value);
+    void valueCommitted(Gfx::Color::Channel channel, f32 value);
+
+private slots:
     void spinChanged(double value);
     void sliderChanged(s32 value);
-    void sliderReleased();
 
 private:
+    Gfx::Color::Channel mChannel{};
+    Gfx::Color mColor{};
+
     QLabel mLabel{};
     QDoubleSpinBox mSpinBox{};
-    QSlider* mSlider{nullptr};
+    ColorChannelSlider* mSlider{nullptr};
 };
 
 
@@ -44,8 +49,7 @@ public:
     explicit RGBAColorWidget(QWidget* parent = nullptr);
 
     void setColor(const Gfx::Color& color);
-    Gfx::Color color() const;
-    QColor toQColor() const;
+    Gfx::Color color() const { return mColor; }
 
     void enableAlpha(bool enable);
 
@@ -53,18 +57,14 @@ signals:
     void colorChanged();
 
 private slots:
-    void updateColorFromSliders();
-    void updateColorFromSpinBoxes();
     void openColorDialog();
+    void onChannelChanged(Gfx::Color::Channel channel, f32 value);
 
 private:
     void updatePreview();
 
 private:
-    GradientSlider* mSliderR{nullptr};
-    GradientSlider* mSliderG{nullptr};
-    GradientSlider* mSliderB{nullptr};
-    AlphaSlider* mSliderA{nullptr};
+    Gfx::Color mColor{};
 
     ColorChannelRow* mRowR{nullptr};
     ColorChannelRow* mRowG{nullptr};
