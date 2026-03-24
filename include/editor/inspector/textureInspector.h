@@ -5,6 +5,7 @@
 #include "editor/components/thumbnailWidget.h"
 #include "editor/inspector/inspectorWidgetBase.h"
 
+#include <QPushButton>
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QTableWidget>
@@ -150,8 +151,6 @@ private:
     s32 maxFrameCount() const;
 
 private:
-    ThumbnailWidget mTexturePreview{};
-
     EnumComboBox<Ptcl::TextureWrap> mWrapTComboBox{};
     EnumComboBox<Ptcl::TextureWrap> mWrapSComboBox{};
     EnumComboBox<Ptcl::TextureFilter> mMagFilterComboBox{};
@@ -168,9 +167,7 @@ private:
 
     TextureDivisionSelector mDivisionSelector{};
     TextureRepetitionSelector mRepetitionSelector{};
-
-    // SizedSpinBox<u32> mTexRepetitionsX{};
-    // SizedSpinBox<u32> mTexRepetitionsY{};
+    QPushButton mChangeTextureButton{};
 
     QTableWidget mTexPatTbl{1, 16, this};
 };
