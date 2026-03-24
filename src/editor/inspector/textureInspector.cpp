@@ -47,6 +47,10 @@ void TextureDivisionSelector::setTexture(const QImage& image) {
 }
 
 void TextureDivisionSelector::updateLayoutCache() {
+    if (mTexture.isNull()) {
+        return;
+    }
+
     const QSize imgSize = mTexture.size();
     const QSize widgetSize = size();
 
@@ -197,6 +201,223 @@ void TextureDivisionSelector::resizeEvent(QResizeEvent* event) {
 // ========================================================================== //
 
 
+TextureRepetitionSelector::TextureRepetitionSelector(QWidget* parent) :
+    QWidget{parent} {
+
+    setMouseTracking(true);
+    setFocusPolicy(Qt::StrongFocus);
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    setMaximumSize(128, 128);
+    setMaximumSize(512, 512);
+}
+
+QSize TextureRepetitionSelector::sizeHint() const {
+    return {256, 256};
+}
+
+void TextureRepetitionSelector::setSource(const QImage& image, s32 divX, s32 divY) {
+    mTexture = image;
+    mDivX = std::max(1, divX);
+    mDivY = std::max(1, divY);
+    updateLayoutCache();
+    update();
+}
+
+void TextureRepetitionSelector::setRepetitions(s32 repX, s32 repY) {
+    mRepX = std::max(1, repX);
+    mRepY = std::max(1, repY);
+    update();
+}
+
+s32 mirrorIndex(s32 i, s32 max) {
+    if (max <= 1) {
+        return 0;
+    }
+
+    const s32 period = (max - 1) * 2;
+    i = i % period;
+
+    if (i >= max) {
+        i = period - i;
+    }
+
+    return i;
+}
+
+void TextureRepetitionSelector::updateLayoutCache() {
+    if (mTexture.isNull()) {
+        return;
+    }
+
+    const QSize imgSize = mTexture.size();
+    const QSize widgetSize = size();
+
+    mScale = std::min(
+        static_cast<f32>(widgetSize.width()) / static_cast<f32>(imgSize.width()),
+        static_cast<f32>(widgetSize.height()) / static_cast<f32>(imgSize.height())
+        );
+
+    mScaledSize = QSize{
+        static_cast<s32>(std::floor(imgSize.width() * mScale)),
+        static_cast<s32>(std::floor(imgSize.height() * mScale))
+    };
+
+    const QPoint topLeft{
+        (width() - mScaledSize.width()) / 2,
+        (height() - mScaledSize.height()) / 2
+    };
+
+    mTexRect = QRect(topLeft, mScaledSize);
+}
+
+f32 mirrorCoord(f32 t) {
+    const s32 i = static_cast<s32>(std::floor(t));
+    const f32 f = t - static_cast<f32>(i);
+    return (i % 2 == 0) ? f : (1.0f - f);
+}
+
+void TextureRepetitionSelector::paintEvent(QPaintEvent* event) {
+    Q_UNUSED(event);
+
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing, false);
+
+    painter.fillRect(rect(), palette().color(QPalette::Base));
+
+    if (mTexture.isNull()) {
+        return;
+    }
+
+    const s32 repX = mDragging ? mPreviewRepX : mRepX;
+    const s32 repY = mDragging ? mPreviewRepY : mRepY;
+
+    painter.save();
+    painter.setClipRect(mTexRect);
+    PaintUtil::drawCheckerboard(painter, mTexRect);
+    painter.restore();
+
+    const s32 texW = mTexture.width();
+    const s32 texH = mTexture.height();
+
+    const s32 w = mTexRect.width();
+    const s32 h = mTexRect.height();
+
+    const f32 uMax = static_cast<f32>(mRepX) / static_cast<f32>(mDivX);
+    const f32 vMax = static_cast<f32>(mRepY) / static_cast<f32>(mDivY);
+
+    QImage output(w, h, QImage::Format::Format_ARGB32);
+
+    for (s32 y = 0; y < h; ++y) {
+        QRgb* scanLine = reinterpret_cast<QRgb*>(output.scanLine(y));
+
+        for (s32 x = 0; x < w; ++x) {
+            const f32 u  = (static_cast<f32>(x) / w) * uMax;
+            const f32 v  = (static_cast<f32>(y) / h) * vMax;
+
+            const f32 mu = mirrorCoord(u);
+            const f32 mv = mirrorCoord(v);
+
+            const s32 tx = std::clamp(static_cast<s32>(mu * texW), 0, texW - 1);
+            const s32 ty = std::clamp(static_cast<s32>(mv * texH), 0, texH - 1);
+
+            scanLine[x] = mTexture.pixel(tx, ty);
+        }
+    }
+
+    painter.drawImage(mTexRect.topLeft(), output);
+
+    const f32 cellW = mTexRect.width() / static_cast<f32>(repX);
+    const f32 cellH = mTexRect.height() / static_cast<f32>(repY);
+
+    painter.setPen(QPen(Qt::black, 1, Qt::DashLine));
+
+    for (s32 x = 1; x < repX; ++x) {
+        const s32 px = mTexRect.left() + static_cast<s32>(x * cellW);
+        painter.drawLine(px, mTexRect.top(), px, mTexRect.bottom());
+    }
+
+    for (s32 y = 1; y < repY; ++y) {
+        const s32 py = mTexRect.top() + static_cast<s32>(y * cellH);
+        painter.drawLine(mTexRect.left(), py, mTexRect.right(), py);
+    }
+
+    painter.setPen(Qt::white);
+    painter.drawText(
+        mTexRect.adjusted(4, 4, -4, -4),
+        Qt::AlignTop | Qt::AlignLeft,
+        QString("%1 x %2").arg(repX).arg(repY)
+        );
+}
+
+void TextureRepetitionSelector::mousePressEvent(QMouseEvent* event) {
+    if (!mTexRect.contains(event->pos())) {
+        return;
+    }
+
+    mDragging = true;
+    mDragStart = event->pos();
+
+    mPreviewRepX = mRepX;
+    mPreviewRepY = mRepY;
+
+    setCursor(Qt::ClosedHandCursor);
+    update();
+}
+
+void TextureRepetitionSelector::mouseMoveEvent(QMouseEvent* event) {
+    if (!mDragging) {
+        if (mTexRect.contains(event->pos())) {
+            setCursor(Qt::OpenHandCursor);
+        } else {
+            unsetCursor();
+        }
+        return;
+    }
+
+    const QPoint delta = event->pos() - mDragStart;
+
+    const s32 maxRep = 16;
+
+    const f32 normX = static_cast<f32>(delta.x()) / static_cast<f32>(mTexRect.width());
+    const f32 normY = static_cast<f32>(delta.y()) / static_cast<f32>(mTexRect.height());
+
+    mPreviewRepX = std::clamp(mRepX + static_cast<s32>(normX * maxRep), 1, maxRep);
+    mPreviewRepY = std::clamp(mRepY + static_cast<s32>(normY * maxRep), 1, maxRep);
+
+    update();
+}
+
+void TextureRepetitionSelector::mouseReleaseEvent(QMouseEvent* event) {
+    Q_UNUSED(event);
+
+    if (!mDragging) {
+        return;
+    }
+
+    mDragging = false;
+
+    if (mPreviewRepX != mRepX || mPreviewRepY != mRepY) {
+        mRepX = mPreviewRepX;
+        mRepY = mPreviewRepY;
+        emit repetitionsChanged(mRepX, mRepY);
+    }
+
+    setCursor(mTexRect.contains(mapFromGlobal(QCursor::pos())) ? Qt::OpenHandCursor : Qt::ArrowCursor);
+    update();
+}
+
+void TextureRepetitionSelector::resizeEvent(QResizeEvent* event) {
+    const s32 side = std::min(width(), height());
+    resize(side, side);
+
+    updateLayoutCache();
+    QWidget::resizeEvent(event);
+}
+
+
+// ========================================================================== //
+
+
 TextureInspector::TextureInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
@@ -224,8 +445,8 @@ TextureInspector::TextureInspector(QWidget* parent) :
         mTexPatTbl.setItem(0, i, item);
     }
 
-    mTexRepetitionsX.setMinimum(1);
-    mTexRepetitionsY.setMinimum(1);
+    // mTexRepetitionsX.setMinimum(1);
+    // mTexRepetitionsY.setMinimum(1);
 
     // Texture Settings Layout
     auto settingsLayout = new QGridLayout;
@@ -241,10 +462,14 @@ TextureInspector::TextureInspector(QWidget* parent) :
     settingsLayout->addWidget(&mMipFilterComboBox, 2, 3);
     settingsLayout->addWidget(new QLabel("Texture Divisions:"), 3, 0);
     settingsLayout->addWidget(&mDivisionSelector, 3, 1, 1, 3);
-    settingsLayout->addWidget(new QLabel("Repetitions X:"), 4, 0);
-    settingsLayout->addWidget(&mTexRepetitionsX, 4, 1);
-    settingsLayout->addWidget(new QLabel("Repetitions Y:"), 4, 2);
-    settingsLayout->addWidget(&mTexRepetitionsY, 4, 3);
+
+    settingsLayout->addWidget(new QLabel("Texture Repetitions:"), 4, 0);
+    settingsLayout->addWidget(&mRepetitionSelector, 4, 1, 1, 4);
+
+    // settingsLayout->addWidget(new QLabel("Repetitions X:"), 4, 0);
+    // settingsLayout->addWidget(&mTexRepetitionsX, 4, 1);
+    // settingsLayout->addWidget(new QLabel("Repetitions Y:"), 4, 2);
+    // settingsLayout->addWidget(&mTexRepetitionsY, 4, 3);
 
     // Anim Mode
     mAnimModeComboBox.addItems({"Fit to Speed", "Fit to Life"});
@@ -291,7 +516,7 @@ void TextureInspector::setupConnections() {
             &Ptcl::Emitter::textureWrapT,
             &Ptcl::Emitter::setTextureWrapT,
             wrap
-        );
+            );
     });
 
     // Wrap S
@@ -304,7 +529,7 @@ void TextureInspector::setupConnections() {
             &Ptcl::Emitter::textureWrapS,
             &Ptcl::Emitter::setTextureWrapS,
             wrap
-        );
+            );
     });
 
     // Mag Filter
@@ -317,7 +542,7 @@ void TextureInspector::setupConnections() {
             &Ptcl::Emitter::textureMagFilter,
             &Ptcl::Emitter::setTextureMagFilter,
             filter
-        );
+            );
     });
 
     // Min Filter
@@ -330,7 +555,7 @@ void TextureInspector::setupConnections() {
             &Ptcl::Emitter::textureMinFilter,
             &Ptcl::Emitter::setTextureMinFilter,
             filter
-        );
+            );
     });
 
     // Mipmap Filter
@@ -343,7 +568,7 @@ void TextureInspector::setupConnections() {
             &Ptcl::Emitter::textureMipFilter,
             &Ptcl::Emitter::setTextureMipFilter,
             filter
-        );
+            );
     });
 
     // Texture pattern count
@@ -354,7 +579,7 @@ void TextureInspector::setupConnections() {
             &Ptcl::Emitter::numTexturePattern,
             &Ptcl::Emitter::setNumTexturePattern,
             static_cast<u16>(value)
-        );
+            );
     });
 
     connect(&mDivisionSelector, &TextureDivisionSelector::divisionsChanged, this, [this](s32 x, s32 y) {
@@ -365,7 +590,7 @@ void TextureInspector::setupConnections() {
             &Ptcl::Emitter::numTextureDivisionX,
             &Ptcl::Emitter::setNumTextureDivisionX,
             static_cast<u8>(x)
-        );
+            );
 
         setEmitterProperty(
             "Set Texture Divisions Y",
@@ -373,7 +598,7 @@ void TextureInspector::setupConnections() {
             &Ptcl::Emitter::numTextureDivisionY,
             &Ptcl::Emitter::setNumTextureDivisionY,
             static_cast<u8>(y)
-        );
+            );
         mDocument->undoStack()->endMacro();
     });
 
@@ -384,7 +609,7 @@ void TextureInspector::setupConnections() {
             &Ptcl::Emitter::texturePatternFrequency,
             &Ptcl::Emitter::setTexturePatternFrequency,
             static_cast<u16>(value)
-        );
+            );
     });
 
     connect(&mTexPatTblUse, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
@@ -394,7 +619,7 @@ void TextureInspector::setupConnections() {
             &Ptcl::Emitter::texturePatternTableUse,
             &Ptcl::Emitter::setTexturePatternTableUse,
             static_cast<u16>(value)
-        );
+            );
     });
 
     connect(&mTexPatTbl, &QTableWidget::itemChanged, this, [this](QTableWidgetItem* item) {
@@ -424,28 +649,28 @@ void TextureInspector::setupConnections() {
             &Ptcl::Emitter::texturePatternTable,
             &Ptcl::Emitter::setTexturePatternTable,
             table
-        );
+            );
     });
 
-    connect(&mTexRepetitionsX, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
+    connect(&mRepetitionSelector, &TextureRepetitionSelector::repetitionsChanged, this, [this](s32 x, s32 y) {
         setEmitterProperty(
-            "Set Texture X Repetition",
-            "SetTexRepX",
-            &Ptcl::Emitter::numTextureRepetitionsX,
-            &Ptcl::Emitter::setNumTextureRepetitionsX,
-            static_cast<s32>(value)
-        );
+            "Set Texture Repetition",
+            "SetTexRep",
+            &Ptcl::Emitter::textureRepetitions,
+            &Ptcl::Emitter::setTextureRepetitions,
+            Math::Vector2i{x, y}
+            );
     });
 
-    connect(&mTexRepetitionsY, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
-        setEmitterProperty(
-            "Set Texture Y Repetition",
-            "SetTexRepY",
-            &Ptcl::Emitter::numTextureRepetitionsY,
-            &Ptcl::Emitter::setNumTextureRepetitionsY,
-            static_cast<s32>(value)
-        );
-    });
+    // connect(&mTexRepetitionsY, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
+    //     setEmitterProperty(
+    //         "Set Texture Y Repetition",
+    //         "SetTexRepY",
+    //         &Ptcl::Emitter::numTextureRepetitionsY,
+    //         &Ptcl::Emitter::setNumTextureRepetitionsY,
+    //         static_cast<s32>(value)
+    //     );
+    // });
 
     connect(&mAnimModeComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
         auto mode = static_cast<AnimMode>(index);
@@ -463,7 +688,7 @@ void TextureInspector::setupConnections() {
             &Ptcl::Emitter::texturePatternFrequency,
             &Ptcl::Emitter::setTexturePatternFrequency,
             freq
-        );
+            );
     });
 
     connect(&mTexPatGroupBox, &QGroupBox::clicked, this, [this](bool checked) {
@@ -473,7 +698,7 @@ void TextureInspector::setupConnections() {
             &Ptcl::Emitter::isTexturePatternAnim,
             &Ptcl::Emitter::setIsTexturePatternAnim,
             checked
-        );
+            );
     });
 }
 
@@ -489,14 +714,24 @@ void TextureInspector::populateProperties() {
     QSignalBlocker b10(mTexPatTblUse);
     QSignalBlocker b11(mTexPatTbl);
     QSignalBlocker b12(mTexPatGroupBox);
-    QSignalBlocker b13(mTexRepetitionsX);
-    QSignalBlocker b14(mTexRepetitionsY);
+    // QSignalBlocker b13(mTexRepetitionsX);
+    // QSignalBlocker b14(mTexRepetitionsY);
     QSignalBlocker b15(mAnimModeComboBox);
+
+    qDebug() << "Setting Divisions X:" << mEmitter->numTextureDivisionX();
+    qDebug() << "Setting Divisions Y:" << mEmitter->numTextureDivisionY();
+    qDebug() << "Setting Repetitions X:" << mEmitter->numTextureRepetitionsX();
+    qDebug() << "Setting Repetitions Y:" << mEmitter->numTextureRepetitionsY();
 
     mTexturePreview.setPixmap(QPixmap::fromImage(mEmitter->textureHandle()->textureData()));
 
     mDivisionSelector.setTexture(mEmitter->textureHandle()->textureData());
     mDivisionSelector.setDivisions(mEmitter->numTextureDivisionX(), mEmitter->numTextureDivisionY());
+
+    mRepetitionSelector.setSource(mEmitter->textureHandle()->textureData(), mEmitter->numTextureDivisionX(), mEmitter->numTextureDivisionY());
+    // mRepetitionSelector.setFrame(mEmitter->textureHandle()->textureData());
+    mRepetitionSelector.setRepetitions(mEmitter->numTextureRepetitionsX(), mEmitter->numTextureRepetitionsY());
+
 
     mWrapTComboBox.setCurrentEnum(mEmitter->textureWrapT());
     mWrapSComboBox.setCurrentEnum(mEmitter->textureWrapS());
@@ -532,8 +767,8 @@ void TextureInspector::populateProperties() {
 
     mTexPatGroupBox.setChecked(mEmitter->isTexturePatternAnim());
 
-    mTexRepetitionsX.setValue(mEmitter->numTextureRepetitionsX());
-    mTexRepetitionsY.setValue(mEmitter->numTextureRepetitionsY());
+    // mTexRepetitionsX.setValue(mEmitter->numTextureRepetitionsX());
+    // mTexRepetitionsY.setValue(mEmitter->numTextureRepetitionsY());
 
     updateTexPatTblColumns();
 }
@@ -581,7 +816,7 @@ void TextureInspector::changeTexture() {
                 &Ptcl::Emitter::texture,
                 &Ptcl::Emitter::setTexture,
                 texture
-            );
+                );
         }
     }
 }
@@ -607,12 +842,13 @@ std::optional<Math::Vector2f> TextureInspector::calcFrameUVOffset(s32 frame) con
     const s32 frameX = frame % divX;
     const s32 frameY = frame / divX;
 
-    const Math::Vector2f uvOffset{
-        uvScale.getX() * static_cast<f32>(frameX),
-        uvScale.getY() * static_cast<f32>(frameY),
-    };
+    const f32 stepX = 1.0f / static_cast<f32>(divX);
+    const f32 stepY = 1.0f / static_cast<f32>(divY);
 
-    return uvOffset;
+    return Math::Vector2f{
+        stepX * static_cast<f32>(frameX),
+        stepY * static_cast<f32>(frameY),
+    };
 }
 
 QImage TextureInspector::getFrameTexture(s32 frame) const {
@@ -620,22 +856,27 @@ QImage TextureInspector::getFrameTexture(s32 frame) const {
         return {};
     }
 
+    const s32 divX = mEmitter->numTextureDivisionX();
+    const s32 divY = mEmitter->numTextureDivisionY();
+
     auto uv = calcFrameUVOffset(frame);
     if (!uv) {
         return {};
     }
 
-    const auto& uvOffset = *uv;
-    const auto& uvScale = mEmitter->textureUVScale();
     const auto& src = mEmitter->textureHandle()->textureData();
 
     const f32 texW = static_cast<f32>(src.width());
     const f32 texH = static_cast<f32>(src.height());
 
-    const s32 x = static_cast<s32>(std::round(uvOffset.getX() * texW));
-    const s32 y = static_cast<s32>(std::round(uvOffset.getY() * texH));
-    const s32 w = static_cast<s32>(std::round(uvScale.getX() * texW));
-    const s32 h = static_cast<s32>(std::round(uvScale.getY() * texH));
+    const f32 u = uv->getX();
+    const f32 v = uv->getY();
+
+    const s32 x = static_cast<s32>(std::round(u * texW));
+    const s32 y = static_cast<s32>(std::round(v * texH));
+
+    const s32 w = static_cast<s32>(std::round(texW / divX));
+    const s32 h = static_cast<s32>(std::round(texH / divY));
 
     QRect rect(x, y, w, h);
     rect = rect.intersected(src.rect());
@@ -685,8 +926,8 @@ QPixmap TextureInspector::createFramePreview(s32 frame) const {
     }
 
     // TODO
-    const f32 repeatX = static_cast<f32>(mTexRepetitionsX.value());
-    const f32 repeatY = static_cast<f32>(mTexRepetitionsY.value());
+    const f32 repeatX = static_cast<f32>(mEmitter->numTextureRepetitionsX());
+    const f32 repeatY = static_cast<f32>(mEmitter->numTextureRepetitionsY());
 
     QImage repeated = applyUVRepetition(base, repeatX, repeatY);
     if (repeated.isNull()) {
