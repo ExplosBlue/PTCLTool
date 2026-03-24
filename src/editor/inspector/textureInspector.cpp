@@ -759,7 +759,7 @@ void TextureInspector::populateProperties() {
         item->setText(QString::number(tbl[i]));
 
         if (i < mEmitter->numTexturePattern()) {
-            item->setIcon(QIcon(createFramePreview(tbl[i])));
+            item->setIcon(QIcon(QPixmap::fromImage(createFramePreview(tbl[i]))));
         }
     }
 
@@ -791,7 +791,7 @@ void TextureInspector::updateTexPatTblColumns() {
 
             s32 frame = mEmitter->texturePatternTable()[i];
             item->setText(QString::number(frame));
-            item->setIcon(QIcon(createFramePreview(frame)));
+            item->setIcon(QIcon(QPixmap::fromImage(createFramePreview(frame))));
         }
     }
 }
@@ -913,22 +913,44 @@ QImage TextureInspector::applyUVRepetition(const QImage& image, f32 repeatX, f32
     return out;
 }
 
-QPixmap TextureInspector::createFramePreview(s32 frame) const {
-    QImage base = getFrameTexture(frame);
-    if (base.isNull()) {
-        return {};
+QImage TextureInspector::createFramePreview(s32 frame) const {
+    const QImage& src = mEmitter->textureHandle()->textureData();
+
+    const s32 divX = mEmitter->numTextureDivisionX();
+    const s32 divY = mEmitter->numTextureDivisionY();
+    const s32 repX = mEmitter->numTextureRepetitionsX();
+    const s32 repY = mEmitter->numTextureRepetitionsY();
+
+    const s32 fx = frame % divX;
+    const s32 fy = frame / divX;
+
+    const f32 tilesPerFrameX = static_cast<f32>(repX) / static_cast<f32>(divX);
+    const f32 tilesPerFrameY = static_cast<f32>(repY) / static_cast<f32>(divY);
+
+    const f32 tilesStartX = static_cast<f32>(fx) * tilesPerFrameX;
+    const f32 tilesStartY = static_cast<f32>(fy) * tilesPerFrameY;
+
+    QImage out(32, 32, QImage::Format_ARGB32);
+
+    for (s32 y = 0; y < out.height(); ++y) {
+        for (s32 x = 0; x < out.width(); ++x) {
+
+            f32 tileU = tilesStartX + (static_cast<f32>(x) / static_cast<f32>(out.width())) * tilesPerFrameX;
+            f32 tileV = tilesStartY + (static_cast<f32>(y) / static_cast<f32>(out.height())) * tilesPerFrameY;
+
+            f32 u = tileU / static_cast<f32>(repX);
+            f32 v = tileV / static_cast<f32>(repY);
+
+            f32 mu = mirrorCoord(u * static_cast<f32>(repX));
+            f32 mv = mirrorCoord(v * static_cast<f32>(repY));
+
+            s32 tx = std::clamp(static_cast<s32>(mu * static_cast<f32>(src.width())), 0, src.width() - 1);
+            s32 ty = std::clamp(static_cast<s32>(mv * static_cast<f32>(src.height())), 0, src.height() - 1);
+
+            out.setPixelColor(x, y, src.pixelColor(tx, ty));
+        }
     }
-
-    // TODO
-    const f32 repeatX = static_cast<f32>(mEmitter->numTextureRepetitionsX());
-    const f32 repeatY = static_cast<f32>(mEmitter->numTextureRepetitionsY());
-
-    QImage repeated = applyUVRepetition(base, repeatX, repeatY);
-    if (repeated.isNull()) {
-        return {};
-    }
-
-    return QPixmap::fromImage(repeated.scaled(32, 32, Qt::KeepAspectRatio));
+    return out;
 }
 
 

@@ -146,7 +146,7 @@ private:
     std::optional<Math::Vector2f> calcFrameUVOffset(s32 frame) const;
     QImage getFrameTexture(s32 frame) const;
     QImage applyUVRepetition(const QImage& image, f32 repeatX, f32 repeatY) const;
-    QPixmap createFramePreview(s32 frame) const;
+    QImage createFramePreview(s32 frame) const;
 
     s32 maxFrameCount() const;
 
