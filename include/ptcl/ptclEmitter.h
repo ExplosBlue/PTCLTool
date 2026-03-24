@@ -352,6 +352,18 @@ public:
     s32 numTextureRepetitionsY() const { return static_cast<s32>(std::round(mTextureUVScale.getY() * static_cast<f32>(mNumTextureDivisionY))); }
     void setNumTextureRepetitionsY(s32 num) { mTextureUVScale.setY(static_cast<f32>(num) / static_cast<f32>(mNumTextureDivisionY)); }
 
+    Math::Vector2i textureRepetitions() const {
+        return {
+            numTextureRepetitionsX(),
+            numTextureRepetitionsY()
+        };
+    }
+
+    void setTextureRepetitions(const Math::Vector2i& repetitions) {
+        setNumTextureRepetitionsX(repetitions.getX());
+        setNumTextureRepetitionsY(repetitions.getY());
+    }
+
     const Math::Vector2f& textureUVScale() const { return mTextureUVScale; }
     void setTextureUVScale(const Math::Vector2f& scale) { mTextureUVScale = scale; }
 
