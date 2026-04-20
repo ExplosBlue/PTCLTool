@@ -19,6 +19,16 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
+f32 mirrorCoord(f32 t) {
+    const s32 i = static_cast<s32>(std::floor(t));
+    const f32 f = t - static_cast<f32>(i);
+    return (i % 2 == 0) ? f : (1.0f - f);
+}
+
+
+// ========================================================================== //
+
+
 TextureDivisionSelector::TextureDivisionSelector(QWidget* parent) :
     QWidget{parent} {
 
@@ -230,21 +240,6 @@ void TextureRepetitionSelector::setRepetitions(s32 repX, s32 repY) {
     update();
 }
 
-s32 mirrorIndex(s32 i, s32 max) {
-    if (max <= 1) {
-        return 0;
-    }
-
-    const s32 period = (max - 1) * 2;
-    i = i % period;
-
-    if (i >= max) {
-        i = period - i;
-    }
-
-    return i;
-}
-
 void TextureRepetitionSelector::updateLayoutCache() {
     if (mTexture.isNull()) {
         return;
@@ -252,15 +247,9 @@ void TextureRepetitionSelector::updateLayoutCache() {
 
     const QSize widgetSize = size();
 
-    const s32 repX = mDragging ? mPreviewRepX : mRepX;
-    const s32 repY = mDragging ? mPreviewRepY : mRepY;
-
-    f32 uMax = static_cast<f32>(repX) / static_cast<f32>(mDivX);
-    f32 vMax = static_cast<f32>(repY) / static_cast<f32>(mDivY);
-
     QSizeF virtualSize{
-        static_cast<f32>(mTexture.width()) * uMax,
-        static_cast<f32>(mTexture.height()) * vMax
+        static_cast<f32>(mTexture.width()) * UVScale,
+        static_cast<f32>(mTexture.height()) * UVScale
     };
 
     mScale = std::min(
@@ -281,10 +270,31 @@ void TextureRepetitionSelector::updateLayoutCache() {
     mTexRect = QRect(topLeft, mScaledSize);
 }
 
-f32 mirrorCoord(f32 t) {
-    const s32 i = static_cast<s32>(std::floor(t));
-    const f32 f = t - static_cast<f32>(i);
-    return (i % 2 == 0) ? f : (1.0f - f);
+void TextureRepetitionSelector::drawTexture(QPainter* painter) {
+    const s32 texW = mTexture.width();
+    const s32 texH = mTexture.height();
+
+    const s32 w = mTexRect.width();
+    const s32 h = mTexRect.height();
+
+    QImage output(w, h, QImage::Format::Format_ARGB32);
+
+    for (s32 y = 0; y < h; ++y){
+        for (s32 x = 0; x < w; ++x) {
+            const f32 u = (static_cast<f32>(x) / static_cast<f32>(w)) * UVScale;
+            const f32 v = (static_cast<f32>(y) / static_cast<f32>(h)) * UVScale;
+
+            const f32 mu = mirrorCoord(u);
+            const f32 mv = mirrorCoord(v);
+
+            const s32 tx = std::clamp(static_cast<s32>(mu * texW), 0, texW - 1);
+            const s32 ty = std::clamp(static_cast<s32>(mv * texH), 0, texH - 1);
+
+            output.setPixelColor(x, y, mTexture.pixelColor(tx, ty));
+        }
+    }
+
+    painter->drawImage(mTexRect.topLeft(), output);
 }
 
 void TextureRepetitionSelector::paintEvent(QPaintEvent* event) {
@@ -302,73 +312,107 @@ void TextureRepetitionSelector::paintEvent(QPaintEvent* event) {
     const s32 repX = mDragging ? mPreviewRepX : mRepX;
     const s32 repY = mDragging ? mPreviewRepY : mRepY;
 
+    const s32 divX = mDivX;
+    const s32 divY = mDivY;
+
+    // --- background ---
     painter.save();
     painter.setClipRect(mTexRect);
     PaintUtil::drawCheckerboard(painter, mTexRect);
     painter.restore();
 
-    const s32 texW = mTexture.width();
-    const s32 texH = mTexture.height();
+    // --- render texture ---
+    drawTexture(&painter);
 
-    const s32 w = mTexRect.width();
-    const s32 h = mTexRect.height();
+    // ============================================================
+    // 1. DIVISION GRID (texture split)
+    // ============================================================
 
-    const f32 uMax = static_cast<f32>(repX) / static_cast<f32>(mDivX);
-    const f32 vMax = static_cast<f32>(repY) / static_cast<f32>(mDivY);
+    {
+        const f32 divCellW = static_cast<f32>(mTexRect.width()) / static_cast<f32>(divX * UVScale);
+        const f32 divCellH = static_cast<f32>(mTexRect.height()) / static_cast<f32>(divY * UVScale);
 
-    QImage output(w, h, QImage::Format::Format_ARGB32);
+        const QRect texRect = mTexRect;
 
-    for (s32 y = 0; y < h; ++y){
-        for (s32 x = 0; x < w; ++x) {
-            const f32 u = (static_cast<f32>(x) / static_cast<f32>(w)) * uMax;
-            const f32 v = (static_cast<f32>(y) / static_cast<f32>(h)) * vMax;
+        QPen pen(QColor(100, 160, 255, 140), 1);
+        pen.setStyle(Qt::DashLine);
+        painter.setPen(pen);
 
-            const f32 mu = mirrorCoord(u);
-            const f32 mv = mirrorCoord(v);
+        // --- total div is double the divisions (because UVScale = 2) ---
+        const s32 totalDivX = divX * 2;
+        const s32 totalDivY = divY * 2;
 
-            const s32 tx = std::clamp(static_cast<s32>(mu * static_cast<f32>(texW)), 0, texW - 1);
-            const s32 ty = std::clamp(static_cast<s32>(mv * static_cast<f32>(texH)), 0, texH - 1);
-
-            output.setPixelColor(x, y, mTexture.pixelColor(tx, ty));
-        }
-    }
-
-    painter.drawImage(mTexRect.topLeft(), output);
-
-    const f32 cellW = static_cast<f32>(mTexRect.width()) / static_cast<f32>(repX);
-    const f32 cellH = static_cast<f32>(mTexRect.height()) / static_cast<f32>(repY);
-    const auto texRect = mTexRect;
-
-
-    auto drawLines = [&painter, repX, repY, cellW, cellH, texRect]() {
-        for (s32 x = 1; x < repX; ++x) {
-            const s32 px = texRect.left() + static_cast<s32>(x * static_cast<s32>(cellW));
+        for (s32 x = 1; x < totalDivX; ++x) {
+            const s32 px = texRect.left() + static_cast<s32>(x * divCellW);
             painter.drawLine(px, texRect.top(), px, texRect.bottom());
         }
 
-        for (s32 y = 1; y < repY; ++y) {
-            const s32 py = texRect.top() + static_cast<s32>(y * static_cast<s32>(cellH));
+        for (s32 y = 1; y < totalDivY; ++y) {
+            const s32 py = texRect.top() + static_cast<s32>(y * divCellH);
             painter.drawLine(texRect.left(), py, texRect.right(), py);
         }
-    };
-
-    if (mDragging) {
-        painter.setCompositionMode(QPainter::CompositionMode_Difference);
-        QColor color = Qt::white;
-        color.setAlpha(180);
-        painter.setPen(QPen(color, 2));
-    } else {
-        painter.setPen(QPen(Qt::black, 3));
-        drawLines();
-        painter.setPen(QPen(Qt::white, 1));
     }
-    drawLines();
+
+    // ============================================================
+    // 2. FRAME HIGHLIGHT (shows one repeated unit)
+    // ============================================================
+
+    {
+        // --- frame size in TILE space (this is the correct domain) ---
+        const f32 tilesPerFrameX = static_cast<f32>(repX) / static_cast<f32>(divX);
+        const f32 tilesPerFrameY = static_cast<f32>(repY) / static_cast<f32>(divY);
+
+        // --- each tile is half the preview (because UVScale = 2) ---
+        const f32 tileW = static_cast<f32>(mTexRect.width()) * 0.5f;
+        const f32 tileH = static_cast<f32>(mTexRect.height()) * 0.5f;
+
+        const s32 framePxW = static_cast<s32>(tilesPerFrameX * tileW);
+        const s32 framePxH = static_cast<s32>(tilesPerFrameY * tileH);
+
+        QRect frameRect(
+            mTexRect.left(),
+            mTexRect.top(),
+            framePxW,
+            framePxH
+        );
+
+        QColor fill(255, 255, 0, 60);
+        painter.fillRect(frameRect, fill);
+
+        // painter.setPen(QPen(Qt::yellow, 2));
+        // painter.drawRect(frameRect);
+    }
+
+    // Repetition seams
+
+    const s32 midX = mTexRect.left() + mTexRect.width() / 2;
+    const s32 midY = mTexRect.top() + mTexRect.height() / 2;
+
+    QPen seamPen(QColor(15, 15, 15, 180), 2);
+    seamPen.setStyle(Qt::DashDotLine);
+
+    painter.save();
+    painter.setPen(seamPen);
+    painter.setCompositionMode(QPainter::CompositionMode_Difference);
+
+    painter.drawLine(midX, mTexRect.top(), midX, mTexRect.bottom());
+    painter.drawLine(mTexRect.left(), midY, mTexRect.right(), midY);
+    painter.restore();
+
+    // ============================================================
+    // 3. TEXT INFO (critical for clarity)
+    // ============================================================
+
+    const s32 frameX = repX / divX;
+    const s32 frameY = repY / divY;
 
     painter.setPen(Qt::white);
     painter.drawText(
-        mTexRect.adjusted(4, 4, -4, -4),
+        mTexRect.adjusted(6, 6, -6, -6),
         Qt::AlignTop | Qt::AlignLeft,
-        QString("%1 x %2").arg(repX).arg(repY)
+        QString("Rep: %1 x %2\nDiv: %3 x %4")
+            .arg(repX).arg(repY)
+            .arg(divX).arg(divY)
     );
 }
 
@@ -401,8 +445,8 @@ void TextureRepetitionSelector::mouseMoveEvent(QMouseEvent* event) {
 
     const s32 maxRep = 16;
 
-    const f32 normX = static_cast<f32>(delta.x()) / static_cast<f32>(mTexRect.width());
-    const f32 normY = static_cast<f32>(delta.y()) / static_cast<f32>(mTexRect.height());
+    const f32 normX = static_cast<f32>(delta.x()) / static_cast<f32>(mTexRect.width() * UVScale);
+    const f32 normY = static_cast<f32>(delta.y()) / static_cast<f32>(mTexRect.height() * UVScale);
 
     mPreviewRepX = std::clamp(mRepX + static_cast<s32>(normX * maxRep), 1, maxRep);
     mPreviewRepY = std::clamp(mRepY + static_cast<s32>(normY * maxRep), 1, maxRep);

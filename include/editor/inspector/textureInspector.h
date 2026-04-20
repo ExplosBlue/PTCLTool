@@ -89,6 +89,10 @@ protected:
 
 private:
     void updateLayoutCache();
+    void drawTexture(QPainter* painter);
+
+private:
+    static constexpr f32 UVScale = 2.0f;
 
 private:
     QImage mTexture{};
