@@ -290,18 +290,35 @@ void MainWindow::openRecentFile() {
     }
 
     QString filePath = action->data().toString();
+
+    if (!QFile::exists(filePath)) {
+        showFileNotFoundDialog(filePath);
+        SettingsUtil::SettingsMgr::instance().addRecentFile(filePath);
+        updateRecentFileList();
+        return;
+    }
+
     loadPtclRes(filePath);
 }
 
 void MainWindow::updateRecentFileList() {
-    const auto recentFiles = SettingsUtil::SettingsMgr::instance().recentFiles();
+    auto& settings = SettingsUtil::SettingsMgr::instance();
 
-    s32 maxRecentFiles = SettingsUtil::SettingsMgr::instance().maxRecentFiles();
-    qsizetype numRecentFiles = qMin(recentFiles.size(), maxRecentFiles);
+    auto recentFiles = settings.recentFiles();
 
-    for (s32 i = 0; i < numRecentFiles; ++i) {
-        auto& file = recentFiles[i];
+    recentFiles.removeIf([](const QString& file) {
+        return !QFile::exists(file);
+    });
+
+    if (recentFiles != settings.recentFiles()) {
+        settings.setRecentFiles(recentFiles);
+    }
+
+    qsizetype numRecentFiles = qMin(recentFiles.size(), static_cast<qsizetype>(settings.maxRecentFiles()));
+
+    for (qsizetype i = 0; i < numRecentFiles; ++i) {
         auto& action = mRecentFileActions[i];
+        auto& file = recentFiles[i];
 
         QString text = QString("&%1").arg(QFileInfo(file).fileName());
         action->setText(text);
@@ -309,7 +326,7 @@ void MainWindow::updateRecentFileList() {
         action->setVisible(true);
     }
 
-    for (qsizetype i = numRecentFiles; i < maxRecentFiles; ++i) {
+    for (qsizetype i = numRecentFiles; i < mRecentFileActions.size(); ++i) {
         mRecentFileActions[i]->setVisible(false);
     }
 
@@ -317,6 +334,11 @@ void MainWindow::updateRecentFileList() {
 }
 
 void MainWindow::loadPtclRes(const QString& path) {
+    if (!QFile::exists(path)) {
+        showFileNotFoundDialog(path);
+        return;
+    }
+
     mPtclList.setDocument(nullptr);
     mInspector.setDocument(nullptr);
     mTextureWidget.setDocument(nullptr);
@@ -412,6 +434,19 @@ void MainWindow::bindUndoStack() {
     mRedoAction->setEnabled(stack->canRedo());
 
     mUndoView.setStack(stack);
+}
+
+void MainWindow::showFileNotFoundDialog(const QString& filePath) {
+    QMessageBox msgBox(this);
+    msgBox.setIcon(QMessageBox::Critical);
+    msgBox.setWindowTitle("Failed to open file");
+    msgBox.setText("The file could not be opened.");
+
+    QString displayPath = QDir::toNativeSeparators(filePath);
+    msgBox.setInformativeText(QString("The file does not exist:\n\n%1").arg(displayPath));
+    msgBox.setStandardButtons(QMessageBox::Ok);
+
+    msgBox.exec();
 }
 
 

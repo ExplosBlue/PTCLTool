@@ -21,6 +21,8 @@ public:
 
     QStringList recentFiles() const;
     void addRecentFile(const QString& path);
+    void removeRecentFile(const QString& path);
+    void setRecentFiles(const QStringList& files);
 
     inline constexpr int maxRecentFiles() { return sMaxRecentFiles; }
 

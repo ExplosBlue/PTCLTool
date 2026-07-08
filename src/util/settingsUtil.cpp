@@ -24,6 +24,16 @@ void SettingsMgr::addRecentFile(const QString& path) {
     mSettings.setValue("recentFiles", recentFileList);
 }
 
+void SettingsMgr::removeRecentFile(const QString& path) {
+    auto recentFileList = recentFiles();
+    recentFileList.removeAll(path);
+    mSettings.setValue("recentFiles", recentFileList);
+}
+
+void SettingsMgr::setRecentFiles(const QStringList& files) {
+    mSettings.setValue("recentFiles", files);
+}
+
 QString SettingsMgr::lastOpenPath() const {
     return mSettings.value("openPath").toString();
 }

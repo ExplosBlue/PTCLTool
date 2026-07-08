@@ -53,6 +53,8 @@ private:
 
     void bindUndoStack();
 
+    void showFileNotFoundDialog(const QString& filePath);
+
 private:
     std::unique_ptr<Ptcl::Document> mDocument{};
     Ptcl::Selection mSelection{};
