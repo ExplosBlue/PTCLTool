@@ -15,13 +15,16 @@ FieldConvergenceInspector::FieldConvergenceInspector(QWidget* parent) :
     // TODO: Better ranges?
     mPosSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
     mEnabledCheckBox.setText("Enabled");
+    mEnabledCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     mControlsWidget = new QWidget(this);
     auto* controlsLayout = new QFormLayout(mControlsWidget);
+    controlsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     controlsLayout->addRow("Convergence Position:", &mPosSpinBox);
     controlsLayout->addRow("Position Follow Type:", &mTypeSpinBox);
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     mainLayout->addRow("Convergence:", &mEnabledCheckBox);
     mainLayout->addRow(mControlsWidget);
 

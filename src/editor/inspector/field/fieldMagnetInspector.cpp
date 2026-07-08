@@ -15,9 +15,14 @@ FieldMagnetInspector::FieldMagnetInspector(QWidget* parent) :
     mMagnetPowerSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
     mMagnetPosSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
     mEnabledCheckBox.setText("Enabled");
+    mEnabledCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    mAxisXCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    mAxisYCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    mAxisZCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     mControlsWidget = new QWidget(this);
     auto* controlsLayout = new QFormLayout(mControlsWidget);
+    controlsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     controlsLayout->addRow("Magnet Power:", &mMagnetPowerSpinBox);
     controlsLayout->addRow("Magnet Position:", &mMagnetPosSpinBox);
     controlsLayout->addRow("Target X-Axis:", &mAxisXCheckBox);
@@ -25,6 +30,7 @@ FieldMagnetInspector::FieldMagnetInspector(QWidget* parent) :
     controlsLayout->addRow("Target Z-Axis:", &mAxisZCheckBox);
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     mainLayout->addRow("Magnetic Force:", &mEnabledCheckBox);
     mainLayout->addRow(mControlsWidget);
 

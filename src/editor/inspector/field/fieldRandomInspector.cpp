@@ -15,13 +15,16 @@ FieldRandomInspector::FieldRandomInspector(QWidget* parent) :
     mRandomVelAddSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
     mRandomBlankSpinBox.setRange(std::numeric_limits<s32>::min(), std::numeric_limits<s32>::max());
     mEnabledCheckBox.setText("Enabled");
+    mEnabledCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     mControlsWidget = new QWidget(this);
     auto* controlsLayout = new QFormLayout(mControlsWidget);
+    controlsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     controlsLayout->addRow("Random Velocity Add:", &mRandomVelAddSpinBox);
     controlsLayout->addRow("Random Blank:", &mRandomBlankSpinBox);
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     mainLayout->addRow("Randomness:", &mEnabledCheckBox);
     mainLayout->addRow(mControlsWidget);
 

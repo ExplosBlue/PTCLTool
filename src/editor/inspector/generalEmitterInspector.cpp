@@ -38,6 +38,7 @@ GeneralEmitterInspector::GeneralEmitterInspector(QWidget* parent) :
     mShapeComboBox.addItem("Primitive", QVariant::fromValue(ShapeType::Primitive));
 
     mMainLayout = new QFormLayout(this);
+    mMainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mMainLayout->addRow("Emitter Name:", &mNameLineEdit);
     mMainLayout->addRow("Emitter Type:", &mTypeComboBox);
@@ -52,6 +53,7 @@ GeneralEmitterInspector::GeneralEmitterInspector(QWidget* parent) :
     mMainLayout->addRow("Shape:", &mShapeComboBox);
     mMainLayout->addRow("Billboard Type:", &mBillboardComboBox);
     mMainLayout->addRow("Stripe Type:", &mStripeTypeComboBox);
+    mIsBillboardMtxCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mMainLayout->addRow("Is Billboard Matrix:", &mIsBillboardMtxCheckBox);
 
     setupConnections();

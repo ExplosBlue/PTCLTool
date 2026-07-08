@@ -13,6 +13,7 @@ VelocityInspector::VelocityInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mFigureVelSpinbox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
     mInitVelSpinbox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());

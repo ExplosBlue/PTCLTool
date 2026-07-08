@@ -39,6 +39,8 @@ EmissionInspector::EmissionInspector(QWidget* parent) :
 
     mainLayout->setColumnStretch(1, 1);
     mainLayout->setColumnStretch(3, 1);
+    mainLayout->setVerticalSpacing(2);
+    mainLayout->setRowStretch(4, 1);
 
     setupConnections();
 }

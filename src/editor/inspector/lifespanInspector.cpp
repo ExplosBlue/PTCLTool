@@ -13,6 +13,7 @@ LifespanInspector::LifespanInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mLifeSpanSpinBox.setRange(0, sLifeInfinite - 1);
     mLifeSpanSpinBox.setSuffix(" Frames");
@@ -22,6 +23,7 @@ LifespanInspector::LifespanInspector(QWidget* parent) :
     mLifeSpanRndSpinBox.setRange(0, std::numeric_limits<s32>::max());
     mLifeSpanRndSpinBox.setSuffix("%");
 
+    mInfiniteLifeCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mainLayout->addRow("Infinite Life", &mInfiniteLifeCheckBox);
 
     mainLayout->addRow("Lifespan:", &mLifeSpanSpinBox);

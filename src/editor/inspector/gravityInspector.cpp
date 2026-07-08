@@ -13,8 +13,10 @@ GravityInspector::GravityInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mIsDirectionalCheckBox.setText("Apply gravity in world coords");
+    mIsDirectionalCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     mainLayout->addRow("Coordinates:", &mIsDirectionalCheckBox);
     mainLayout->addRow("Gravity Direction:", &mGravitySpinBox);

@@ -13,8 +13,10 @@ ChildColorInspector::ChildColorInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mInheritColorCheckBox.setText("Inherit Parent Primary Color");
+    mInheritColorCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mColor1Widget.enableAlpha(false);
 
     mainLayout->addRow("Color:", &mInheritColorCheckBox);

@@ -14,13 +14,16 @@ FieldSpinInspector::FieldSpinInspector(QWidget* parent) :
 
     mSpinRotateSpinBox.setRange(-180.0f, 180.0f);
     mEnabledCheckBox.setText("Enabled");
+    mEnabledCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     mControlsWidget = new QWidget(this);
     auto* controlsLayout = new QFormLayout(mControlsWidget);
+    controlsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     controlsLayout->addRow("Spin Rotation:", &mSpinRotateSpinBox);
     controlsLayout->addRow("Spin Axis:", &mSpinAxisSpinBox);
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     mainLayout->addRow("Spin:", &mEnabledCheckBox);
     mainLayout->addRow(mControlsWidget);
 

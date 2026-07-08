@@ -13,6 +13,7 @@ ChildCombinerInspector::ChildCombinerInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mainLayout->addRow("Blend Function:", &mBlendFuncComboBox);
     mainLayout->addRow("Depth Function:", &mDepthFuncComboBox);

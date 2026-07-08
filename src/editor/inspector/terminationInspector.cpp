@@ -13,9 +13,11 @@ TerminationInspector::TerminationInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mAlphaAddInSpinBox.setRange(0.0f, 1.0f);
 
+    mIsStopEmitCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mainLayout->addRow("Stop Emission During Fade:", &mIsStopEmitCheckBox);
     mainLayout->addRow("Alpha Add During Fade:", &mAlphaAddInSpinBox);
 

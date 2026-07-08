@@ -20,6 +20,7 @@ ChildVelocityInspector::ChildVelocityInspector(QWidget* parent) :
     mAirResistSpinBox.setRange(0.0f, 1.0f);
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mainLayout->addRow("Random Velocity:", &mRandVelSpinBox);
     mainLayout->addRow("Gravity:", &mGravitySpinBox);

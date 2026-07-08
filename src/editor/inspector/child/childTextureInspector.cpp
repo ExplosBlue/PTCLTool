@@ -48,6 +48,7 @@ ChildTextureInspector::ChildTextureInspector(QWidget* parent) :
     auto mainLayout = new QGridLayout(this);
     mainLayout->addLayout(settingsLayout, 0, 0, 1, 1);
     mainLayout->addWidget(&mTexturePreview, 0, 1, 1, 1);
+    mainLayout->setColumnStretch(0, 1);
 
     setLayout(mainLayout);
     setupConnections();

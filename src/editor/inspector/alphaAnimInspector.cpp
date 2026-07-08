@@ -18,6 +18,7 @@ AlphaAnimInspector::AlphaAnimInspector(QWidget* parent) :
     mGraphA.setValueRange(0.0f, 1.0f);
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     mainLayout->addRow("Alpha Anim:", &mGraphA);
 
     connect(&mGraphA, &AnimGraph::pointEdited, this, [this](s32 pointIndex, const AnimGraph::GraphPoint& point) {

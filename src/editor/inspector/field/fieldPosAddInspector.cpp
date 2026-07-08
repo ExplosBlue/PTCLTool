@@ -15,12 +15,15 @@ FieldPosAddInspector::FieldPosAddInspector(QWidget* parent) :
     // TODO: Set better limits?
     mPosSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
     mEnabledCheckBox.setText("Enabled");
+    mEnabledCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     mControlsWidget = new QWidget(this);
     auto* controlsLayout = new QFormLayout(mControlsWidget);
+    controlsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     controlsLayout->addRow("Add-on value:", &mPosSpinBox);
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     mainLayout->addRow("Add to Position:", &mEnabledCheckBox);
     mainLayout->addRow(mControlsWidget);
 

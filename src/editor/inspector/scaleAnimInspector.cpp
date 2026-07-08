@@ -21,6 +21,7 @@ ScaleAnimInspector::ScaleAnimInspector(QWidget* parent) :
     mGraphY.setLineColor(sColorAxisY);
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     mainLayout->addRow("X Scale Anim:", &mGraphX);
     mainLayout->addRow("Y Scale Anim:", &mGraphY);
     mainLayout->addRow("Scale Random:", &mRandSpinbox);

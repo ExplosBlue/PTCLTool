@@ -13,6 +13,7 @@ TransformInspector::TransformInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mainLayout->addRow("Translation", &mTranslationSpinBox);
     mainLayout->addRow("Rotation", &mRotationSpinBox);

@@ -78,6 +78,7 @@ signals:
 
 protected:
     inline void setupUI(u32 axisCount) {
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         mMainLayout = new QBoxLayout(QBoxLayout::LeftToRight, this);
         mMainLayout->setContentsMargins(mMainLayout->contentsMargins().left(), 0, 0, 0);
         setLayout(mMainLayout);

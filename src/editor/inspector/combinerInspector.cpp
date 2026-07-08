@@ -12,8 +12,10 @@ CombinerInspector::CombinerInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mFogCheckBox.setText("Enable Fog");
+    mFogCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     mainLayout->addRow("Fog:", &mFogCheckBox);
     mainLayout->addRow("Blend Function:", &mBlendFuncComboBox);

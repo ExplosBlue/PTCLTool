@@ -34,6 +34,7 @@ void VolumeInspector::setupUi() {
 
     // Layout
     auto* mainLayout = new QFormLayout;
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     setLayout(mainLayout);
 
     // Field properties

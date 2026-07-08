@@ -24,8 +24,10 @@ ChildAlphaInspector::ChildAlphaInspector(QWidget* parent) :
     mStartFrameSpinBox.setRange(0, std::numeric_limits<s32>::max());
     mBaseFrameSpinBox.setRange(0, std::numeric_limits<s32>::max());
     mInheritAlphaCheckBox.setText("Inherit Parent Alpha");
+    mInheritAlphaCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mainLayout->addRow("Alpha:", &mInheritAlphaCheckBox);
     mainLayout->addRow("Alpha:", &mAlphaSpinBox);

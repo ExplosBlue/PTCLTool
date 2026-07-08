@@ -412,6 +412,8 @@ TextureInspector::TextureInspector(QWidget* parent) :
     settingsLayout->addWidget(&mMinFilterComboBox, 1, 3);
     settingsLayout->addWidget(new QLabel("Mipmap Filter:"), 2, 2);
     settingsLayout->addWidget(&mMipFilterComboBox, 2, 3);
+    settingsLayout->setColumnStretch(1, 1);
+    settingsLayout->setColumnStretch(3, 1);
 
     auto textureConfigLayout = new QGridLayout;
     // textureConfigLayout->addWidget(new QLabel("Texture Divisions:"), 0, 0);
@@ -445,8 +447,11 @@ TextureInspector::TextureInspector(QWidget* parent) :
     mainLayout->addLayout(textureConfigLayout, 1, 0);
     mainLayout->addWidget(&mTexPatGroupBox, 2, 0);
 
-    mainLayout->addWidget(new QLabel("Initial Frame Variants:"), 3, 0);
-    mainLayout->addWidget(&mNumTexPat, 3, 1);
+    auto* initFrameLayout = new QHBoxLayout;
+    initFrameLayout->addWidget(new QLabel("Initial Frame Variants:"));
+    initFrameLayout->addWidget(&mNumTexPat);
+    mainLayout->addLayout(initFrameLayout, 3, 0);
+    mainLayout->setColumnStretch(0, 1);
 
     setLayout(mainLayout);
     setupConnections();

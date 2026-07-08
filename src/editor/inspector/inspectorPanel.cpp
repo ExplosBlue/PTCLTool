@@ -125,7 +125,7 @@ InspectorPanel::InspectorPanel(QWidget* parent) :
     auto* layout = new QVBoxLayout(this);
     layout->addLayout(projectPropertiesLayout);
     layout->addWidget(mTabStack);
-    layout->setContentsMargins(0, 0, 0, 0);
+    // layout->setContentsMargins(0, 0, 0, 0);
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -133,14 +133,11 @@ InspectorPanel::InspectorPanel(QWidget* parent) :
 }
 
 void InspectorPanel::buildTabs() {
-    // This is dumb, but fixes some issues with some tabs being incorrectly sized
-    // Individual inspector widgets should probably be adjusted instead so this can be removed
     auto wrapInScroll = [this](QWidget* content) {
         auto* scroll = new QScrollArea;
         scroll->setWidget(content);
         scroll->setWidgetResizable(true);
         scroll->setFrameShape(QFrame::NoFrame);
-        scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         return scroll;
     };
 
@@ -165,26 +162,26 @@ void InspectorPanel::buildTabs() {
     mEmitterTabs->addTab(wrapInScroll(mScaleAnimInspector), "Scale");
 
     // Fluctuation
-    mFluxTabs->addTab(mFluctuationInspector, "Fluctuation");
+    mFluxTabs->addTab(wrapInScroll(mFluctuationInspector), "Fluctuation");
 
     // Field
-    mFieldTabs->addTab(mFieldCollisionInspector, "Collision");
-    mFieldTabs->addTab(mFieldConvergenceInspector, "Convergence");
-    mFieldTabs->addTab(mFieldMagnetInspector, "Magnet");
-    mFieldTabs->addTab(mFieldPosAddInspector, "Pos Add");
-    mFieldTabs->addTab(mFieldRandomInspector, "Random");
-    mFieldTabs->addTab(mFieldSpinInspector, "Spin");
+    mFieldTabs->addTab(wrapInScroll(mFieldCollisionInspector), "Collision");
+    mFieldTabs->addTab(wrapInScroll(mFieldConvergenceInspector), "Convergence");
+    mFieldTabs->addTab(wrapInScroll(mFieldMagnetInspector), "Magnet");
+    mFieldTabs->addTab(wrapInScroll(mFieldPosAddInspector), "Pos Add");
+    mFieldTabs->addTab(wrapInScroll(mFieldRandomInspector), "Random");
+    mFieldTabs->addTab(wrapInScroll(mFieldSpinInspector), "Spin");
 
     // Child
-    mChildTabs->addTab(mChildGeneralInspector, "General");
-    mChildTabs->addTab(mChildColorInspector, "Color");
-    mChildTabs->addTab(mChildAlphaInspector, "Alpha");
-    mChildTabs->addTab(mChildCombinerInspector, "Combiner");
-    mChildTabs->addTab(mChildEmissionInspector, "Emission");
-    mChildTabs->addTab(mChildRotationInspector, "Rotation");
-    mChildTabs->addTab(mChildScaleInspector, "Scale");
-    mChildTabs->addTab(mChildTextureInspector, "Texture");
-    mChildTabs->addTab(mChildVelocityInspector, "Velocity");
+    mChildTabs->addTab(wrapInScroll(mChildGeneralInspector), "General");
+    mChildTabs->addTab(wrapInScroll(mChildColorInspector), "Color");
+    mChildTabs->addTab(wrapInScroll(mChildAlphaInspector), "Alpha");
+    mChildTabs->addTab(wrapInScroll(mChildCombinerInspector), "Combiner");
+    mChildTabs->addTab(wrapInScroll(mChildEmissionInspector), "Emission");
+    mChildTabs->addTab(wrapInScroll(mChildRotationInspector), "Rotation");
+    mChildTabs->addTab(wrapInScroll(mChildScaleInspector), "Scale");
+    mChildTabs->addTab(wrapInScroll(mChildTextureInspector), "Texture");
+    mChildTabs->addTab(wrapInScroll(mChildVelocityInspector), "Velocity");
 }
 
 void InspectorPanel::updateTabVisibility() {

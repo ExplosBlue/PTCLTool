@@ -15,6 +15,7 @@ RotationInspector::RotationInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mainLayout->addRow("Rotation Type", &mRotTypeSpinBox);
     mainLayout->addRow("Initial Rotation", &mInitRotSpinBox);

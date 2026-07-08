@@ -14,18 +14,22 @@ FieldCollisionInspector::FieldCollisionInspector(QWidget* parent) :
 
     // TODO: Better ranges?
     mIsWorldCheckBox.setText("Collision in world coordinates");
+    mIsWorldCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mCoordSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
     mCoefSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
     mEnabledCheckBox.setText("Enabled");
+    mEnabledCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     mControlsWidget = new QWidget(this);
     auto* controlsLayout = new QFormLayout(mControlsWidget);
+    controlsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     controlsLayout->addRow("Collision Behavior:", &mCollisionTypeSpinBox);
     controlsLayout->addRow("Coordinate System:", &mIsWorldCheckBox);
     controlsLayout->addRow("Plane Y-Coord:", &mCoordSpinBox);
     controlsLayout->addRow("Bounce Rate:", &mCoefSpinBox);
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     mainLayout->addRow("Collision:", &mEnabledCheckBox);
     mainLayout->addRow(mControlsWidget);
 

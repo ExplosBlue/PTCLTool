@@ -32,6 +32,7 @@ ChildEmissionInspector::ChildEmissionInspector(QWidget* parent) :
     mEmitStepSpinBox.setSuffix(" Frames");
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     // Lifespan + Infinite Life
     auto* lifeRow = new QWidget(this);

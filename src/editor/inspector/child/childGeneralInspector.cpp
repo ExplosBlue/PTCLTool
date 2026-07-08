@@ -16,13 +16,17 @@ ChildGeneralInspector::ChildGeneralInspector(QWidget* parent) :
     }
 
     mEnabledCheckBox.setText("Enable Child Emitter");
+    mEnabledCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mFollowCheckBox.setText("Follow Parent Emitter");
+    mFollowCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mParentFieldCheckBox.setText("Apply Parent's Field");
+    mParentFieldCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     mDrawOrderComboBox.addItem("Above Parent", QVariant::fromValue(DrawOrder::AboveParent));
     mDrawOrderComboBox.addItem("Below Parent", QVariant::fromValue(DrawOrder::BelowParent));
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mainLayout->addRow("Child:", &mEnabledCheckBox);
     mainLayout->addRow("Billboard Type:", &mBillboardComboBox);

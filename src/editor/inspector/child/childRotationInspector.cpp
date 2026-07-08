@@ -15,8 +15,10 @@ ChildRotationInspector::ChildRotationInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mInheritRotCheckBox.setText("Inherit Parent Rotation");
+    mInheritRotCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     mainLayout->addRow("Rotation:", &mInheritRotCheckBox);
     mainLayout->addRow("Rotation Type:", &mRotTypeSpinBox);

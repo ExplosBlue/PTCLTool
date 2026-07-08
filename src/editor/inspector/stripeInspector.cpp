@@ -22,8 +22,10 @@ StripeInspector::StripeInspector(QWidget* parent) :
     mHistStepSpinBox.setRange(0, 64);
     mDirIntepolateSpinBox.setRange(0.0f, 1.0f);
     mEmitterCoordCheckBox.setText("Perfectly follow emitter");
+    mEmitterCoordCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     mainLayout->addRow("Calculation Method:", &mTypeComboBox);
     mainLayout->addRow("Follow:", &mEmitterCoordCheckBox);
     mainLayout->addRow("History Size:", &mNumHistSpinBox);

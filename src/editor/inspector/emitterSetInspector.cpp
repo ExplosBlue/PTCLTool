@@ -19,6 +19,7 @@ EmitterSetInspector::EmitterSetInspector(QWidget* parent) :
     mLastUpdateSpinBox.setRange(std::numeric_limits<u32>::min(), std::numeric_limits<u32>::max());
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     mainLayout->addRow("EmitterSet Name:", &mNameLineEdit);
     mainLayout->addRow("UserData:", &mUserDataSpinBox);
     mainLayout->addRow("LastUpdate:", &mLastUpdateSpinBox);

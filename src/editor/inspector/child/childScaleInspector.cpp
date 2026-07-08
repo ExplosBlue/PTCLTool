@@ -13,8 +13,10 @@ ChildScaleInspector::ChildScaleInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mInheritScaleCheckBox.setText("Inherit Parent Scale");
+    mInheritScaleCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mInheritRateSpinBox.setRange(0.0f, 1.0f);
     mInheritRateSpinBox.setSingleStep(0.1f);
     mScaleSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());

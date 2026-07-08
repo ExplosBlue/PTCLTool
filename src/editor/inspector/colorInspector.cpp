@@ -61,6 +61,7 @@ ColorInspector::ColorInspector(QWidget* parent) :
 
     // Main Layout
     auto mainLayout = new QVBoxLayout(this);
+    mainLayout->setSpacing(2);
     mainLayout->addLayout(colorBehaviorLayout);
 
     mainLayout->addWidget(mPrimaryColorUi);
@@ -71,6 +72,8 @@ ColorInspector::ColorInspector(QWidget* parent) :
     mainLayout->addWidget(&mSecondaryColorWidget);
     mainLayout->addWidget(new QLabel("Color Calc Type"));
     mainLayout->addWidget(&mColorCalcTypeSpinBox);
+
+    mainLayout->addStretch(1);
 
     setLayout(mainLayout);
     setupConnections();

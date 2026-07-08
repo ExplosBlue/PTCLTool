@@ -14,13 +14,18 @@ FluctuationInspector::FluctuationInspector(QWidget* parent) :
     mScaleSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
     mFreqSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
     mPhaseRndCheckBox.setText("Randomness");
+    mPhaseRndCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mEnabledCheckBox.setText("Enabled");
+    mEnabledCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mApplyAlphaCheckBox.setText("Apply to alpha");
+    mApplyAlphaCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mApplyScaleCheckBox.setText("Apply to scale");
+    mApplyScaleCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     mControlsContainer = new QWidget(this);
     auto* controlsLayout = new QFormLayout(mControlsContainer);
     controlsLayout->setContentsMargins(0, 0, 0, 0);
+    controlsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     controlsLayout->addRow("Apply to alpha:", &mApplyAlphaCheckBox);
     controlsLayout->addRow("Apply to scale:", &mApplyScaleCheckBox);
@@ -29,6 +34,7 @@ FluctuationInspector::FluctuationInspector(QWidget* parent) :
     controlsLayout->addRow("Phase:", &mPhaseRndCheckBox);
 
     auto* mainLayout = new QFormLayout(this);
+    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     mainLayout->addRow("Fluctuation:", &mEnabledCheckBox);
     mainLayout->addWidget(mControlsContainer);
 
