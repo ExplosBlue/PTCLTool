@@ -48,6 +48,7 @@ CMakeLists.txt.user*
 /EffectTool_autogen/
 *.cmake
 CMakeCache.txt
+compile_commands.json
 
 # Build dir
 /Build*/
