@@ -2,7 +2,6 @@
 
 #include "editor/components/enumComboBox.h"
 #include "editor/components/sizedSpinBox.h"
-#include "editor/components/thumbnailWidget.h"
 #include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QPushButton>
@@ -13,53 +12,6 @@
 
 
 namespace PtclEditor {
-
-
-// ========================================================================== //
-
-
-class TextureDivisionSelector final : public QWidget {
-    Q_OBJECT
-public:
-    explicit TextureDivisionSelector(QWidget* parent = nullptr);
-
-    void setDivisions(s32 x, s32 y);
-    void setTexture(const QImage& image);
-
-    QSize sizeHint() const override;
-
-signals:
-    void divisionsChanged(s32 x, s32 y);
-
-protected:
-    void paintEvent(QPaintEvent* event) override;
-
-    void mousePressEvent(QMouseEvent* event) override;
-    void mouseMoveEvent(QMouseEvent* event) override;
-    void mouseReleaseEvent(QMouseEvent* event) override;
-
-    void resizeEvent(QResizeEvent* event) override;
-
-private:
-    void updateLayoutCache();
-
-private:
-    QImage mTexture{};
-    QPixmap mScaledPixmap{};
-
-    QRect mTexRect{};
-    QSize mScaledSize{};
-    qreal mScale{1.0f};
-
-    s32 mDivX{1};
-    s32 mDivY{1};
-
-    s32 mPreviewDivX{1};
-    s32 mPreviewDivY{1};
-
-    QPoint mDragStart{};
-    bool mDragging{false};
-};
 
 
 // ========================================================================== //
@@ -77,6 +29,7 @@ public:
 
 signals:
     void repetitionsChanged(s32 repX, s32 repY);
+    void divisionsChanged(s32 divX, s32 divY);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -89,16 +42,29 @@ protected:
 
 private:
     void updateLayoutCache();
-    void drawTexture(QPainter* painter);
+    void drawTexture(QPainter& painter);
+    void drawGrid(QPainter& painter);
+    void drawSelection(QPainter& painter);
+    void drawDimOverlay(QPainter& painter);
+
+    void updateFrameRect();
 
 private:
     static constexpr f32 UVScale = 2.0f;
+
+    enum class DragMode {
+        None,
+        Division,
+        Repetition
+    };
 
 private:
     QImage mTexture{};
     QPixmap mScaledPixmap{};
 
     QRect mTexRect{};
+    QRect mFrameRect{};
+
     QSize mScaledSize{};
     qreal mScale{1.0f};
 
@@ -111,8 +77,16 @@ private:
     s32 mPreviewRepX{1};
     s32 mPreviewRepY{1};
 
+    s32 mPreviewDivX{1};
+    s32 mPreviewDivY{1};
+
     QPoint mDragStart{};
+    s32 mAccumulatedX{0};
+    s32 mAccumulatedY{0};
+
     bool mDragging{false};
+
+    DragMode mDragMode{DragMode::None};
 };
 
 
@@ -169,7 +143,6 @@ private:
     SizedSpinBox<u16> mTexPatFreq{};
     SizedSpinBox<u16> mTexPatTblUse{};
 
-    TextureDivisionSelector mDivisionSelector{};
     TextureRepetitionSelector mRepetitionSelector{};
     QPushButton mChangeTextureButton{};
 
