@@ -300,6 +300,12 @@ void PtclList::setDocument(Ptcl::Document* document) {
         reindexEmitterSets();
     });
 
+    connect(mDocument, &Ptcl::Document::emitterChanged, this, [this](s32 setIndex, s32 emitterIndex) {
+        updateEmitterName(setIndex, emitterIndex);
+        updateEmitter(setIndex, emitterIndex);
+    });
+    connect(mDocument, &Ptcl::Document::emitterSetChanged, this, &PtclList::updateEmitterSetName);
+
     mListModel.clear();
     populateList();
     setEnabled(true);
@@ -545,7 +551,14 @@ void PtclList::updateEmitter(s32 setIndex, s32 emitterIndex) {
 
 void PtclList::updateEmitterName(s32 setIndex, s32 emitterIndex) {
     const QStandardItem* setItem = mListModel.item(setIndex);
+    if (!setItem) {
+        return;
+    }
+
     QStandardItem* emitterItem = setItem->child(emitterIndex);
+    if (!emitterItem) {
+        return;
+    }
 
     const auto& emitter = mDocument->emitter(setIndex, emitterIndex);
 
@@ -555,6 +568,9 @@ void PtclList::updateEmitterName(s32 setIndex, s32 emitterIndex) {
 
 void PtclList::updateEmitterSetName(s32 setIndex) {
     QStandardItem* setItem = mListModel.item(setIndex);
+    if (!setItem) {
+        return;
+    }
 
     const auto& set = mDocument->emitterSet(setIndex);
 
