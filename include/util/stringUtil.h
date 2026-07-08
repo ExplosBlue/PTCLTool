@@ -1,7 +1,11 @@
 #pragma once
 
+#include "typedefs.h"
+
 #include <iconv.h>
 
+#include <QDir>
+#include <QFontMetrics>
 #include <QString>
 
 #include <stdexcept>
@@ -43,7 +47,7 @@ inline QString shiftJISToQString(const char* input, size_t inputLength = 0) {
     QByteArray outputBuffer(static_cast<qsizetype>(outBytesLeft), 0);
     char* outBuf = outputBuffer.data();
 
-#if defined(_WIN32)
+#ifdef Q_OS_WIN
     const char* inBufPtr = input;
     const char** inBuf = &inBufPtr;
     size_t result = iconv(cd,
@@ -98,7 +102,7 @@ inline QByteArray qStringToShiftJIS(const QString& input) {
     QByteArray outputBuffer(static_cast<qsizetype>(outBytesLeft), 0);
     char* outBuf = outputBuffer.data();
 
-#if defined(_WIN32)
+#ifdef Q_OS_WIN
     const char** inBuf = &inBufPtr;
     size_t result = iconv(cd, inBuf, &inBytesLeft, &outBuf, &outBytesLeft);
 #else
@@ -114,6 +118,69 @@ inline QByteArray qStringToShiftJIS(const QString& input) {
 
     auto writtenSize = static_cast<qsizetype>(outputBuffer.size() - outBytesLeft);
     return outputBuffer.left(writtenSize);
+}
+
+inline QString elidePath(const QString& path, const QFontMetrics& metrics, s32 width)
+{
+    QString nativePath = QDir::toNativeSeparators(path);
+    const QString homePath = QDir::toNativeSeparators(QDir::homePath());
+
+    QString displayPath = nativePath;
+    bool isHomePath = false;
+
+    if (displayPath.startsWith(homePath)) {
+        displayPath.remove(0, homePath.length());
+
+        if (!displayPath.isEmpty() &&
+            displayPath.front() != QDir::separator()) {
+            displayPath.prepend(QDir::separator());
+        }
+
+        displayPath.prepend("~");
+        isHomePath = true;
+    }
+
+    if (metrics.horizontalAdvance(displayPath) <= width) {
+        return displayPath;
+    }
+
+    const QFileInfo fileInfo(path);
+    const QString directory = QDir::toNativeSeparators(fileInfo.path());
+    const QStringList parts = directory.split(QDir::separator(), Qt::SkipEmptyParts);
+
+    QString result = fileInfo.fileName();
+
+    for (qsizetype i = parts.size() - 1; i >= 0; --i) {
+        QString candidate = parts[i] + QDir::separator() + result;
+
+        QString prefix;
+        if (isHomePath) {
+            prefix = "~" + QString(QDir::separator());
+        } else {
+            prefix = QString(QDir::separator());
+        }
+
+        if (metrics.horizontalAdvance(prefix + "..." + QDir::separator() + candidate) > width) {
+            break;
+        }
+
+        result = candidate;
+    }
+
+    QString prefix;
+
+    if (isHomePath) {
+        prefix = "~";
+    } else {
+        #ifdef Q_OS_WIN
+        prefix = QFileInfo(path).rootPath();
+        #else
+        prefix = "/";
+        #endif
+        prefix = QDir::toNativeSeparators(prefix);
+    }
+
+    return prefix + QDir::separator() + "..." + QDir::separator() + result;
 }
 
 

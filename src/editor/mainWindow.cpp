@@ -1,5 +1,6 @@
 #include "editor/mainWindow.h"
 #include "util/settingsUtil.h"
+#include "util/stringUtil.h"
 
 #include <QDataStream>
 #include <QDragEnterEvent>
@@ -7,6 +8,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QFontMetrics>
 #include <QFormLayout>
 #include <QLabel>
 #include <QMimeData>
@@ -320,8 +322,11 @@ void MainWindow::updateRecentFileList() {
         auto& action = mRecentFileActions[i];
         auto& file = recentFiles[i];
 
-        QString text = QString("&%1").arg(QFileInfo(file).fileName());
-        action->setText(text);
+        action->setText(QString("&%1")
+            .arg(StringUtil::elidePath(file, QFontMetrics(mRecentFilesMenu.font()), 400))
+        );
+
+        action->setToolTip(file);
         action->setData(file);
         action->setVisible(true);
     }
