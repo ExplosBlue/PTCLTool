@@ -346,8 +346,9 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .initAlpha = emitterData.initAlpha,
         .diffAlpha21 = emitterData.diffAlpha21,
         .diffAlpha32 = emitterData.diffAlpha32,
-        .alphaSection1 = emitterData.alphaSection1,
+        .alphaSection1 = emitterData.alphaSection1 == -127 ? emitterData.alphaSection2 : emitterData.alphaSection1,
         .alphaSection2 = emitterData.alphaSection2,
+        .isFlatStart = emitterData.alphaSection1 == -127,
     };
 
     // Scale Properties
@@ -355,8 +356,9 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
         .initScale = Math::Vector2f(emitterData.initScale.x, emitterData.initScale.y),
         .diffScale21 = Math::Vector2f(emitterData.diffScale21.x, emitterData.diffScale21.y),
         .diffScale32 = Math::Vector2f(emitterData.diffScale32.x, emitterData.diffScale32.y),
-        .scaleSection1 = emitterData.scaleSection1,
+        .scaleSection1 = emitterData.scaleSection1 == -127 ? emitterData.scaleSection2 : emitterData.scaleSection1,
         .scaleSection2 = emitterData.scaleSection2,
+        .isFlatStart = emitterData.scaleSection1 == -127,
     };
 
     mScaleRand = emitterData.scaleRand;

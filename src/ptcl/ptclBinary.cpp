@@ -393,13 +393,25 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     initAlpha = emitter.alphaAnim().initAlpha;
     diffAlpha21 = emitter.alphaAnim().diffAlpha21;
     diffAlpha32 = emitter.alphaAnim().diffAlpha32;
-    alphaSection1 = emitter.alphaAnim().alphaSection1;
+
+    if (emitter.alphaAnim().isFlatStart) {
+        alphaSection1 = -127;
+    } else {
+        alphaSection1 = emitter.alphaAnim().alphaSection1;
+    }
+
     alphaSection2 = emitter.alphaAnim().alphaSection2;
 
     initScale = emitter.scaleAnim().initScale;
     diffScale21 = emitter.scaleAnim().diffScale21;
     diffScale32 = emitter.scaleAnim().diffScale32;
-    scaleSection1 = emitter.scaleAnim().scaleSection1;
+
+    if (emitter.scaleAnim().isFlatStart) {
+        scaleSection1 = -127;
+    } else {
+        scaleSection1 = emitter.scaleAnim().scaleSection1;
+    }
+
     scaleSection2 = emitter.scaleAnim().scaleSection2;
     scaleRand = emitter.scaleRand();
 

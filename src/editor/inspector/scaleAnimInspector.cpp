@@ -74,19 +74,14 @@ void ScaleAnimInspector::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphP
     const f32 oldP2 = oldP1;
     const f32 oldP3 = oldP2 + (anim.diffScale32.*get)();
 
-    auto updateScaleSection = [&](s32* section, bool isSection2 = false) {
+    auto updateScaleSection = [&](s32* section) {
         set(anim.diffScale21, point.value - oldP0);
         set(anim.diffScale32, oldP3 - point.value);
 
         const f32 sec1 = getGraphPoints()[1].position;
         const f32 sec2 = getGraphPoints()[2].position;
 
-        if (std::abs(sec1 - sec2) < std::numeric_limits<f32>::epsilon()) {
-            anim.scaleSection1 = -127; // Disable section1 if handles overlap
-            if (isSection2) { *section = static_cast<s32>(point.position); }
-        } else {
-            *section = static_cast<s32>(point.position);
-        }
+        *section = static_cast<s32>(point.position);
     };
 
     switch (pointIndex) {
@@ -98,12 +93,16 @@ void ScaleAnimInspector::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphP
         updateScaleSection(&anim.scaleSection1);
         break;
     case 2:
-        updateScaleSection(&anim.scaleSection2, true);
+        updateScaleSection(&anim.scaleSection2);
         break;
     case 3:
         set(anim.diffScale32, point.value - oldP1);
         break;
     }
+
+    const f32 newP0 = (anim.initScale.*get)();
+    const f32 newP1 = newP0 + (anim.diffScale21.*get)();
+    anim.isFlatStart = (newP0 == newP1);
 
     const QString axis = (get == &Math::Vector2f::getX) ? "X" : "Y";
 
@@ -147,9 +146,7 @@ void ScaleAnimInspector::updateGraphs() {
         const f32 p2 = p1;
         const f32 p3 = p2 + (anim.diffScale32.*get)();
 
-        const bool disabled = anim.scaleSection1 == -127;
-
-        const f32 sec1 = disabled ? static_cast<f32>(anim.scaleSection2) : static_cast<f32>(anim.scaleSection1);
+        const f32 sec1 = static_cast<f32>(anim.scaleSection1);
         const f32 sec2 = static_cast<f32>(anim.scaleSection2);
 
         AnimGraph::PointList points = {
