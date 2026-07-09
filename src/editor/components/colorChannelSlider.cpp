@@ -89,7 +89,7 @@ void ColorChannelSlider::drawHandle(QPainter& painter) {
         static_cast<s32>(std::lerp(startColor.alpha(), endColor.alpha(), t)),
     };
 
-    QColor borderColor = Qt::black;
+    QColor borderColor = palette().color(QPalette::WindowText);
 
     if (mIsHovered) {
         handleColor = handleColor.lighter(120);

@@ -1,6 +1,7 @@
 #include "editor/inspector/alphaAnimInspector.h"
 
-#include <QFormLayout>
+#include <QLabel>
+#include <QVBoxLayout>
 
 
 namespace PtclEditor {
@@ -12,14 +13,19 @@ namespace PtclEditor {
 AlphaAnimInspector::AlphaAnimInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
-    mGraphA.setLineColor(QColor{20, 40, 60});
+    mGraphA.setLineColor(QColor{137, 214, 1});
     mGraphA.setTickStepSize(0.1f);
-    mGraphA.setValueSnap(0.1f);
+    mGraphA.setValueBounds(0.0f, 1.0f);
     mGraphA.setValueRange(0.0f, 1.0f);
+    mGraphA.setVerticalAxisLabel("Alpha");
+    mGraphA.setPosLabel("Life");
+    mGraphA.setValLabel("Alpha");
 
-    auto* mainLayout = new QFormLayout(this);
-    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    mainLayout->addRow("Alpha Anim:", &mGraphA);
+    auto* mainLayout = new QVBoxLayout(this);
+    auto* header = new QLabel("Alpha Animation", this);
+    header->setStyleSheet("font-weight: bold;");
+    mainLayout->addWidget(header);
+    mainLayout->addWidget(&mGraphA);
 
     connect(&mGraphA, &AnimGraph::pointEdited, this, [this](s32 pointIndex, const AnimGraph::GraphPoint& point) {
         updateAnimPoint(pointIndex, point);
@@ -51,9 +57,15 @@ void AlphaAnimInspector::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphP
         break;
     case 1:
         updateAlphaSection(&anim.alphaSection1);
+        {
+            const f32 sec2Pos = mGraphA.getPoints()[2].position;
+            anim.alphaSection2 = (std::abs(sec2Pos - 100.0f) < std::numeric_limits<f32>::epsilon())
+                ? 128 : static_cast<s32>(sec2Pos);
+        }
         break;
     case 2:
         updateAlphaSection(&anim.alphaSection2);
+        anim.alphaSection1 = static_cast<s32>(mGraphA.getPoints()[1].position);
         break;
     case 3:
         anim.diffAlpha32 = point.value - oldP1;
@@ -85,6 +97,9 @@ void AlphaAnimInspector::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphP
 }
 
 void AlphaAnimInspector::populateProperties() {
+    const bool emitterChanged = (mEmitter != mLastEmitter);
+    mLastEmitter = mEmitter;
+
     QSignalBlocker blocker(mGraphA);
 
     const auto& anim = mEmitter->alphaAnim();
@@ -106,6 +121,10 @@ void AlphaAnimInspector::populateProperties() {
         { 100.0f, p3, AnimGraph::HandleType::Locked }
     };
     mGraphA.setControlPoints(points);
+
+    if (emitterChanged) {
+        mGraphA.zoomToFit();
+    }
 
     update();
 }

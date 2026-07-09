@@ -24,11 +24,17 @@ private:
     void updateAnimPoint(s32 pointIndex, const AnimGraph::GraphPoint& point, f32 (Math::Vector2f::*get)() const);
     void updateGraphs();
 
+protected:
+    void resizeEvent(QResizeEvent* event) override;
+    bool eventFilter(QObject* obj, QEvent* event) override;
+
 private:
     AnimGraph mGraphX{};
     AnimGraph mGraphY{};
 
     QDoubleSpinBox mRandSpinbox{};
+    const Ptcl::Emitter* mLastEmitter = nullptr;
+    QWidget* mOverlay = nullptr;
 };
 
 

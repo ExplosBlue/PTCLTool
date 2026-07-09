@@ -23,6 +23,7 @@ private:
 
 private:
     AnimGraph mGraphA{};
+    const Ptcl::Emitter* mLastEmitter = nullptr;
 };
 
 

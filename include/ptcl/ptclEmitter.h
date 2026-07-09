@@ -32,8 +32,8 @@ public:
         Math::Vector2f initScale{1.0f, 1.0f};
         Math::Vector2f diffScale21{0.0f, 0.0f};
         Math::Vector2f diffScale32{0.0f, 0.0f};
-        s32 scaleSection1{0};
-        s32 scaleSection2{0};
+        s32 scaleSection1{50};
+        s32 scaleSection2{50};
         bool isFlatStart = true;
 
         bool operator==(const ScaleAnim&) const = default;
@@ -43,8 +43,8 @@ public:
         f32 initAlpha{1.0f};
         f32 diffAlpha21{0.0f};
         f32 diffAlpha32{0.0f};
-        s32 alphaSection1{0};
-        s32 alphaSection2{100};
+        s32 alphaSection1{50};
+        s32 alphaSection2{50};
         bool isFlatStart = true;
 
         bool operator==(const AlphaAnim&) const = default;

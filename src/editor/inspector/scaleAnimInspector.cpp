@@ -1,6 +1,10 @@
 #include "editor/inspector/scaleAnimInspector.h"
 
-#include <QFormLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPainter>
+#include <QResizeEvent>
+#include <QVBoxLayout>
 
 
 namespace PtclEditor {
@@ -15,21 +19,78 @@ ScaleAnimInspector::ScaleAnimInspector(QWidget* parent) :
     // TODO: Move these somewhere else
     static constexpr QColor sColorAxisX = { 238, 51, 79 };
     static constexpr QColor sColorAxisY = { 42, 125, 212 };
-    // static constexpr QColor sColorAxisZ = { 137, 214, 1 };
 
     mGraphX.setLineColor(sColorAxisX);
+    mGraphX.setVerticalAxisLabel("Scale X");
+    mGraphX.setPosLabel("Life");
+    mGraphX.setValLabel("Scale");
     mGraphY.setLineColor(sColorAxisY);
+    mGraphY.setVerticalAxisLabel("Scale Y");
+    mGraphY.setPosLabel("Life");
+    mGraphY.setValLabel("Scale");
 
-    auto* mainLayout = new QFormLayout(this);
-    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    mainLayout->addRow("X Scale Anim:", &mGraphX);
-    mainLayout->addRow("Y Scale Anim:", &mGraphY);
-    mainLayout->addRow("Scale Random:", &mRandSpinbox);
+    // Force identical left padding so content rects align and
+    // connector lines drawn at the same percentage position match.
+    constexpr s32 forcedPad = 48;
+    mGraphX.setFixedLeftPadding(forcedPad);
+    mGraphY.setFixedLeftPadding(forcedPad);
+
+    auto* mainLayout = new QVBoxLayout(this);
+    // mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->setSpacing(0);
+    auto* header = new QLabel("Scale Animation", this);
+    header->setStyleSheet("font-weight: bold; padding: 4px 0;");
+    mainLayout->addWidget(header);
+    mainLayout->addWidget(&mGraphX);
+    mainLayout->addWidget(&mGraphY);
+    auto* randLayout = new QHBoxLayout;
+    randLayout->addWidget(new QLabel("Scale Random:", this));
+    randLayout->addWidget(&mRandSpinbox);
+    mainLayout->addLayout(randLayout);
 
     // TODO: Check this is valid
     mRandSpinbox.setRange(0.0f, 1.0f);
 
+    mOverlay = new QWidget(this);
+    mOverlay->setAttribute(Qt::WA_TransparentForMouseEvents);
+    mOverlay->setAttribute(Qt::WA_TranslucentBackground);
+    mOverlay->setAttribute(Qt::WA_NoSystemBackground);
+    mOverlay->installEventFilter(this);
+    mOverlay->setGeometry(rect());
+    mOverlay->show();
+    mOverlay->raise();
+
     setupConnections();
+}
+
+void ScaleAnimInspector::resizeEvent(QResizeEvent* event) {
+    InspectorWidgetBase::resizeEvent(event);
+    mOverlay->setGeometry(rect());
+}
+
+bool ScaleAnimInspector::eventFilter(QObject* obj, QEvent* event) {
+    if (obj == mOverlay && event->type() == QEvent::Paint) {
+        QPainter p(mOverlay);
+        const auto pal = mOverlay->palette();
+        p.setPen(QPen(pal.color(QPalette::WindowText), 1, Qt::DashLine));
+
+        auto drawLine = [&](s32 idx) {
+            if (idx >= static_cast<s32>(mGraphX.getPoints().size()) ||
+                idx >= static_cast<s32>(mGraphY.getPoints().size())) {
+                return;
+            }
+            const QPointF px = mGraphX.handleVisualPos(idx);
+            const QPointF py = mGraphY.handleVisualPos(idx);
+            const QPoint sx = mOverlay->mapFromGlobal(mGraphX.mapToGlobal(px.toPoint()));
+            const QPoint sy = mOverlay->mapFromGlobal(mGraphY.mapToGlobal(py.toPoint()));
+            p.drawLine(sx, sy);
+        };
+        drawLine(1);
+        drawLine(2);
+
+        return true;
+    }
+    return InspectorWidgetBase::eventFilter(obj, event);
 }
 
 void ScaleAnimInspector::setupConnections() {
@@ -91,9 +152,11 @@ void ScaleAnimInspector::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphP
         break;
     case 1:
         updateScaleSection(&anim.scaleSection1);
+        anim.scaleSection2 = static_cast<s32>(getGraphPoints()[2].position);
         break;
     case 2:
         updateScaleSection(&anim.scaleSection2);
+        anim.scaleSection1 = static_cast<s32>(getGraphPoints()[1].position);
         break;
     case 3:
         set(anim.diffScale32, point.value - oldP1);
@@ -138,6 +201,9 @@ void ScaleAnimInspector::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphP
 void ScaleAnimInspector::updateGraphs() {
     const auto& anim = mEmitter->scaleAnim();
 
+    const f32 sec1 = static_cast<f32>(anim.scaleSection1);
+    const f32 sec2 = static_cast<f32>(anim.scaleSection2);
+
     auto updateGraph = [&](AnimGraph& graph, f32 (Math::Vector2f::*get)() const) {
         QSignalBlocker blocker(graph);
 
@@ -145,9 +211,6 @@ void ScaleAnimInspector::updateGraphs() {
         const f32 p1 = p0 + (anim.diffScale21.*get)();
         const f32 p2 = p1;
         const f32 p3 = p2 + (anim.diffScale32.*get)();
-
-        const f32 sec1 = static_cast<f32>(anim.scaleSection1);
-        const f32 sec2 = static_cast<f32>(anim.scaleSection2);
 
         AnimGraph::PointList points = {
             { 0.0f, p0, AnimGraph::HandleType::Locked },
@@ -160,10 +223,20 @@ void ScaleAnimInspector::updateGraphs() {
 
     updateGraph(mGraphX, &Math::Vector2f::getX);
     updateGraph(mGraphY, &Math::Vector2f::getY);
+
+    mOverlay->update();
 }
 
 void ScaleAnimInspector::populateProperties() {
+    const bool emitterChanged = (mEmitter != mLastEmitter);
+    mLastEmitter = mEmitter;
+
     updateGraphs();
+
+    if (emitterChanged) {
+        mGraphX.zoomToFit();
+        mGraphY.zoomToFit();
+    }
 
     QSignalBlocker blockerRand(mRandSpinbox);
     mRandSpinbox.setValue(mEmitter->scaleRand());
