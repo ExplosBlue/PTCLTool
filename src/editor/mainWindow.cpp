@@ -331,7 +331,7 @@ void MainWindow::updateRecentFileList() {
         action->setVisible(true);
     }
 
-    for (qsizetype i = numRecentFiles; i < mRecentFileActions.size(); ++i) {
+    for (size_t i = static_cast<size_t>(numRecentFiles); i < mRecentFileActions.size(); ++i) {
         mRecentFileActions[i]->setVisible(false);
     }
 

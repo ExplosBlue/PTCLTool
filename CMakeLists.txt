@@ -11,6 +11,12 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(MSVC)
+    add_compile_options(/W4 /permissive-)
+else()
+    add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Concurrent)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Concurrent)
 
@@ -193,6 +199,12 @@ if(WIN32)
     file(WRITE "${APP_ICON_RESOURCE}" "IDI_ICON1 ICON \"${CMAKE_SOURCE_DIR}/res/icons/app_icon.ico\"\n")
     set_source_files_properties(${APP_ICON_RESOURCE} PROPERTIES HEADER_FILE_ONLY TRUE)
     target_sources(PTCLTool PRIVATE "${APP_ICON_RESOURCE}")
+endif()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    set_source_files_properties(src/etc1/rg_etc1.cpp PROPERTIES
+        COMPILE_FLAGS "-Wno-pedantic -Wno-class-memaccess -Wno-type-limits"
+    )
 endif()
 
 if(APPLE)

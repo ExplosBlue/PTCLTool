@@ -153,7 +153,7 @@ void GeneralEmitterInspector::setupConnections() {
     connect(&mShapeComboBox, &QComboBox::currentIndexChanged, this, [this]() {
         const auto type = mShapeComboBox.currentData().value<ShapeType>();
 
-        Ptcl::BillboardType newBillboard;
+        Ptcl::BillboardType newBillboard = Ptcl::BillboardType::Billboard;
         switch (type) {
             case ShapeType::Particle:   newBillboard = Ptcl::BillboardType::Billboard;  break;
             case ShapeType::Primitive:  newBillboard = Ptcl::BillboardType::Primitive;  break;

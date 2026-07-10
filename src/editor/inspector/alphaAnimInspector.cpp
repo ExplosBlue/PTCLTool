@@ -44,7 +44,6 @@ void AlphaAnimInspector::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphP
         anim.diffAlpha21 = point.value - oldP0;
         anim.diffAlpha32 = oldP3 - point.value;
 
-        const f32 sec1 = mGraphA.getPoints()[1].position;
         const f32 sec2 = mGraphA.getPoints()[2].position;
 
         *section = (std::abs(sec2 - 100.0f) < std::numeric_limits<f32>::epsilon()) ? 128 : static_cast<s32>(point.position);

@@ -468,7 +468,7 @@ void CombinerStageWidget::drawStageLabel(QPainter& painter, const QRect& drawRec
     painter.restore();
 }
 
-void CombinerStageWidget::paintEvent(QPaintEvent* event) {
+void CombinerStageWidget::paintEvent(QPaintEvent* /*event*/) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 

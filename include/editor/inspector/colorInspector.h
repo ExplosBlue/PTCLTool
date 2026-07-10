@@ -18,7 +18,7 @@ namespace PtclEditor {
 
 enum class Behavior { Constant = 0, Random = 1, Animation = 2 };
 
-static Behavior behaviorFromIndex(s32 index) {
+inline Behavior behaviorFromIndex(s32 index) {
     switch (index) {
     case 1: return Behavior::Random;
     case 2: return Behavior::Animation;
@@ -26,7 +26,7 @@ static Behavior behaviorFromIndex(s32 index) {
     }
 }
 
-static s32 behaviorToIndex(Behavior behavior) {
+inline s32 behaviorToIndex(Behavior behavior) {
     return static_cast<s32>(behavior);
 }
 

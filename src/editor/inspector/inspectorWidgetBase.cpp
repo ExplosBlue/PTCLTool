@@ -32,7 +32,7 @@ void InspectorWidgetBase::setSelection(Ptcl::Selection* selection) {
     mSelection = selection;
 
     if (mSelection) {
-        connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
+        connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type /*type*/) {
             if (!mDocument) {
                 mEmitter = nullptr;
                 setEnabled(false);

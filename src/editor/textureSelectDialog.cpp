@@ -13,8 +13,7 @@ TextureSelectDialog::TextureSelectDialog(const Ptcl::TextureList& textures, QWid
     mListWidget.setIconSize(QSize(64, 64));
     mListWidget.setUniformItemSizes(true);
     for (size_t i = 0; i < textures.size(); ++i) {
-        const auto& texture = textures[i];
-        auto*       item      = new QListWidgetItem(QString("Texture %1").arg(i));
+        auto* item = new QListWidgetItem(QString("Texture %1").arg(i));
         QPixmap thumbnail = QPixmap::fromImage(textures[i]->textureData());
         item->setIcon(QIcon(thumbnail.scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
         mListWidget.addItem(item);

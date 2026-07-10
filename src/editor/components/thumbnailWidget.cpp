@@ -34,7 +34,7 @@ QSize ThumbnailWidget::sizeHint() const {
     return mThumbnailSize;
 }
 
-void ThumbnailWidget::paintEvent(QPaintEvent* event) {
+void ThumbnailWidget::paintEvent(QPaintEvent* /*event*/) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 

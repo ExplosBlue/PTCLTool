@@ -144,7 +144,7 @@ f32 ColorGradientEditor::calcTextHeight() const {
     return static_cast<f32>(fontHeight);
 }
 
-void ColorGradientEditor::paintEvent(QPaintEvent* event) {
+void ColorGradientEditor::paintEvent(QPaintEvent* /*event*/) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
@@ -249,7 +249,7 @@ void ColorGradientEditor::mousePressEvent(QMouseEvent* event) {
         sMargin + mOutStart * innerWidth
     };
 
-    for (int i = 0; i < positions.size(); ++i) {
+    for (size_t i = 0; i < positions.size(); ++i) {
         if (std::abs(x - positions[i]) < 6) {
             mActiveHandle = i;
             return;

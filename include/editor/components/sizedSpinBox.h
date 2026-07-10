@@ -99,7 +99,7 @@ public:
         return flags;
     }
 
-    QValidator::State validate(QString& input, int& pos) const final {
+    QValidator::State validate(QString& input, int&) const final {
         bool ok = false;
         T value;
 

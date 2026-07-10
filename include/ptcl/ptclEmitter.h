@@ -65,7 +65,7 @@ public:
     void initFromBinary(const BinCommonEmitterData& emitterData);
     void initComplexFromBinary(const BinComplexEmitterData& emitterData);
 
-    // ----- Basic Properties ----- \\
+    // ----- Basic Properties -----
 
     EmitterType type() const { return mType; }
     void setType(EmitterType type) { mType = type; }
@@ -98,7 +98,7 @@ public:
     bool isFollow() const { return mIsFollow; }
     bool isVelLook() const { return mIsVelLook; }
 
-    // ----- Gravity Properties ----- \\
+    // ----- Gravity Properties -----
 
     bool isDirectional() const { return mIsDirectional; }
     void setDirectional(bool isDirectional) { mIsDirectional = isDirectional; }
@@ -106,7 +106,7 @@ public:
     const Math::Vector3f& gravity() const { return mGravity; }
     void setGravity(const Math::Vector3f& gravity) { mGravity = gravity; }
 
-    // ----- Lifespan Properties ----- \\
+    // ----- Lifespan Properties -----
 
     s32 ptclLife() const { return mPtclLife; }
     void setPtclLife(const s32 ptclLife) { mPtclLife = ptclLife; }
@@ -114,7 +114,7 @@ public:
     s32 ptclLifeRandom() const { return mPtclLifeRnd; }
     void setPtclLifeRandom(const s32 lifeRandom) { mPtclLifeRnd = lifeRandom; }
 
-    // ----- Termination Properties ----- \\
+    // ----- Termination Properties -----
 
     bool isStopEmitInFade() const { return mIsStopEmitInFade; }
     void setIsStopEmitInFade(bool isStop) { mIsStopEmitInFade = isStop; }
@@ -122,7 +122,7 @@ public:
     f32 alphaAddInFade() const { return mAlphaAddInFade; }
     void setAlphaAddInFade(f32 alpha) { mAlphaAddInFade = alpha; }
 
-    // ----- Transform Properties ----- \\
+    // ----- Transform Properties -----
 
     const Math::Matrix34f& transformRT() const { return mTransformRT; }
     const Math::Matrix34f& transformSRT() const { return mTransformSRT; }
@@ -166,7 +166,7 @@ public:
     Math::Vector3f scale() const { return Math::Util::getScale(mTransformSRT); }
     void setScale(const Math::Vector3f& scale) { setTransform(rotation(), translation(), scale); }
 
-    // ----- Scale Properties ----- \\
+    // ----- Scale Properties -----
 
     const ScaleAnim& scaleAnim() const { return mScaleAnim; }
     void setScaleAnim(const ScaleAnim& scaleAnim) { mScaleAnim = scaleAnim; }
@@ -174,7 +174,7 @@ public:
     f32 scaleRand() const { return mScaleRand; }
     void setScaleRand(f32 scaleRand) { mScaleRand = scaleRand; }
 
-    // ----- Emission Properties ----- \\
+    // ----- Emission Properties -----
 
     s32 emitStartFrame() const { return mEmitStartFrame; }
     void setEmitStartFrame(s32 startFrame) { mEmitStartFrame = startFrame; }
@@ -191,7 +191,7 @@ public:
     s32 emitRate() const { return mEmitRate; }
     void setEmitRate(s32 emitRate) { mEmitRate = emitRate; }
 
-    // ----- Velocity Properties ----- \\
+    // ----- Velocity Properties -----
 
     f32 figureVelocity() const { return mFigureVelocity; }
     void setFigureVelocity(f32 velocity) { mFigureVelocity = velocity; }
@@ -211,7 +211,7 @@ public:
     f32 airResistance() const { return mAirResistance; }
     void setAirResistance(f32 resistance) { mAirResistance = resistance; }
 
-    // ----- Volume Properties ----- \\
+    // ----- Volume Properties -----
 
     u8 volumeTblIndex() const { return mVolumeTblIndex; }
     void setVolumeTblIndex(u8 index) { mVolumeTblIndex = index; }
@@ -228,7 +228,7 @@ public:
     s32 volumeSweepParam() const { return mVolumeSweepParam; }
     void setVolumeSweepParam(s32 sweepParam) { mVolumeSweepParam = sweepParam; }
 
-    // ----- Rotation Properties ----- \\
+    // ----- Rotation Properties -----
 
     RotType rotationType() const { return mRotType; }
     void setRotationType(RotType type) { mRotType = type; }
@@ -248,12 +248,12 @@ public:
     const Math::Vector2f& rotationBasis() const { return mRotBasis; }
     void setRotationBasis(const Math::Vector2f& basis) { mRotBasis = basis; }
 
-    // ----- Alpha Properties ----- \\
+    // ----- Alpha Properties -----
 
     const AlphaAnim& alphaAnim() const { return mAlphaAnim; }
     void setAlphaAnim(const AlphaAnim& alphaAnim) { mAlphaAnim = alphaAnim; }
 
-    // ----- Combiner Properties ----- \\
+    // ----- Combiner Properties -----
 
     BlendFuncType blendFunction() const { return mBlendFunc; }
     void setBlendFunction(BlendFuncType blendFunction) { mBlendFunc = blendFunction; }
@@ -267,7 +267,7 @@ public:
     bool isFogEnabled() const { return mFlag.isSet(EmitterFlag::EnableFog); }
     void setIsFogEnabled(bool enabled) { mFlag.set(EmitterFlag::EnableFog, enabled); }
 
-    // ----- Color Properties ----- \\
+    // ----- Color Properties -----
 
     const std::array<Gfx::Color, 3>& color0() const { return mColor0; }
 
@@ -316,7 +316,7 @@ public:
     const Gfx::Color& secondaryColor() const { return mColor1; }
     void setSecondaryColor(const Gfx::Color& color) { mColor1 = color; }
 
-    // ----- Texture Properties ----- \\
+    // ----- Texture Properties -----
 
     TextureWrap textureWrapT() const { return mTextureWrapT; }
     void setTextureWrapT(TextureWrap wrap) { mTextureWrapT = wrap; }
@@ -386,7 +386,7 @@ public:
     Texture* texture() const { return mTextureHandle.get(); }
     void setTexture(Texture* texture) { mTextureHandle.set(texture); }
 
-    // ----- Fluctuation Properties ----- \\
+    // ----- Fluctuation Properties -----
 
     void initFluctuationData(const BinFluctuationData& fluctuationData);
 
@@ -411,7 +411,7 @@ public:
     bool isFluctuationApplyScale() const { return mFluctuationFlags.isSet(Ptcl::FluctuationFlag::ApplyScale); }
     void setFluctuationApplyScale(bool apply) { mFluctuationFlags.set(Ptcl::FluctuationFlag::ApplyScale, apply); }
 
-    // ----- Stripe Properties ----- \\
+    // ----- Stripe Properties -----
 
     void initStripeData(const BinStripeData& stripeData);
 
@@ -444,7 +444,7 @@ public:
     bool isStripeEmitterCoord() const { return mStripeFlags.isSet(Ptcl::StripeFlag::EmitterCoord); }
     void setStripeEmitterCoord(bool emitterCoord) { mStripeFlags.set(Ptcl::StripeFlag::EmitterCoord, emitterCoord); }
 
-    // ----- Field Properties ----- \\
+    // ----- Field Properties -----
 
     bool isFieldEnabled() const { return mFieldFlags.isSet(FieldFlag::Enabled); }
 
@@ -543,7 +543,7 @@ public:
     const Math::Vector3f& fieldPosAddPosition() const { return mFieldPosAdd.posAdd; }
     void setFieldPosAddPosition(const Math::Vector3f& pos) { mFieldPosAdd.posAdd = pos; }
 
-    // ----- Child Properties ----- \\
+    // ----- Child Properties -----
 
     void initChild(const BinChildData& childData);
 
@@ -826,7 +826,7 @@ private:
     bool mIsTexturePatternAnim{false};
     TextureHandle mTextureHandle{};
 
-    // ----- Complex Properties ----- \\
+    // ----- Complex Properties -----
 
     // Fluctuation Properties
     f32 mFluctuationScale{1.0f};

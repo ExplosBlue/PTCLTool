@@ -279,9 +279,11 @@ void AnimGraph::drawAxisLabels(QPainter& painter, const DrawContext& ctx) {
 
     const f32 firstTick = std::ceil(range.min / range.tickStep) * range.tickStep;
     const s32 decimals = std::max(0, static_cast<s32>(-std::floor(std::log10(range.tickStep))));
-    for (f32 i = firstTick; i <= range.max; i += range.tickStep) {
+    const s32 yTickCount = static_cast<s32>((range.max - firstTick) / range.tickStep) + 1;
+    for (s32 ti = 0; ti < yTickCount; ++ti) {
+        const f32 i = firstTick + static_cast<f32>(ti) * range.tickStep;
         const f32 t = (range.max - i) / (range.max - range.min);
-        const s32 y = s32(t * heightF);
+        const s32 y = static_cast<s32>(t * heightF);
 
         const QString text = QString::number(i, 'f', decimals);
         const s32 textW = fm.horizontalAdvance(text);
@@ -312,25 +314,27 @@ void AnimGraph::drawGrid(QPainter& painter, const DrawContext& ctx) {
     // X Minor Grid
     painter.setPen(QPen(ctx.gridMinor, 1));
     for (int i = 0; i <= xMajorDivs * xMinorDivs; ++i) {
-        const f32 t = f32(i) / f32(xMajorDivs * xMinorDivs);
-        const s32 x = s32(t * widthF);
+        const f32 t = static_cast<f32>(i) / static_cast<f32>(xMajorDivs * xMinorDivs);
+        const s32 x = static_cast<s32>(t * widthF);
         painter.drawLine(x, 0, x, h);
     }
 
     // X Major Grid
     painter.setPen(QPen(ctx.gridMajor, 1));
     for (int i = 0; i <= xMajorDivs; ++i) {
-        const f32 t = f32(i) / f32(xMajorDivs);
-        const s32 x = s32(t * widthF);
+        const f32 t = static_cast<f32>(i) / static_cast<f32>(xMajorDivs);
+        const s32 x = static_cast<s32>(t * widthF);
         painter.drawLine(x, 0, x, h);
     }
 
     // Y Major Grid
     painter.setPen(QPen(ctx.gridMajor, 1));
     const f32 firstTick = std::ceil(range.min / range.tickStep) * range.tickStep;
-    for (f32 i = firstTick; i <= range.max; i += range.tickStep) {
+    const s32 yTickCount = static_cast<s32>((range.max - firstTick) / range.tickStep) + 1;
+    for (s32 ti = 0; ti < yTickCount; ++ti) {
+        const f32 i = firstTick + static_cast<f32>(ti) * range.tickStep;
         const f32 t = (range.max - i) / (range.max - range.min);
-        const s32 y = s32(t * heightF);
+        const s32 y = static_cast<s32>(t * heightF);
         painter.drawLine(0, y, w, y);
     }
 
@@ -343,12 +347,12 @@ QList<s32> AnimGraph::hitTestAll(const QPoint& mousePos) const {
     const QPoint local = mousePos - QPoint(rect.x, rect.y);
 
     QList<s32> hits;
-    for (s32 i = 0; i < mPoints.size(); ++i) {
+    for (size_t i = 0; i < mPoints.size(); ++i) {
         const auto& pt = mPoints[i];
         const QPoint center = mapToScreen(pt, rect.w, rect.h, range);
 
         if (getHitRect(center, pt.handleType).contains(local)) {
-            hits.append(i);
+            hits.append(static_cast<s32>(i));
         }
     }
 
@@ -423,7 +427,7 @@ void AnimGraph::moveHandle(s32 handleIndex, f32 newPos, f32 newValue) {
 }
 
 void AnimGraph::ensureHandleVisible(s32 idx) {
-    if (idx < 0 || idx >= static_cast<s32>(mPoints.size())) return;
+    if (idx < 0 || idx >= static_cast<s32>(mPoints.size())) { return; }
 
     const auto rect = computeGraphRect();
     const GraphRange range = currentGraphRange();
@@ -510,7 +514,7 @@ void AnimGraph::mousePressEvent(QMouseEvent* event) {
     }
 
     if (hits.contains(mSelectedIdx)) {
-        s32 idx = hits.indexOf(mSelectedIdx);
+        s32 idx = static_cast<s32>(hits.indexOf(mSelectedIdx));
         mSelectedIdx = hits[(idx + 1) % hits.size()];
     } else {
         mSelectedIdx = hits.last();
@@ -703,7 +707,7 @@ QPoint AnimGraph::mapToScreen(const GraphPoint& point, s32 contentW, s32 content
     const f32 raw = (denom != 0.0f) ? (range.max - point.value) / denom : 0.0f;
     const f32 t = std::isfinite(raw) ? raw : 0.0f;
     constexpr f32 maxCoord = 1e6f;
-    s32 y = s32(std::clamp(t, -maxCoord, maxCoord) * static_cast<f32>(contentH));
+    s32 y = static_cast<s32>(std::clamp(t, -maxCoord, maxCoord) * static_cast<f32>(contentH));
 
     return { x, y };
 }
@@ -728,7 +732,7 @@ QPointF AnimGraph::handleVisualPos(s32 handleIndex) const {
     const auto rect = computeGraphRect();
 
     const s32 cy = static_cast<s32>(widgetPos.y()) - rect.y;
-    if (cy >= 0 && cy <= rect.h) return widgetPos;
+    if (cy >= 0 && cy <= rect.h) { return widgetPos; }
 
     const s32 cx = static_cast<s32>(widgetPos.x()) - rect.x;
     const s32 clampedX = std::clamp(cx, 0, rect.w - 1) + rect.x;
@@ -803,7 +807,9 @@ AnimGraph::DrawContext AnimGraph::buildDrawContext() {
         const f32 firstTick = std::ceil(range.min / range.tickStep) * range.tickStep;
         const s32 decimals = std::max(0, static_cast<s32>(-std::floor(std::log10(range.tickStep))));
         s32 maxW = 0;
-        for (f32 i = firstTick; i <= range.max; i += range.tickStep) {
+        const s32 yTickCount = static_cast<s32>((range.max - firstTick) / range.tickStep) + 1;
+        for (s32 ti = 0; ti < yTickCount; ++ti) {
+        const f32 i = firstTick + static_cast<f32>(ti) * range.tickStep;
             const QString text = QString::number(i, 'f', decimals);
             maxW = std::max(maxW, lfm.horizontalAdvance(text));
         }
@@ -842,7 +848,8 @@ AnimGraph::DrawContext AnimGraph::buildDrawContext() {
 }
 
 void AnimGraph::drawGraphLine(QPainter& painter, const DrawContext& ctx, const QVector<QPoint>& poly) {
-    for (s32 i = 0; i + 1 < mPoints.size(); ++i) {
+    Q_UNUSED(ctx);
+    for (qsizetype i = 0; i + 1 < poly.size(); ++i) {
         const QPoint& start = poly[i];
         const QPoint& end = poly[i + 1];
 
@@ -861,7 +868,7 @@ void AnimGraph::drawGraphLine(QPainter& painter, const DrawContext& ctx, const Q
 }
 
 void AnimGraph::drawHandles(QPainter& painter, const DrawContext& ctx, const QVector<QPoint>& poly) {
-    for (s32 i = 0; i < poly.size(); ++i) {
+    for (auto i = 0; i < poly.size(); ++i) {
         const QPoint& screen = poly[i];
         if (screen.y() >= 0 && screen.y() <= ctx.contentRect.h) {
             const bool isSelected = (i == mSelectedIdx);
@@ -909,7 +916,7 @@ void AnimGraph::drawAxisTitles(QPainter& painter, const DrawContext& ctx) {
         painter.save();
         const QFontMetrics vfm(ctx.titleFont);
         const s32 textW = vfm.horizontalAdvance(mVerticalAxisLabel);
-        painter.translate(-mPaddingLeft + ctx.titleMetrics.ascent() + 4, f32(ctx.contentRect.h) / 2 + f32(textW) / 2);
+        painter.translate(-mPaddingLeft + ctx.titleMetrics.ascent() + 4, static_cast<f32>(ctx.contentRect.h) / 2 + static_cast<f32>(textW) / 2);
         painter.rotate(-90.0);
         painter.drawText(0, 0, mVerticalAxisLabel);
         painter.restore();

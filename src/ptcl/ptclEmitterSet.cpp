@@ -13,7 +13,7 @@ EmitterSet::EmitterSet(QString name) :
 }
 
 
-EmitterSet::EmitterSet(const BinEmitterSet& binEmitterSet) {}
+EmitterSet::EmitterSet(const BinEmitterSet& /*binEmitterSet*/) {}
 
 EmitterList& EmitterSet::emitters() {
     return mEmitters;

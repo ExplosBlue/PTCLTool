@@ -15,7 +15,7 @@ public:
         QComboBox(parent) {
         populate();
 
-        connect(this, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
+        connect(this, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int) {
             updateTooltip();
         });
     }

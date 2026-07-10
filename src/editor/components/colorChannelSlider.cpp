@@ -102,7 +102,7 @@ void ColorChannelSlider::drawHandle(QPainter& painter) {
     painter.drawEllipse(getHandlePos(), sHandleRadius, sHandleRadius);
 }
 
-void ColorChannelSlider::paintEvent(QPaintEvent* event) {
+void ColorChannelSlider::paintEvent(QPaintEvent* /*event*/) {
     QStyleOptionSlider opt;
     initStyleOption(&opt);
 

@@ -352,7 +352,7 @@ void PtclList::populateList() {
 
     mListModel.clear();
     const auto& sets = mDocument->emitterSets();
-    for (s32 setIndex = 0; setIndex < sets.size(); ++setIndex) {
+    for (size_t setIndex = 0; setIndex < sets.size(); ++setIndex) {
         insertEmitterSetNode(setIndex);
     }
 
@@ -691,7 +691,6 @@ void PtclList::removeEmitter(QStandardItem* setItem, QStandardItem* emitterItem)
     const s32 setIndex = setItem->data(sRoleSetIdx).toInt();
     const s32 emitterIndex = emitterItem->data(sRoleEmitterIdx).toInt();
 
-    const auto& emitterSet = mDocument->emitterSet(setIndex);
     const auto& emitter = mDocument->emitter(setIndex, emitterIndex);
 
     const auto confirmationMessage = QString("Are you sure you want to remove the Emitter '%1'?").arg(emitter->name());
@@ -809,7 +808,6 @@ void PtclList::pasteItem() {
         const s32 setIndex = mDocument->emitterSetCount() - 1;
         mSelection->set(setIndex, 0, Ptcl::Selection::Type::EmitterSet);
     } else if (mClipboardEmitter && type == NodeType::Emitter) {
-        const auto& setItem = item->parent();
         const s32 setIndex = item->data(sRoleSetIdx).toInt();
         auto set = mDocument->emitterSet(setIndex);
 

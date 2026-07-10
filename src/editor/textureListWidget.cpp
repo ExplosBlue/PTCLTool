@@ -386,7 +386,7 @@ void TextureListWidget::exportAll() {
     }
 
     const auto& textures = mDocument->textures();
-    for (s32 idx = 0; idx < textures.size(); ++idx) {
+    for (size_t idx = 0; idx < textures.size(); ++idx) {
         const auto& texture = textures[idx];
         texture->textureData().save(QString("%1/tex_%2.png").arg(dirPath).arg(idx));
     }

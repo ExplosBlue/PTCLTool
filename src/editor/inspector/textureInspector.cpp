@@ -685,7 +685,7 @@ void TextureInspector::populateProperties() {
     mTexPatTblUse.setValue(mEmitter->texturePatternTableUse());
 
     const auto& tbl = mEmitter->texturePatternTable();
-    for (s32 i = 0; i < tbl.size(); ++i) {
+    for (size_t i = 0; i < tbl.size(); ++i) {
         QTableWidgetItem* item = mTexPatTbl.item(0, i);
         item->setText(QString::number(tbl[i]));
 
@@ -761,8 +761,6 @@ std::optional<Math::Vector2f> TextureInspector::calcFrameUVOffset(s32 frame) con
     if (frame >= maxFrameCount()) {
         return std::nullopt;
     }
-
-    const auto& uvScale = mEmitter->textureUVScale();
 
     const s32 frameX = frame % divX;
     const s32 frameY = frame / divX;

@@ -139,9 +139,6 @@ void ScaleAnimInspector::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphP
         set(anim.diffScale21, point.value - oldP0);
         set(anim.diffScale32, oldP3 - point.value);
 
-        const f32 sec1 = getGraphPoints()[1].position;
-        const f32 sec2 = getGraphPoints()[2].position;
-
         *section = static_cast<s32>(point.position);
     };
 

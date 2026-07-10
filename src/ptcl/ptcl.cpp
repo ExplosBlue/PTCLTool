@@ -45,11 +45,11 @@ EmitterSetList PtclBinaryReader::readEmitterSets() {
     EmitterSetList setList{};
 
     setList.reserve(mHeaderData.numEmitterSet);
-    for (s32 idx = 0; idx < mHeaderData.numEmitterSet; idx++) {
+    for (u32 idx = 0; idx < mHeaderData.numEmitterSet; idx++) {
         setList.push_back(readEmitterSet(idx));
     }
 
-    return std::move(setList);
+    return setList;
 }
 
 Texture* PtclBinaryReader::loadTexture(u32 texturePos, u32 size, u32 width, u32 height, TextureFormat format) {
@@ -92,7 +92,7 @@ std::unique_ptr<EmitterSet> PtclBinaryReader::readEmitterSet(s32 index) {
 
     set->emitters().reserve(setData.numEmitter);
 
-    for (s32 idx = 0; idx < setData.numEmitter; ++idx) {
+    for (u32 idx = 0; idx < setData.numEmitter; ++idx) {
         mFile.seek(setData.emitterTblPos + idx * static_cast<s64>((sizeof(BinEmitterTblData))));
 
         BinEmitterTblData tblData;
@@ -448,7 +448,7 @@ s32 PtclRes::emitterSetCount() const {
 }
 
 s32 PtclRes::emitterCount(s32 setIndex) const {
-    if (setIndex < 0 || setIndex >= mEmitterSets.size()) {
+    if (setIndex < 0 || setIndex >= static_cast<s32>(mEmitterSets.size())) {
         return 0;
     }
 
@@ -493,7 +493,7 @@ const EmitterSetList& PtclRes::getEmitterSets() const {
 }
 
 EmitterSet* PtclRes::emitterSet(s32 index) {
-    if (index < 0 || index >= mEmitterSets.size()) {
+    if (index < 0 || index >= static_cast<s32>(mEmitterSets.size())) {
         return nullptr;
     }
 
@@ -501,7 +501,7 @@ EmitterSet* PtclRes::emitterSet(s32 index) {
 }
 
 const EmitterSet* PtclRes::emitterSet(s32 index) const {
-    if (index < 0 || index >= mEmitterSets.size()) {
+    if (index < 0 || index >= static_cast<s32>(mEmitterSets.size())) {
         return nullptr;
     }
 
@@ -509,12 +509,12 @@ const EmitterSet* PtclRes::emitterSet(s32 index) const {
 }
 
 Emitter* PtclRes::emitter(s32 setIndex, s32 emitterIndex) {
-    if (setIndex < 0 || setIndex >= mEmitterSets.size()) {
+    if (setIndex < 0 || setIndex >= static_cast<s32>(mEmitterSets.size())) {
         return nullptr;
     }
 
     auto& set = mEmitterSets[setIndex];
-    if (emitterIndex < 0 || emitterIndex >= set->emitters().size()) {
+    if (emitterIndex < 0 || emitterIndex >= static_cast<s32>(set->emitters().size())) {
         return nullptr;
     }
 
@@ -522,12 +522,12 @@ Emitter* PtclRes::emitter(s32 setIndex, s32 emitterIndex) {
 }
 
 const Emitter* PtclRes::emitter(s32 setIndex, s32 emitterIndex) const {
-    if (setIndex < 0 || setIndex >= mEmitterSets.size()) {
+    if (setIndex < 0 || setIndex >= static_cast<s32>(mEmitterSets.size())) {
         return nullptr;
     }
 
     auto& set = mEmitterSets[setIndex];
-    if (emitterIndex < 0 || emitterIndex >= set->emitters().size()) {
+    if (emitterIndex < 0 || emitterIndex >= static_cast<s32>(set->emitters().size())) {
         return nullptr;
     }
 

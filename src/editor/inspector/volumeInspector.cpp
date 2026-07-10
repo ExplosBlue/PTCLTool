@@ -70,7 +70,7 @@ void VolumeInspector::setupUi() {
         // Length
         {
             .widget    = &mLengthSpinBox,
-            .label     = [](Ptcl::VolumeType t) { return "Length:"; },
+            .label     = [](Ptcl::VolumeType) { return "Length:"; },
             .isVisible  = [](Ptcl::VolumeType t) {
                 return t == Ptcl::VolumeType::Line || t == Ptcl::VolumeType::LineSameDiv;
             }

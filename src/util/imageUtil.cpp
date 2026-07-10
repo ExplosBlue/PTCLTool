@@ -185,8 +185,10 @@ inline std::vector<u8> ETC1Compress(const std::vector<u8>& rgba, s32 width, s32 
                 switch(quality) {
                 case ImageUtil::ETC1Quality::LowQuality:
                     params.m_quality = rg_etc1::cLowQuality;
+                    [[fallthrough]];
                 case ImageUtil::ETC1Quality::MediumQuality:
                     params.m_quality = rg_etc1::cMediumQuality;
+                    [[fallthrough]];
                 default:
                     params.m_quality = rg_etc1::cHighQuality;
                 }
@@ -236,8 +238,8 @@ QImage getTextureRaster(const std::vector<u8>& textureData, s32 width, s32 heigh
 
     u32 srcIdx = 0;
 
-    for (u32 ty = 0; ty < height; ty += 8) {
-        for (u32 tx = 0; tx < width; tx += 8) {
+    for (s32 ty = 0; ty < height; ty += 8) {
+        for (s32 tx = 0; tx < width; tx += 8) {
             for (u32 px : swizzleLUT) {
 
                 u32 x = px & 7;
@@ -387,13 +389,8 @@ std::vector<u8> QImageToPicaTexture(const QImage& image, Ptcl::TextureFormat for
     std::vector<u8> textureData(static_cast<size_t>(width) * height * increment);
     u32 dstIdx = 0;
 
-    static int nibbleToggle = 0;
-    static u8 byteBuffer = 0;
-    nibbleToggle = 0;
-    byteBuffer = 0;
-
-    for (u32 ty = 0; ty < height; ty += 8) {
-        for (u32 tx = 0; tx < width; tx += 8) {
+    for (s32 ty = 0; ty < height; ty += 8) {
+        for (s32 tx = 0; tx < width; tx += 8) {
             for (u32 px : swizzleLUT) {
 
                 u32 x = px & 7;
