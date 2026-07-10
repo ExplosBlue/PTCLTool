@@ -432,7 +432,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     texUVScale = emitter.textureUVScale();
     std::copy(emitter.texturePatternTable().begin(), emitter.texturePatternTable().end(), texPatTbl.data());
     texPatFreq = emitter.texturePatternFrequency();
-    texPatTblUse = emitter.texturePatternTableUse();
+    texPatTblUse = emitter.texturePatternFrameCount();
 }
 
 QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {

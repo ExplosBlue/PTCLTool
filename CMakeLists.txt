@@ -8,7 +8,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(MSVC)
@@ -39,9 +39,12 @@ set(PROJECT_SOURCES
     src/editor/components/colorChannelSlider.cpp
     src/editor/components/colorGradientEditor.cpp
     src/editor/components/combinerPreviewWidget.cpp
+    src/editor/components/frameSelectorPopup.cpp
+    src/editor/components/frameTimeline.cpp
     src/editor/components/loadingSpinner.cpp
     src/editor/components/rgbaColorWidget.cpp
     src/editor/components/thumbnailWidget.cpp
+    src/editor/components/viewportScrollBar.cpp
     src/editor/inspector/alphaAnimInspector.cpp
     src/editor/inspector/colorInspector.cpp
     src/editor/inspector/combinerInspector.cpp
@@ -104,11 +107,14 @@ set(PROJECT_HEADERS
     include/editor/components/colorGradientEditor.h
     include/editor/components/combinerPreviewWidget.h
     include/editor/components/enumComboBox.h
+    include/editor/components/frameSelectorPopup.h
+    include/editor/components/frameTimeline.h
     include/editor/components/loadingSpinner.h
     include/editor/components/rgbaColorWidget.h
     include/editor/components/sizedSpinBox.h
     include/editor/components/thumbnailWidget.h
     include/editor/components/vectorSpinBox.h
+    include/editor/components/viewportScrollBar.h
     include/editor/inspector/alphaAnimInspector.h
     include/editor/inspector/colorInspector.h
     include/editor/inspector/combinerInspector.h
@@ -170,6 +176,7 @@ qt_add_executable(PTCLTool
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES} ${PROJECT_HEADERS}
     include/gfx/color.h src/gfx/color.cpp
+    include/editor/components/startframelist.h src/editor/components/startframelist.cpp
 )
 
 qt_add_resources(PTCLTool "icons"

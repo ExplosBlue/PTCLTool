@@ -1,13 +1,15 @@
 #pragma once
 
 #include "editor/components/enumComboBox.h"
+#include "editor/components/frameTimeline.h"
 #include "editor/components/sizedSpinBox.h"
+#include "editor/components/startframelist.h"
 #include "editor/inspector/inspectorWidgetBase.h"
 
+#include <QLabel>
 #include <QPushButton>
 #include <QCheckBox>
 #include <QGroupBox>
-#include <QTableWidget>
 #include <QWidget>
 
 
@@ -96,17 +98,12 @@ private:
 class TextureInspector final : public InspectorWidgetBase {
     Q_OBJECT
 public:
-    enum class AnimMode {
-        FixedSpeed = 0,
-        FitToLife  = 1
-    };
-
-    inline s32 animModeToFreq(AnimMode mode) {
+    inline s32 animModeToFreq(FrameAnimMode mode) {
         return static_cast<s32>(mode);
     }
 
-    inline AnimMode freqToAnimMode(s32 value) {
-        return (value > 0) ? AnimMode::FixedSpeed : AnimMode::FitToLife;
+    inline FrameAnimMode freqToAnimMode(s32 value) {
+        return (value > 0) ? FrameAnimMode::FixedSpeed : FrameAnimMode::FitToLife;
     }
 
 public:
@@ -119,14 +116,13 @@ private:
     void populateProperties() final;
     void setupConnections();
 
-    void updateTexPatTblColumns();
-
     std::optional<Math::Vector2f> calcFrameUVOffset(s32 frame) const;
     QImage getFrameTexture(s32 frame) const;
     QImage applyUVRepetition(const QImage& image, f32 repeatX, f32 repeatY) const;
-    QImage createFramePreview(s32 frame) const;
 
     s32 maxFrameCount() const;
+
+    void updateFramesWarning();
 
 private:
     EnumComboBox<Ptcl::TextureWrap> mWrapTComboBox{};
@@ -136,17 +132,20 @@ private:
     EnumComboBox<Ptcl::TextureMipFilter> mMipFilterComboBox{};
 
     QGroupBox mTexPatGroupBox{};
+    QCheckBox mTexPatAnimCheckBox{};
 
     QComboBox mAnimModeComboBox{};
 
-    SizedSpinBox<u16> mNumTexPat{};
+    // SizedSpinBox<u16> mNumTexPat{};
     SizedSpinBox<u16> mTexPatFreq{};
-    SizedSpinBox<u16> mTexPatTblUse{};
+    SizedSpinBox<u16> mAnimFrameCountSpinBox{};
 
     TextureRepetitionSelector mRepetitionSelector{};
     QPushButton mChangeTextureButton{};
+    QLabel* mFramesWarningLabel{};
 
-    QTableWidget mTexPatTbl{1, 16, this};
+    FrameTimeline mFrameTimeline{};
+    StartFrameList mStartFrameList{};
 };
 
 

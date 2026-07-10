@@ -104,7 +104,7 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mTextureUVScale = mTextureUVScale;
     newEmitter->mTexturePatternTbl = mTexturePatternTbl;
     newEmitter->mTexturePatternFrequency = mTexturePatternFrequency;
-    newEmitter->mTexturePatternTblUse = mTexturePatternTblUse;
+    newEmitter->mTexturePatternFrameCount = mTexturePatternFrameCount;
     newEmitter->mIsTexturePatternAnim = mIsTexturePatternAnim;
     newEmitter->mTextureHandle = mTextureHandle;
 
@@ -278,7 +278,7 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mTextureUVScale = { emitterData.texUVScale.x, emitterData.texUVScale.y };
     mTexturePatternTbl = emitterData.texPatTbl;
     mTexturePatternFrequency = emitterData.texPatFreq;
-    mTexturePatternTblUse = emitterData.texPatTblUse;
+    mTexturePatternFrameCount = emitterData.texPatTblUse;
     mIsTexturePatternAnim = emitterData.isTexPatAnim;
 
     // Basic Properties

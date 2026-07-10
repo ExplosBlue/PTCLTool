@@ -375,8 +375,8 @@ public:
     u16 texturePatternFrequency() const { return mTexturePatternFrequency; }
     void setTexturePatternFrequency(u16 frequency) { mTexturePatternFrequency = frequency; }
 
-    u16 texturePatternTableUse() const { return mTexturePatternTblUse; }
-    void setTexturePatternTableUse(u16 use) { mTexturePatternTblUse = use; }
+    u16 texturePatternFrameCount() const { return mTexturePatternFrameCount; }
+    void setTexturePatternFrameCount(u16 count) { mTexturePatternFrameCount = count; }
 
     bool isTexturePatternAnim() const { return mIsTexturePatternAnim; }
     void setIsTexturePatternAnim(bool isAnim) { mIsTexturePatternAnim = isAnim; }
@@ -822,7 +822,7 @@ private:
     Math::Vector2f mTextureUVScale{1.0f, 1.0f};
     std::array<u8, 16> mTexturePatternTbl{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     u16 mTexturePatternFrequency{0};
-    u16 mTexturePatternTblUse{2};
+    u16 mTexturePatternFrameCount{2};
     bool mIsTexturePatternAnim{false};
     TextureHandle mTextureHandle{};
 
