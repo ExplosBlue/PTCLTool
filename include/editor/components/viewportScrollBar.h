@@ -20,7 +20,7 @@ public:
 
 signals:
     void scrollChanged(s32 offset);
-    void viewportChanged(s32 viewportWidth, s32 offset);
+    void zoomChanged(s32 contentWidth, s32 offset);
 
 protected:
     void paintEvent(QPaintEvent* event) override;

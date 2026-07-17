@@ -159,7 +159,7 @@ private:
     QString boundaryTooltip(const QPoint& pos, s32 contentX) const;
 
     // View
-    void updateZoom(s32 viewportWidth);
+    void updateZoom(s32 contentWidth);
     void zoomAt(s32 screenX, bool zoomIn);
 
     void setScrollOffset(s32 offset);

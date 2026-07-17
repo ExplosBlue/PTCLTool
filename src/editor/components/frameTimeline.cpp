@@ -134,9 +134,13 @@ FrameTimeline::FrameTimeline(QWidget* parent) :
 
     mScrollBar = new ViewportScrollBar(this);
 
-    connect(mScrollBar, &ViewportScrollBar::viewportChanged, this, [this](s32 viewportWidth, s32 newOffset) {
-        updateZoom(viewportWidth);
-        setScrollOffset(std::max(0, newOffset));
+    connect(mScrollBar, &ViewportScrollBar::zoomChanged, this, [this](s32 contentWidth, s32 newOffset) {
+        const f32 prevPixelPerTick = mPixelsPerTick;
+        updateZoom(contentWidth);
+        if (mPixelsPerTick != prevPixelPerTick) {
+            setScrollOffset(std::max(0, newOffset));
+            updateScrollBar();
+        }
     });
 
     connect(mScrollBar, &ViewportScrollBar::scrollChanged, this, [this](s32 newOffset) {
@@ -878,14 +882,14 @@ QString FrameTimeline::boundaryTooltip(const QPoint& pos, s32 contentX) const {
 
 // View
 
-void FrameTimeline::updateZoom(s32 viewportWidth) {
+void FrameTimeline::updateZoom(s32 contentWidth) {
     const s32 ticks = mModel.totalTicks();
     if (ticks <= 0) {
         mPixelsPerTick = minimumPixelsPerTick();
         return;
     }
 
-    const s32 usableWidth = std::max(0, viewportWidth - sSidePadding * 2);
+    const s32 usableWidth = std::max(0, contentWidth - sSidePadding * 2);
     mPixelsPerTick = static_cast<f32>(usableWidth) / static_cast<f32>(ticks);
     mPixelsPerTick = std::clamp(mPixelsPerTick, minimumPixelsPerTick(), sMaxPixelsPerTick);
 }

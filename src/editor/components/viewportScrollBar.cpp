@@ -150,26 +150,25 @@ void ViewportScrollBar::resizeHandle(s32 mouseX, bool isLeft) {
 
     const s32 newHandleWidth = std::clamp(newWidth, sMinHandle, mViewportWidth);
 
-    if (newHandleWidth <= 0) {
+    if (newHandleWidth <= 0 || newHandleWidth == handleWidth()) {
         return;
     }
 
-    const s32 newContentWidth = static_cast<s32>(
-        (static_cast<f32>(mViewportWidth) * static_cast<f32>(mViewportWidth))
-        / static_cast<f32>(newHandleWidth));
-
     const s32 edge = isLeft ? mGrabFixedEdge - newHandleWidth : mGrabFixedEdge;
-
     const s32 range = mViewportWidth - newHandleWidth;
 
     const f32 fraction = (range > 0)
         ? static_cast<f32>(edge) / static_cast<f32>(range)
         : 0;
 
+    const s32 newContentWidth = static_cast<s32>(
+        (static_cast<f32>(mViewportWidth) * static_cast<f32>(mViewportWidth)) / static_cast<f32>(newHandleWidth)
+    );
+
     const s32 maxOffset = std::max(0, newContentWidth - mViewportWidth);
     const s32 offset = static_cast<s32>(fraction * static_cast<f32>(maxOffset));
 
-    emit viewportChanged(newContentWidth, std::clamp(offset, 0, maxOffset));
+    emit zoomChanged(newContentWidth, std::clamp(offset, 0, maxOffset));
 }
 
 ViewportScrollBar::Hover ViewportScrollBar::hoverAt(const QPoint& pos) const {
