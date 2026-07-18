@@ -28,16 +28,20 @@ ChildTextureInspector::ChildTextureInspector(QWidget* parent) :
     auto settingsLayout = new QGridLayout;
     settingsLayout->addWidget(new QLabel("Wrap U:"), 0, 0);
     settingsLayout->addWidget(&mWrapTComboBox, 0, 1);
+    mWrapTComboBox.setToolTip("Horizontal wrap mode: how texture repeats outside [0,1] range");
     settingsLayout->addWidget(new QLabel("Wrap V:"), 1, 0);
     settingsLayout->addWidget(&mWrapSComboBox, 1, 1);
-    settingsLayout->addWidget(new QLabel("Magnification Filter:"), 0, 2);
-    settingsLayout->addWidget(&mMagFilterComboBox, 0, 3);
-    settingsLayout->addWidget(new QLabel("Minification Filter:"), 1, 2);
-    settingsLayout->addWidget(&mMinFilterComboBox, 1, 3);
+    mWrapSComboBox.setToolTip("Vertical wrap mode: how texture repeats outside [0,1] range");
+    settingsLayout->addWidget(new QLabel("LOD Level:"), 0, 2);
+    settingsLayout->addWidget(&mTexLodLevel, 0, 3);
+    mTexLodLevel.setRange(0, 15);
+    mTexLodLevel.setToolTip("Maximum mipmap LOD level (0 = no mipmaps, full resolution only)");
+    settingsLayout->addWidget(new QLabel("Filter:"), 1, 2);
+    settingsLayout->addWidget(&mFilterComboBox, 1, 3);
+    mFilterComboBox.setToolTip("Texture filtering: Linear (smooth) or Nearest (pixelated)");
     settingsLayout->addWidget(new QLabel("UV Scale:"), 2, 0);
     settingsLayout->addWidget(&mUVScaleSpinBox, 2, 1);
-    settingsLayout->addWidget(new QLabel("Mipmap Filter:"), 2, 2);
-    settingsLayout->addWidget(&mMipFilterComboBox, 2, 3);
+    mUVScaleSpinBox.setToolTip("Scale factor for child texture UV coordinates");
 
     settingsLayout->setColumnStretch(0, 0); // labels
     settingsLayout->setColumnStretch(1, 1); // wrap / UV scale widgets
@@ -81,41 +85,26 @@ void ChildTextureInspector::setupConnections() {
         );
     });
 
-    // Mag Filter
-    connect(&mMagFilterComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
-        Q_UNUSED(index);
-        const auto filter = mMagFilterComboBox.currentEnum();
+    // LOD Level
+    connect(&mTexLodLevel, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
         setEmitterProperty(
-            "Set Child Texture Mag Filter",
-            "SetChildTexMagFilter",
-            &Ptcl::Emitter::childTextureMagFilter,
-            &Ptcl::Emitter::setChildTextureMagFilter,
-            filter
+            "Set Child Texture LOD Level",
+            "SetChildTexLodLevel",
+            &Ptcl::Emitter::childTextureLodLevel,
+            &Ptcl::Emitter::setChildTextureLodLevel,
+            static_cast<u8>(value)
         );
     });
 
-    // Min Filter
-    connect(&mMinFilterComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
+    // Filter
+    connect(&mFilterComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
         Q_UNUSED(index);
-        const auto filter = mMinFilterComboBox.currentEnum();
+        const auto filter = mFilterComboBox.currentEnum();
         setEmitterProperty(
-            "Set Child Texture Min Filter",
-            "SetChildTexMinFilter",
-            &Ptcl::Emitter::childTextureMinFilter,
-            &Ptcl::Emitter::setChildTextureMinFilter,
-            filter
-        );
-    });
-
-    // Mipmap Filter
-    connect(&mMipFilterComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
-        Q_UNUSED(index);
-        const auto filter = mMipFilterComboBox.currentEnum();
-        setEmitterProperty(
-            "Set Child Texture Mip Filter",
-            "SetChildTexMipFilter",
-            &Ptcl::Emitter::childTextureMipFilter,
-            &Ptcl::Emitter::setChildTextureMipFilter,
+            "Set Child Texture Filter",
+            "SetChildTexFilter",
+            &Ptcl::Emitter::childTextureFilter,
+            &Ptcl::Emitter::setChildTextureFilter,
             filter
         );
     });
@@ -139,10 +128,9 @@ void ChildTextureInspector::setupConnections() {
 void ChildTextureInspector::populateProperties() {
     QSignalBlocker b1(mWrapTComboBox);
     QSignalBlocker b2(mWrapSComboBox);
-    QSignalBlocker b3(mMagFilterComboBox);
-    QSignalBlocker b4(mMinFilterComboBox);
-    QSignalBlocker b5(mMipFilterComboBox);
-    QSignalBlocker b6(mUVScaleSpinBox);
+    QSignalBlocker b3(mTexLodLevel);
+    QSignalBlocker b4(mFilterComboBox);
+    QSignalBlocker b5(mUVScaleSpinBox);
 
     if (mEmitter->childTextureHandle().isValid()) {
         mTexturePreview.setPixmap(QPixmap::fromImage(mEmitter->childTexture()->textureData()));
@@ -150,9 +138,8 @@ void ChildTextureInspector::populateProperties() {
 
     mWrapTComboBox.setCurrentEnum(mEmitter->childTextureWrapT());
     mWrapSComboBox.setCurrentEnum(mEmitter->childTextureWrapS());
-    mMagFilterComboBox.setCurrentEnum(mEmitter->childTextureMagFilter());
-    mMinFilterComboBox.setCurrentEnum(mEmitter->childTextureMinFilter());
-    mMipFilterComboBox.setCurrentEnum(mEmitter->childTextureMipFilter());
+    mTexLodLevel.setValue(mEmitter->childTextureLodLevel());
+    mFilterComboBox.setCurrentEnum(mEmitter->childTextureFilter());
     mUVScaleSpinBox.setVector(mEmitter->childTextureUVScale());
 }
 

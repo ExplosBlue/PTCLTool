@@ -95,9 +95,8 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     // Texture Properties
     newEmitter->mTextureWrapT = mTextureWrapT;
     newEmitter->mTextureWrapS = mTextureWrapS;
-    newEmitter->mTextureMagFilter = mTextureMagFilter;
-    newEmitter->mTextureMinFilter = mTextureMinFilter;
-    newEmitter->mTextureMipFilter = mTextureMipFilter;
+    newEmitter->mTextureLodLevel = mTextureLodLevel;
+    newEmitter->mTextureFilter = mTextureFilter;
     newEmitter->mNumTexturePattern = mNumTexturePattern;
     newEmitter->mNumTextureDivisionX = mNumTextureDivisionX;
     newEmitter->mNumTextureDivisionY = mNumTextureDivisionY;
@@ -235,11 +234,10 @@ void Emitter::initChild(const BinChildData& childData) {
         .scaleInheritRate = childData.childScaleInheritRate,
         .scaleStartFrame = childData.childScaleStartFrame,
 
-        .textureWrapT = childData.childTextureRes.wrapT,
-        .textureWrapS = childData.childTextureRes.wrapS,
-        .textureMagFilter = childData.childTextureRes.magFilter,
-        .textureMinFilter = static_cast<TextureFilter>(childData.childTextureRes.minMipFilter & 0x1),
-        .textureMipFilter = static_cast<TextureMipFilter>((childData.childTextureRes.minMipFilter >> 1) & 0x3),
+        .textureWrapT = static_cast<TextureWrap>(childData.childTextureRes.wrapModes & 0xF),
+        .textureWrapS = static_cast<TextureWrap>((childData.childTextureRes.wrapModes >> 4) & 0xF),
+        .textureLodLevel = childData.childTextureRes.lodLevel,
+        .textureFilter = (childData.childTextureRes.filter != 0) ? TextureFilter::Nearest : TextureFilter::Linear,
         .texUVScale = { childData.childTexUScale, childData.childTexVScale },
 
         .color0 = childData.childColor0.toColor(),
@@ -267,11 +265,10 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mFlag = emitterData.flag;
 
     // Texture Properties
-    mTextureWrapT = emitterData.textureRes.wrapT;
-    mTextureWrapS = emitterData.textureRes.wrapS;
-    mTextureMagFilter = emitterData.textureRes.magFilter;
-    mTextureMinFilter = static_cast<TextureFilter>(emitterData.textureRes.minMipFilter & 0x1);
-    mTextureMipFilter = static_cast<TextureMipFilter>((emitterData.textureRes.minMipFilter >> 1) & 0x3);
+    mTextureWrapT = static_cast<TextureWrap>(emitterData.textureRes.wrapModes & 0xF);
+    mTextureWrapS = static_cast<TextureWrap>((emitterData.textureRes.wrapModes >> 4) & 0xF);
+    mTextureLodLevel = emitterData.textureRes.lodLevel;
+    mTextureFilter = (emitterData.textureRes.filter != 0) ? TextureFilter::Nearest : TextureFilter::Linear;
     mNumTexturePattern = emitterData.numTexPat;
     mNumTextureDivisionX = emitterData.numTexDivX;
     mNumTextureDivisionY = emitterData.numTexDivY;

@@ -4,7 +4,9 @@
 #include "editor/components/frameTimeline.h"
 #include "editor/components/sizedSpinBox.h"
 #include "editor/components/startframelist.h"
+#include "editor/components/texturePreview.h"
 #include "editor/inspector/inspectorWidgetBase.h"
+#include "ptcl/ptclEnum.h"
 
 #include <QLabel>
 #include <QPushButton>
@@ -14,82 +16,6 @@
 
 
 namespace PtclEditor {
-
-
-// ========================================================================== //
-
-
-class TextureRepetitionSelector final : public QWidget {
-    Q_OBJECT
-public:
-    explicit TextureRepetitionSelector(QWidget* parent = nullptr);
-
-    void setSource(const QImage& image, s32 divX, s32 divY);
-    void setRepetitions(s32 repX, s32 repY);
-
-    QSize sizeHint() const override;
-
-signals:
-    void repetitionsChanged(s32 repX, s32 repY);
-    void divisionsChanged(s32 divX, s32 divY);
-
-protected:
-    void paintEvent(QPaintEvent* event) override;
-
-    void mousePressEvent(QMouseEvent* event) override;
-    void mouseMoveEvent(QMouseEvent* event) override;
-    void mouseReleaseEvent(QMouseEvent* event) override;
-
-    void resizeEvent(QResizeEvent* event) override;
-
-private:
-    void updateLayoutCache();
-    void drawTexture(QPainter& painter);
-    void drawGrid(QPainter& painter);
-    void drawSelection(QPainter& painter);
-    void drawDimOverlay(QPainter& painter);
-
-    void updateFrameRect();
-
-private:
-    static constexpr f32 UVScale = 2.0f;
-
-    enum class DragMode {
-        None,
-        Division,
-        Repetition
-    };
-
-private:
-    QImage mTexture{};
-    QPixmap mScaledPixmap{};
-
-    QRect mTexRect{};
-    QRect mFrameRect{};
-
-    QSize mScaledSize{};
-    qreal mScale{1.0f};
-
-    s32 mDivX{1};
-    s32 mDivY{1};
-
-    s32 mRepX{1};
-    s32 mRepY{1};
-
-    s32 mPreviewRepX{1};
-    s32 mPreviewRepY{1};
-
-    s32 mPreviewDivX{1};
-    s32 mPreviewDivY{1};
-
-    QPoint mDragStart{};
-    s32 mAccumulatedX{0};
-    s32 mAccumulatedY{0};
-
-    bool mDragging{false};
-
-    DragMode mDragMode{DragMode::None};
-};
 
 
 // ========================================================================== //
@@ -123,26 +49,32 @@ private:
     s32 maxFrameCount() const;
 
     void updateFramesWarning();
+    void updateDescription();
 
 private:
     EnumComboBox<Ptcl::TextureWrap> mWrapTComboBox{};
     EnumComboBox<Ptcl::TextureWrap> mWrapSComboBox{};
-    EnumComboBox<Ptcl::TextureFilter> mMagFilterComboBox{};
-    EnumComboBox<Ptcl::TextureFilter> mMinFilterComboBox{};
-    EnumComboBox<Ptcl::TextureMipFilter> mMipFilterComboBox{};
+    EnumComboBox<Ptcl::TextureFilter> mFilterComboBox{};
+    SizedSpinBox<u8> mTexLodLevel{};
 
     QGroupBox mTexPatGroupBox{};
     QCheckBox mTexPatAnimCheckBox{};
 
     QComboBox mAnimModeComboBox{};
 
-    // SizedSpinBox<u16> mNumTexPat{};
     SizedSpinBox<u16> mTexPatFreq{};
     SizedSpinBox<u16> mAnimFrameCountSpinBox{};
 
-    TextureRepetitionSelector mRepetitionSelector{};
+    TexturePreview mTexturePreview{};
     QPushButton mChangeTextureButton{};
     QLabel* mFramesWarningLabel{};
+
+    SizedSpinBox<u8> mDivXSpinBox{};
+    SizedSpinBox<u8> mDivYSpinBox{};
+    SizedSpinBox<u16> mRepXSpinBox{};
+    SizedSpinBox<u16> mRepYSpinBox{};
+
+    QLabel* mDescriptionLabel{};
 
     FrameTimeline mFrameTimeline{};
     StartFrameList mStartFrameList{};

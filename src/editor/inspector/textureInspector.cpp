@@ -9,11 +9,8 @@
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QMouseEvent>
 #include <QPainter>
-#include <QPainterPath>
-#include <QScreen>
-#include <QToolButton>
+#include <QResizeEvent>
 #include <QVBoxLayout>
 #include <QGroupBox>
 
@@ -24,403 +21,94 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-TextureRepetitionSelector::TextureRepetitionSelector(QWidget* parent) :
-    QWidget{parent} {
-
-    setMouseTracking(true);
-    setFocusPolicy(Qt::StrongFocus);
-    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    setMinimumSize(128, 128);
-    setMaximumSize(1024, 1024);
-}
-
-QSize TextureRepetitionSelector::sizeHint() const {
-    return {512, 512};
-}
-
-void TextureRepetitionSelector::setSource(const QImage& image, s32 divX, s32 divY) {
-    mTexture = image;
-    mDivX = std::max(1, divX);
-    mDivY = std::max(1, divY);
-    updateLayoutCache();
-    update();
-}
-
-void TextureRepetitionSelector::setRepetitions(s32 repX, s32 repY) {
-    mRepX = std::max(1, repX);
-    mRepY = std::max(1, repY);
-    updateLayoutCache();
-    update();
-}
-
-void TextureRepetitionSelector::updateLayoutCache() {
-    if (mTexture.isNull()) {
-        return;
-    }
-
-    const QSize widgetSize = size();
-
-    QSizeF virtualSize{
-        static_cast<f32>(mTexture.width()) * UVScale,
-        static_cast<f32>(mTexture.height()) * UVScale
-    };
-
-    mScale = std::min(
-        static_cast<f32>(widgetSize.width()) / static_cast<f32>(virtualSize.width()),
-        static_cast<f32>(widgetSize.height()) / static_cast<f32>(virtualSize.height())
-    );
-
-    mScaledSize = QSize{
-        static_cast<s32>(std::floor(virtualSize.width() * mScale)),
-        static_cast<s32>(std::floor(virtualSize.height() * mScale))
-    };
-
-    const QPoint topLeft{
-        (width() - mScaledSize.width()) / 2,
-        (height() - mScaledSize.height()) / 2
-    };
-
-    mTexRect = QRect(topLeft, mScaledSize);
-}
-
-void TextureRepetitionSelector::drawTexture(QPainter& painter) {
-    const s32 texW = mTexture.width();
-    const s32 texH = mTexture.height();
-
-    const s32 w = mTexRect.width();
-    const s32 h = mTexRect.height();
-
-    QImage output(w, h, QImage::Format::Format_ARGB32);
-
-    for (s32 y = 0; y < h; ++y){
-        for (s32 x = 0; x < w; ++x) {
-            const f32 u = (static_cast<f32>(x) / static_cast<f32>(w)) * UVScale;
-            const f32 v = (static_cast<f32>(y) / static_cast<f32>(h)) * UVScale;
-
-            const f32 mu = PaintUtil::mirrorTextureCoord(u);
-            const f32 mv = PaintUtil::mirrorTextureCoord(v);
-
-            const s32 tx = std::clamp(static_cast<s32>(mu * static_cast<f32>(texW)), 0, texW - 1);
-            const s32 ty = std::clamp(static_cast<s32>(mv * static_cast<f32>(texH)), 0, texH - 1);
-
-            QColor color = mTexture.pixelColor(tx, ty);
-
-            output.setPixelColor(x, y, color);
-        }
-    }
-
-    painter.save();
-    painter.drawImage(mTexRect.topLeft(), output);
-    painter.restore();
-}
-
-void TextureRepetitionSelector::drawGrid(QPainter& painter) {
-    const bool isDragDivision = mDragging && mDragMode == DragMode::Division;
-
-    const s32 divX = isDragDivision ? mPreviewDivX : mDivX;
-    const s32 divY = isDragDivision ? mPreviewDivY : mDivY;
-
-    const f32 divCellW = static_cast<f32>(mTexRect.width()) / (static_cast<f32>(divX) * UVScale);
-    const f32 divCellH = static_cast<f32>(mTexRect.height()) / (static_cast<f32>(divY) * UVScale);
-
-    const QRect texRect = mTexRect;
-
-    // --- total div is double the divisions (because UVScale = 2) ---
-    const s32 totalDivX = divX * 2;
-    const s32 totalDivY = divY * 2;
-
-    auto drawLines = [&painter, divCellW, divCellH, totalDivX, totalDivY, texRect]() {
-        for (s32 x = 1; x < totalDivX; ++x) {
-            const s32 px = texRect.left() + static_cast<s32>(static_cast<f32>(x) * divCellW);
-            painter.drawLine(px, texRect.top(), px, texRect.bottom());
-        }
-
-        for (s32 y = 1; y < totalDivY; ++y) {
-            const s32 py = texRect.top() + static_cast<s32>(static_cast<f32>(y) * divCellH);
-            painter.drawLine(texRect.left(), py, texRect.right(), py);
-        }
-    };
-
-    painter.save();
-    painter.setRenderHint(QPainter::Antialiasing, false);
-    painter.setPen(QPen(Qt::black, 3, Qt::DashLine));
-    drawLines();
-    painter.setPen(QPen(Qt::white, 1, Qt::DashLine));
-    drawLines();
-
-    painter.restore();
-}
-
-void TextureRepetitionSelector::updateFrameRect() {
-    const bool isDragRepetition = mDragging && mDragMode == DragMode::Repetition;
-    const bool isDragDivision = mDragging && mDragMode == DragMode::Division;
-
-    const s32 repX = isDragRepetition ? mPreviewRepX : mRepX;
-    const s32 repY = isDragRepetition ? mPreviewRepY : mRepY;
-
-    const s32 divX = isDragDivision ? mPreviewDivX : mDivX;
-    const s32 divY = isDragDivision ? mPreviewDivY : mDivY;
-
-    const f32 tilesPerFrameX = static_cast<f32>(repX) / static_cast<f32>(divX);
-    const f32 tilesPerFrameY = static_cast<f32>(repY) / static_cast<f32>(divY);
-
-    const f32 tileW = static_cast<f32>(mTexRect.width()) / UVScale;
-    const f32 tileH = static_cast<f32>(mTexRect.height()) / UVScale;
-
-    const s32 frameW = static_cast<s32>(tilesPerFrameX * tileW);
-    const s32 frameH = static_cast<s32>(tilesPerFrameY * tileH);
-
-    mFrameRect = QRect(
-        mTexRect.left(),
-        mTexRect.top(),
-        frameW,
-        frameH
-    );
-}
-
-void TextureRepetitionSelector::drawSelection(QPainter& painter) {
-    painter.save();
-    painter.setPen(QPen(Qt::yellow, 2));
-    painter.drawRect(mFrameRect.adjusted(+3, +3, -3, -3));
-    painter.restore();
-}
-
-void TextureRepetitionSelector::drawDimOverlay(QPainter& painter) {
-    const s32 tilesX = static_cast<s32>(UVScale);
-    const s32 tilesY = static_cast<s32>(UVScale);
-
-    const s32 tileW = mTexRect.width()  / tilesX;
-    const s32 tileH = mTexRect.height() / tilesY;
-
-    painter.save();
-    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    painter.setRenderHint(QPainter::Antialiasing, false);
-
-    for (s32 ty = 0; ty < tilesY; ++ty) {
-        for (s32 tx = 0; tx < tilesX; ++tx) {
-
-            if (tx == 0 && ty == 0) {
-                continue;
-            }
-
-            QRect tileRect(
-                mTexRect.left() + (tx * tileW),
-                mTexRect.top()  + (ty * tileH),
-                static_cast<s32>(tileW),
-                static_cast<s32>(tileH)
-            );
-
-            if (tileRect.intersects(mFrameRect)) {
-                continue;
-            }
-
-            painter.fillRect(tileRect, QColor(0, 0, 0, 160));
-        }
-    }
-    painter.restore();
-}
-
-void TextureRepetitionSelector::paintEvent(QPaintEvent* event) {
-    Q_UNUSED(event);
-
-    QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing, true);
-
-    painter.fillRect(rect(), palette().color(QPalette::Base));
-
-    if (mTexture.isNull()) {
-        return;
-    }
-
-    updateFrameRect();
-
-    painter.save();
-    painter.setClipRect(mTexRect);
-    PaintUtil::drawCheckerboard(painter, mTexRect);
-    painter.restore();
-
-    drawTexture(painter);
-    drawGrid(painter);
-    drawDimOverlay(painter);
-    drawSelection(painter);
-}
-
-void TextureRepetitionSelector::mousePressEvent(QMouseEvent* event) {
-    if (!mTexRect.contains(event->pos())) {
-        return;
-    }
-
-    if (event->button() == Qt::RightButton) {
-        mDragMode = DragMode::Division;
-        mPreviewDivX = mDivX;
-        mPreviewDivY = mDivY;
-    } else if (event->button() == Qt::LeftButton) {
-        mDragMode = DragMode::Repetition;
-        mPreviewRepX = mRepX;
-        mPreviewRepY = mRepY;
-    } else {
-        return;
-    }
-
-    mDragging = true;
-    mDragStart = event->pos();
-    mAccumulatedX = 0;
-    mAccumulatedY = 0;
-
-    setCursor(Qt::ClosedHandCursor);
-    update();
-}
-
-void TextureRepetitionSelector::mouseMoveEvent(QMouseEvent* event) {
-    if (!mDragging) {
-        if (mTexRect.contains(event->pos())) {
-            setCursor(Qt::OpenHandCursor);
-        } else {
-            unsetCursor();
-        }
-        return;
-    }
-
-    QPoint delta = event->pos() - mDragStart;
-    mAccumulatedX += delta.x();
-    mAccumulatedY += delta.y();
-    mDragStart = event->pos();
-
-    const f32 nx = (static_cast<f32>(event->pos().x() - mTexRect.left()) / static_cast<f32>(mTexRect.width()));
-    const f32 ny = (static_cast<f32>(event->pos().y() - mTexRect.top()) / static_cast<f32>(mTexRect.height()));
-    const f32 clampedX = std::clamp(nx, 0.0f, 1.0f);
-    const f32 clampedY = std::clamp(ny, 0.0f, 1.0f);
-
-    if (mDragMode == DragMode::Division) {
-        const f32 pixelPerStep = 20;
-
-        s32 stepX = static_cast<s32>(static_cast<f32>(mAccumulatedX) / pixelPerStep);
-        s32 stepY = static_cast<s32>(static_cast<f32>(mAccumulatedY) / pixelPerStep);
-
-        mAccumulatedX -= static_cast<s32>(static_cast<f32>(stepX) * pixelPerStep);
-        mAccumulatedY -= static_cast<s32>(static_cast<f32>(stepY) * pixelPerStep);
-
-        const s32 maxCells = 16;
-
-        mPreviewDivX = std::clamp(mPreviewDivX + stepX, 1, maxCells);
-        mPreviewDivY = std::clamp(mPreviewDivY + stepY, 1, maxCells);
-
-        while (mPreviewDivX * mPreviewDivY > maxCells) {
-            if (mPreviewDivX > mPreviewDivY) {
-                --mPreviewDivX;
-            } else {
-                --mPreviewDivY;
-            }
-        }
-    }
-    else if (mDragMode == DragMode::Repetition) {
-        const s32 maxRepX = mDivX * 2;
-        const s32 maxRepY = mDivY * 2;
-
-        mPreviewRepX = std::clamp(static_cast<s32>(clampedX * static_cast<f32>(maxRepX)) + 1, 1, maxRepX);
-        mPreviewRepY = std::clamp(static_cast<s32>(clampedY * static_cast<f32>(maxRepY)) + 1, 1, maxRepY);
-    }
-
-    update();
-}
-
-void TextureRepetitionSelector::mouseReleaseEvent(QMouseEvent* event) {
-    Q_UNUSED(event);
-
-    if (!mDragging) {
-        return;
-    }
-
-    mDragging = false;
-
-    if (mDragMode == DragMode::Division) {
-        if (mPreviewDivX != mDivX || mPreviewDivY != mDivY) {
-            mDivX = mPreviewDivX;
-            mDivY = mPreviewDivY;
-            emit divisionsChanged(mDivX, mDivY);
-        }
-    }
-    else if (mDragMode == DragMode::Repetition) {
-        if (mPreviewRepX != mRepX || mPreviewRepY != mRepY) {
-            mRepX = mPreviewRepX;
-            mRepY = mPreviewRepY;
-            emit repetitionsChanged(mRepX, mRepY);
-        }
-    }
-
-    mDragMode = DragMode::None;
-
-    setCursor(mTexRect.contains(mapFromGlobal(QCursor::pos())) ? Qt::OpenHandCursor : Qt::ArrowCursor);
-    update();
-}
-
-void TextureRepetitionSelector::resizeEvent(QResizeEvent* event) {
-    const s32 side = std::min(width(), height());
-    resize(side, side);
-
-    updateLayoutCache();
-    QWidget::resizeEvent(event);
-}
-
-
-// ========================================================================== //
-
-
 TextureInspector::TextureInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
-    // Texture Preview
-    // mTexturePreview.setThumbnailSize(QSize(64, 64));
     mTexPatFreq.setMinimum(1);
     mAnimFrameCountSpinBox.setRange(2, 16);
-
     mChangeTextureButton.setText("Change Texture");
 
-    // Frame Timeline
     mFrameTimeline.setFrames(std::vector<s32>(16, 0), 2);
 
-    // Texture Settings Layout
+    // Texture Settings
     auto settingsLayout = new QGridLayout;
     settingsLayout->addWidget(new QLabel("Wrap U:"), 0, 0);
     settingsLayout->addWidget(&mWrapTComboBox, 0, 1);
+    mWrapTComboBox.setToolTip("Horizontal texture wrap mode");
     settingsLayout->addWidget(new QLabel("Wrap V:"), 1, 0);
     settingsLayout->addWidget(&mWrapSComboBox, 1, 1);
-    settingsLayout->addWidget(new QLabel("Magnification Filter:"), 0, 2);
-    settingsLayout->addWidget(&mMagFilterComboBox, 0, 3);
-    settingsLayout->addWidget(new QLabel("Minification Filter:"), 1, 2);
-    settingsLayout->addWidget(&mMinFilterComboBox, 1, 3);
-    settingsLayout->addWidget(new QLabel("Mipmap Filter:"), 2, 2);
-    settingsLayout->addWidget(&mMipFilterComboBox, 2, 3);
+    mWrapSComboBox.setToolTip("Vertical texture wrap mode");
+    settingsLayout->addWidget(new QLabel("LOD Level:"), 0, 2);
+    settingsLayout->addWidget(&mTexLodLevel, 0, 3);
+    mTexLodLevel.setRange(0, 15);
+    mTexLodLevel.setToolTip("Maximum mipmap LOD level (0 = no mipmaps, full resolution only)");
+    settingsLayout->addWidget(new QLabel("Filter:"), 1, 2);
+    settingsLayout->addWidget(&mFilterComboBox, 1, 3);
+    mFilterComboBox.setToolTip("Texture filtering mode");
     settingsLayout->setColumnStretch(1, 1);
     settingsLayout->setColumnStretch(3, 1);
 
-    auto textureConfigLayout = new QGridLayout;
-    // textureConfigLayout->addWidget(new QLabel("Texture Divisions:"), 0, 0);
-    // textureConfigLayout->addWidget(&mDivisionSelector, 1, 0);
-    textureConfigLayout->addWidget(&mChangeTextureButton, 2, 0);
-    textureConfigLayout->addWidget(new QLabel("Texture Sampling:"), 0, 0);
-    textureConfigLayout->addWidget(&mRepetitionSelector, 1, 0);
+    // Division and Repetition Spin Boxes
+    mDivXSpinBox.setRange(1, 16);
+    mDivYSpinBox.setRange(1, 16);
+    mRepXSpinBox.setRange(1, 64);
+    mRepYSpinBox.setRange(1, 64);
 
-    // Anim Mode
+    mDivXSpinBox.setToolTip("Number of horizontal divisions (animation frames across)");
+    mDivYSpinBox.setToolTip("Number of vertical divisions (animation frames down)");
+    mRepXSpinBox.setToolTip("Number of horizontal texture repetitions");
+    mRepYSpinBox.setToolTip("Number of vertical texture repetitions");
+
+    auto divRepLayout = new QGridLayout;
+    divRepLayout->addWidget(new QLabel("Divisions:"), 0, 0);
+    divRepLayout->addWidget(&mDivXSpinBox, 0, 1);
+    divRepLayout->addWidget(&mDivYSpinBox, 0, 2);
+    divRepLayout->addWidget(new QLabel("Repetitions:"), 1, 0);
+    divRepLayout->addWidget(&mRepXSpinBox, 1, 1);
+    divRepLayout->addWidget(&mRepYSpinBox, 1, 2);
+
+    mDescriptionLabel = new QLabel(this);
+    mDescriptionLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+    // Right side controls
+    auto rightLayout = new QVBoxLayout;
+    rightLayout->addLayout(settingsLayout);
+    rightLayout->addLayout(divRepLayout);
+    rightLayout->addWidget(mDescriptionLabel);
+    rightLayout->addWidget(&mChangeTextureButton);
+    mChangeTextureButton.setToolTip("Choose a different texture from the document");
+    mStartFrameList.setToolTip("Possible spawning frames.\nOne is randomly selected when a particle spawns.");
+    rightLayout->addWidget(&mStartFrameList);
+    rightLayout->addStretch();
+
+    // Left side canvas
+    auto leftLayout = new QVBoxLayout;
+    leftLayout->addWidget(&mTexturePreview, 1);
+
+    // Canvas + Controls side by side
+    auto topRow = new QHBoxLayout;
+    topRow->addLayout(leftLayout, 1);
+    topRow->addLayout(rightLayout);
+
+    // Animation
     mAnimModeComboBox.addItems({"Fixed Rate", "Fit to Life"});
     mAnimModeComboBox.setItemData(0, "Frames advance at a fixed interval, independent of particle lifetime", Qt::ToolTipRole);
     mAnimModeComboBox.setItemData(1, "Frames are distributed evenly across the particle's lifetime", Qt::ToolTipRole);
 
-    // Texture Pattern Anim
     mTexPatGroupBox.setTitle("Texture Pattern Animation");
 
     auto texPatSettingsLayout = new QVBoxLayout;
     texPatSettingsLayout->setSpacing(4);
 
     auto controlsRow = new QHBoxLayout;
-    controlsRow->addWidget(new QLabel("Animation Mode:"));
+    controlsRow->addWidget(new QLabel("Mode:"));
     controlsRow->addWidget(&mAnimModeComboBox);
     controlsRow->addSpacing(8);
     controlsRow->addWidget(new QLabel("Interval:"));
     controlsRow->addWidget(&mTexPatFreq);
-    mTexPatFreq.setToolTip("Number of ticks between each animation frame (Fixed Rate mode only)");
+    mTexPatFreq.setToolTip("Ticks between animation frames (Fixed Rate only)");
     controlsRow->addSpacing(8);
-    controlsRow->addWidget(new QLabel("Animation Frames:"));
+    controlsRow->addWidget(new QLabel("Frames:"));
     controlsRow->addWidget(&mAnimFrameCountSpinBox);
     mAnimFrameCountSpinBox.setToolTip("Number of frames in the animation sequence");
 
@@ -436,20 +124,15 @@ TextureInspector::TextureInspector(QWidget* parent) :
 
     mTexPatGroupBox.setLayout(texPatSettingsLayout);
 
-    mStartFrameList.setToolTip("Possible spawning frames.\nOne is randomly selected\nwhen a particle spawns.");
-
     // Main Layout
-    auto mainLayout = new QGridLayout(this);
-    mainLayout->addLayout(settingsLayout, 0, 0);
-    mainLayout->addLayout(textureConfigLayout, 1, 0);
-    mainLayout->addWidget(&mStartFrameList, 2, 0);
+    auto mainLayout = new QVBoxLayout(this);
+    mainLayout->addLayout(topRow, 1);
 
     auto* animContainer = new QVBoxLayout;
     mTexPatAnimCheckBox.setText("Enable Animation");
     animContainer->addWidget(&mTexPatAnimCheckBox);
     animContainer->addWidget(&mTexPatGroupBox);
-    mainLayout->addLayout(animContainer, 3, 0);
-    mainLayout->setColumnStretch(0, 1);
+    mainLayout->addLayout(animContainer);
 
     setLayout(mainLayout);
     setupConnections();
@@ -462,6 +145,23 @@ void TextureInspector::setupConnections() {
     connect(&mWrapTComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
         Q_UNUSED(index);
         const auto wrap = mWrapTComboBox.currentEnum();
+        mTexturePreview.setWrapModes(wrap, mWrapSComboBox.currentEnum());
+
+        if (mEmitter->textureHandle().isValid()) {
+            const auto& texData = mEmitter->textureHandle()->textureData();
+            const TextureFrameInfo frameInfo{
+                .texture = &texData,
+                .wrapU = wrap,
+                .wrapV = mWrapSComboBox.currentEnum(),
+                .divX = mEmitter->numTextureDivisionX(),
+                .divY = mEmitter->numTextureDivisionY(),
+                .repX = mEmitter->numTextureRepetitionsX(),
+                .repY = mEmitter->numTextureRepetitionsY(),
+            };
+            mFrameTimeline.setSource(frameInfo);
+            mStartFrameList.setSource(frameInfo);
+        }
+
         setEmitterProperty(
             "Set Texture Wrap U",
             "SetTexWrapU",
@@ -475,6 +175,23 @@ void TextureInspector::setupConnections() {
     connect(&mWrapSComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
         Q_UNUSED(index);
         const auto wrap = mWrapSComboBox.currentEnum();
+        mTexturePreview.setWrapModes(mWrapTComboBox.currentEnum(), wrap);
+
+        if (mEmitter->textureHandle().isValid()) {
+            const auto& texData = mEmitter->textureHandle()->textureData();
+            const TextureFrameInfo frameInfo{
+                .texture = &texData,
+                .wrapU = mWrapTComboBox.currentEnum(),
+                .wrapV = wrap,
+                .divX = mEmitter->numTextureDivisionX(),
+                .divY = mEmitter->numTextureDivisionY(),
+                .repX = mEmitter->numTextureRepetitionsX(),
+                .repY = mEmitter->numTextureRepetitionsY(),
+            };
+            mFrameTimeline.setSource(frameInfo);
+            mStartFrameList.setSource(frameInfo);
+        }
+
         setEmitterProperty(
             "Set Texture Wrap V",
             "SetTexWrapV",
@@ -484,41 +201,44 @@ void TextureInspector::setupConnections() {
         );
     });
 
-    // Mag Filter
-    connect(&mMagFilterComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
-        Q_UNUSED(index);
-        const auto filter = mMagFilterComboBox.currentEnum();
+    // LOD Level
+    connect(&mTexLodLevel, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
         setEmitterProperty(
-            "Set Texture Mag Filter",
-            "SetTexMagFilter",
-            &Ptcl::Emitter::textureMagFilter,
-            &Ptcl::Emitter::setTextureMagFilter,
-            filter
+            "Set Texture LOD Level",
+            "SetTexLodLevel",
+            &Ptcl::Emitter::textureLodLevel,
+            &Ptcl::Emitter::setTextureLodLevel,
+            static_cast<u8>(value)
         );
     });
 
-    // Min Filter
-    connect(&mMinFilterComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
+    // Filter
+    connect(&mFilterComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
         Q_UNUSED(index);
-        const auto filter = mMinFilterComboBox.currentEnum();
-        setEmitterProperty(
-            "Set Texture Min Filter",
-            "SetTexMinFilter",
-            &Ptcl::Emitter::textureMinFilter,
-            &Ptcl::Emitter::setTextureMinFilter,
-            filter
-        );
-    });
+        const auto filter = mFilterComboBox.currentEnum();
+        mTexturePreview.setFilter(filter);
 
-    // Mipmap Filter
-    connect(&mMipFilterComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
-        Q_UNUSED(index);
-        const auto filter = mMipFilterComboBox.currentEnum();
+        if (mEmitter->textureHandle().isValid()) {
+            const auto& texData = mEmitter->textureHandle()->textureData();
+            const TextureFrameInfo frameInfo{
+                .texture = &texData,
+                .wrapU = mWrapTComboBox.currentEnum(),
+                .wrapV = mWrapSComboBox.currentEnum(),
+                .filter = filter,
+                .divX = mEmitter->numTextureDivisionX(),
+                .divY = mEmitter->numTextureDivisionY(),
+                .repX = mEmitter->numTextureRepetitionsX(),
+                .repY = mEmitter->numTextureRepetitionsY(),
+            };
+            mFrameTimeline.setSource(frameInfo);
+            mStartFrameList.setSource(frameInfo);
+        }
+
         setEmitterProperty(
-            "Set Texture Mipmap Filter",
-            "SetTexMipFilter",
-            &Ptcl::Emitter::textureMipFilter,
-            &Ptcl::Emitter::setTextureMipFilter,
+            "Set Texture Filter",
+            "SetTexFilter",
+            &Ptcl::Emitter::textureFilter,
+            &Ptcl::Emitter::setTextureFilter,
             filter
         );
     });
@@ -532,30 +252,6 @@ void TextureInspector::setupConnections() {
             &Ptcl::Emitter::setNumTexturePattern,
             value
         );
-    });
-
-    connect(&mRepetitionSelector, &TextureRepetitionSelector::divisionsChanged, this, [this](s32 x, s32 y) {
-        mDocument->undoStack()->beginMacro(formatHistoryLabel("Set Texture Divisions"));
-        setEmitterProperty(
-            "Set Texture Divisions X",
-            "SetTexDivX",
-            &Ptcl::Emitter::numTextureDivisionX,
-            &Ptcl::Emitter::setNumTextureDivisionX,
-            static_cast<u8>(x)
-            );
-
-        setEmitterProperty(
-            "Set Texture Divisions Y",
-            "SetTexDivY",
-            &Ptcl::Emitter::numTextureDivisionY,
-            &Ptcl::Emitter::setNumTextureDivisionY,
-            static_cast<u8>(y)
-            );
-        mDocument->undoStack()->endMacro();
-
-        // Clamp start frame variants to the new max
-        const s32 totalCells = static_cast<s32>(x) * static_cast<s32>(y);
-        mStartFrameList.setSlotMax(totalCells);
     });
 
     connect(&mTexPatFreq, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
@@ -593,16 +289,6 @@ void TextureInspector::setupConnections() {
     });
 
 
-    connect(&mRepetitionSelector, &TextureRepetitionSelector::repetitionsChanged, this, [this](s32 x, s32 y) {
-        setEmitterProperty(
-            "Set Texture Repetition",
-            "SetTexRep",
-            &Ptcl::Emitter::textureRepetitions,
-            &Ptcl::Emitter::setTextureRepetitions,
-            Math::Vector2i{x, y}
-        );
-    });
-
     connect(&mAnimModeComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
         auto mode = static_cast<FrameAnimMode>(index);
         mFrameTimeline.setAnimMode(mode);
@@ -633,26 +319,133 @@ void TextureInspector::setupConnections() {
             checked
         );
     });
+
+    // Division spin boxes
+    connect(&mDivXSpinBox, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
+        const s32 divX = static_cast<s32>(value);
+        const s32 maxY = 16 / std::max(1, divX);
+
+        QSignalBlocker by(mDivYSpinBox);
+        mDivYSpinBox.setMaximum(maxY);
+        const s32 divY = std::clamp(static_cast<s32>(mDivYSpinBox.value()), 1, maxY);
+        mDivYSpinBox.setValue(divY);
+
+        mTexturePreview.setDivisions(divX, divY);
+
+        mDocument->undoStack()->beginMacro(formatHistoryLabel("Set Texture Divisions"));
+        setEmitterProperty(
+            "Set Texture Divisions X",
+            "SetTexDivX",
+            &Ptcl::Emitter::numTextureDivisionX,
+            &Ptcl::Emitter::setNumTextureDivisionX,
+            static_cast<u8>(divX)
+            );
+        setEmitterProperty(
+            "Set Texture Divisions Y",
+            "SetTexDivY",
+            &Ptcl::Emitter::numTextureDivisionY,
+            &Ptcl::Emitter::setNumTextureDivisionY,
+            static_cast<u8>(divY)
+            );
+        mDocument->undoStack()->endMacro();
+
+        mStartFrameList.setSlotMax(divX * divY);
+        updateDescription();
+    });
+
+    connect(&mDivYSpinBox, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
+        const s32 divY = static_cast<s32>(value);
+        const s32 maxX = 16 / std::max(1, divY);
+
+        QSignalBlocker bx(mDivXSpinBox);
+        mDivXSpinBox.setMaximum(maxX);
+        const s32 divX = std::clamp(static_cast<s32>(mDivXSpinBox.value()), 1, maxX);
+        mDivXSpinBox.setValue(divX);
+
+        mTexturePreview.setDivisions(divX, divY);
+
+        mDocument->undoStack()->beginMacro(formatHistoryLabel("Set Texture Divisions"));
+        setEmitterProperty(
+            "Set Texture Divisions X",
+            "SetTexDivX",
+            &Ptcl::Emitter::numTextureDivisionX,
+            &Ptcl::Emitter::setNumTextureDivisionX,
+            static_cast<u8>(divX)
+            );
+        setEmitterProperty(
+            "Set Texture Divisions Y",
+            "SetTexDivY",
+            &Ptcl::Emitter::numTextureDivisionY,
+            &Ptcl::Emitter::setNumTextureDivisionY,
+            static_cast<u8>(divY)
+            );
+        mDocument->undoStack()->endMacro();
+
+        mStartFrameList.setSlotMax(divX * divY);
+        updateDescription();
+    });
+
+    // Repetition spin boxes
+    connect(&mRepXSpinBox, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
+        const s32 repX = static_cast<s32>(value);
+        const s32 repY = mRepYSpinBox.value();
+
+        mTexturePreview.setRepetitions(repX, repY);
+
+        setEmitterProperty(
+            "Set Texture Repetition X",
+            "SetTexRepX",
+            &Ptcl::Emitter::numTextureRepetitionsX,
+            &Ptcl::Emitter::setNumTextureRepetitionsX,
+            repX
+        );
+        updateDescription();
+    });
+
+    connect(&mRepYSpinBox, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
+        const s32 repX = mRepXSpinBox.value();
+        const s32 repY = static_cast<s32>(value);
+
+        mTexturePreview.setRepetitions(repX, repY);
+
+        setEmitterProperty(
+            "Set Texture Repetition Y",
+            "SetTexRepY",
+            &Ptcl::Emitter::numTextureRepetitionsY,
+            &Ptcl::Emitter::setNumTextureRepetitionsY,
+            repY
+        );
+        updateDescription();
+    });
 }
 
 void TextureInspector::populateProperties() {
     QSignalBlocker b1(mWrapTComboBox);
     QSignalBlocker b2(mWrapSComboBox);
-    QSignalBlocker b3(mMagFilterComboBox);
-    QSignalBlocker b4(mMinFilterComboBox);
-    QSignalBlocker b5(mMipFilterComboBox);
-    // QSignalBlocker b6(mNumTexPat);
-    QSignalBlocker b7(mTexPatFreq);
-    QSignalBlocker b8(mAnimFrameCountSpinBox);
-    QSignalBlocker b9(mTexPatAnimCheckBox);
-    QSignalBlocker b10(mAnimModeComboBox);
+    QSignalBlocker b3(mTexLodLevel);
+    QSignalBlocker b4(mFilterComboBox);
+    QSignalBlocker b5(mTexPatFreq);
+    QSignalBlocker b6(mAnimFrameCountSpinBox);
+    QSignalBlocker b7(mTexPatAnimCheckBox);
+    QSignalBlocker b8(mAnimModeComboBox);
+    QSignalBlocker b9(mDivXSpinBox);
+    QSignalBlocker b10(mDivYSpinBox);
+    QSignalBlocker b11(mRepXSpinBox);
+    QSignalBlocker b12(mRepYSpinBox);
 
     const auto& texData = mEmitter->textureHandle()->textureData();
-    mRepetitionSelector.setSource(texData, mEmitter->numTextureDivisionX(), mEmitter->numTextureDivisionY());
-    mRepetitionSelector.setRepetitions(mEmitter->numTextureRepetitionsX(), mEmitter->numTextureRepetitionsY());
+    mTexturePreview.setSource(texData, mEmitter->numTextureDivisionX(), mEmitter->numTextureDivisionY());
+    mTexturePreview.setRepetitions(mEmitter->numTextureRepetitionsX(), mEmitter->numTextureRepetitionsY());
+
+    const auto wrapT = mEmitter->textureWrapT();
+    const auto wrapS = mEmitter->textureWrapS();
+    const auto filter = mEmitter->textureFilter();
 
     const TextureFrameInfo frameInfo{
         .texture = &texData,
+        .wrapU = wrapT,
+        .wrapV = wrapS,
+        .filter = filter,
         .divX = mEmitter->numTextureDivisionX(),
         .divY = mEmitter->numTextureDivisionY(),
         .repX = mEmitter->numTextureRepetitionsX(),
@@ -660,11 +453,24 @@ void TextureInspector::populateProperties() {
     };
     mFrameTimeline.setSource(frameInfo);
 
-    mWrapTComboBox.setCurrentEnum(mEmitter->textureWrapT());
-    mWrapSComboBox.setCurrentEnum(mEmitter->textureWrapS());
-    mMagFilterComboBox.setCurrentEnum(mEmitter->textureMagFilter());
-    mMinFilterComboBox.setCurrentEnum(mEmitter->textureMinFilter());
-    mMipFilterComboBox.setCurrentEnum(mEmitter->textureMipFilter());
+    mWrapTComboBox.setCurrentEnum(wrapT);
+    mWrapSComboBox.setCurrentEnum(wrapS);
+    mTexturePreview.setWrapModes(wrapT, wrapS);
+    mTexturePreview.setFilter(filter);
+    mTexLodLevel.setValue(mEmitter->textureLodLevel());
+    mFilterComboBox.setCurrentEnum(filter);
+
+    // Populate division and repetition spin boxes
+    const s32 divX = mEmitter->numTextureDivisionX();
+    const s32 divY = mEmitter->numTextureDivisionY();
+    mDivXSpinBox.setMaximum(16 / std::max(1, divY));
+    mDivYSpinBox.setMaximum(16 / std::max(1, divX));
+    mDivXSpinBox.setValue(static_cast<u8>(divX));
+    mDivYSpinBox.setValue(static_cast<u8>(divY));
+    mRepXSpinBox.setValue(static_cast<u16>(mEmitter->numTextureRepetitionsX()));
+    mRepYSpinBox.setValue(static_cast<u16>(mEmitter->numTextureRepetitionsY()));
+
+    updateDescription();
 
     // Populate variant slots
     mStartFrameList.setSource(frameInfo);
@@ -709,6 +515,29 @@ void TextureInspector::updateFramesWarning() {
     const s32 life = mEmitter->ptclLife();
     const bool showWarning = frameCount > life;
     mFramesWarningLabel->setVisible(showWarning);
+}
+
+void TextureInspector::updateDescription() {
+    if (!mEmitter || !mEmitter->textureHandle().isValid()) {
+        mDescriptionLabel->clear();
+        return;
+    }
+
+    const s32 divX = mDivXSpinBox.value();
+    const s32 divY = mDivYSpinBox.value();
+    const s32 repX = mRepXSpinBox.value();
+    const s32 repY = mRepYSpinBox.value();
+
+    const f32 tilesPerFrameX = static_cast<f32>(repX) / static_cast<f32>(divX);
+    const f32 tilesPerFrameY = static_cast<f32>(repY) / static_cast<f32>(divY);
+
+    mDescriptionLabel->setText(
+        QString("%1 frames (%2×%3), each showing %4 × %5 tiles")
+            .arg(divX * divY)
+            .arg(divX).arg(divY)
+            .arg(tilesPerFrameX, 0, 'g', 3)
+            .arg(tilesPerFrameY, 0, 'g', 3)
+    );
 }
 
 void TextureInspector::changeTexture() {

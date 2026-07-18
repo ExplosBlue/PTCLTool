@@ -187,7 +187,7 @@ void RGBAColorWidget::updatePreview() {
     path.addRoundedRect(roundedRect, radius, radius);
     painter.setClipPath(path);
 
-    PaintUtil::drawCheckerboard(painter, pixmap.rect(), 6, QColor(220, 220, 220), QColor(180, 180, 180));
+    PaintUtil::drawCheckerboard(painter, pixmap.rect(), 8, pixmap.size(), QColor(220, 220, 220), QColor(180, 180, 180));
 
     painter.setBrush(mColor.toQColor());
     painter.setPen(mColor.toQColor());

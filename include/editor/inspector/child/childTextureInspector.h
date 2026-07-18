@@ -1,6 +1,7 @@
 #pragma once
 
 #include "editor/components/enumComboBox.h"
+#include "editor/components/sizedSpinBox.h"
 #include "editor/components/thumbnailWidget.h"
 #include "editor/components/vectorSpinBox.h"
 #include "editor/inspector/inspectorWidgetBase.h"
@@ -31,9 +32,8 @@ private:
 
     EnumComboBox<Ptcl::TextureWrap> mWrapTComboBox{};
     EnumComboBox<Ptcl::TextureWrap> mWrapSComboBox{};
-    EnumComboBox<Ptcl::TextureFilter> mMagFilterComboBox{};
-    EnumComboBox<Ptcl::TextureFilter> mMinFilterComboBox{};
-    EnumComboBox<Ptcl::TextureMipFilter> mMipFilterComboBox{};
+    EnumComboBox<Ptcl::TextureFilter> mFilterComboBox{};
+    SizedSpinBox<u8> mTexLodLevel{};
     VectorSpinBox<Math::Vector2f> mUVScaleSpinBox{};
 };
 

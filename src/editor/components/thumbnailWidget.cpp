@@ -39,7 +39,7 @@ void ThumbnailWidget::paintEvent(QPaintEvent* /*event*/) {
     painter.setRenderHint(QPainter::Antialiasing);
 
     QRect bounds = rect();
-    PaintUtil::drawCheckerboard(painter, rect());
+    PaintUtil::drawCheckerboard(painter, rect(), 8, mThumbnailSize);
 
     if (!mPixmap.isNull()) {
         QPixmap scaled = mPixmap.scaled(mThumbnailSize, Qt::KeepAspectRatio, Qt::FastTransformation);

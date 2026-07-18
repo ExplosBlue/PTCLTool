@@ -324,14 +324,11 @@ public:
     TextureWrap textureWrapS() const { return mTextureWrapS; }
     void setTextureWrapS(TextureWrap wrap) { mTextureWrapS = wrap; }
 
-    TextureFilter textureMagFilter() const { return mTextureMagFilter; }
-    void setTextureMagFilter(TextureFilter filter) { mTextureMagFilter = filter; }
+    u8 textureLodLevel() const { return mTextureLodLevel; }
+    void setTextureLodLevel(u8 level) { mTextureLodLevel = level; }
 
-    TextureFilter textureMinFilter() const { return mTextureMinFilter; }
-    void setTextureMinFilter(TextureFilter filter) { mTextureMinFilter = filter; }
-
-    TextureMipFilter textureMipFilter() const { return mTextureMipFilter; }
-    void setTextureMipFilter(TextureMipFilter filter) { mTextureMipFilter = filter; }
+    TextureFilter textureFilter() const { return mTextureFilter; }
+    void setTextureFilter(TextureFilter filter) { mTextureFilter = filter; }
 
     u16 numTexturePattern() const { return mNumTexturePattern; }
     void setNumTexturePattern(u16 num) { mNumTexturePattern = num; }
@@ -657,20 +654,17 @@ public:
 
     // Child Texture
 
-    TextureWrap childTextureWrapT() const { return mTextureWrapT; }
-    void setChildTextureWrapT(TextureWrap wrap) { mTextureWrapT = wrap; }
+    TextureWrap childTextureWrapT() const { return mChild.textureWrapT; }
+    void setChildTextureWrapT(TextureWrap wrap) { mChild.textureWrapT = wrap; }
 
     TextureWrap childTextureWrapS() const { return mChild.textureWrapS; }
     void setChildTextureWrapS(TextureWrap wrap) { mChild.textureWrapS = wrap; }
 
-    TextureFilter childTextureMagFilter() const { return mChild.textureMagFilter; }
-    void setChildTextureMagFilter(TextureFilter filter) { mChild.textureMagFilter = filter; }
+    u8 childTextureLodLevel() const { return mChild.textureLodLevel; }
+    void setChildTextureLodLevel(u8 level) { mChild.textureLodLevel = level; }
 
-    TextureFilter childTextureMinFilter() const { return mChild.textureMinFilter; }
-    void setChildTextureMinFilter(TextureFilter filter) { mChild.textureMinFilter = filter; }
-
-    TextureMipFilter childTextureMipFilter() const { return mChild.textureMipFilter; }
-    void setChildTextureMipFilter(TextureMipFilter filter) { mChild.textureMipFilter = filter; }
+    TextureFilter childTextureFilter() const { return mChild.textureFilter; }
+    void setChildTextureFilter(TextureFilter filter) { mChild.textureFilter = filter; }
 
     const Math::Vector2f& childTextureUVScale() const { return mChild.texUVScale; }
     void setChildTextureUVScale(const Math::Vector2f& scale) { mChild.texUVScale = scale; }
@@ -811,11 +805,10 @@ private:
     Gfx::Color mColor1{1.0f, 1.0f, 1.0f};
 
     // Texture Properties
-    TextureWrap mTextureWrapT{TextureWrap::ClampToEdge};
-    TextureWrap mTextureWrapS{TextureWrap::ClampToEdge};
-    TextureFilter mTextureMagFilter{TextureFilter::Nearest};
-    TextureFilter mTextureMinFilter{TextureFilter::Nearest};
-    TextureMipFilter mTextureMipFilter{TextureMipFilter::None};
+    TextureWrap mTextureWrapT{TextureWrap::MirroredRepeat};
+    TextureWrap mTextureWrapS{TextureWrap::MirroredRepeat};
+    u8 mTextureLodLevel{0};
+    TextureFilter mTextureFilter{TextureFilter::Linear};
     u16 mNumTexturePattern{1};
     u8 mNumTextureDivisionX{1};
     u8 mNumTextureDivisionY{1};
@@ -920,11 +913,10 @@ private:
         s32 scaleStartFrame{0};
 
         // Texture Properties
-        TextureWrap textureWrapT{TextureWrap::ClampToEdge};
-        TextureWrap textureWrapS{TextureWrap::ClampToEdge};
-        TextureFilter textureMagFilter{TextureFilter::Nearest};
-        TextureFilter textureMinFilter{TextureFilter::Nearest};
-        TextureMipFilter textureMipFilter{TextureMipFilter::None};
+        TextureWrap textureWrapT{TextureWrap::MirroredRepeat};
+        TextureWrap textureWrapS{TextureWrap::MirroredRepeat};
+        u8 textureLodLevel{0};
+        TextureFilter textureFilter{TextureFilter::Linear};
         Math::Vector2f texUVScale{1.0f, 1.0f};
         TextureHandle textureHandle{};
 

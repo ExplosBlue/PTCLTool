@@ -43,6 +43,8 @@ set(PROJECT_SOURCES
     src/editor/components/frameTimeline.cpp
     src/editor/components/loadingSpinner.cpp
     src/editor/components/rgbaColorWidget.cpp
+    src/editor/components/startframelist.cpp
+    src/editor/components/texturePreview.cpp
     src/editor/components/thumbnailWidget.cpp
     src/editor/components/viewportScrollBar.cpp
     src/editor/inspector/alphaAnimInspector.cpp
@@ -80,6 +82,7 @@ set(PROJECT_SOURCES
     src/editor/inspector/field/fieldRandomInspector.cpp
     src/editor/inspector/field/fieldSpinInspector.cpp
     src/etc1/rg_etc1.cpp
+    src/gfx/color.cpp
     src/ptcl/ptcl.cpp
     src/ptcl/ptclBinary.cpp
     src/ptcl/ptclDocument.cpp
@@ -112,6 +115,8 @@ set(PROJECT_HEADERS
     include/editor/components/loadingSpinner.h
     include/editor/components/rgbaColorWidget.h
     include/editor/components/sizedSpinBox.h
+    include/editor/components/startframelist.h
+    include/editor/components/texturePreview.h
     include/editor/components/thumbnailWidget.h
     include/editor/components/vectorSpinBox.h
     include/editor/components/viewportScrollBar.h
@@ -150,6 +155,7 @@ set(PROJECT_HEADERS
     include/editor/inspector/field/fieldRandomInspector.h
     include/editor/inspector/field/fieldSpinInspector.h
     include/etc1/rg_etc1.h
+    include/gfx/color.h
     include/math/matrix.h
     include/math/util.h
     include/math/vector.h
@@ -175,8 +181,6 @@ set(PROJECT_HEADERS
 qt_add_executable(PTCLTool
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES} ${PROJECT_HEADERS}
-    include/gfx/color.h src/gfx/color.cpp
-    include/editor/components/startframelist.h src/editor/components/startframelist.cpp
 )
 
 qt_add_resources(PTCLTool "icons"

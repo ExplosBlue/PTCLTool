@@ -294,10 +294,9 @@ QDataStream& operator>>(QDataStream& in, BinTextureRes& item) {
     in >> item.width
         >> item.height
         >> item.format
-        >> item.wrapT
-        >> item.wrapS
-        >> item.magFilter
-        >> item.minMipFilter;
+        >> item.lodLevel
+        >> item.wrapModes
+        >> item.filter;
     in.readRawData(nullptr, 3);
     return in;
 }
@@ -306,10 +305,9 @@ QDataStream& operator<<(QDataStream& out, const BinTextureRes& item) {
     out << item.width
         << item.height
         << item.format
-        << item.wrapT
-        << item.wrapS
-        << item.magFilter
-        << item.minMipFilter;
+        << item.lodLevel
+        << item.wrapModes
+        << item.filter;
     static const std::array<char, 3> padding = {0, 0, 0};
     out.writeRawData(padding.data(), 3);
     return out;
@@ -321,10 +319,9 @@ void BinTextureRes::printData(u32 indentationLevel) {
     qDebug() << indentation << "- width:        " << width;
     qDebug() << indentation << "- height:       " << height;
     qDebug() << indentation << "- format:       " << format;
-    qDebug() << indentation << "- wrapT:        " << wrapT;
-    qDebug() << indentation << "- wrapS:        " << wrapS;
-    qDebug() << indentation << "- magFilter:    " << magFilter;
-    qDebug() << indentation << "- minMipFilter: " << minMipFilter;
+    qDebug() << indentation << "- lodLevel:     " << lodLevel;
+    qDebug() << indentation << "- wrapModes:    " << wrapModes;
+    qDebug() << indentation << "- filter:       " << filter;
 }
 
 
@@ -342,10 +339,9 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
         .width = static_cast<u16>(emitter.textureHandle()->textureData().width()),
         .height = static_cast<u16>(emitter.textureHandle()->textureData().height()),
         .format = emitter.textureHandle()->textureFormat(),
-        .wrapT = emitter.textureWrapT(),
-        .wrapS = emitter.textureWrapS(),
-        .magFilter = emitter.textureMagFilter(),
-        .minMipFilter = static_cast<u8>((static_cast<u8>(emitter.textureMinFilter()) & 0x1) | ((static_cast<u8>(emitter.textureMipFilter()) & 0x3) << 1)),
+        .lodLevel = emitter.textureLodLevel(),
+        .wrapModes = static_cast<u8>((static_cast<u8>(emitter.textureWrapT()) & 0xF) | ((static_cast<u8>(emitter.textureWrapS()) & 0xF) << 4)),
+        .filter = static_cast<u8>(emitter.textureFilter()),
     };
 
     textureSize = 0; // To be assigned after construction...
@@ -762,10 +758,9 @@ BinChildData::BinChildData(const Ptcl::Emitter& emitterData) {
             .width = static_cast<u16>(emitterData.childTextureHandle()->textureData().width()),
             .height = static_cast<u16>(emitterData.childTextureHandle()->textureData().height()),
             .format = emitterData.childTextureHandle()->textureFormat(),
-            .wrapT = emitterData.childTextureWrapT(),
-            .wrapS = emitterData.childTextureWrapS(),
-            .magFilter = emitterData.childTextureMagFilter(),
-            .minMipFilter = static_cast<u8>((static_cast<u8>(emitterData.childTextureMinFilter()) & 0x1) | ((static_cast<u8>(emitterData.childTextureMipFilter()) & 0x3) << 1)),
+            .lodLevel = emitterData.childTextureLodLevel(),
+            .wrapModes = static_cast<u8>((static_cast<u8>(emitterData.childTextureWrapT()) & 0xF) | ((static_cast<u8>(emitterData.childTextureWrapS()) & 0xF) << 4)),
+            .filter = static_cast<u8>(emitterData.childTextureFilter()),
         };
     } else {
         childTextureRes = {};

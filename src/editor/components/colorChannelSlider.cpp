@@ -65,7 +65,7 @@ void ColorChannelSlider::drawTrack(QPainter& painter) {
     painter.save();
     painter.setClipPath(groovePath);
 
-    PaintUtil::drawCheckerboard(painter, grooveRect, 6);
+    PaintUtil::drawCheckerboard(painter, grooveRect, sGrooveHeight / 2, grooveRect.size());
 
     auto [startColor, endColor] = calculateGradientColors();
     QLinearGradient gradient(grooveRect.topLeft(), grooveRect.topRight());

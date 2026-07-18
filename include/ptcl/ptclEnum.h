@@ -377,7 +377,7 @@ inline QDebug operator<<(QDebug dbg, const ColorCombinerFuncType& type) {
 
 // ========================================================================== //
 
-enum class TextureFormat : u8 {
+enum class TextureFormat : u16 {
     RGBA8888   = 0x0,
     RGB888     = 0x1,
     RGBA5551   = 0x2,
@@ -433,10 +433,9 @@ inline QDebug operator<<(QDebug dbg, const TextureFormat& type) {
 
 
 enum class TextureWrap : u8 {
-    ClampToEdge      = 0x0,
-    ClampToBorder    = 0x1,
-    Repeat           = 0x2,
-    MirroredRepeat   = 0x3,
+    MirroredRepeat   = 0x0,
+    Repeat           = 0x1,
+    ClampToEdge      = 0x2,
 
     MAX
 };
@@ -444,10 +443,9 @@ enum class TextureWrap : u8 {
 template<>
 inline QString toString<TextureWrap>(const TextureWrap& type) {
     switch (type) {
-    case TextureWrap::ClampToEdge:    return "ClampToEdge";
-    case TextureWrap::ClampToBorder:  return "ClampToBorder";
+    case TextureWrap::MirroredRepeat: return "Mirrored repeat";
     case TextureWrap::Repeat:         return "Repeat";
-    case TextureWrap::MirroredRepeat: return "MirroredRepeat";
+    case TextureWrap::ClampToEdge:    return "Clamp to edge";
     default: return "Unknown";
     }
 }
@@ -468,8 +466,8 @@ inline QDebug operator<<(QDebug dbg, const TextureWrap& type) {
 
 
 enum class TextureFilter : u8 {
-    Nearest   = 0x0,
-    Linear    = 0x1,
+    Linear  = 0x0,
+    Nearest = 0x1,
 
     MAX
 };
@@ -477,8 +475,8 @@ enum class TextureFilter : u8 {
 template<>
 inline QString toString<TextureFilter>(const TextureFilter& type) {
     switch (type) {
-    case TextureFilter::Nearest: return "Nearest";
     case TextureFilter::Linear:  return "Linear";
+    case TextureFilter::Nearest: return "Nearest";
     default: return "Unknown";
     }
 }
@@ -489,39 +487,6 @@ inline TextureFilter& assignFromInt(TextureFilter& type, int value) {
 }
 
 inline QDebug operator<<(QDebug dbg, const TextureFilter& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
-}
-
-
-// ========================================================================== //
-
-
-enum class TextureMipFilter : u8 {
-    None    = 0x0,
-    Nearest = 0x1,
-    Linear  = 0x2,
-
-    MAX
-};
-
-template<>
-inline QString toString<TextureMipFilter>(const TextureMipFilter& type) {
-    switch (type) {
-    case TextureMipFilter::None:    return "None";
-    case TextureMipFilter::Nearest: return "Nearest";
-    case TextureMipFilter::Linear:  return "Linear";
-    default: return "Unknown";
-    }
-}
-
-inline TextureMipFilter& assignFromInt(TextureMipFilter& type, int value) {
-    type = static_cast<TextureMipFilter>(value);
-    return type;
-}
-
-inline QDebug operator<<(QDebug dbg, const TextureMipFilter& type) {
     QDebugStateSaver stateSaver(dbg);
     dbg.nospace() << toString(type);
     return dbg;

@@ -212,13 +212,12 @@ static_assert(sizeof(BinEmitterSetData) == 0x1C, "BinEmitterSetData is incorrect
 
 // Size 0x0C
 struct alignas(4) BinTextureRes {
-    u16 width;                            // 0x00
-    u16 height;                           // 0x02
-    TextureFormat format;                 // 0x04
-    TextureWrap wrapT;                    // 0x05
-    TextureWrap wrapS;                    // 0x06
-    TextureFilter magFilter;              // 0x07
-    u8 minMipFilter;                      // 0x08
+    u16 width;                          // 0x00
+    u16 height;                         // 0x02
+    TextureFormat format;               // 0x04
+    u8 lodLevel;                        // 0x06
+    u8 wrapModes;                       // 0x07
+    u8 filter;                          // 0x08
 
     friend QDataStream& operator>>(QDataStream& in, BinTextureRes& item);
     friend QDataStream& operator<<(QDataStream& out, const BinTextureRes& item);

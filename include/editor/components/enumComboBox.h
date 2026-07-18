@@ -5,11 +5,16 @@
 
 // ========================================================================== //
 
-
 template <typename T>
-class EnumComboBox : public QComboBox {
-    static_assert(std::is_enum_v<T>, "EnumComboBox requires an enum type");
+concept CountEnum = std::is_enum_v<T> && requires {
+    T::MAX;
+};
 
+// ========================================================================== //
+
+
+template <CountEnum T>
+class EnumComboBox : public QComboBox {
 public:
     EnumComboBox(QWidget* parent = nullptr) :
         QComboBox(parent) {
@@ -45,9 +50,11 @@ public:
 
 private:
     void updateTooltip() {
-        auto index  = currentIndex();
+        auto index = currentIndex();
         QVariant tooltip = itemData(index, Qt::ToolTipRole);
-        setToolTip(tooltip.isValid() ? tooltip.toString() : QString{});
+        if (tooltip.isValid()) {
+            setToolTip(tooltip.toString());
+        }
     }
 
     void populate() {
