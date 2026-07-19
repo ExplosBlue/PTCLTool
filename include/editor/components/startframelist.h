@@ -3,14 +3,13 @@
 #include "util/paintUtil.h"
 
 #include <QFrame>
+#include <QLabel>
+#include <QListWidget>
 #include <QSpinBox>
+#include <QToolButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include <array>
-
-
-class ThumbnailWidget;
 
 namespace PtclEditor {
 
@@ -34,13 +33,17 @@ signals:
     void slotCountChanged(u16 count);
 
 private:
-    void updateGrid();
+    QPixmap renderThumb(s32 frameIndex) const;
+    void updateList();
+    s32 expandedHeight() const;
+    void updateZeroFrameLabel();
 
 private:
-    static constexpr s32 sColumnCount = 4;
-    static constexpr s32 sRowCount = 4;
-    static constexpr s32 sMaxFrameCount = sColumnCount * sRowCount;
+    static constexpr s32 sMaxFrameCount = 16;
+    static constexpr s32 sColumns = 4;
     static constexpr s32 sThumbSize = 48;
+    static constexpr s32 sItemSize = sThumbSize + 16;
+    static constexpr s32 sSpacing = 8;
 
 private:
     TextureFrameInfo mFrameInfo{};
@@ -49,13 +52,13 @@ private:
     u16 mSlotMax{};
 
     QSpinBox* mCountSpinBox{};
-    QGridLayout* mGridLayout{};
-
-    std::array<ThumbnailWidget*, sMaxFrameCount> mThumbnails{};
+    QToolButton* mExpandButton{};
+    QListWidget* mListWidget{};
+    QLabel* mZeroFrameLabel{};
 };
 
 
-// ========================================================================== //
+// ==========================================================================//
 
 
 } // namespace PtclEditor

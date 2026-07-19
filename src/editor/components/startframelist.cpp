@@ -1,7 +1,7 @@
 #include "editor/components/startframelist.h"
-#include "editor/components/thumbnailWidget.h"
 
 #include <QLabel>
+#include <QPainter>
 #include <QHBoxLayout>
 
 
@@ -9,7 +9,7 @@
 namespace PtclEditor {
 
 
-// ========================================================================== //
+// ==========================================================================//
 
 
 StartFrameList::StartFrameList(QWidget* parent)
@@ -23,8 +23,13 @@ StartFrameList::StartFrameList(QWidget* parent)
     mainLayout->setContentsMargins(8, 8, 8, 8);
     mainLayout->setSpacing(8);
 
-    // Header
     auto* headerLayout = new QHBoxLayout;
+
+    mExpandButton = new QToolButton;
+    mExpandButton->setCheckable(true);
+    mExpandButton->setArrowType(Qt::RightArrow);
+    mExpandButton->setAutoRaise(true);
+    mExpandButton->setChecked(false);
 
     auto* title = new QLabel("Spawn Frames");
 
@@ -32,45 +37,62 @@ StartFrameList::StartFrameList(QWidget* parent)
     mCountSpinBox->setRange(0, sMaxFrameCount);
     mCountSpinBox->setAlignment(Qt::AlignLeft);
 
+    headerLayout->addWidget(mExpandButton);
     headerLayout->addWidget(title);
     headerLayout->addStretch();
     headerLayout->addWidget(mCountSpinBox);
 
     mainLayout->addLayout(headerLayout);
 
-    // Grid
-    mGridLayout = new QGridLayout;
+    mZeroFrameLabel = new QLabel("No starting frames available.\nNo texture will be drawn.");
+    mZeroFrameLabel->setStyleSheet("QLabel { color: #cc8800; font-weight: bold; }");
+    mZeroFrameLabel->setWordWrap(true);
+    mZeroFrameLabel->setVisible(false);
+    mainLayout->addWidget(mZeroFrameLabel);
 
-    mGridLayout->setContentsMargins(0, 0, 0, 0);
-    mGridLayout->setHorizontalSpacing(8);
-    mGridLayout->setVerticalSpacing(8);
+    mListWidget = new QListWidget;
+    mListWidget->setViewMode(QListView::IconMode);
+    mListWidget->setMovement(QListView::Static);
+    mListWidget->setResizeMode(QListView::Fixed);
+    mListWidget->setSpacing(sSpacing);
+    mListWidget->setGridSize(QSize(sItemSize, sItemSize));
+    mListWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    mListWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    mListWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    mListWidget->setObjectName("SpawnFrameList");
+    mListWidget->setFixedWidth(sColumns * sItemSize + (sColumns - 1) * sSpacing);
+    mListWidget->setVisible(false);
 
-    for (s32 i = 0; i < sMaxFrameCount; ++i) {
-        auto* thumbnail = new ThumbnailWidget;
-
-        thumbnail->setThumbnailSize({sThumbSize, sThumbSize});
-
-        // Initial empty state
-        thumbnail->setVisible(false);
-
-        const s32 row = i / sColumnCount;
-        const s32 col = i % sColumnCount;
-
-        mGridLayout->addWidget(thumbnail, row, col, Qt::AlignCenter);
-
-        mThumbnails[i] = thumbnail;
-    }
-
-    auto* gridContainer = new QWidget;
-    gridContainer->setLayout(mGridLayout);
-
-    mainLayout->addWidget(gridContainer, 0, Qt::AlignCenter);
-
+    mainLayout->addWidget(mListWidget, 0, Qt::AlignCenter);
 
     connect(mCountSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
         setSlotCount(static_cast<u16>(value));
         emit slotCountChanged(static_cast<u16>(value));
     });
+
+    connect(mExpandButton, &QToolButton::toggled, this, [this](bool checked) {
+        mExpandButton->setArrowType(checked ? Qt::DownArrow : Qt::RightArrow);
+        mListWidget->setVisible(checked);
+
+        if (checked) {
+            mListWidget->setFixedHeight(expandedHeight());
+        }
+
+        updateGeometry();
+    });
+}
+
+QPixmap StartFrameList::renderThumb(s32 frameIndex) const {
+    const QPixmap frame = PaintUtil::renderTextureFrame(mFrameInfo, frameIndex, sThumbSize);
+
+    QPixmap thumb(sThumbSize, sThumbSize);
+    thumb.fill(Qt::transparent);
+
+    QPainter painter(&thumb);
+    PaintUtil::drawCheckerboard(painter, thumb.rect(), 8, thumb.size());
+    painter.drawPixmap(0, 0, frame);
+
+    return thumb;
 }
 
 void StartFrameList::setSource(const TextureFrameInfo& frameInfo) {
@@ -81,7 +103,7 @@ void StartFrameList::setSource(const TextureFrameInfo& frameInfo) {
     mFrameInfo.repX = std::max(1, mFrameInfo.repX);
     mFrameInfo.repY = std::max(1, mFrameInfo.repY);
 
-    updateGrid();
+    updateList();
 }
 
 void StartFrameList::setSlotCount(u16 count) {
@@ -93,11 +115,11 @@ void StartFrameList::setSlotCount(u16 count) {
 
     mSlotCount = count;
 
-
     QSignalBlocker blocker(mCountSpinBox);
     mCountSpinBox->setValue(count);
 
-    updateGrid();
+    updateList();
+    updateZeroFrameLabel();
 }
 
 void StartFrameList::setSlotMax(u16 count) {
@@ -114,39 +136,48 @@ u16 StartFrameList::slotCount() const {
     return mSlotCount;
 }
 
-void StartFrameList::updateGrid() {
-    while (mGridLayout->count() > 0) {
-        mGridLayout->takeAt(0);
+s32 StartFrameList::expandedHeight() const {
+    const s32 count = static_cast<s32>(mSlotCount);
+    if (count <= 0) {
+        return 0;
     }
 
-    for (s32 i = 0; i < sMaxFrameCount; ++i) {
-        mThumbnails[i]->setVisible(false);
+    constexpr s32 columns = sColumns;
+    const s32 rows = (count + columns - 1) / columns;
+    return rows * sItemSize + std::max(0, rows - 1) * sSpacing;
+}
+
+void StartFrameList::updateList() {
+    const s32 prevCount = mListWidget->count();
+
+    while (mListWidget->count() > static_cast<s32>(mSlotCount)) {
+        delete mListWidget->takeItem(mListWidget->count() - 1);
     }
 
-    for (s32 row = 0; row < sRowCount; ++row) {
-        const s32 rowStart = row * sColumnCount;
-        const s32 rowCount = std::clamp(static_cast<s32>(mSlotCount) - rowStart, 0, sColumnCount);
+    for (s32 i = prevCount; i < static_cast<s32>(mSlotCount); ++i) {
+        auto* item = new QListWidgetItem;
+        item->setIcon(QIcon(renderThumb(i)));
+        item->setSizeHint(QSize(sItemSize, sItemSize));
+        item->setFlags(item->flags() & ~Qt::ItemIsEditable & ~Qt::ItemIsSelectable);
+        mListWidget->addItem(item);
+    }
 
-        if (rowCount <= 0) {
-            continue;
-        }
+    for (s32 i = 0; i < mListWidget->count(); ++i) {
+        mListWidget->item(i)->setIcon(QIcon(renderThumb(i)));
+    }
 
-        const s32 startColumn = (sColumnCount - rowCount) / 2;
-
-        for (s32 col = 0; col < rowCount; ++col) {
-            const s32 frameIndex = rowStart + col;
-
-            auto* thumbnail = mThumbnails[frameIndex];
-            thumbnail->setVisible(true);
-            thumbnail->setPixmap(PaintUtil::renderTextureFrame(mFrameInfo, frameIndex, sThumbSize));
-
-            mGridLayout->addWidget(thumbnail, row, startColumn + col, Qt::AlignCenter);
-        }
+    if (mExpandButton->isChecked()) {
+        mListWidget->setFixedHeight(expandedHeight());
+        updateGeometry();
     }
 }
 
+void StartFrameList::updateZeroFrameLabel() {
+    mZeroFrameLabel->setVisible(mSlotCount == 0);
+}
 
-// ========================================================================== //
+
+// ==========================================================================//
 
 
 } // namespace PtclEditor

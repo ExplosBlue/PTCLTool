@@ -77,7 +77,7 @@ TextureInspector::TextureInspector(QWidget* parent) :
     rightLayout->addWidget(mDescriptionLabel);
     rightLayout->addWidget(&mChangeTextureButton);
     mChangeTextureButton.setToolTip("Choose a different texture from the document");
-    mStartFrameList.setToolTip("Possible spawning frames.\nOne is randomly selected when a particle spawns.");
+    mStartFrameList.setToolTip("Number of possible spawning frames.\nRandomly selected from when a particle spawns.");
     rightLayout->addWidget(&mStartFrameList);
     rightLayout->addStretch();
 
