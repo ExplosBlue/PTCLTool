@@ -349,6 +349,7 @@ void MainWindow::loadPtclRes(const QString& path) {
     mTextureWidget.setDocument(nullptr);
 
     mSaveAsAction.setEnabled(false);
+    mSelection.set(-1, -1, Ptcl::Selection::Type::None);
 
     mDocument = std::make_unique<Ptcl::Document>();
     if (!mDocument->load(path)) {

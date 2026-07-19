@@ -335,6 +335,8 @@ void TextureListWidget::setDocument(Ptcl::Document* document) {
 
     if (!mDocument) {
         mModel.setTextures(nullptr);
+        mView.selectionModel()->clear();
+        mDetailsPanel.setTexture({}, nullptr);
 
         mActionExportAll->setEnabled(false);
         mActionImportTexture->setEnabled(false);

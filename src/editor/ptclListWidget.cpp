@@ -266,6 +266,9 @@ void PtclList::setDocument(Ptcl::Document* document) {
 
     if (!mDocument) {
         mListModel.clear();
+        mSearchBox.clear();
+        mClipboardSet.reset();
+        mClipboardEmitter.reset();
         setEnabled(false);
         return;
     }
