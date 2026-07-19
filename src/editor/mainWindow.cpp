@@ -87,6 +87,10 @@ MainWindow::~MainWindow() {
     mPtclList.setDocument(nullptr);
     mInspector.setDocument(nullptr);
     mTextureWidget.setDocument(nullptr);
+
+    if (mDocument) {
+        mDocument->undoStack()->disconnect(this);
+    }
 }
 
 void MainWindow::setupMenus() {
@@ -331,7 +335,7 @@ void MainWindow::updateRecentFileList() {
         action->setVisible(true);
     }
 
-    for (size_t i = static_cast<size_t>(numRecentFiles); i < mRecentFileActions.size(); ++i) {
+    for (auto i = static_cast<size_t>(numRecentFiles); i < mRecentFileActions.size(); ++i) {
         mRecentFileActions[i]->setVisible(false);
     }
 

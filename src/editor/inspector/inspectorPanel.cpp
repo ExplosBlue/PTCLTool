@@ -336,6 +336,10 @@ void InspectorPanel::setSelection(Ptcl::Selection* selection) {
 }
 
 void InspectorPanel::populateProperties() {
+    if (!mSelection || !mEmitter) {
+        return;
+    }
+
     if (mLastSelectionType != mSelection->type()) {
         mLastSelectionType = mSelection->type();
         updateTabVisibility();
