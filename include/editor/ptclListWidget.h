@@ -5,6 +5,7 @@
 
 #include <QLineEdit>
 #include <QMenu>
+#include <QShortcut>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 #include <QTreeView>
@@ -76,7 +77,6 @@ public:
     void updateEmitter(s32 setIndex, s32 emitterIndex);
     void updateEmitterName(s32 setIndex, s32 emitterIndex);
     void updateEmitterSetName(s32 setIndex);
-    void refresh();
 
 private slots:
     void filterList(const QString& text);
@@ -84,6 +84,7 @@ private slots:
 private:
     void populateList();
     void setupFilterMenu();
+    void setupContextMenu();
 
     void addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emitterIndex);
     void ensureComplexNode(QStandardItem* emitterItem, NodeType type, const QString& label, s32 setIndex, s32 emitterIndex, bool enabled);
@@ -96,10 +97,10 @@ private:
     void insertEmitterNode(QStandardItem* setItem, s32 setIndex, s32 emitterIndex);
     void insertEmitterSetNode(s32 setIndex);
 
-    void addEmitter();
-    void addEmitterSet();
+    void addEmitter(QStandardItem* contextItem = nullptr);
+    void addEmitterSet(QStandardItem* contextItem = nullptr);
 
-    void removeItem();
+    void removeItem(QStandardItem* contextItem = nullptr);
     void removeEmitter(QStandardItem* setItem, QStandardItem* emitterItem);
     void removeEmitterSet(QStandardItem* setItem);
 
@@ -111,8 +112,12 @@ private:
 
     void expandSourceIndex(const QModelIndex& sourceIndex);
 
-    void copyItem();
-    void pasteItem();
+    void copyItem(QStandardItem* contextItem = nullptr);
+    void pasteItem(QStandardItem* contextItem = nullptr);
+
+    void duplicateItem(QStandardItem* contextItem = nullptr);
+    void duplicateEmitterSet(QStandardItem* contextItem = nullptr);
+    void duplicateEmitter(QStandardItem* contextItem = nullptr);
 
 private:
     Ptcl::Document* mDocument{nullptr};
@@ -137,6 +142,10 @@ private:
 
     std::unique_ptr<Ptcl::EmitterSet> mClipboardSet;
     std::unique_ptr<Ptcl::Emitter> mClipboardEmitter;
+
+    QShortcut mCopyShortcut{QKeySequence::Copy, this};
+    QShortcut mPasteShortcut{QKeySequence::Paste, this};
+    QShortcut mDuplicateShortcut{QKeySequence(Qt::CTRL | Qt::Key_D), this};
 };
 
 
