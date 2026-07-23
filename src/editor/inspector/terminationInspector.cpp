@@ -16,10 +16,14 @@ TerminationInspector::TerminationInspector(QWidget* parent) :
     mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mAlphaAddInSpinBox.setRange(0.0f, 1.0f);
+    mAlphaAddInSpinBox.setSingleStep(0.1f);
 
     mIsStopEmitCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    mIsStopEmitCheckBox.setToolTip("Prevents new particles from being spawned while the emitter is fading out.");
     mainLayout->addRow("Stop Emission During Fade:", &mIsStopEmitCheckBox);
-    mainLayout->addRow("Alpha Add During Fade:", &mAlphaAddInSpinBox);
+
+    mAlphaAddInSpinBox.setToolTip("The rate at which the emitter's alpha changes each frame during fade-in and fade-out.\nA value of 0 disables automatic fading.");
+    mainLayout->addRow("Fade Speed:", &mAlphaAddInSpinBox);
 
     setupConnections();
 }
@@ -27,7 +31,7 @@ TerminationInspector::TerminationInspector(QWidget* parent) :
 void TerminationInspector::setupConnections() {
     connect(&mIsStopEmitCheckBox, &QCheckBox::checkStateChanged, this, [this](bool checked) {
         setEmitterProperty(
-            "Set Stop Emission",
+            "Toggle Stop Emission",
             "SetStopEmission",
             &Ptcl::Emitter::isStopEmitInFade,
             &Ptcl::Emitter::setIsStopEmitInFade,
@@ -37,7 +41,7 @@ void TerminationInspector::setupConnections() {
 
     connect(&mAlphaAddInSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
         setEmitterProperty(
-            "Set Alpha Add In Fade",
+            "Set Fade Speed",
             "SetAlphaAddIn",
             &Ptcl::Emitter::alphaAddInFade,
             &Ptcl::Emitter::setAlphaAddInFade,

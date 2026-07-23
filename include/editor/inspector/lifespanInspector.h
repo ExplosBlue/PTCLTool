@@ -24,11 +24,26 @@ private:
     void setupConnections();
 
 private:
-    QCheckBox mInfiniteLifeCheckBox;
-    QSpinBox mLifeSpanSpinBox;
-    QSpinBox mLifeSpanRndSpinBox;
+    // Lifespan
+    QCheckBox mInfiniteLifeCheckBox{};
+    QSpinBox mLifeSpanSpinBox{};
+    QSpinBox mLifeSpanRndSpinBox{};
 
-    static constexpr s32 sLifeInfinite = std::numeric_limits<s32>::max();
+    // Emission
+    QSpinBox mStartFrameSpinBox{};
+    QSpinBox mEndFrameSpinBox{};
+    QCheckBox mInfiniteEmitCheckBox{};
+    QSpinBox mLifeStepSpinBox{};
+    QSpinBox mLifeStepRndSpinBox{};
+    QSpinBox mEmitRateSpinBox{};
+
+    // Termination
+    QCheckBox mIsStopEmitCheckBox{};
+    QDoubleSpinBox mAlphaAddInSpinBox{};
+
+private:
+    static constexpr s32 sLifeInfinite = std::numeric_limits<s32>::max();    
+    static constexpr s32 sEmitInfinite = std::numeric_limits<s32>::max();
 };
 
 

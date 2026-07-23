@@ -1,87 +1,98 @@
 #include "editor/inspector/colorInspector.h"
 
-#include <QHBoxLayout>
-#include <QVBoxLayout>
+#include <QFormLayout>
+#include <QLabel>
 
 
 namespace PtclEditor {
 
 
-// ========================================================================== //
+// ==========================================================================//
+
+
+static const std::array colorCalcTypeOptions{ // NOLINT(cert-err58-cpp)
+    EnumOption<Ptcl::ColorCalcType>{ Ptcl::ColorCalcType::None,        "None",         "No color processing." },
+    EnumOption<Ptcl::ColorCalcType>{ Ptcl::ColorCalcType::Pass1,       "Single Color", "Enables single pass color calculations. (Secondary blending color)." },
+    EnumOption<Ptcl::ColorCalcType>{ Ptcl::ColorCalcType::Interpolate, "Multi Color",  "Enables multi-pass color calculations. (Randomized or Animated)." },
+};
+
+static const std::array behaviorOptions{ // NOLINT(cert-err58-cpp)
+    EnumOption<ColorInspector::Behavior>{ ColorInspector::Behavior::Random,    "Random",   "Each particle randomly picks one of three colors at spawn." },
+    EnumOption<ColorInspector::Behavior>{ ColorInspector::Behavior::Animation, "Animated", "Color transitions through three colors over the particle's lifetime." },
+};
+
+
+// ==========================================================================//
 
 
 ColorInspector::ColorInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
-    // Color Behavior Type
-    auto colorBehaviorLayout = new QHBoxLayout;
-    mColorBehavior.addItem("Constant", QVariant::fromValue(Behavior::Constant));
-    mColorBehavior.addItem("Random", QVariant::fromValue(Behavior::Random));
-    mColorBehavior.addItem("Animation", QVariant::fromValue(Behavior::Animation));
-    colorBehaviorLayout->addWidget(new QLabel("Color Behavior"));
-    colorBehaviorLayout->addWidget(&mColorBehavior);
-    colorBehaviorLayout->addStretch();
 
-    // Primary Color Ui
-    mPrimaryColorUi = new QWidget(this);
-    auto* mPrimaryColorLayout = new QVBoxLayout(mPrimaryColorUi);
-    mPrimaryColorLayout->addWidget(new QLabel("Primary Color"));
-    mPrimaryColorLayout->addWidget(&mPrimaryColorWidget);
+    mMainLayout = new QFormLayout(this);
+    mMainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
-    // Random Color Ui
-    mRandomColorUi = new QWidget(this);
-    auto* mRandomColorLayout = new QVBoxLayout(mRandomColorUi);
-    mRandomColorLayout->addWidget(new QLabel("Random Color A"));
-    mRandomColorLayout->addWidget(&mRandomColorAWidget);
-    mRandomColorLayout->addWidget(new QLabel("Random Color B"));
-    mRandomColorLayout->addWidget(&mRandomColorBWidget);
-    mRandomColorLayout->addWidget(new QLabel("Random Color C"));
-    mRandomColorLayout->addWidget(&mRandomColorCWidget);
+    // Color
+    addSectionHeader(mMainLayout, "Color", this);
 
-    // Color Repetition
-    auto colorRepeatLayout = new QHBoxLayout;
-    mRepetitionCountLabel.setText("Repetition Count");
-    colorRepeatLayout->addWidget(&mRepetitionCountLabel);
-    colorRepeatLayout->addWidget(&mColorNumRepeatSpinBox);
-    colorRepeatLayout->addStretch();
+    mColorCalcTypeSpinBox.setOptions(colorCalcTypeOptions);
+    mColorCalcTypeSpinBox.setDescription("Controls how colors are applied to particles.");
+    mMainLayout->addRow("Color Mode:", &mColorCalcTypeSpinBox);
 
-    // Anim Color Ui
-    mAnimColorUi = new QWidget(this);
-    auto* mAnimColorLayout = new QVBoxLayout(mAnimColorUi);
-    mAnimColorLayout->addWidget(new QLabel("Anim Start Color"));
-    mAnimColorLayout->addWidget(&mStartColorWidget);
-    mAnimColorLayout->addWidget(new QLabel("Anim Mid Color"));
-    mAnimColorLayout->addWidget(&mMidColorWidget);
-    mAnimColorLayout->addWidget(new QLabel("Anim End Color"));
-    mAnimColorLayout->addWidget(&mEndColorWidget);
-    mAnimColorLayout->addWidget(&mColorSections);
-    mAnimColorLayout->addLayout(colorRepeatLayout);
+    mPrimaryColorWidget.enableAlpha(false);
+    mPrimaryColorWidget.setToolTip("The base color of each particle.");
+    mMainLayout->addRow("Primary Color:", &mPrimaryColorWidget);
 
-    // Secondary Color
-    mSecondaryColorWidget.enableAlpha(false);
+    mSecondaryColorWidget.setToolTip("A single color that can be used for blending in the texture combiner.");
+    mMainLayout->addRow("Secondary Color:", &mSecondaryColorWidget);
 
-    // Main Layout
-    auto mainLayout = new QVBoxLayout(this);
-    mainLayout->setSpacing(2);
-    mainLayout->addLayout(colorBehaviorLayout);
+    mColorBehavior.setOptions(behaviorOptions);
+    mColorBehavior.setDescription("Determines the behavior used for multi-color calculations.");
+    mMainLayout->addRow("Behavior:", &mColorBehavior);
 
-    mainLayout->addWidget(mPrimaryColorUi);
-    mainLayout->addWidget(mRandomColorUi);
-    mainLayout->addWidget(mAnimColorUi);
+    mRandomColorAWidget.setToolTip("First possible color. Each particle randomly picks A, B, or C at spawn.");
+    mMainLayout->addRow("Random Color A:", &mRandomColorAWidget);
 
-    mainLayout->addWidget(new QLabel("Secondary Color"));
-    mainLayout->addWidget(&mSecondaryColorWidget);
-    mainLayout->addWidget(new QLabel("Color Calc Type"));
-    mainLayout->addWidget(&mColorCalcTypeSpinBox);
+    mRandomColorBWidget.setToolTip("Second possible color. Each particle randomly picks A, B, or C at spawn.");
+    mMainLayout->addRow("Random Color B:", &mRandomColorBWidget);
 
-    mainLayout->addStretch(1);
+    mRandomColorCWidget.setToolTip("Third possible color. Each particle randomly picks A, B, or C at spawn.");
+    mMainLayout->addRow("Random Color C:", &mRandomColorCWidget);
 
-    setLayout(mainLayout);
+    mStartColorWidget.setToolTip("Color at the start of the animation (0% of particle lifetime).");
+    mMainLayout->addRow("Anim Start Color:", &mStartColorWidget);
+
+    mMidColorWidget.setToolTip("Color at the peak/middle of the animation.");
+    mMainLayout->addRow("Anim Mid Color:", &mMidColorWidget);
+
+    mEndColorWidget.setToolTip("Color at the end of the animation (100% of particle lifetime).");
+    mMainLayout->addRow("Anim End Color:", &mEndColorWidget);
+
+    mColorSections.setToolTip("Timing breakpoints (0-100% of particle lifetime) for color transitions.");
+    mMainLayout->addRow("Color Timing:", &mColorSections);
+
+    mColorNumRepeatSpinBox.setToolTip("Number of times the color animation repeats over the particle's lifetime.");
+    mMainLayout->addRow("Repetition Count:", &mColorNumRepeatSpinBox);
+
+    // Alpha
+    addSectionHeader(mMainLayout, "Alpha", this);
+
+    mGraphA.setLineColor(QColor{137, 214, 1});
+    mGraphA.setTickStepSize(0.1f);
+    mGraphA.setValueBounds(0.0f, 1.0f);
+    mGraphA.setValueRange(0.0f, 1.0f);
+    mGraphA.setVerticalAxisLabel("Alpha");
+    mGraphA.setPosLabel("Life");
+    mGraphA.setValLabel("Alpha");
+    mMainLayout->addRow(&mGraphA);
+
     setupConnections();
 }
 
 void ColorInspector::setupConnections() {
     // Behavior Type
-    connect(&mColorBehavior, &QComboBox::currentIndexChanged, this, &ColorInspector::handleBehaviorChanged);
+    connect(&mColorBehavior, &EnumComboBox<Behavior>::currentIndexChanged, this, [this]() {
+        handleBehaviorChanged(mColorBehavior.currentEnum());
+    });
 
     // Color Sections
     connect(&mColorSections, &ColorGradientEditor::handleMoved, this, &ColorInspector::updateColorSection);
@@ -89,7 +100,7 @@ void ColorInspector::setupConnections() {
     // Color Repeat
     connect(&mColorNumRepeatSpinBox, &SizedSpinBoxBase::valueChanged, this, [this](s32 value) {
         setEmitterProperty(
-            "Set Color Repetitions",
+            "Set Number of Color Anim Repetitions",
             "SetColorRepetitions",
             &Ptcl::Emitter::colorNumRepeat,
             &Ptcl::Emitter::setColorNumRepeat,
@@ -101,22 +112,23 @@ void ColorInspector::setupConnections() {
     connect(&mColorCalcTypeSpinBox, &QComboBox::currentIndexChanged, this, [this]() {
         const auto type = mColorCalcTypeSpinBox.currentEnum();
         setEmitterProperty(
-            "Set Color Calc Type",
+            "Set Color Mode",
             "SetColorCalcType",
             &Ptcl::Emitter::colorCalcType,
             &Ptcl::Emitter::setColorCalcType,
             type
         );
+        updateVisibilityForCalcType(type);
     });
 
-    // Primary Color
-    connect(&mPrimaryColorWidget, &RGBAColorWidget::colorChanged, this, [this]() {
-        const auto& color = mPrimaryColorWidget.color();
+    // Secondary Color
+    connect(&mSecondaryColorWidget, &RGBAColorWidget::colorChanged, this, [this]() {
+        const auto& color = mSecondaryColorWidget.color();
         setEmitterProperty(
-            "Set Primary Color",
-            "SetPrimaryColor",
-            &Ptcl::Emitter::primaryColor,
-            &Ptcl::Emitter::setPrimaryColor,
+            "Set Secondary Color",
+            "SetSecondaryColor",
+            &Ptcl::Emitter::secondaryColor,
+            &Ptcl::Emitter::setSecondaryColor,
             color
         );
     });
@@ -193,16 +205,21 @@ void ColorInspector::setupConnections() {
         );
     });
 
-    // Secondary Color
-    connect(&mSecondaryColorWidget, &RGBAColorWidget::colorChanged, this, [this]() {
-        const auto& color = mSecondaryColorWidget.color();
+    // Primary Color
+    connect(&mPrimaryColorWidget, &RGBAColorWidget::colorChanged, this, [this]() {
+        const auto& color = mPrimaryColorWidget.color();
         setEmitterProperty(
-            "Set Secondary Color",
-            "SetSecondaryColor",
-            &Ptcl::Emitter::secondaryColor,
-            &Ptcl::Emitter::setSecondaryColor,
+            "Set Primary Color",
+            "SetPrimaryColor",
+            &Ptcl::Emitter::primaryColor,
+            &Ptcl::Emitter::setPrimaryColor,
             color
         );
+    });
+
+    // Alpha Animation
+    connect(&mGraphA, &AnimGraph::pointEdited, this, [this](s32 pointIndex, const AnimGraph::GraphPoint& point) {
+        updateAnimPoint(pointIndex, point);
     });
 }
 
@@ -210,7 +227,7 @@ void ColorInspector::populateProperties() {
     QSignalBlocker b1(mColorSections);
     QSignalBlocker b2(mColorNumRepeatSpinBox);
     QSignalBlocker b3(mColorCalcTypeSpinBox);
-    QSignalBlocker b4(mPrimaryColorWidget);
+    QSignalBlocker b4(mSecondaryColorWidget);
     QSignalBlocker b5(mRandomColorAWidget);
     QSignalBlocker b6(mRandomColorBWidget);
     QSignalBlocker b7(mRandomColorCWidget);
@@ -218,8 +235,10 @@ void ColorInspector::populateProperties() {
     QSignalBlocker b9(mMidColorWidget);
     QSignalBlocker b10(mEndColorWidget);
     QSignalBlocker b11(mColorBehavior);
+    QSignalBlocker b12(mGraphA);
+    QSignalBlocker b13(mPrimaryColorWidget);
 
-    mPrimaryColorWidget.setColor(mEmitter->primaryColor());
+    mSecondaryColorWidget.setColor(mEmitter->secondaryColor());
 
     mRandomColorAWidget.setColor(mEmitter->randomColorA());
     mRandomColorBWidget.setColor(mEmitter->randomColorB());
@@ -247,41 +266,54 @@ void ColorInspector::populateProperties() {
     mColorSections.setRepetitionCount(mEmitter->colorNumRepeat());
     mColorNumRepeatSpinBox.setValue(mEmitter->colorNumRepeat());
     mColorCalcTypeSpinBox.setCurrentEnum(mEmitter->colorCalcType());
-    mSecondaryColorWidget.setColor(mEmitter->secondaryColor());
+    mPrimaryColorWidget.setColor(mEmitter->primaryColor());
 
-    Behavior behavior = Behavior::Constant;
-    if (mEmitter->isColorRandom()) {
-        behavior = Behavior::Random;
-        mPrimaryColorUi->setVisible(false);
-        mRandomColorUi->setVisible(true);
-        mAnimColorUi->setVisible(false);
-    } else if (mEmitter->isColorAnimation()) {
+    Behavior behavior = Behavior::Random;
+
+    if (mEmitter->isColorAnimation()) {
         behavior = Behavior::Animation;
-        mPrimaryColorUi->setVisible(false);
-        mRandomColorUi->setVisible(false);
-        mAnimColorUi->setVisible(true);
-    } else {
-        mPrimaryColorUi->setVisible(true);
-        mRandomColorUi->setVisible(false);
-        mAnimColorUi->setVisible(false);
     }
 
-    mColorBehavior.setCurrentIndex(behaviorToIndex(behavior));
+    mColorBehavior.setCurrentEnum(behavior);
+    updateVisibilityForCalcType(mEmitter->colorCalcType());
+
+    // Alpha Animation
+    const bool emitterChanged = (mEmitter != mLastEmitter);
+    mLastEmitter = mEmitter;
+
+    const auto& anim = mEmitter->alphaAnim();
+
+    const f32 p0 = anim.initAlpha;
+    const f32 p1 = p0 + anim.diffAlpha21;
+    const f32 p2 = p1;
+    const f32 p3 = p2 + anim.diffAlpha32;
+
+    const bool fullLife = anim.alphaSection2 == 128;
+
+    const f32 sec1 = static_cast<f32>(anim.alphaSection1);
+    const f32 sec2 = fullLife ? 100.0f : static_cast<f32>(anim.alphaSection2);
+
+    AnimGraph::PointList points = {
+        { 0.0f, p0, AnimGraph::HandleType::Locked },
+        { sec1, p1, AnimGraph::HandleType::HoldStart },
+        { sec2, p2, AnimGraph::HandleType::HoldEnd },
+        { 100.0f, p3, AnimGraph::HandleType::Locked }
+    };
+    mGraphA.setControlPoints(points);
+
+    if (emitterChanged) {
+        mGraphA.zoomToFit();
+    }
+
+    update();
 }
 
-void ColorInspector::handleBehaviorChanged(s32 index) {
-    auto behavior = behaviorFromIndex(index);
-
+void ColorInspector::handleBehaviorChanged(Behavior behavior) {
     bool isColorRandom;
     bool isColorAnim;
     QString label;
 
     switch (behavior) {
-    case Behavior::Constant:
-        label = "Set Color Behavior Constant";
-        isColorRandom = false;
-        isColorAnim = false;
-        break;
     case Behavior::Random:
         label = "Set Color Behavior Random";
         isColorRandom = true;
@@ -293,6 +325,18 @@ void ColorInspector::handleBehaviorChanged(s32 index) {
         isColorAnim = true;
         break;
     }
+
+    bool showRandom = (behavior == Behavior::Random);
+    bool showAnim = (behavior == Behavior::Animation);
+
+    mMainLayout->setRowVisible(&mRandomColorAWidget, showRandom);
+    mMainLayout->setRowVisible(&mRandomColorBWidget, showRandom);
+    mMainLayout->setRowVisible(&mRandomColorCWidget, showRandom);
+    mMainLayout->setRowVisible(&mStartColorWidget, showAnim);
+    mMainLayout->setRowVisible(&mMidColorWidget, showAnim);
+    mMainLayout->setRowVisible(&mEndColorWidget, showAnim);
+    mMainLayout->setRowVisible(&mColorSections, showAnim);
+    mMainLayout->setRowVisible(&mColorNumRepeatSpinBox, showAnim);
 
     mDocument->undoStack()->beginMacro(formatHistoryLabel(label));
 
@@ -313,6 +357,37 @@ void ColorInspector::handleBehaviorChanged(s32 index) {
     );
 
     mDocument->undoStack()->endMacro();
+}
+
+void ColorInspector::updateVisibilityForCalcType(Ptcl::ColorCalcType type) {
+    const bool isMultiColor = (type == Ptcl::ColorCalcType::Interpolate);
+    const bool isSingleColor = (type == Ptcl::ColorCalcType::Pass1);
+    mMainLayout->setRowVisible(&mColorBehavior, isMultiColor);
+    mMainLayout->setRowVisible(&mSecondaryColorWidget, isSingleColor);
+
+    if (isMultiColor) {
+        auto behavior = mColorBehavior.currentEnum();
+        bool showRandom = (behavior == Behavior::Random);
+        bool showAnim = (behavior == Behavior::Animation);
+
+        mMainLayout->setRowVisible(&mRandomColorAWidget, showRandom);
+        mMainLayout->setRowVisible(&mRandomColorBWidget, showRandom);
+        mMainLayout->setRowVisible(&mRandomColorCWidget, showRandom);
+        mMainLayout->setRowVisible(&mStartColorWidget, showAnim);
+        mMainLayout->setRowVisible(&mMidColorWidget, showAnim);
+        mMainLayout->setRowVisible(&mEndColorWidget, showAnim);
+        mMainLayout->setRowVisible(&mColorSections, showAnim);
+        mMainLayout->setRowVisible(&mColorNumRepeatSpinBox, showAnim);
+    } else {
+        mMainLayout->setRowVisible(&mRandomColorAWidget, false);
+        mMainLayout->setRowVisible(&mRandomColorBWidget, false);
+        mMainLayout->setRowVisible(&mRandomColorCWidget, false);
+        mMainLayout->setRowVisible(&mStartColorWidget, false);
+        mMainLayout->setRowVisible(&mMidColorWidget, false);
+        mMainLayout->setRowVisible(&mEndColorWidget, false);
+        mMainLayout->setRowVisible(&mColorSections, false);
+        mMainLayout->setRowVisible(&mColorNumRepeatSpinBox, false);
+    }
 }
 
 void ColorInspector::updateColorSection(ColorGradientEditor::HandleType handleType) {
@@ -350,8 +425,71 @@ void ColorInspector::updateColorSection(ColorGradientEditor::HandleType handleTy
     }
 }
 
+void ColorInspector::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphPoint& point) {
+    auto anim = mEmitter->alphaAnim();
 
-// ========================================================================== //
+    const f32 oldP0 = anim.initAlpha;
+    const f32 oldP1 = oldP0 + anim.diffAlpha21;
+    const f32 oldP2 = oldP1;
+    const f32 oldP3 = oldP2 + anim.diffAlpha32;
+
+    auto updateAlphaSection = [&](s32* section) {
+        anim.diffAlpha21 = point.value - oldP0;
+        anim.diffAlpha32 = oldP3 - point.value;
+
+        const f32 sec2 = mGraphA.getPoints()[2].position;
+
+        *section = (std::abs(sec2 - 100.0f) < std::numeric_limits<f32>::epsilon()) ? 128 : static_cast<s32>(point.position);
+    };
+
+    switch (pointIndex) {
+    case 0:
+        anim.initAlpha = point.value;
+        anim.diffAlpha21 = oldP1 - point.value;
+        break;
+    case 1:
+        updateAlphaSection(&anim.alphaSection1);
+        {
+            const f32 sec2Pos = mGraphA.getPoints()[2].position;
+            anim.alphaSection2 = (std::abs(sec2Pos - 100.0f) < std::numeric_limits<f32>::epsilon())
+                ? 128 : static_cast<s32>(sec2Pos);
+        }
+        break;
+    case 2:
+        updateAlphaSection(&anim.alphaSection2);
+        anim.alphaSection1 = static_cast<s32>(mGraphA.getPoints()[1].position);
+        break;
+    case 3:
+        anim.diffAlpha32 = point.value - oldP1;
+        break;
+    }
+
+    const f32 newP0 = anim.initAlpha;
+    const f32 newP1 = newP0 + anim.diffAlpha21;
+    anim.isFlatStart = (newP0 == newP1);
+
+    QString handleName;
+    switch (pointIndex) {
+    case 0: handleName = "Start"; break;
+    case 1: handleName = "Section1"; break;
+    case 2: handleName = "Section2"; break;
+    case 3: handleName = "End"; break;
+    }
+
+    const auto label = QString("Move Alpha %1").arg(handleName);
+    const auto key = QString("AlphaGraph_%1").arg(pointIndex);
+
+    setEmitterProperty(
+        label,
+        key,
+        &Ptcl::Emitter::alphaAnim,
+        &Ptcl::Emitter::setAlphaAnim,
+        anim
+    );
+}
+
+
+// ==========================================================================//
 
 
 } // namespace PtclEditor

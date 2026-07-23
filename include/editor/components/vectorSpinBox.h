@@ -73,6 +73,20 @@ public:
         if (mSpinBoxW) { mSpinBoxW->setEnabled((axis & Axis::W) == Axis::W); }
     }
 
+    void setDecimals(int decimals) {
+        if (mSpinBoxX) { mSpinBoxX->setDecimals(decimals); }
+        if (mSpinBoxY) { mSpinBoxY->setDecimals(decimals); }
+        if (mSpinBoxZ) { mSpinBoxZ->setDecimals(decimals); }
+        if (mSpinBoxW) { mSpinBoxW->setDecimals(decimals); }
+    }
+
+    void setSuffix(const QString& suffix) {
+        if (mSpinBoxX) { mSpinBoxX->setSuffix(suffix); }
+        if (mSpinBoxY) { mSpinBoxY->setSuffix(suffix); }
+        if (mSpinBoxZ) { mSpinBoxZ->setSuffix(suffix); }
+        if (mSpinBoxW) { mSpinBoxW->setSuffix(suffix); }
+    }
+
 signals:
     void valueChanged();
 
@@ -104,7 +118,7 @@ private:
     std::pair<QLabel*, QDoubleSpinBox*> createAxis(const QString& axisName) {
         // Spinbox
         auto* spinBox = new QDoubleSpinBox(this);
-        spinBox->setRange(std::numeric_limits<f64>::lowest(), std::numeric_limits<f64>::max());
+        spinBox->setRange(-10000.0, 10000.0);
         spinBox->setDecimals(4);
 
         // Label

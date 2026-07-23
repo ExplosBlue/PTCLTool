@@ -1,11 +1,11 @@
 #pragma once
 
+#include "editor/components/animGraph.h"
 #include "editor/components/enumComboBox.h"
 #include "editor/components/vectorSpinBox.h"
 #include "editor/inspector/inspectorWidgetBase.h"
 
-#include <QCheckBox>
-#include <QLineEdit>
+#include <QComboBox>
 #include <QWidget>
 
 
@@ -15,24 +15,38 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class ChildRotationInspector final : public InspectorWidgetBase {
+class RotationScaleInspector final : public InspectorWidgetBase {
     Q_OBJECT
 public:
-    explicit ChildRotationInspector(QWidget* parent = nullptr);
+    explicit RotationScaleInspector(QWidget* parent = nullptr);
 
 private:
     void populateProperties() final;
     void setupConnections();
     void updateAxis();
 
+    void updateAnimPoint(s32 pointIndex, const AnimGraph::GraphPoint& point, f32 (Math::Vector2f::*get)() const);
+    void updateGraphs();
+
+protected:
+    void resizeEvent(QResizeEvent* event) override;
+    bool eventFilter(QObject* obj, QEvent* event) override;
+
 private:
-    EnumComboBox<Ptcl::RotType> mRotTypeSpinBox{};
+    // Rotation widgets
+    EnumComboBox<Ptcl::RotType> mRotTypeComboBox{};
     VectorSpinBox<Math::Vector3f> mInitRotSpinBox{};
     VectorSpinBox<Math::Vector3f> mInitRotRandSpinBox{};
     VectorSpinBox<Math::Vector3f> mRotVelSpinBox{};
     VectorSpinBox<Math::Vector3f> mRotVelRandSpinBox{};
     VectorSpinBox<Math::Vector2f> mRotBasisSpinBox{};
-    QCheckBox mInheritRotCheckBox{};
+
+    // Scale widgets
+    AnimGraph mGraphX{};
+    AnimGraph mGraphY{};
+    QDoubleSpinBox mScaleRandSpinbox{};
+    QWidget* mOverlay = nullptr;
+    const Ptcl::Emitter* mLastEmitter = nullptr;
 };
 
 

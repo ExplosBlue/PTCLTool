@@ -4,6 +4,8 @@
 
 #include "util/paintUtil.h"
 
+#include <array>
+
 #include <QApplication>
 #include <QGuiApplication>
 #include <QGridLayout>
@@ -16,6 +18,26 @@
 
 
 namespace PtclEditor {
+
+
+// ========================================================================== //
+
+
+static const std::array textureWrapOptions{ // NOLINT(cert-err58-cpp)
+    EnumOption<Ptcl::TextureWrap>{ Ptcl::TextureWrap::MirroredRepeat, "Mirrored Repeat", "Texture is mirrored when repeating." },
+    EnumOption<Ptcl::TextureWrap>{ Ptcl::TextureWrap::Repeat,         "Repeat",          "Texture repeats seamlessly." },
+    EnumOption<Ptcl::TextureWrap>{ Ptcl::TextureWrap::ClampToEdge,    "Clamp to Edge",   "Texture is clamped at the edges." },
+};
+
+static const std::array textureFilterOptions{ // NOLINT(cert-err58-cpp)
+    EnumOption<Ptcl::TextureFilter>{ Ptcl::TextureFilter::Linear,  "Linear",  "Smooth interpolation between texels." },
+    EnumOption<Ptcl::TextureFilter>{ Ptcl::TextureFilter::Nearest, "Nearest", "Pixelated nearest-neighbor filtering." },
+};
+
+static const std::array animModeOptions{ // NOLINT(cert-err58-cpp)
+    EnumOption<FrameAnimMode>{ FrameAnimMode::FixedSpeed, "Fixed Rate", "Frames advance at a fixed interval, independent of particle lifetime." },
+    EnumOption<FrameAnimMode>{ FrameAnimMode::FitToLife,  "Fit to Life", "Frames are distributed evenly across the particle's lifetime." },
+};
 
 
 // ========================================================================== //
@@ -34,17 +56,20 @@ TextureInspector::TextureInspector(QWidget* parent) :
     auto settingsLayout = new QGridLayout;
     settingsLayout->addWidget(new QLabel("Wrap U:"), 0, 0);
     settingsLayout->addWidget(&mWrapTComboBox, 0, 1);
-    mWrapTComboBox.setToolTip("Horizontal texture wrap mode");
+    mWrapTComboBox.setOptions(textureWrapOptions);
+    mWrapTComboBox.setDescription("How the texture repeats horizontally.");
     settingsLayout->addWidget(new QLabel("Wrap V:"), 1, 0);
     settingsLayout->addWidget(&mWrapSComboBox, 1, 1);
-    mWrapSComboBox.setToolTip("Vertical texture wrap mode");
+    mWrapSComboBox.setOptions(textureWrapOptions);
+    mWrapSComboBox.setDescription("How the texture repeats vertically.");
     settingsLayout->addWidget(new QLabel("LOD Level:"), 0, 2);
     settingsLayout->addWidget(&mTexLodLevel, 0, 3);
     mTexLodLevel.setRange(0, 15);
-    mTexLodLevel.setToolTip("Maximum mipmap LOD level (0 = no mipmaps, full resolution only)");
+    mTexLodLevel.setToolTip("Maximum mipmap LOD level (0 = no mipmaps, full resolution only).");
     settingsLayout->addWidget(new QLabel("Filter:"), 1, 2);
     settingsLayout->addWidget(&mFilterComboBox, 1, 3);
-    mFilterComboBox.setToolTip("Texture filtering mode");
+    mFilterComboBox.setOptions(textureFilterOptions);
+    mFilterComboBox.setDescription("Texture filtering method when scaling.");
     settingsLayout->setColumnStretch(1, 1);
     settingsLayout->setColumnStretch(3, 1);
 
@@ -54,10 +79,10 @@ TextureInspector::TextureInspector(QWidget* parent) :
     mRepXSpinBox.setRange(1, 64);
     mRepYSpinBox.setRange(1, 64);
 
-    mDivXSpinBox.setToolTip("Number of horizontal divisions (animation frames across)");
-    mDivYSpinBox.setToolTip("Number of vertical divisions (animation frames down)");
-    mRepXSpinBox.setToolTip("Number of horizontal texture repetitions");
-    mRepYSpinBox.setToolTip("Number of vertical texture repetitions");
+    mDivXSpinBox.setToolTip("Number of horizontal divisions (animation frames across).");
+    mDivYSpinBox.setToolTip("Number of vertical divisions (animation frames down).");
+    mRepXSpinBox.setToolTip("Number of horizontal texture repetitions.");
+    mRepYSpinBox.setToolTip("Number of vertical texture repetitions.");
 
     auto divRepLayout = new QGridLayout;
     divRepLayout->addWidget(new QLabel("Divisions:"), 0, 0);
@@ -76,8 +101,8 @@ TextureInspector::TextureInspector(QWidget* parent) :
     rightLayout->addLayout(divRepLayout);
     rightLayout->addWidget(mDescriptionLabel);
     rightLayout->addWidget(&mChangeTextureButton);
-    mChangeTextureButton.setToolTip("Choose a different texture from the document");
-    mStartFrameList.setToolTip("Number of possible spawning frames.\nRandomly selected from when a particle spawns.");
+    mChangeTextureButton.setToolTip("Choose a different texture from the document.");
+    mStartFrameList.setToolTip("Number of possible spawning frames.\nRandomly selected when a particle spawns.");
     rightLayout->addWidget(&mStartFrameList);
     rightLayout->addStretch();
 
@@ -91,11 +116,10 @@ TextureInspector::TextureInspector(QWidget* parent) :
     topRow->addLayout(rightLayout);
 
     // Animation
-    mAnimModeComboBox.addItems({"Fixed Rate", "Fit to Life"});
-    mAnimModeComboBox.setItemData(0, "Frames advance at a fixed interval, independent of particle lifetime", Qt::ToolTipRole);
-    mAnimModeComboBox.setItemData(1, "Frames are distributed evenly across the particle's lifetime", Qt::ToolTipRole);
+    mAnimModeComboBox.setOptions(animModeOptions);
+    mAnimModeComboBox.setDescription("How animation frames are distributed over time.");
 
-    mTexPatGroupBox.setTitle("Texture Pattern Animation");
+
 
     auto texPatSettingsLayout = new QVBoxLayout;
     texPatSettingsLayout->setSpacing(4);
@@ -106,11 +130,11 @@ TextureInspector::TextureInspector(QWidget* parent) :
     controlsRow->addSpacing(8);
     controlsRow->addWidget(new QLabel("Interval:"));
     controlsRow->addWidget(&mTexPatFreq);
-    mTexPatFreq.setToolTip("Ticks between animation frames (Fixed Rate only)");
+    mTexPatFreq.setToolTip("Ticks between animation frames (Fixed Rate only).");
     controlsRow->addSpacing(8);
     controlsRow->addWidget(new QLabel("Frames:"));
     controlsRow->addWidget(&mAnimFrameCountSpinBox);
-    mAnimFrameCountSpinBox.setToolTip("Number of frames in the animation sequence");
+    mAnimFrameCountSpinBox.setToolTip("Number of frames in the animation sequence.");
 
     mFramesWarningLabel = new QLabel(this);
     mFramesWarningLabel->setText("Frame count exceeds lifespan");
@@ -126,13 +150,15 @@ TextureInspector::TextureInspector(QWidget* parent) :
 
     // Main Layout
     auto mainLayout = new QVBoxLayout(this);
+
+    addSectionHeader(mainLayout, "Texture Mapping", this);
     mainLayout->addLayout(topRow, 1);
 
-    auto* animContainer = new QVBoxLayout;
+    addSectionHeader(mainLayout, "Texture Animation", this);
     mTexPatAnimCheckBox.setText("Enable Animation");
-    animContainer->addWidget(&mTexPatAnimCheckBox);
-    animContainer->addWidget(&mTexPatGroupBox);
-    mainLayout->addLayout(animContainer);
+    mTexPatAnimCheckBox.setToolTip("Enable frame-by-frame texture animation.");
+    mainLayout->addWidget(&mTexPatAnimCheckBox);
+    mainLayout->addWidget(&mTexPatGroupBox);
 
     setLayout(mainLayout);
     setupConnections();
@@ -290,7 +316,8 @@ void TextureInspector::setupConnections() {
 
 
     connect(&mAnimModeComboBox, &QComboBox::currentIndexChanged, this, [this](s32 index) {
-        auto mode = static_cast<FrameAnimMode>(index);
+        Q_UNUSED(index);
+        const auto mode = mAnimModeComboBox.currentEnum();
         mFrameTimeline.setAnimMode(mode);
 
         u16 freq;
@@ -481,7 +508,7 @@ void TextureInspector::populateProperties() {
     const auto mode = freqToAnimMode(freq);
 
     mTexPatFreq.setValue(freq);
-    mAnimModeComboBox.setCurrentIndex(static_cast<s32>(mode));
+    mAnimModeComboBox.setCurrentEnum(mode);
     mFrameTimeline.setAnimMode(mode);
     mFrameTimeline.setFrameStep(static_cast<s32>(freq));
     mFrameTimeline.setPtclLife(mEmitter->ptclLife());

@@ -1,12 +1,13 @@
 #pragma once
 
+#include "editor/components/animGraph.h"
 #include "editor/components/colorGradientEditor.h"
 #include "editor/components/enumComboBox.h"
 #include "editor/components/rgbaColorWidget.h"
 #include "editor/components/sizedSpinBox.h"
 #include "editor/inspector/inspectorWidgetBase.h"
 
-#include <QComboBox>
+#include <QFormLayout>
 #include <QWidget>
 
 
@@ -16,59 +17,49 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-enum class Behavior { Constant = 0, Random = 1, Animation = 2 };
-
-inline Behavior behaviorFromIndex(s32 index) {
-    switch (index) {
-    case 1: return Behavior::Random;
-    case 2: return Behavior::Animation;
-    default: return Behavior::Constant;
-    }
-}
-
-inline s32 behaviorToIndex(Behavior behavior) {
-    return static_cast<s32>(behavior);
-}
-
-
-// ========================================================================== //
-
-
 class ColorInspector final : public InspectorWidgetBase {
     Q_OBJECT
+public:
+    enum class Behavior {
+        Random = 0,
+        Animation = 1
+    };
+
 public:
     explicit ColorInspector(QWidget* parent = nullptr);
 
 private slots:
     void updateColorSection(ColorGradientEditor::HandleType handleType);
-    void handleBehaviorChanged(s32 index);
+    void handleBehaviorChanged(PtclEditor::ColorInspector::Behavior behavior);
 
 private:
     void populateProperties() final;
     void setupConnections();
+    void updateAnimPoint(s32 pointIndex, const AnimGraph::GraphPoint& point);
+    void updateVisibilityForCalcType(Ptcl::ColorCalcType type);
 
 private:
-    QComboBox mColorBehavior{};
+    QFormLayout* mMainLayout{nullptr};
+    EnumComboBox<Behavior> mColorBehavior{};
 
-    RGBAColorWidget mPrimaryColorWidget{};
-    QWidget* mPrimaryColorUi{nullptr};
+    RGBAColorWidget mSecondaryColorWidget{};
 
     RGBAColorWidget mRandomColorAWidget{};
     RGBAColorWidget mRandomColorBWidget{};
     RGBAColorWidget mRandomColorCWidget{};
-    QWidget* mRandomColorUi{nullptr};
 
     RGBAColorWidget mStartColorWidget{};
     RGBAColorWidget mMidColorWidget{};
     RGBAColorWidget mEndColorWidget{};
-    QWidget* mAnimColorUi{nullptr};
 
-    RGBAColorWidget mSecondaryColorWidget{};
+    RGBAColorWidget mPrimaryColorWidget{};
 
     ColorGradientEditor mColorSections{};
     SizedSpinBox<s32> mColorNumRepeatSpinBox{};
-    QLabel mRepetitionCountLabel{};
     EnumComboBox<Ptcl::ColorCalcType> mColorCalcTypeSpinBox{};
+
+    AnimGraph mGraphA{};
+    const Ptcl::Emitter* mLastEmitter = nullptr;
 };
 
 

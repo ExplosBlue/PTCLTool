@@ -1,6 +1,8 @@
 #include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QFormLayout>
+#include <QFrame>
+#include <QLabel>
 
 
 namespace PtclEditor {
@@ -65,6 +67,44 @@ void InspectorWidgetBase::onEmitterChanged(s32 setIndex, s32 emitterIndex) {
     }
 
     populateProperties();
+}
+
+void InspectorWidgetBase::addSectionHeader(QVBoxLayout* layout, const QString& title, QWidget* parent) {
+    auto* row = new QHBoxLayout;
+    row->setContentsMargins(0, 4, 0, 0);
+    row->setSpacing(8);
+
+    auto* label = new QLabel(title, parent);
+    label->setStyleSheet("font-weight: bold;");
+    row->addWidget(label);
+
+    auto* line = new QFrame(parent);
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+    line->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    row->addWidget(line);
+
+    layout->addLayout(row);
+}
+
+void InspectorWidgetBase::addSectionHeader(QFormLayout* layout, const QString& title, QWidget* parent) {
+    auto* row = new QHBoxLayout;
+    row->setContentsMargins(0, 4, 0, 0);
+    row->setSpacing(8);
+
+    auto* label = new QLabel(title, parent);
+    label->setStyleSheet("font-weight: bold;");
+    row->addWidget(label);
+
+    auto* line = new QFrame(parent);
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+    line->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    row->addWidget(line);
+
+    auto* container = new QWidget(parent);
+    container->setLayout(row);
+    layout->addRow(container);
 }
 
 // ========================================================================== //

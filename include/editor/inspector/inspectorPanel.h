@@ -14,20 +14,13 @@ namespace PtclEditor {
 class EmitterSetInspector;
 
 class GeneralEmitterInspector;
-class GravityInspector;
-class TransformInspector;
+class PhysicsInspector;
+class ShapeInspector;
 class LifespanInspector;
-class ScaleAnimInspector;
-class TerminationInspector;
-class EmissionInspector;
-class VelocityInspector;
-class VolumeInspector;
-class RotationInspector;
-class AlphaAnimInspector;
+class RotationScaleInspector;
 class CombinerInspector;
 class ColorInspector;
 class TextureInspector;
-class StripeInspector;
 
 class FluctuationInspector;
 
@@ -38,13 +31,11 @@ class FieldPosAddInspector;
 class FieldRandomInspector;
 class FieldSpinInspector;
 
-class ChildAlphaInspector;
 class ChildColorInspector;
 class ChildCombinerInspector;
 class ChildEmissionInspector;
 class ChildGeneralInspector;
-class ChildRotationInspector;
-class ChildScaleInspector;
+class ChildRotationScaleInspector;
 class ChildTextureInspector;
 class ChildVelocityInspector;
 
@@ -77,20 +68,13 @@ private:
     EmitterSetInspector* mEmitterSetInspector{nullptr};
 
     GeneralEmitterInspector* mGeneralInspector{nullptr};
-    GravityInspector* mGravityInspector{nullptr};
-    TransformInspector* mTransformInspector{nullptr};
+    PhysicsInspector* mPhysicsInspector{nullptr};
+    ShapeInspector* mShapeInspector{nullptr};
     LifespanInspector* mLifespanInspector{nullptr};
-    TerminationInspector* mTerminationInspector{nullptr};
-    EmissionInspector* mEmissionInspector{nullptr};
-    VelocityInspector* mVelocityInspector{nullptr};
-    VolumeInspector* mVolumeInspector{nullptr};
     ColorInspector* mColorInspector{nullptr};
-    AlphaAnimInspector* mAlphaAnimInspector{nullptr};
-    RotationInspector* mRotationInspector{nullptr};
-    ScaleAnimInspector* mScaleAnimInspector{nullptr};
+    RotationScaleInspector* mRotationScaleInspector{nullptr};
     TextureInspector* mTextureInspector{nullptr};
     CombinerInspector* mCombinerInspector{nullptr};
-    StripeInspector* mStripeInspector{nullptr};
 
     FluctuationInspector* mFluctuationInspector{nullptr};
 
@@ -101,13 +85,11 @@ private:
     FieldRandomInspector* mFieldRandomInspector{nullptr};
     FieldSpinInspector* mFieldSpinInspector{nullptr};
 
-    ChildAlphaInspector* mChildAlphaInspector{nullptr};
     ChildColorInspector* mChildColorInspector{nullptr};
     ChildCombinerInspector* mChildCombinerInspector{nullptr};
     ChildEmissionInspector* mChildEmissionInspector{nullptr};
     ChildGeneralInspector* mChildGeneralInspector{nullptr};
-    ChildRotationInspector* mChildRotationInspector{nullptr};
-    ChildScaleInspector* mChildScaleInspector{nullptr};
+    ChildRotationScaleInspector* mChildRotationScaleInspector{nullptr};
     ChildTextureInspector* mChildTextureInspector{nullptr};
     ChildVelocityInspector* mChildVelocityInspector{nullptr};
 

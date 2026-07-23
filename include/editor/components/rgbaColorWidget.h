@@ -6,12 +6,13 @@
 #include "editor/components/colorChannelSlider.h"
 
 #include <QDoubleSpinBox>
-#include <QLayoutItem>
+#include <QLabel>
+#include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidget>
 
 
-// ========================================================================== //
+// ==========================================================================//
 
 
 class ColorChannelRow : public QWidget {
@@ -40,7 +41,7 @@ private:
 };
 
 
-// ========================================================================== //
+// ==========================================================================//
 
 
 class RGBAColorWidget : public QWidget {
@@ -53,18 +54,23 @@ public:
 
     void enableAlpha(bool enable);
 
+    void setCollapsed(bool collapsed);
+    bool isCollapsed() const { return mCollapsed; }
+
 signals:
     void colorChanged();
 
 private slots:
     void openColorDialog();
     void onChannelChanged(Gfx::Color::Channel channel, f32 value);
+    void toggleExpanded();
 
 private:
     void updatePreview();
 
 private:
     Gfx::Color mColor{};
+    bool mCollapsed{true};
 
     ColorChannelRow* mRowR{nullptr};
     ColorChannelRow* mRowG{nullptr};
@@ -74,10 +80,10 @@ private:
     QWidget* mRowsContainer{nullptr};
 
     ClickableLabel mPreview{};
+    QToolButton mExpandBtn{};
 
     QVBoxLayout* mSliderLayout{nullptr};
 };
 
 
-// ========================================================================== //
-
+// ==========================================================================//

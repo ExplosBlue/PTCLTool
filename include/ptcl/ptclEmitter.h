@@ -76,6 +76,7 @@ public:
 
         // TODO: Check if this should also be set for Ptcl::FollowType::PosOnly
         mIsFollow = (type == Ptcl::FollowType::All);
+        updateIsEmitterBillboardMtx();
     }
 
     const QString& name() const { return mName; }
@@ -89,6 +90,7 @@ public:
         mBillboardType = type;
         mIsPolygon = (type == Ptcl::BillboardType::PolygonXY || type == Ptcl::BillboardType::PolygonXZ);
         mIsVelLook = (type == Ptcl::BillboardType::VelLook || type == Ptcl::BillboardType::VelLookPolygon);
+        updateIsEmitterBillboardMtx();
     }
 
     bool isEmitterBillboardMtx() const { return mIsEmitterBillboardMtx; }
@@ -222,11 +224,11 @@ public:
     const Math::Vector3f& volumeRadius() const { return mVolumeRadius; }
     void setVolumeRadius(const Math::Vector3f& radius) { mVolumeRadius = radius; }
 
-    s32 volumeSweepStart() const { return mVolumeSweepStart; }
-    void setVolumeSweepStart(s32 sweepStart) { mVolumeSweepStart = sweepStart; }
+    s32 volumeArcWidth() const { return mVolumeArcWidth; }
+    void setVolumeArcWidth(s32 arcWidth) { mVolumeArcWidth = arcWidth; }
 
-    s32 volumeSweepParam() const { return mVolumeSweepParam; }
-    void setVolumeSweepParam(s32 sweepParam) { mVolumeSweepParam = sweepParam; }
+    s32 volumeArcStart() const { return mVolumeArcStart; }
+    void setVolumeArcStart(s32 arcStart) { mVolumeArcStart = arcStart; }
 
     // ----- Rotation Properties -----
 
@@ -271,8 +273,8 @@ public:
 
     const std::array<Gfx::Color, 3>& color0() const { return mColor0; }
 
-    const Gfx::Color& primaryColor() const { return mColor0[0]; }
-    void setPrimaryColor(const Gfx::Color& color) { mColor0[0] = color; }
+    const Gfx::Color& secondaryColor() const { return mColor0[0]; }
+    void setSecondaryColor(const Gfx::Color& color) { mColor0[0] = color; }
 
     const Gfx::Color& randomColorA() const { return mColor0[0]; }
     void setRandomColorA(const Gfx::Color& color) { mColor0[0] = color; }
@@ -313,8 +315,8 @@ public:
     ColorCalcType colorCalcType() const { return mColorCalcType; }
     void setColorCalcType(ColorCalcType type) { mColorCalcType = type; }
 
-    const Gfx::Color& secondaryColor() const { return mColor1; }
-    void setSecondaryColor(const Gfx::Color& color) { mColor1 = color; }
+    const Gfx::Color& primaryColor() const { return mColor1; }
+    void setPrimaryColor(const Gfx::Color& color) { mColor1 = color; }
 
     // ----- Texture Properties -----
 
@@ -676,11 +678,11 @@ public:
 
     // Child Color
 
-    const Gfx::Color& childPrimaryColor() const { return mChild.color0; }
-    void setChildPrimaryColor(const Gfx::Color& color) { mChild.color0 = color; }
+    const Gfx::Color& childSecondaryColor() const { return mChild.color0; }
+    void setChildSecondaryColor(const Gfx::Color& color) { mChild.color0 = color; }
 
-    const Gfx::Color& childSecondaryColor() const { return mChild.color1; }
-    void setChildSecondaryColor(const Gfx::Color& color) { mChild.color1 = color; }
+    const Gfx::Color& childPrimaryColor() const { return mChild.color1; }
+    void setChildPrimaryColor(const Gfx::Color& color) { mChild.color1 = color; }
 
     // Child Alpha
 
@@ -711,6 +713,11 @@ public:
     void setChildCombinerFunc(ColorCombinerFuncType type) { mChild.combinerFunc = type; }
 
 private:
+    void updateIsEmitterBillboardMtx() {
+        mIsEmitterBillboardMtx = (mBillboardType == BillboardType::PolygonXY || mBillboardType == BillboardType::PolygonXZ)
+                                 && mFollowType == FollowType::All;
+    }
+
     BitFlag<EmitterFlag> mFlag{};
 
     // Basic Properties
@@ -771,8 +778,8 @@ private:
     u8 mVolumeTblIndex{0};
     VolumeType mVolumeType{VolumeType::Point};
     Math::Vector3f mVolumeRadius{1.0f, 1.0f, 1.0f};
-    s32 mVolumeSweepStart{0};
-    s32 mVolumeSweepParam{0};
+    s32 mVolumeArcWidth{0};
+    s32 mVolumeArcStart{0};
 
     // Rotation Properties
     RotType mRotType{RotType::None};

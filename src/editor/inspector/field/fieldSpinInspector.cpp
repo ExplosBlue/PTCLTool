@@ -9,6 +9,13 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
+static const std::array spinAxisOptions{ // NOLINT(cert-err58-cpp)
+    EnumOption<Ptcl::FieldSpinAxis>{ Ptcl::FieldSpinAxis::AxisX, "X-Axis", "Spin around the X-axis." },
+    EnumOption<Ptcl::FieldSpinAxis>{ Ptcl::FieldSpinAxis::AxisY, "Y-Axis", "Spin around the Y-axis." },
+    EnumOption<Ptcl::FieldSpinAxis>{ Ptcl::FieldSpinAxis::AxisZ, "Z-Axis", "Spin around the Z-axis." },
+};
+
+
 FieldSpinInspector::FieldSpinInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
@@ -20,6 +27,7 @@ FieldSpinInspector::FieldSpinInspector(QWidget* parent) :
     auto* controlsLayout = new QFormLayout(mControlsWidget);
     controlsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     controlsLayout->addRow("Spin Rotation:", &mSpinRotateSpinBox);
+    mSpinAxisSpinBox.setOptions(spinAxisOptions);
     controlsLayout->addRow("Spin Axis:", &mSpinAxisSpinBox);
 
     auto* mainLayout = new QFormLayout(this);

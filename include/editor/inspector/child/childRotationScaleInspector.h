@@ -4,8 +4,9 @@
 #include "editor/components/vectorSpinBox.h"
 #include "editor/inspector/inspectorWidgetBase.h"
 
-#include <QComboBox>
-#include <QLabel>
+#include <QCheckBox>
+#include <QDoubleSpinBox>
+#include <QSpinBox>
 #include <QWidget>
 
 
@@ -15,10 +16,10 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class RotationInspector final : public InspectorWidgetBase {
+class ChildRotationScaleInspector final : public InspectorWidgetBase {
     Q_OBJECT
 public:
-    explicit RotationInspector(QWidget* parent = nullptr);
+    explicit ChildRotationScaleInspector(QWidget* parent = nullptr);
 
 private:
     void populateProperties() final;
@@ -26,12 +27,21 @@ private:
     void updateAxis();
 
 private:
-    EnumComboBox<Ptcl::RotType> mRotTypeSpinBox{};
+    // Rotation widgets
+    EnumComboBox<Ptcl::RotType> mRotTypeComboBox{};
     VectorSpinBox<Math::Vector3f> mInitRotSpinBox{};
     VectorSpinBox<Math::Vector3f> mInitRotRandSpinBox{};
     VectorSpinBox<Math::Vector3f> mRotVelSpinBox{};
     VectorSpinBox<Math::Vector3f> mRotVelRandSpinBox{};
     VectorSpinBox<Math::Vector2f> mRotBasisSpinBox{};
+    QCheckBox mInheritRotCheckBox{};
+
+    // Scale widgets
+    VectorSpinBox<Math::Vector2f> mScaleSpinBox{};
+    VectorSpinBox<Math::Vector2f> mScaleTargetSpinBox{};
+    QDoubleSpinBox mInheritRateSpinBox{};
+    QSpinBox mStartFrameSpinBox{};
+    QCheckBox mInheritScaleCheckBox{};
 };
 
 

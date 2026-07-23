@@ -2,6 +2,8 @@
 
 #include "editor/textureSelectDialog.h"
 
+#include <array>
+
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -17,6 +19,18 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
+static const std::array textureWrapOptions{ // NOLINT(cert-err58-cpp)
+    EnumOption<Ptcl::TextureWrap>{ Ptcl::TextureWrap::MirroredRepeat, "Mirrored Repeat", "Texture is mirrored when repeating." },
+    EnumOption<Ptcl::TextureWrap>{ Ptcl::TextureWrap::Repeat,         "Repeat",          "Texture repeats seamlessly." },
+    EnumOption<Ptcl::TextureWrap>{ Ptcl::TextureWrap::ClampToEdge,    "Clamp to Edge",   "Texture is clamped at the edges." },
+};
+
+static const std::array textureFilterOptions{ // NOLINT(cert-err58-cpp)
+    EnumOption<Ptcl::TextureFilter>{ Ptcl::TextureFilter::Linear,  "Linear",  "Smooth interpolation between texels." },
+    EnumOption<Ptcl::TextureFilter>{ Ptcl::TextureFilter::Nearest, "Nearest", "Pixelated nearest-neighbor filtering." },
+};
+
+
 ChildTextureInspector::ChildTextureInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
@@ -28,17 +42,17 @@ ChildTextureInspector::ChildTextureInspector(QWidget* parent) :
     auto settingsLayout = new QGridLayout;
     settingsLayout->addWidget(new QLabel("Wrap U:"), 0, 0);
     settingsLayout->addWidget(&mWrapTComboBox, 0, 1);
-    mWrapTComboBox.setToolTip("Horizontal wrap mode: how texture repeats outside [0,1] range");
+    mWrapTComboBox.setOptions(textureWrapOptions);
     settingsLayout->addWidget(new QLabel("Wrap V:"), 1, 0);
     settingsLayout->addWidget(&mWrapSComboBox, 1, 1);
-    mWrapSComboBox.setToolTip("Vertical wrap mode: how texture repeats outside [0,1] range");
+    mWrapSComboBox.setOptions(textureWrapOptions);
     settingsLayout->addWidget(new QLabel("LOD Level:"), 0, 2);
     settingsLayout->addWidget(&mTexLodLevel, 0, 3);
     mTexLodLevel.setRange(0, 15);
     mTexLodLevel.setToolTip("Maximum mipmap LOD level (0 = no mipmaps, full resolution only)");
     settingsLayout->addWidget(new QLabel("Filter:"), 1, 2);
     settingsLayout->addWidget(&mFilterComboBox, 1, 3);
-    mFilterComboBox.setToolTip("Texture filtering: Linear (smooth) or Nearest (pixelated)");
+    mFilterComboBox.setOptions(textureFilterOptions);
     settingsLayout->addWidget(new QLabel("UV Scale:"), 2, 0);
     settingsLayout->addWidget(&mUVScaleSpinBox, 2, 1);
     mUVScaleSpinBox.setToolTip("Scale factor for child texture UV coordinates");

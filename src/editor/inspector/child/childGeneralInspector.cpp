@@ -102,7 +102,6 @@ void ChildGeneralInspector::populateProperties() {
     QSignalBlocker b2(mFollowCheckBox);
     QSignalBlocker b3(mParentFieldCheckBox);
     QSignalBlocker b4(mDrawOrderComboBox);
-
     const s32 billboardIndex = mBillboardComboBox.findData(QVariant::fromValue(mEmitter->childBillboardType()));
     mBillboardComboBox.setCurrentIndex(billboardIndex);
 

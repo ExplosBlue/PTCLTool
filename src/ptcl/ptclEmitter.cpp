@@ -60,8 +60,8 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mVolumeTblIndex = mVolumeTblIndex;
     newEmitter->mVolumeType = mVolumeType;
     newEmitter->mVolumeRadius = mVolumeRadius;
-    newEmitter->mVolumeSweepStart = mVolumeSweepStart;
-    newEmitter->mVolumeSweepParam = mVolumeSweepParam;
+    newEmitter->mVolumeArcWidth = mVolumeArcWidth;
+    newEmitter->mVolumeArcStart = mVolumeArcStart;
 
     // Color Properties
     newEmitter->mColor0 = mColor0;
@@ -288,6 +288,7 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mIsVelLook = emitterData.isVelLook;
     mIsEmitterBillboardMtx = emitterData.isEmitterBillboardMtx;
     mIsFollow = emitterData.isFollow;
+    updateIsEmitterBillboardMtx();
 
     // Gravity Properties
     mIsDirectional = emitterData.isDirectional;
@@ -324,8 +325,8 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mVolumeTblIndex = emitterData.volumeTblIndex;
     mVolumeType = emitterData.volumeType;
     mVolumeRadius = Math::Vector3f(emitterData.volumeRadius.x, emitterData.volumeRadius.y, emitterData.volumeRadius.z);
-    mVolumeSweepStart = emitterData.volumeSweepStart;
-    mVolumeSweepParam = emitterData.volumeSweepParam;
+    mVolumeArcWidth = emitterData.volumeArcWidth;
+    mVolumeArcStart = emitterData.volumeArcStart;
 
     // Color Properties
     for (size_t i = 0; i < mColor0.size(); ++i) {

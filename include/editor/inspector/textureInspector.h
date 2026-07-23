@@ -60,7 +60,7 @@ private:
     QGroupBox mTexPatGroupBox{};
     QCheckBox mTexPatAnimCheckBox{};
 
-    QComboBox mAnimModeComboBox{};
+    EnumComboBox<FrameAnimMode> mAnimModeComboBox{};
 
     SizedSpinBox<u16> mTexPatFreq{};
     SizedSpinBox<u16> mAnimFrameCountSpinBox{};

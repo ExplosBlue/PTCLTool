@@ -16,7 +16,7 @@
 
 AnimGraph::AnimGraph(QWidget* parent) :
     QWidget{parent} {
-    setMinimumSize(300, 200);
+    setMinimumSize(300, 300);
     setMouseTracking(true);
 
     auto* layout = new QHBoxLayout(this);

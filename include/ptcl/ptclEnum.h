@@ -38,15 +38,15 @@ enum class BillboardType : u32 {
 template<>
 inline QString toString<BillboardType>(const BillboardType& type) {
     switch (type) {
-    case BillboardType::Billboard:          return "Billboard";
-    case BillboardType::PolygonXY:          return "XY-plane polygon";
-    case BillboardType::PolygonXZ:          return "XZ-plane polygon";
-    case BillboardType::VelLook:            return "Directional Y-billboard";
-    case BillboardType::VelLookPolygon:     return "Directional polygon";
+    case BillboardType::Billboard:          return "Camera Facing";
+    case BillboardType::PolygonXY:          return "Fixed (XY Plane)";
+    case BillboardType::PolygonXZ:          return "Fixed (XZ Plane)";
+    case BillboardType::VelLook:            return "Velocity Billboard";
+    case BillboardType::VelLookPolygon:     return "Velocity Polygon";
     case BillboardType::Stripe:             return "Stripe";
-    case BillboardType::ComplexStripe:      return "ComplexStripe";
+    case BillboardType::ComplexStripe:      return "Complex Stripe";
     case BillboardType::Primitive:          return "Primitive";
-    case BillboardType::BillboardY:         return "Y-Axis Billboard";
+    case BillboardType::BillboardY:         return "Camera Facing (Y Axis)";
     case BillboardType::MAX:                return "BILLBOARD_TYPE_MAX";
     default: return "UNKNOWN";
     }
@@ -281,9 +281,9 @@ enum class DepthFuncType : u32 {
 template<>
 inline QString toString<DepthFuncType>(const DepthFuncType& type) {
     switch (type) {
-    case DepthFuncType::Unk0:   return "Unk0";
-    case DepthFuncType::Unk1:   return "Unk1";
-    case DepthFuncType::Unk2:   return "Unk2";
+    case DepthFuncType::Unk0:   return "Standard";
+    case DepthFuncType::Unk1:   return "No Test";
+    case DepthFuncType::Unk2:   return "No Write";
     case DepthFuncType::MAX:    return "DEPTH_FUNC_TYPE_MAX";
     default: return "UNKNOWN";
     }

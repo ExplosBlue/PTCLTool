@@ -2,6 +2,7 @@
 #include "util/imageUtil.h"
 
 #include <QDialogButtonBox>
+#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -11,9 +12,34 @@
 // ========================================================================== //
 
 
+static const std::array textureFormatOptions{ // NOLINT(cert-err58-cpp)
+    EnumOption<Ptcl::TextureFormat>{ Ptcl::TextureFormat::RGBA8888, "RGBA8888", "32-bit color with alpha channel." },
+    EnumOption<Ptcl::TextureFormat>{ Ptcl::TextureFormat::RGB888,   "RGB888",   "24-bit color, no alpha." },
+    EnumOption<Ptcl::TextureFormat>{ Ptcl::TextureFormat::RGBA5551, "RGBA5551", "16-bit color: 5 bits per channel, 1-bit alpha." },
+    EnumOption<Ptcl::TextureFormat>{ Ptcl::TextureFormat::RGB565,   "RGB565",   "16-bit color: 5-6-5 bit distribution, no alpha." },
+    EnumOption<Ptcl::TextureFormat>{ Ptcl::TextureFormat::RGBA4444, "RGBA4444", "16-bit color: 4 bits per channel including alpha." },
+    EnumOption<Ptcl::TextureFormat>{ Ptcl::TextureFormat::LA88,     "LA88",     "16-bit luminance + alpha, 8 bits each." },
+    EnumOption<Ptcl::TextureFormat>{ Ptcl::TextureFormat::HL8,      "HL8",      "8-bit high luminance." },
+    EnumOption<Ptcl::TextureFormat>{ Ptcl::TextureFormat::L8,       "L8",       "8-bit luminance." },
+    EnumOption<Ptcl::TextureFormat>{ Ptcl::TextureFormat::A8,       "A8",       "8-bit alpha only." },
+    EnumOption<Ptcl::TextureFormat>{ Ptcl::TextureFormat::LA44,     "LA44",     "8-bit luminance + alpha, 4 bits each." },
+    EnumOption<Ptcl::TextureFormat>{ Ptcl::TextureFormat::L4,       "L4",       "4-bit luminance." },
+    EnumOption<Ptcl::TextureFormat>{ Ptcl::TextureFormat::A4,       "A4",       "4-bit alpha only." },
+    EnumOption<Ptcl::TextureFormat>{ Ptcl::TextureFormat::ETC1,     "ETC1",     "Ericsson Texture Compression, no alpha." },
+    EnumOption<Ptcl::TextureFormat>{ Ptcl::TextureFormat::ETC1_A4,  "ETC1_A4",  "ETC1 with a 4-bit alpha channel." },
+};
+
+static const std::array etcQualityOptions{ // NOLINT(cert-err58-cpp)
+    EnumOption<ImageUtil::ETC1Quality>{ ImageUtil::ETC1Quality::LowQuality,    "Low Quality",    "Fastest compression, lowest visual quality." },
+    EnumOption<ImageUtil::ETC1Quality>{ ImageUtil::ETC1Quality::MediumQuality, "Medium Quality", "Balanced compression speed and quality." },
+    EnumOption<ImageUtil::ETC1Quality>{ ImageUtil::ETC1Quality::HighQuality,   "High Quality",   "Best visual quality, slowest compression." },
+};
+
+
 TextureImportDialog::TextureImportDialog(QWidget* parent, Qt::WindowFlags flags) :
     QDialog{parent, flags}, mTexture{nullptr} {
     // Format Selector
+    mFormatSelector.setOptions(textureFormatOptions);
     connect(&mFormatSelector, &QComboBox::currentIndexChanged, this, &TextureImportDialog::updateTextureFormat);
 
     // Import Preview
@@ -28,6 +54,7 @@ TextureImportDialog::TextureImportDialog(QWidget* parent, Qt::WindowFlags flags)
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     // ETC Quality
+    mETCQuality.setOptions(etcQualityOptions);
     mETCQuality.setEnabled(false);
     mETCQuality.setCurrentEnum(ImageUtil::ETC1Quality::HighQuality);
     connect(&mETCQuality, &QComboBox::currentIndexChanged, this, &TextureImportDialog::updateTextureFormat);

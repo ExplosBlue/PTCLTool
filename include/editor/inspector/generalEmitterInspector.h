@@ -2,11 +2,14 @@
 
 #include "editor/components/enumComboBox.h"
 #include "editor/components/sizedSpinBox.h"
+#include "editor/components/vectorSpinBox.h"
 #include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QCheckBox>
+#include <QDoubleSpinBox>
 #include <QFormLayout>
 #include <QLineEdit>
+#include <QSpinBox>
 #include <QWidget>
 
 
@@ -18,21 +21,7 @@ namespace PtclEditor {
 
 class GeneralEmitterInspector final : public InspectorWidgetBase {
     Q_OBJECT
-private:
-    static constexpr std::array<Ptcl::BillboardType, 6> sBillboardTypes{
-        Ptcl::BillboardType::Billboard,
-        Ptcl::BillboardType::PolygonXY,
-        Ptcl::BillboardType::PolygonXZ,
-        Ptcl::BillboardType::VelLook,
-        Ptcl::BillboardType::VelLookPolygon,
-        Ptcl::BillboardType::BillboardY,
-    };
-
-    static constexpr std::array<Ptcl::BillboardType, 2> sStripeTypes{
-        Ptcl::BillboardType::Stripe,
-        Ptcl::BillboardType::ComplexStripe
-    };
-
+public:
     enum class ShapeType {
         Particle,
         Stripe,
@@ -47,8 +36,8 @@ private:
 
     void setupConnections();
     void updateShapeRowVisibility();
-    void updateBillboardRowVisibility();
-    void syncBillboardSelection();
+    void updateBillboardFilter();
+    void updateStripeSectionVisibility();
 
     void setBillboardType(Ptcl::BillboardType type, const QString& label, const QString& key);
 
@@ -60,13 +49,21 @@ private:
 
     QLineEdit mNameLineEdit{};
     EnumComboBox<Ptcl::EmitterType> mTypeComboBox{};
-    QComboBox mRandomSeedMode{};
+    EnumComboBox<PtclSeed::Mode> mRandomSeedMode{};
     SizedSpinBox<u32> mRandomSeedSpinBox{};
     EnumComboBox<Ptcl::FollowType> mFollowTypeComboBox{};
-    QComboBox mBillboardComboBox{};
-    QComboBox mShapeComboBox{};
-    QComboBox mStripeTypeComboBox{};
-    QCheckBox mIsBillboardMtxCheckBox{};
+    EnumComboBox<ShapeType> mShapeComboBox{};
+    EnumComboBox<Ptcl::BillboardType> mBillboardTypeComboBox{};
+
+    QWidget* mStripeSection{nullptr};
+    EnumComboBox<Ptcl::StripeType> mStripeTypeComboBox{};
+    QCheckBox mStripeEmitterCoordCheckBox{};
+    QSpinBox mStripeNumHistSpinBox{};
+    QDoubleSpinBox mStripeStartAlphaSpinBox{};
+    QDoubleSpinBox mStripeEndAlphaSpinBox{};
+    VectorSpinBox<Math::Vector2f> mStripeUVScrollSpeedSpinBox{};
+    QSpinBox mStripeHistStepSpinBox{};
+    QDoubleSpinBox mStripeDirInterpolateSpinBox{};
 };
 
 

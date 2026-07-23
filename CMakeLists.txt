@@ -47,32 +47,23 @@ set(PROJECT_SOURCES
     src/editor/components/texturePreview.cpp
     src/editor/components/thumbnailWidget.cpp
     src/editor/components/viewportScrollBar.cpp
-    src/editor/inspector/alphaAnimInspector.cpp
     src/editor/inspector/colorInspector.cpp
     src/editor/inspector/combinerInspector.cpp
-    src/editor/inspector/emissionInspector.cpp
     src/editor/inspector/emitterSetInspector.cpp
     src/editor/inspector/generalEmitterInspector.cpp
     src/editor/inspector/inspectorPanel.cpp
     src/editor/inspector/inspectorWidgetBase.cpp
     src/editor/inspector/fluctuationInspector.cpp
-    src/editor/inspector/gravityInspector.cpp
     src/editor/inspector/lifespanInspector.cpp
-    src/editor/inspector/rotationInspector.cpp
-    src/editor/inspector/scaleAnimInspector.cpp
-    src/editor/inspector/stripeInspector.cpp
-    src/editor/inspector/terminationInspector.cpp
+    src/editor/inspector/physicsInspector.cpp
+    src/editor/inspector/rotationScaleInspector.cpp
     src/editor/inspector/textureInspector.cpp
-    src/editor/inspector/transformInspector.cpp
-    src/editor/inspector/velocityInspector.cpp
-    src/editor/inspector/volumeInspector.cpp
-    src/editor/inspector/child/childAlphaInspector.cpp
+    src/editor/inspector/shapeInspector.cpp
     src/editor/inspector/child/childColorInspector.cpp
     src/editor/inspector/child/childCombinerInspector.cpp
     src/editor/inspector/child/childEmissionInspector.cpp
     src/editor/inspector/child/childGeneralInspector.cpp
-    src/editor/inspector/child/childRotationInspector.cpp
-    src/editor/inspector/child/childScaleInspector.cpp
+    src/editor/inspector/child/childRotationScaleInspector.cpp
     src/editor/inspector/child/childTextureInspector.cpp
     src/editor/inspector/child/childVelocityInspector.cpp
     src/editor/inspector/field/fieldCollisionInspector.cpp
@@ -120,32 +111,23 @@ set(PROJECT_HEADERS
     include/editor/components/thumbnailWidget.h
     include/editor/components/vectorSpinBox.h
     include/editor/components/viewportScrollBar.h
-    include/editor/inspector/alphaAnimInspector.h
     include/editor/inspector/colorInspector.h
     include/editor/inspector/combinerInspector.h
     include/editor/inspector/emitterSetInspector.h
-    include/editor/inspector/emissionInspector.h
     include/editor/inspector/generalEmitterInspector.h
     include/editor/inspector/inspectorPanel.h
     include/editor/inspector/inspectorWidgetBase.h
     include/editor/inspector/fluctuationInspector.h
-    include/editor/inspector/gravityInspector.h
     include/editor/inspector/lifespanInspector.h
-    include/editor/inspector/rotationInspector.h
-    include/editor/inspector/scaleAnimInspector.h
-    include/editor/inspector/stripeInspector.h
-    include/editor/inspector/terminationInspector.h
+    include/editor/inspector/physicsInspector.h
+    include/editor/inspector/rotationScaleInspector.h
     include/editor/inspector/textureInspector.h
-    include/editor/inspector/transformInspector.h
-    include/editor/inspector/velocityInspector.h
-    include/editor/inspector/volumeInspector.h
-    include/editor/inspector/child/childAlphaInspector.h
+    include/editor/inspector/shapeInspector.h
     include/editor/inspector/child/childColorInspector.h
     include/editor/inspector/child/childEmissionInspector.h
     include/editor/inspector/child/childGeneralInspector.h
     include/editor/inspector/child/childCombinerInspector.h
-    include/editor/inspector/child/childRotationInspector.h
-    include/editor/inspector/child/childScaleInspector.h
+    include/editor/inspector/child/childRotationScaleInspector.h
     include/editor/inspector/child/childTextureInspector.h
     include/editor/inspector/child/childVelocityInspector.h
     include/editor/inspector/field/fieldCollisionInspector.h

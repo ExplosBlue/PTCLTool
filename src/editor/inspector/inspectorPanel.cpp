@@ -3,31 +3,22 @@
 
 #include "editor/inspector/emitterSetInspector.h"
 
-#include "editor/inspector/alphaAnimInspector.h"
 #include "editor/inspector/generalEmitterInspector.h"
 #include "editor/inspector/colorInspector.h"
 #include "editor/inspector/combinerInspector.h"
-#include "editor/inspector/emissionInspector.h"
-#include "editor/inspector/gravityInspector.h"
 #include "editor/inspector/lifespanInspector.h"
-#include "editor/inspector/rotationInspector.h"
-#include "editor/inspector/scaleAnimInspector.h"
-#include "editor/inspector/stripeInspector.h"
-#include "editor/inspector/terminationInspector.h"
+#include "editor/inspector/physicsInspector.h"
+#include "editor/inspector/rotationScaleInspector.h"
 #include "editor/inspector/textureInspector.h"
-#include "editor/inspector/transformInspector.h"
-#include "editor/inspector/velocityInspector.h"
-#include "editor/inspector/volumeInspector.h"
+#include "editor/inspector/shapeInspector.h"
 
 #include "editor/inspector/fluctuationInspector.h"
 
-#include "editor/inspector/child/childAlphaInspector.h"
 #include "editor/inspector/child/childColorInspector.h"
 #include "editor/inspector/child/childCombinerInspector.h"
 #include "editor/inspector/child/childEmissionInspector.h"
 #include "editor/inspector/child/childGeneralInspector.h"
-#include "editor/inspector/child/childRotationInspector.h"
-#include "editor/inspector/child/childScaleInspector.h"
+#include "editor/inspector/child/childRotationScaleInspector.h"
 #include "editor/inspector/child/childTextureInspector.h"
 #include "editor/inspector/child/childVelocityInspector.h"
 
@@ -61,20 +52,13 @@ InspectorPanel::InspectorPanel(QWidget* parent) :
     mEmitterSetInspector = new EmitterSetInspector(this);
 
     mGeneralInspector = new GeneralEmitterInspector(this);
-    mGravityInspector = new GravityInspector(this);
-    mTransformInspector = new TransformInspector(this);
+    mPhysicsInspector = new PhysicsInspector(this);
+    mShapeInspector = new ShapeInspector(this);
     mLifespanInspector = new LifespanInspector(this);
-    mTerminationInspector = new TerminationInspector(this);
-    mEmissionInspector = new EmissionInspector(this);
-    mVelocityInspector = new VelocityInspector(this);
-    mVolumeInspector = new VolumeInspector(this);
+    mRotationScaleInspector = new RotationScaleInspector(this);
     mColorInspector = new ColorInspector(this);
-    mAlphaAnimInspector = new AlphaAnimInspector(this);
-    mRotationInspector = new RotationInspector(this);
-    mScaleAnimInspector = new ScaleAnimInspector(this);
     mTextureInspector = new TextureInspector(this);
     mCombinerInspector = new CombinerInspector(this);
-    mStripeInspector = new StripeInspector(this);
 
     mFieldCollisionInspector = new FieldCollisionInspector(this);
     mFieldConvergenceInspector = new FieldConvergenceInspector(this);
@@ -83,13 +67,11 @@ InspectorPanel::InspectorPanel(QWidget* parent) :
     mFieldRandomInspector = new FieldRandomInspector(this);
     mFieldSpinInspector = new FieldSpinInspector(this);
 
-    mChildAlphaInspector = new ChildAlphaInspector(this);
     mChildColorInspector = new ChildColorInspector(this);
     mChildCombinerInspector = new ChildCombinerInspector(this);
     mChildEmissionInspector = new ChildEmissionInspector(this);
     mChildGeneralInspector = new ChildGeneralInspector(this);
-    mChildRotationInspector = new ChildRotationInspector(this);
-    mChildScaleInspector = new ChildScaleInspector(this);
+    mChildRotationScaleInspector = new ChildRotationScaleInspector(this);
     mChildTextureInspector = new ChildTextureInspector(this);
     mChildVelocityInspector = new ChildVelocityInspector(this);
 
@@ -133,7 +115,7 @@ InspectorPanel::InspectorPanel(QWidget* parent) :
 }
 
 void InspectorPanel::buildTabs() {
-    auto wrapInScroll = [this](QWidget* content) {
+    auto wrapInScroll = [](QWidget* content) {
         auto* scroll = new QScrollArea;
         scroll->setWidget(content);
         scroll->setWidgetResizable(true);
@@ -146,20 +128,13 @@ void InspectorPanel::buildTabs() {
 
     // Emitter
     mEmitterTabs->addTab(wrapInScroll(mGeneralInspector), "General");
-    mEmitterTabs->addTab(mStripeInspector, "Stripe");
     mEmitterTabs->addTab(wrapInScroll(mLifespanInspector), "Life");
-    mEmitterTabs->addTab(wrapInScroll(mTerminationInspector), "Termination");
-    mEmitterTabs->addTab(wrapInScroll(mGravityInspector), "Gravity");
-    mEmitterTabs->addTab(wrapInScroll(mEmissionInspector), "Emission");
-    mEmitterTabs->addTab(wrapInScroll(mVolumeInspector), "Volume");
-    mEmitterTabs->addTab(wrapInScroll(mVelocityInspector), "Velocity");
+    mEmitterTabs->addTab(wrapInScroll(mPhysicsInspector), "Physics");
+    mEmitterTabs->addTab(wrapInScroll(mShapeInspector), "Shape");
     mEmitterTabs->addTab(wrapInScroll(mTextureInspector), "Texture");
     mEmitterTabs->addTab(wrapInScroll(mColorInspector), "Color");
     mEmitterTabs->addTab(wrapInScroll(mCombinerInspector), "Combiner");
-    mEmitterTabs->addTab(wrapInScroll(mAlphaAnimInspector), "Alpha");
-    mEmitterTabs->addTab(wrapInScroll(mTransformInspector), "Transform");
-    mEmitterTabs->addTab(wrapInScroll(mRotationInspector), "Rotation");
-    mEmitterTabs->addTab(wrapInScroll(mScaleAnimInspector), "Scale");
+    mEmitterTabs->addTab(wrapInScroll(mRotationScaleInspector), "Transform");
 
     // Fluctuation
     mFluxTabs->addTab(wrapInScroll(mFluctuationInspector), "Fluctuation");
@@ -175,11 +150,9 @@ void InspectorPanel::buildTabs() {
     // Child
     mChildTabs->addTab(wrapInScroll(mChildGeneralInspector), "General");
     mChildTabs->addTab(wrapInScroll(mChildColorInspector), "Color");
-    mChildTabs->addTab(wrapInScroll(mChildAlphaInspector), "Alpha");
     mChildTabs->addTab(wrapInScroll(mChildCombinerInspector), "Combiner");
     mChildTabs->addTab(wrapInScroll(mChildEmissionInspector), "Emission");
-    mChildTabs->addTab(wrapInScroll(mChildRotationInspector), "Rotation");
-    mChildTabs->addTab(wrapInScroll(mChildScaleInspector), "Scale");
+    mChildTabs->addTab(wrapInScroll(mChildRotationScaleInspector), "Transform");
     mChildTabs->addTab(wrapInScroll(mChildTextureInspector), "Texture");
     mChildTabs->addTab(wrapInScroll(mChildVelocityInspector), "Velocity");
 }
@@ -223,20 +196,13 @@ void InspectorPanel::setDocument(Ptcl::Document* document) {
     mEmitterSetInspector->setDocument(document);
 
     mGeneralInspector->setDocument(document);
-    mGravityInspector->setDocument(document);
-    mTransformInspector->setDocument(document);
+    mPhysicsInspector->setDocument(document);
+    mShapeInspector->setDocument(document);
     mLifespanInspector->setDocument(document);
-    mScaleAnimInspector->setDocument(document);
-    mTerminationInspector->setDocument(document);
-    mEmissionInspector->setDocument(document);
-    mVelocityInspector->setDocument(document);
-    mVolumeInspector->setDocument(document);
-    mRotationInspector->setDocument(document);
-    mAlphaAnimInspector->setDocument(document);
+    mRotationScaleInspector->setDocument(document);
     mCombinerInspector->setDocument(document);
     mColorInspector->setDocument(document);
     mTextureInspector->setDocument(document);
-    mStripeInspector->setDocument(document);
 
     mFluctuationInspector->setDocument(document);
 
@@ -247,13 +213,11 @@ void InspectorPanel::setDocument(Ptcl::Document* document) {
     mFieldRandomInspector->setDocument(document);
     mFieldSpinInspector->setDocument(document);
 
-    mChildAlphaInspector->setDocument(document);
     mChildColorInspector->setDocument(document);
     mChildCombinerInspector->setDocument(document);
     mChildEmissionInspector->setDocument(document);
     mChildGeneralInspector->setDocument(document);
-    mChildRotationInspector->setDocument(document);
-    mChildScaleInspector->setDocument(document);
+    mChildRotationScaleInspector->setDocument(document);
     mChildTextureInspector->setDocument(document);
     mChildVelocityInspector->setDocument(document);
 
@@ -287,21 +251,14 @@ void InspectorPanel::setSelection(Ptcl::Selection* selection) {
     mEmitterSetInspector->setSelection(selection);
 
     mGeneralInspector->setSelection(selection);
-    mGravityInspector->setSelection(selection);
-    mTransformInspector->setSelection(selection);
+    mPhysicsInspector->setSelection(selection);
+    mShapeInspector->setSelection(selection);
     mLifespanInspector->setSelection(selection);
-    mScaleAnimInspector->setSelection(selection);
-    mTerminationInspector->setSelection(selection);
-    mEmissionInspector->setSelection(selection);
-    mVelocityInspector->setSelection(selection);
-    mVolumeInspector->setSelection(selection);
-    mRotationInspector->setSelection(selection);
-    mAlphaAnimInspector->setSelection(selection);
+    mRotationScaleInspector->setSelection(selection);
     mCombinerInspector->setSelection(selection);
     mColorInspector->setSelection(selection);
     mTextureInspector->setSelection(selection);
     mFluctuationInspector->setSelection(selection);
-    mStripeInspector->setSelection(selection);
 
     mFieldCollisionInspector->setSelection(selection);
     mFieldConvergenceInspector->setSelection(selection);
@@ -310,13 +267,11 @@ void InspectorPanel::setSelection(Ptcl::Selection* selection) {
     mFieldRandomInspector->setSelection(selection);
     mFieldSpinInspector->setSelection(selection);
 
-    mChildAlphaInspector->setSelection(selection);
     mChildColorInspector->setSelection(selection);
     mChildCombinerInspector->setSelection(selection);
     mChildEmissionInspector->setSelection(selection);
     mChildGeneralInspector->setSelection(selection);
-    mChildRotationInspector->setSelection(selection);
-    mChildScaleInspector->setSelection(selection);
+    mChildRotationScaleInspector->setSelection(selection);
     mChildTextureInspector->setSelection(selection);
     mChildVelocityInspector->setSelection(selection);
 
@@ -344,11 +299,6 @@ void InspectorPanel::populateProperties() {
         mLastSelectionType = mSelection->type();
         updateTabVisibility();
     }
-
-    // TODO - Stripe should be combined some other tab, this shouldn't be handled by the inspector
-    const s32 stripeIdx = mEmitterTabs->indexOf(mStripeInspector);
-    const bool hasStripe = mEmitter->hasStripeData();
-    mEmitterTabs->setTabVisible(stripeIdx, hasStripe);
 }
 
 

@@ -357,8 +357,8 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     isStopEmitInFade = emitter.isStopEmitInFade();
     volumeType = emitter.volumeType();
     volumeRadius = emitter.volumeRadius();
-    volumeSweepStart = emitter.volumeSweepStart();
-    volumeSweepParam = emitter.volumeSweepParam();
+    volumeArcWidth = emitter.volumeArcWidth();
+    volumeArcStart = emitter.volumeArcStart();
     figureVel = emitter.figureVelocity();
     emitterVelDir = emitter.velocityDirection();
     initVel = emitter.initialVelocity();
@@ -381,7 +381,7 @@ BinCommonEmitterData::BinCommonEmitterData(const Ptcl::Emitter& emitter) {
     for (size_t i = 0; i < color0.size(); ++i) {
         color0[i] = Ptcl::binColor4f::fromColor(emitter.color0()[i]);
     }
-    color1 = binColor3f::fromColor(emitter.secondaryColor());
+    color1 = binColor3f::fromColor(emitter.primaryColor());
     colorSection1 = emitter.colorSection1();
     colorSection2 = emitter.colorSection2();
     colorSection3 = emitter.colorSection3();
@@ -451,8 +451,8 @@ QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item) {
         >> item.isStopEmitInFade
         >> item.volumeType
         >> item.volumeRadius
-        >> item.volumeSweepStart
-        >> item.volumeSweepParam
+        >> item.volumeArcWidth
+        >> item.volumeArcStart
         >> item.figureVel
         >> item.emitterVelDir
         >> item.initVel
@@ -534,8 +534,8 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
         << item.isStopEmitInFade
         << item.volumeType
         << item.volumeRadius
-        << item.volumeSweepStart
-        << item.volumeSweepParam
+        << item.volumeArcWidth
+        << item.volumeArcStart
         << item.figureVel
         << item.emitterVelDir
         << item.initVel
@@ -620,8 +620,8 @@ void BinCommonEmitterData::printData(u32 indentationLevel) {
     qDebug() << indentation << "- isStopEmitInFade:      " << isStopEmitInFade;
     qDebug() << indentation << "- volumeType:            " << volumeType;
     qDebug() << indentation << "- volumeRadius:          " << volumeRadius;
-    qDebug() << indentation << "- volumeSweepStart:      " << volumeSweepStart;
-    qDebug() << indentation << "- volumeSweepParam:      " << volumeSweepParam;
+    qDebug() << indentation << "- volumeArcWidth:      " << volumeArcWidth;
+    qDebug() << indentation << "- volumeArcStart:      " << volumeArcStart;
     qDebug() << indentation << "- figureVel:             " << figureVel;
     qDebug() << indentation << "- emitterVelDir:         " << emitterVelDir;
     qDebug() << indentation << "- initVel:               " << initVel;
@@ -770,8 +770,8 @@ BinChildData::BinChildData(const Ptcl::Emitter& emitterData) {
     childTexturePos = 0; // To be assigned after construction...
     childTextureHandlePtr = 0;
 
-    childColor0 = binColor4f::fromColor(emitterData.childPrimaryColor());
-    childColor1 = binColor3f::fromColor(emitterData.childSecondaryColor());
+    childColor0 = binColor4f::fromColor(emitterData.childSecondaryColor());
+    childColor1 = binColor3f::fromColor(emitterData.childPrimaryColor());
     childAlpha = emitterData.childAlpha();
     childAlphaTarget = emitterData.childAlphaTarget();
     childAlphaInit = emitterData.childAlphaInit();

@@ -11,6 +11,24 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
+static const std::array volumeTypeOptions{ // NOLINT(cert-err58-cpp)
+    EnumOption<Ptcl::VolumeType>{ Ptcl::VolumeType::Point,          "Point",          "A single point volume." },
+    EnumOption<Ptcl::VolumeType>{ Ptcl::VolumeType::Circle,         "Circle",         "A circle volume with wireframe divisions." },
+    EnumOption<Ptcl::VolumeType>{ Ptcl::VolumeType::CircleSameDiv,  "Circle SameDiv", "A circle with user-defined divisions." },
+    EnumOption<Ptcl::VolumeType>{ Ptcl::VolumeType::CircleFill,     "Circle Fill",    "A filled circle volume." },
+    EnumOption<Ptcl::VolumeType>{ Ptcl::VolumeType::Sphere,         "Sphere",         "A sphere volume with wireframe divisions." },
+    EnumOption<Ptcl::VolumeType>{ Ptcl::VolumeType::SphereSameDiv,  "Sphere SameDiv", "A sphere with user-defined divisions." },
+    EnumOption<Ptcl::VolumeType>{ Ptcl::VolumeType::SphereFill,     "Sphere Fill",    "A filled sphere volume." },
+    EnumOption<Ptcl::VolumeType>{ Ptcl::VolumeType::Cylinder,       "Cylinder",       "A cylinder volume." },
+    EnumOption<Ptcl::VolumeType>{ Ptcl::VolumeType::CylinderFill,   "Cylinder Fill",  "A filled cylinder volume." },
+    EnumOption<Ptcl::VolumeType>{ Ptcl::VolumeType::Box,            "Box",            "A box volume." },
+    EnumOption<Ptcl::VolumeType>{ Ptcl::VolumeType::BoxFill,        "Box Fill",       "A filled box volume." },
+    EnumOption<Ptcl::VolumeType>{ Ptcl::VolumeType::Line,           "Line",           "A line volume." },
+    EnumOption<Ptcl::VolumeType>{ Ptcl::VolumeType::LineSameDiv,    "Line SameDiv",   "A line with user-defined divisions." },
+    EnumOption<Ptcl::VolumeType>{ Ptcl::VolumeType::Rectangle,      "Rectangle",      "A rectangle volume." },
+};
+
+
 VolumeInspector::VolumeInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
@@ -31,6 +49,7 @@ void VolumeInspector::setupUi() {
     mLengthSpinBox.setDecimals(4);
 
     mVolumeTblIndexComboBox.addItems({ "2", "3", "4", "6", "8", "12", "20", "32" });
+    mTypeComboBox.setOptions(volumeTypeOptions);
 
     // Layout
     auto* mainLayout = new QFormLayout;
@@ -161,8 +180,8 @@ void VolumeInspector::setupConnections() {
         setEmitterProperty(
             "Set Sweep Start",
             "SetSweepStart",
-            &Ptcl::Emitter::volumeSweepStart,
-            &Ptcl::Emitter::setVolumeSweepStart,
+            &Ptcl::Emitter::volumeArcWidth,
+            &Ptcl::Emitter::setVolumeArcWidth,
             sweepStart
         );
     });
@@ -173,8 +192,8 @@ void VolumeInspector::setupConnections() {
         setEmitterProperty(
             "Set Sweep Param",
             "SetSweepParam",
-            &Ptcl::Emitter::volumeSweepParam,
-            &Ptcl::Emitter::setVolumeSweepParam,
+            &Ptcl::Emitter::volumeArcStart,
+            &Ptcl::Emitter::setVolumeArcStart,
             sweepParam
         );
     });
@@ -197,8 +216,8 @@ void VolumeInspector::populateProperties() {
     mRadiusSpinBox.setVector(radius);
     mLengthSpinBox.setValue(radius.getZ());
 
-    mSweepStartSpinBox.setValue(Math::Util::to360(Math::Util::idx2deg(mEmitter->volumeSweepStart())));
-    mSweepParamSpinBox.setValue(Math::Util::to360(Math::Util::idx2deg(mEmitter->volumeSweepParam())));
+    mSweepStartSpinBox.setValue(Math::Util::to360(Math::Util::idx2deg(mEmitter->volumeArcWidth())));
+    mSweepParamSpinBox.setValue(Math::Util::to360(Math::Util::idx2deg(mEmitter->volumeArcStart())));
 
     updateFieldVisibility(volumeType);
 }

@@ -114,9 +114,9 @@ void CombinerStageWidget::drawInput(QPainter& painter, const QRect& drawRect, s3
     if (input == Combiner::Input::Texture) {
         label = "Tex";
     } else if (input == Combiner::Input::Constant) {
-        label = "Const";
-    } else if (input == Combiner::Input::Primary) {
         label = "Primary";
+    } else if (input == Combiner::Input::Primary) {
+        label = "Secondary";
     } else if (input == Combiner::Input::Previous) {
         label = "Prev";
     }

@@ -4,13 +4,15 @@
 #include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QCheckBox>
+#include <QDoubleSpinBox>
+#include <QSpinBox>
 #include <QWidget>
 
 
 namespace PtclEditor {
 
 
-// ========================================================================== //
+// ==========================================================================//
 
 
 class ChildColorInspector final : public InspectorWidgetBase {
@@ -26,6 +28,13 @@ private:
     RGBAColorWidget mColor0Widget{};
     RGBAColorWidget mColor1Widget{};
     QCheckBox mInheritColorCheckBox{};
+
+    QDoubleSpinBox mAlphaSpinBox{};
+    QDoubleSpinBox mAlphaTargetSpinBox{};
+    QDoubleSpinBox mAlphaInitSpinBox{};
+    QSpinBox mStartFrameSpinBox{};
+    QSpinBox mBaseFrameSpinBox{};
+    QCheckBox mInheritAlphaCheckBox{};
 };
 
 

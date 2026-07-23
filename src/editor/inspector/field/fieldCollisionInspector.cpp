@@ -9,6 +9,12 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
+static const std::array collisionTypeOptions{ // NOLINT(cert-err58-cpp)
+    EnumOption<Ptcl::FieldCollisionType>{ Ptcl::FieldCollisionType::Die,    "Die",    "Particles are destroyed on collision." },
+    EnumOption<Ptcl::FieldCollisionType>{ Ptcl::FieldCollisionType::Bounce, "Bounce", "Particles bounce off the collision plane." },
+};
+
+
 FieldCollisionInspector::FieldCollisionInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
@@ -24,6 +30,7 @@ FieldCollisionInspector::FieldCollisionInspector(QWidget* parent) :
     auto* controlsLayout = new QFormLayout(mControlsWidget);
     controlsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     controlsLayout->addRow("Collision Behavior:", &mCollisionTypeSpinBox);
+    mCollisionTypeSpinBox.setOptions(collisionTypeOptions);
     controlsLayout->addRow("Coordinate System:", &mIsWorldCheckBox);
     controlsLayout->addRow("Plane Y-Coord:", &mCoordSpinBox);
     controlsLayout->addRow("Bounce Rate:", &mCoefSpinBox);

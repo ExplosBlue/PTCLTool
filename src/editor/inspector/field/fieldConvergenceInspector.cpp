@@ -9,6 +9,12 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
+static const std::array convergenceTypeOptions{ // NOLINT(cert-err58-cpp)
+    EnumOption<Ptcl::FieldConvergenceType>{ Ptcl::FieldConvergenceType::AssignedPos, "Assigned Position", "Converge to an assigned position." },
+    EnumOption<Ptcl::FieldConvergenceType>{ Ptcl::FieldConvergenceType::EmitterPos,  "Emitter Position",  "Converge to the emitter's position." },
+};
+
+
 FieldConvergenceInspector::FieldConvergenceInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
@@ -21,6 +27,7 @@ FieldConvergenceInspector::FieldConvergenceInspector(QWidget* parent) :
     auto* controlsLayout = new QFormLayout(mControlsWidget);
     controlsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     controlsLayout->addRow("Convergence Position:", &mPosSpinBox);
+    mTypeSpinBox.setOptions(convergenceTypeOptions);
     controlsLayout->addRow("Position Follow Type:", &mTypeSpinBox);
 
     auto* mainLayout = new QFormLayout(this);

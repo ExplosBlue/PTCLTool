@@ -4,6 +4,11 @@
 #include "ptcl/ptclDocument.h"
 
 #include <QCheckBox>
+#include <QFormLayout>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QVBoxLayout>
 #include <QWidget>
 
 
@@ -25,6 +30,9 @@ protected:
     virtual void populateProperties() = 0;
 
     QString formatHistoryLabel(const QString& label) const;
+
+    static void addSectionHeader(QVBoxLayout* layout, const QString& title, QWidget* parent);
+    static void addSectionHeader(QFormLayout* layout, const QString& title, QWidget* parent);
 
     template<typename T, typename Getter, typename Setter>
     void setEmitterProperty(const QString& label, QString key, Getter getter, Setter setter, const T& value) {

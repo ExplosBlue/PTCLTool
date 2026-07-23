@@ -8,7 +8,7 @@
 #include <QPainterPath>
 
 
-// ========================================================================== //
+// ==========================================================================//
 
 
 ColorChannelRow::ColorChannelRow(const QString& name, Gfx::Color::Channel channel, QWidget* parent) :
@@ -76,18 +76,42 @@ void ColorChannelRow::sliderChanged(s32 value) {
 }
 
 
-// ========================================================================== //
+// ==========================================================================//
 
 
 RGBAColorWidget::RGBAColorWidget(QWidget* parent) :
     QWidget{parent} {
 
-    auto* mainLayout = new QHBoxLayout(this);
+    auto* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->setSpacing(4);
+    mainLayout->setSpacing(2);
 
+    // Top row: expand button + preview swatch
+    auto* topRow = new QHBoxLayout();
+    topRow->setContentsMargins(0, 0, 0, 0);
+    topRow->setSpacing(2);
+
+    mExpandBtn.setToolButtonStyle(Qt::ToolButtonIconOnly);
+    mExpandBtn.setAutoRaise(true);
+    mExpandBtn.setFixedSize(16, 16);
+    mExpandBtn.setArrowType(Qt::RightArrow);
+    mExpandBtn.setToolTip("Expand to show channel sliders");
+    connect(&mExpandBtn, &QToolButton::clicked, this, &RGBAColorWidget::toggleExpanded);
+
+    mPreview.setFixedWidth(32);
+    mPreview.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    mPreview.setAutoFillBackground(true);
+    connect(&mPreview, &ClickableLabel::clicked, this, &RGBAColorWidget::openColorDialog);
+
+    topRow->addWidget(&mExpandBtn);
+    topRow->addWidget(&mPreview);
+    topRow->addStretch(1);
+
+    mainLayout->addLayout(topRow);
+
+    // Slider rows (hidden by default)
     mSliderLayout = new QVBoxLayout();
-    mSliderLayout->setContentsMargins(0, 0, 0 ,0);
+    mSliderLayout->setContentsMargins(0, 0, 0, 0);
     mSliderLayout->setSpacing(2);
 
     mRowR = new ColorChannelRow("R", Gfx::Color::Channel::R, this);
@@ -109,23 +133,37 @@ RGBAColorWidget::RGBAColorWidget(QWidget* parent) :
     mRowsContainer = new QWidget(this);
     mRowsContainer->setLayout(mSliderLayout);
     mRowsContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    mRowsContainer->hide();
 
-    mPreview.setFixedWidth(32);
-    mPreview.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    mPreview.setFixedHeight(mRowsContainer->sizeHint().height());
-    mPreview.setAutoFillBackground(true);
-    connect(&mPreview, &ClickableLabel::clicked, this, &RGBAColorWidget::openColorDialog);
+    mainLayout->addWidget(mRowsContainer);
 
-    mainLayout->addWidget(mRowsContainer, 0);
-    mainLayout->addWidget(&mPreview, 0, Qt::AlignTop);
-
+    setCollapsed(true);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+}
+
+void RGBAColorWidget::setCollapsed(bool collapsed) {
+    mCollapsed = collapsed;
+    mRowsContainer->setVisible(!collapsed);
+
+    if (collapsed) {
+        mExpandBtn.setArrowType(Qt::RightArrow);
+        mExpandBtn.setToolTip("Expand to show channel sliders");
+    } else {
+        mExpandBtn.setArrowType(Qt::DownArrow);
+        mExpandBtn.setToolTip("Collapse channel sliders");
+    }
+
+    mPreview.setFixedHeight(collapsed ? 24 : mRowsContainer->sizeHint().height());
+}
+
+void RGBAColorWidget::toggleExpanded() {
+    setCollapsed(!mCollapsed);
 }
 
 void RGBAColorWidget::enableAlpha(bool enabled) {
     mRowA->setVisible(enabled);
     mRowsContainer->updateGeometry();
-    mPreview.setFixedHeight(mRowsContainer->sizeHint().height());
+    mPreview.setFixedHeight(mCollapsed ? 24 : mRowsContainer->sizeHint().height());
 }
 
 void RGBAColorWidget::setColor(const Gfx::Color& color) {
@@ -197,4 +235,4 @@ void RGBAColorWidget::updatePreview() {
 }
 
 
-// ========================================================================== //
+// ==========================================================================//
