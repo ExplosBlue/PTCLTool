@@ -27,7 +27,6 @@ private:
     VectorSpinBox<Math::Vector3f> mRandVelSpinBox{};
     VectorSpinBox<Math::Vector3f> mGravitySpinBox{};
     QDoubleSpinBox mVelInheritSpinBox{};
-    QDoubleSpinBox mInitPosRandSpinBox{};
     QDoubleSpinBox mFigureVelSpinBox{};
     QDoubleSpinBox mAirResistSpinBox{};
     QCheckBox mInheritVelCheckBox{};

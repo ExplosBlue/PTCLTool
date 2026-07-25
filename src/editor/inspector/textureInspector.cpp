@@ -104,11 +104,10 @@ TextureInspector::TextureInspector(QWidget* parent) :
     mChangeTextureButton.setToolTip("Choose a different texture from the document.");
     mStartFrameList.setToolTip("Number of possible spawning frames.\nRandomly selected when a particle spawns.");
     rightLayout->addWidget(&mStartFrameList);
-    rightLayout->addStretch();
 
     // Left side canvas
     auto leftLayout = new QVBoxLayout;
-    leftLayout->addWidget(&mTexturePreview, 1);
+    leftLayout->addWidget(&mTexturePreview, 0, Qt::AlignTop);
 
     // Canvas + Controls side by side
     auto topRow = new QHBoxLayout;
@@ -152,13 +151,14 @@ TextureInspector::TextureInspector(QWidget* parent) :
     auto mainLayout = new QVBoxLayout(this);
 
     addSectionHeader(mainLayout, "Texture Mapping", this);
-    mainLayout->addLayout(topRow, 1);
+    mainLayout->addLayout(topRow);
 
     addSectionHeader(mainLayout, "Texture Animation", this);
     mTexPatAnimCheckBox.setText("Enable Animation");
     mTexPatAnimCheckBox.setToolTip("Enable frame-by-frame texture animation.");
     mainLayout->addWidget(&mTexPatAnimCheckBox);
     mainLayout->addWidget(&mTexPatGroupBox);
+    mainLayout->addStretch();
 
     setLayout(mainLayout);
     setupConnections();

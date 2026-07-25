@@ -27,6 +27,7 @@ public:
     void setFilter(Ptcl::TextureFilter filter);
 
     void showFrameNumbers(bool show);
+    void setGreyFrameThreshold(s32 threshold);
 
     QSize sizeHint() const override;
     s32 heightForWidth(s32 w) const override;
@@ -34,6 +35,7 @@ public:
 protected:
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
 
 private:
     void updateLayoutCache();
@@ -42,8 +44,10 @@ private:
     void drawTexture(QPainter& painter);
     void drawFrameRegions(QPainter& painter);
     void drawFrameNumbers(QPainter& painter);
+    void drawDisabledFrameOverlay(QPainter& painter);
 
     QRect frameRegionRect(s32 frameIndex) const;
+    s32 frameAtPos(const QPoint& pos) const;
 
     void clampDivisions();
 
@@ -65,6 +69,7 @@ private:
     s32 mRepY{1};
 
     bool mShowFrameNumbers{true};
+    s32 mDisabledFrameThreshold{-1};
 
     static constexpr s32 padding = 8;
 };

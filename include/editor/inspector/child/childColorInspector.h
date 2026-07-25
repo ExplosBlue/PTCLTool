@@ -1,11 +1,10 @@
 #pragma once
 
+#include "editor/components/animGraph.h"
 #include "editor/components/rgbaColorWidget.h"
 #include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QCheckBox>
-#include <QDoubleSpinBox>
-#include <QSpinBox>
 #include <QWidget>
 
 
@@ -23,17 +22,15 @@ public:
 private:
     void populateProperties() final;
     void setupConnections();
+    void updateAlphaGraph();
+    void handleAlphaPointEdited(s32 pointIndex, const AnimGraph::GraphPoint& point);
 
 private:
     RGBAColorWidget mColor0Widget{};
     RGBAColorWidget mColor1Widget{};
     QCheckBox mInheritColorCheckBox{};
 
-    QDoubleSpinBox mAlphaSpinBox{};
-    QDoubleSpinBox mAlphaTargetSpinBox{};
-    QDoubleSpinBox mAlphaInitSpinBox{};
-    QSpinBox mStartFrameSpinBox{};
-    QSpinBox mBaseFrameSpinBox{};
+    AnimGraph mAlphaGraph{};
     QCheckBox mInheritAlphaCheckBox{};
 };
 

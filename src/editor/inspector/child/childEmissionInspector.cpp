@@ -1,6 +1,7 @@
 #include "editor/inspector/child/childEmissionInspector.h"
 
 #include <QFormLayout>
+#include <QVBoxLayout>
 
 
 namespace PtclEditor {
@@ -15,36 +16,55 @@ ChildEmissionInspector::ChildEmissionInspector(QWidget* parent) :
     // Emission Rate
     mEmitRateSpinBox.setRange(0, std::numeric_limits<s32>::max());
     mEmitRateSpinBox.setSuffix(" Particles");
+    mEmitRateSpinBox.setToolTip("The amount of child particles emitted with each emission.");
 
     // Emission Timing
     mEmitTimingSpinBox.setRange(0, std::numeric_limits<s32>::max());
     mEmitTimingSpinBox.setPrefix("Frame ");
+    mEmitTimingSpinBox.setToolTip("The frame on which the child emitter begins emitting child particles.");
 
     // Lifespan
     mLifeSpinBox.setRange(0, sLifeInfinite - 1);
     mLifeSpinBox.setSuffix(" Frames");
+    mLifeSpinBox.setToolTip("Maximum lifespan of each spawned child particle in frames.\nEach particle's actual lifespan is this value minus a random amount.");
 
     // Infinite Life
     mInfiniteLifeCheckBox.setText("Infinite");
+    mInfiniteLifeCheckBox.setToolTip("When checked, spawned child particles live until the emitter is killed.");
 
     // Emission Step
     mEmitStepSpinBox.setRange(0, std::numeric_limits<s32>::max());
     mEmitStepSpinBox.setSuffix(" Frames");
+    mEmitStepSpinBox.setToolTip("The number of frames between each child emission.");
 
-    auto* mainLayout = new QFormLayout(this);
-    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    auto* mainLayout = new QVBoxLayout(this);
 
-    // Lifespan + Infinite Life
+    // Lifetime
+    addSectionHeader(mainLayout, "Lifetime", this);
+
+    auto* lifetimeLayout = new QFormLayout;
+    lifetimeLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+
     auto* lifeRow = new QWidget(this);
-    auto* lifeLayout = new QHBoxLayout(lifeRow);
-    lifeLayout->setContentsMargins(0, 0, 0, 0);
-    lifeLayout->addWidget(&mLifeSpinBox, 1);
-    lifeLayout->addWidget(&mInfiniteLifeCheckBox);
-    mainLayout->addRow("Lifespan:", lifeRow);
+    auto* lifeRowLayout = new QHBoxLayout(lifeRow);
+    lifeRowLayout->setContentsMargins(0, 0, 0, 0);
+    lifeRowLayout->addWidget(&mLifeSpinBox, 1);
+    lifeRowLayout->addWidget(&mInfiniteLifeCheckBox);
+    lifetimeLayout->addRow("Max Child Lifespan:", lifeRow);
+    mainLayout->addLayout(lifetimeLayout);
 
-    mainLayout->addRow("Emission Rate:", &mEmitRateSpinBox);
-    mainLayout->addRow("Emission Start Time:", &mEmitTimingSpinBox);
-    mainLayout->addRow("Emission Interval:", &mEmitStepSpinBox);
+    // Emission
+    addSectionHeader(mainLayout, "Emission", this);
+
+    auto* emissionLayout = new QFormLayout;
+    emissionLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+
+    emissionLayout->addRow("Particles Per Emission:", &mEmitRateSpinBox);
+    emissionLayout->addRow("Emission Start Frame:", &mEmitTimingSpinBox);
+    emissionLayout->addRow("Emission Interval:", &mEmitStepSpinBox);
+    mainLayout->addLayout(emissionLayout);
+
+    mainLayout->addStretch();
 
     setupConnections();
 }

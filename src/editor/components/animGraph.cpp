@@ -7,6 +7,7 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QVBoxLayout>
+#include <QToolTip>
 #include <limits>
 #include <cmath>
 
@@ -143,6 +144,10 @@ void AnimGraph::setLineColor(const QColor& color) {
     update();
 };
 
+void AnimGraph::setHandleTooltips(const QStringList& tooltips) {
+    mHandleTooltips = tooltips;
+}
+
 void AnimGraph::setValueRange(f32 min, f32 max) {
     if (min >= max) {
         return;
@@ -176,6 +181,11 @@ void AnimGraph::setTickStepSize(f32 stepSize) {
 
 void AnimGraph::setVerticalAxisLabel(const QString& label) {
     mVerticalAxisLabel = label;
+    update();
+}
+
+void AnimGraph::setValueDisplayScale(f32 scale) {
+    mValueDisplayScale = scale;
     update();
 }
 
@@ -278,14 +288,27 @@ void AnimGraph::drawAxisLabels(QPainter& painter, const DrawContext& ctx) {
     }
 
     const f32 firstTick = std::ceil(range.min / range.tickStep) * range.tickStep;
-    const s32 decimals = std::max(0, static_cast<s32>(-std::floor(std::log10(range.tickStep))));
     const s32 yTickCount = static_cast<s32>((range.max - firstTick) / range.tickStep) + 1;
+
+    const f32 displayMin = range.min * ctx.valueDisplayScale;
+    const f32 displayMax = range.max * ctx.valueDisplayScale;
+    const f32 displayStep = range.tickStep * ctx.valueDisplayScale;
+    const f32 displayFirst = firstTick * ctx.valueDisplayScale;
+    const s32 displayDecimals = [&]() {
+        f32 v = displayStep;
+        for (s32 d = 0; d < 10; ++d) {
+            if (std::abs(v - std::round(v)) < 1e-6f) return d;
+            v *= 10.0f;
+        }
+        return 10;
+    }();
+
     for (s32 ti = 0; ti < yTickCount; ++ti) {
-        const f32 i = firstTick + static_cast<f32>(ti) * range.tickStep;
-        const f32 t = (range.max - i) / (range.max - range.min);
+        const f32 i = displayFirst + static_cast<f32>(ti) * displayStep;
+        const f32 t = (displayMax - i) / (displayMax - displayMin);
         const s32 y = static_cast<s32>(t * heightF);
 
-        const QString text = QString::number(i, 'f', decimals);
+        const QString text = QString::number(i, 'f', displayDecimals);
         const s32 textW = fm.horizontalAdvance(text);
         const s32 textH = fm.height();
 
@@ -371,8 +394,18 @@ void AnimGraph::updateCursor(const QPoint& pos) {
     if (rect.contains(pos)) {
         auto hits = hitTestAll(pos);
         setCursor(hits.isEmpty() ? Qt::OpenHandCursor : Qt::PointingHandCursor);
+
+        if (!hits.isEmpty()) {
+            const s32 idx = hits.last();
+            if (idx < mHandleTooltips.size() && !mHandleTooltips[idx].isEmpty()) {
+                QToolTip::showText(mapToGlobal(pos), mHandleTooltips[idx], this);
+            }
+        } else {
+            QToolTip::hideText();
+        }
     } else {
         setCursor(Qt::ArrowCursor);
+        QToolTip::hideText();
     }
 }
 
@@ -384,8 +417,23 @@ void AnimGraph::updateControls() {
         const auto& pt = mPoints[mSelectedIdx];
         mPositionSpin->setValue(pt.position);
         mValueSpin->setValue(pt.value);
-        mPositionSpin->setDisabled(pt.handleType == HandleType::Locked);
-        mValueSpin->setEnabled(true);
+
+        switch (pt.handleType) {
+        case HandleType::Locked:
+            mPositionSpin->setDisabled(true);
+            mValueSpin->setDisabled(false);
+            break;
+        case HandleType::InheritedHoldStart:
+        case HandleType::InheritedHoldEnd:
+            mPositionSpin->setDisabled(mSelectedIdx == 0);
+            mValueSpin->setDisabled(true);
+            break;
+        case HandleType::HoldStart:
+        case HandleType::HoldEnd:
+            mPositionSpin->setDisabled(mSelectedIdx == 0);
+            mValueSpin->setDisabled(false);
+            break;
+        }
     } else {
         mPositionSpin->setValue(0);
         mValueSpin->setValue(0);
@@ -395,11 +443,24 @@ void AnimGraph::updateControls() {
 }
 
 void AnimGraph::moveHandle(s32 handleIndex, f32 newPos, f32 newValue) {
+    if (handleIndex < 0 || handleIndex >= static_cast<s32>(mPoints.size())) {
+        return;
+    }
+
     if (mHasValueBounds) {
         newValue = std::clamp(newValue, mValueBoundsMin, mValueBoundsMax);
     }
 
-    // TODO: allow constraints to be defined per instance?
+    const HandleType ht = mPoints[handleIndex].handleType;
+
+    // InheritedHold: only allow horizontal (position) movement
+    if (ht == HandleType::InheritedHoldStart || ht == HandleType::InheritedHoldEnd) {
+        mPoints[handleIndex].position = newPos;
+        enforceOrdering(handleIndex);
+        emit pointEdited(handleIndex, mPoints[handleIndex]);
+        return;
+    }
+
     switch (handleIndex) {
     case 0:
         mPoints[0].value = newValue;
@@ -407,14 +468,20 @@ void AnimGraph::moveHandle(s32 handleIndex, f32 newPos, f32 newValue) {
     case 1:
         mPoints[1].position = newPos;
         mPoints[1].value = newValue;
-        // Keep handle 1 and 2 in sync
-        mPoints[2].value = newValue;
+        // Keep handle 1 and 2 in sync (value only)
+        if (mPoints[2].handleType != HandleType::InheritedHoldStart &&
+            mPoints[2].handleType != HandleType::InheritedHoldEnd) {
+            mPoints[2].value = newValue;
+        }
         break;
     case 2:
         mPoints[2].position = newPos;
         mPoints[2].value = newValue;
-        // Keep handle 1 and 2 in sync
-        mPoints[1].value = newValue;
+        // Keep handle 1 and 2 in sync (value only)
+        if (mPoints[1].handleType != HandleType::InheritedHoldStart &&
+            mPoints[1].handleType != HandleType::InheritedHoldEnd) {
+            mPoints[1].value = newValue;
+        }
         break;
     case 3:
         mPoints[3].value = newValue;
@@ -776,6 +843,24 @@ void AnimGraph::drawHandle(QPainter& painter, const QPoint& pos, HandleType type
             painter.drawPolygon(poly);
             break;
         }
+        case HandleType::InheritedHoldStart: {
+            static constexpr s32 r = sHandleRadius;
+            QPolygonF poly;
+            poly << QPointF(pos.x() - r, pos.y())
+                 << QPointF(pos.x(),      pos.y() - r)
+                 << QPointF(pos.x(),      pos.y() + r);
+            painter.drawPolygon(poly);
+            break;
+        }
+        case HandleType::InheritedHoldEnd: {
+            static constexpr s32 r = sHandleRadius;
+            QPolygonF poly;
+            poly << QPointF(pos.x() + r, pos.y())
+                 << QPointF(pos.x(),      pos.y() - r)
+                 << QPointF(pos.x(),      pos.y() + r);
+            painter.drawPolygon(poly);
+            break;
+        }
     }
 }
 
@@ -802,15 +887,26 @@ AnimGraph::DrawContext AnimGraph::buildDrawContext() {
     titleFont.setPointSize(titleFont.pointSize() + 1);
     const QFontMetrics tfm(titleFont);
 
-    if (widgetFont != mCachedWidgetFont) {
+    if (widgetFont != mCachedWidgetFont || mValueDisplayScale != mCachedValueDisplayScale || range.tickStep != mCachedTickStep) {
         mCachedWidgetFont = widgetFont;
+        mCachedValueDisplayScale = mValueDisplayScale;
+        mCachedTickStep = range.tickStep;
+
         const f32 firstTick = std::ceil(range.min / range.tickStep) * range.tickStep;
-        const s32 decimals = std::max(0, static_cast<s32>(-std::floor(std::log10(range.tickStep))));
+        const f32 displayStep = range.tickStep * mValueDisplayScale;
+        const s32 displayDecimals = [&]() {
+            f32 v = displayStep;
+            for (s32 d = 0; d < 10; ++d) {
+                if (std::abs(v - std::round(v)) < 1e-6f) return d;
+                v *= 10.0f;
+            }
+            return 10;
+        }();
         s32 maxW = 0;
         const s32 yTickCount = static_cast<s32>((range.max - firstTick) / range.tickStep) + 1;
         for (s32 ti = 0; ti < yTickCount; ++ti) {
-        const f32 i = firstTick + static_cast<f32>(ti) * range.tickStep;
-            const QString text = QString::number(i, 'f', decimals);
+            const f32 displayVal = (firstTick + static_cast<f32>(ti) * range.tickStep) * mValueDisplayScale;
+            const QString text = QString::number(displayVal, 'f', displayDecimals);
             maxW = std::max(maxW, lfm.horizontalAdvance(text));
         }
         mCachedMaxYTickW = maxW;
@@ -822,7 +918,6 @@ AnimGraph::DrawContext AnimGraph::buildDrawContext() {
     if (!mVerticalAxisLabel.isEmpty()) {
         leftPad += tfm.height() + 4;
     }
-    leftPad = std::max<s32>(leftPad, mPaddingLeft);
     if (mFixedLeftPad > 0) {
         leftPad = mFixedLeftPad;
     }
@@ -843,7 +938,8 @@ AnimGraph::DrawContext AnimGraph::buildDrawContext() {
         handleFill,
         axisColor,
         titleFont,
-        tfm
+        tfm,
+        mValueDisplayScale
     };
 }
 
@@ -855,8 +951,13 @@ void AnimGraph::drawGraphLine(QPainter& painter, const DrawContext& ctx, const Q
 
         QPen pen(mLineColor, 2);
 
-        if (mPoints[i].handleType == HandleType::HoldStart &&
-            mPoints[i + 1].handleType == HandleType::HoldEnd) {
+        const bool isHoldSegment =
+            (mPoints[i].handleType == HandleType::HoldStart &&
+             mPoints[i + 1].handleType == HandleType::HoldEnd) ||
+            (mPoints[i].handleType == HandleType::InheritedHoldStart &&
+             mPoints[i + 1].handleType == HandleType::InheritedHoldEnd);
+
+        if (isHoldSegment) {
             pen.setStyle(Qt::DashDotLine);
         } else {
             pen.setStyle(Qt::SolidLine);

@@ -50,6 +50,24 @@ public:
         bool operator==(const AlphaAnim&) const = default;
     };
 
+    struct ChildAlphaState {
+        f32 initAlpha{1.0f};
+        f32 alpha{1.0f};
+        f32 targetAlpha{1.0f};
+        s32 baseFrame{0};
+        s32 startFrame{0};
+
+        bool operator==(const ChildAlphaState&) const = default;
+    };
+
+    struct ChildScaleState {
+        Math::Vector2f scale{1.0f, 1.0f};
+        Math::Vector2f scaleTarget{1.0f, 1.0f};
+        s32 startFrame{0};
+
+        bool operator==(const ChildScaleState&) const = default;
+    };
+
 public:
     Emitter() = default;
     Emitter(QString name);
@@ -654,6 +672,19 @@ public:
     s32 childScaleStartFrame() const { return mChild.scaleStartFrame; }
     void setChildScaleStartFrame(s32 frame) { mChild.scaleStartFrame = frame; }
 
+    ChildScaleState childScaleState() const {
+        return ChildScaleState{
+            mChild.scale,
+            mChild.scaleTarget,
+            mChild.scaleStartFrame
+        };
+    }
+    void setChildScaleState(const ChildScaleState& state) {
+        mChild.scale = state.scale;
+        mChild.scaleTarget = state.scaleTarget;
+        mChild.scaleStartFrame = state.startFrame;
+    }
+
     // Child Texture
 
     TextureWrap childTextureWrapT() const { return mChild.textureWrapT; }
@@ -700,6 +731,24 @@ public:
 
     s32 childAlphaBaseFrame() const { return mChild.alphaBaseFrame; }
     void setChildAlphaBaseFrame(s32 frame) { mChild.alphaBaseFrame = frame; }
+
+    ChildAlphaState childAlphaState() const {
+        return {
+            mChild.alphaInit,
+            mChild.alpha,
+            mChild.alphaTarget,
+            mChild.alphaBaseFrame,
+            mChild.alphaStartFrame
+        };
+    }
+
+    void setChildAlphaState(const ChildAlphaState& state) {
+        mChild.alphaInit = state.initAlpha;
+        mChild.alpha = state.alpha;
+        mChild.alphaTarget = state.targetAlpha;
+        mChild.alphaBaseFrame = state.baseFrame;
+        mChild.alphaStartFrame = state.startFrame;
+    }
 
     // Child Combiner
 

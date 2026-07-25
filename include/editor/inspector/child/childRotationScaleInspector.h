@@ -1,12 +1,12 @@
 #pragma once
 
+#include "editor/components/animGraph.h"
 #include "editor/components/enumComboBox.h"
 #include "editor/components/vectorSpinBox.h"
 #include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QCheckBox>
 #include <QDoubleSpinBox>
-#include <QSpinBox>
 #include <QWidget>
 
 
@@ -26,6 +26,13 @@ private:
     void setupConnections();
     void updateAxis();
 
+    void updateAnimPoint(s32 pointIndex, const AnimGraph::GraphPoint& point, f32 (Math::Vector2f::*get)() const);
+    void updateGraphs();
+
+protected:
+    void resizeEvent(QResizeEvent* event) override;
+    bool eventFilter(QObject* obj, QEvent* event) override;
+
 private:
     // Rotation widgets
     EnumComboBox<Ptcl::RotType> mRotTypeComboBox{};
@@ -36,12 +43,16 @@ private:
     VectorSpinBox<Math::Vector2f> mRotBasisSpinBox{};
     QCheckBox mInheritRotCheckBox{};
 
+    // Position widgets
+    QDoubleSpinBox mInitPosRandSpinBox{};
+
     // Scale widgets
-    VectorSpinBox<Math::Vector2f> mScaleSpinBox{};
-    VectorSpinBox<Math::Vector2f> mScaleTargetSpinBox{};
+    AnimGraph mGraphX{};
+    AnimGraph mGraphY{};
     QDoubleSpinBox mInheritRateSpinBox{};
-    QSpinBox mStartFrameSpinBox{};
     QCheckBox mInheritScaleCheckBox{};
+    QWidget* mOverlay = nullptr;
+    const Ptcl::Emitter* mLastEmitter = nullptr;
 };
 
 

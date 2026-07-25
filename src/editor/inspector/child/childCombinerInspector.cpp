@@ -3,6 +3,7 @@
 #include <array>
 
 #include <QFormLayout>
+#include <QVBoxLayout>
 
 
 namespace PtclEditor {
@@ -59,17 +60,33 @@ static const std::array combinerFuncOptions{ // NOLINT(cert-err58-cpp)
 ChildCombinerInspector::ChildCombinerInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
-    auto* mainLayout = new QFormLayout(this);
-    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    auto* mainLayout = new QVBoxLayout(this);
+
+    // Rendering
+    addSectionHeader(mainLayout, "Rendering", this);
+
+    auto* renderingLayout = new QFormLayout;
+    renderingLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     mBlendFuncComboBox.setOptions(blendFuncOptions);
-    mainLayout->addRow("Blend Function:", &mBlendFuncComboBox);
+    renderingLayout->addRow("Blend Function:", &mBlendFuncComboBox);
     mDepthFuncComboBox.setOptions(depthFuncOptions);
-    mainLayout->addRow("Depth Function:", &mDepthFuncComboBox);
+    renderingLayout->addRow("Depth Function:", &mDepthFuncComboBox);
+    mainLayout->addLayout(renderingLayout);
+
+    // Combiner
+    addSectionHeader(mainLayout, "Combiner", this);
+
+    auto* combinerLayout = new QFormLayout;
+    combinerLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+
     mCombinerFuncComboBox.setOptions(combinerFuncOptions);
     mCombinerFuncComboBox.setToolTip("Selects a GPU combiner configuration defining how texture, primary, and constant colors are combined.");
-    mainLayout->addRow("Color Combiner:", &mCombinerFuncComboBox);
-    mainLayout->addWidget(&mCombinerPreview);
+    combinerLayout->addRow("Color Combiner:", &mCombinerFuncComboBox);
+    combinerLayout->addWidget(&mCombinerPreview);
+    mainLayout->addLayout(combinerLayout);
+
+    mainLayout->addStretch();
 
     setupConnections();
 }

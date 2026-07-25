@@ -1,6 +1,7 @@
 #include "editor/inspector/child/childVelocityInspector.h"
 
 #include <QFormLayout>
+#include <QVBoxLayout>
 
 namespace PtclEditor {
 
@@ -11,24 +12,59 @@ namespace PtclEditor {
 ChildVelocityInspector::ChildVelocityInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
-    // TODO: Determine better ranges?
-    mRandVelSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
-    mGravitySpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
-    mVelInheritSpinBox.setRange(0.0f, 1.0f);
-    mInitPosRandSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
-    mFigureVelSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
-    mAirResistSpinBox.setRange(0.0f, 1.0f);
+    mGravitySpinBox.setDecimals(2);
+    mGravitySpinBox.setToolTip("The direction and strength of the gravitational pull on child particles.");
 
-    auto* mainLayout = new QFormLayout(this);
-    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    mRandVelSpinBox.setDecimals(2);
+    mRandVelSpinBox.setToolTip("Random offset added to each child particle's initial velocity, per axis.");
 
-    mainLayout->addRow("Random Velocity:", &mRandVelSpinBox);
-    mainLayout->addRow("Gravity:", &mGravitySpinBox);
-    mainLayout->addRow("Inherit Parent Velocity:", &mInheritVelCheckBox);
-    mainLayout->addRow("Velocity Inherit Rate:", &mVelInheritSpinBox);
-    mainLayout->addRow("Inital Position Random:", &mInitPosRandSpinBox);
-    mainLayout->addRow("Figure Velocity:", &mFigureVelSpinBox);
-    mainLayout->addRow("Air Resistance:", &mAirResistSpinBox);
+    mFigureVelSpinBox.setRange(0.0, 100.0);
+    mFigureVelSpinBox.setSuffix("%");
+    mFigureVelSpinBox.setSingleStep(1.0);
+    mFigureVelSpinBox.setDecimals(0);
+    mFigureVelSpinBox.setToolTip("How much of the emitter's own movement is inherited by child particles.");
+
+    mAirResistSpinBox.setRange(0.0, 100.0);
+    mAirResistSpinBox.setSuffix("%");
+    mAirResistSpinBox.setSingleStep(1.0);
+    mAirResistSpinBox.setDecimals(0);
+    mAirResistSpinBox.setToolTip("How much child particles slow down over time. 0% = no slowdown, 100% = instant stop.");
+
+    mInheritVelCheckBox.setText("Inherit Parent Velocity");
+    mInheritVelCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    mInheritVelCheckBox.setToolTip("When enabled, child particles inherit the parent emitter's velocity.");
+
+    mVelInheritSpinBox.setRange(0.0, 100.0);
+    mVelInheritSpinBox.setSuffix("%");
+    mVelInheritSpinBox.setSingleStep(1.0);
+    mVelInheritSpinBox.setDecimals(0);
+    mVelInheritSpinBox.setToolTip("How much of the parent emitter's velocity is inherited by child particles.");
+
+    auto* mainLayout = new QVBoxLayout(this);
+
+    // Gravity
+    addSectionHeader(mainLayout, "Gravity", this);
+
+    auto* gravityLayout = new QFormLayout;
+    gravityLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+
+    gravityLayout->addRow("Gravity Acceleration:", &mGravitySpinBox);
+    mainLayout->addLayout(gravityLayout);
+
+    // Velocity
+    addSectionHeader(mainLayout, "Velocity", this);
+
+    auto* velocityLayout = new QFormLayout;
+    velocityLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+
+    velocityLayout->addRow("Spread Vector:", &mRandVelSpinBox);
+    velocityLayout->addRow("Emitter Velocity Inheritance:", &mFigureVelSpinBox);
+    velocityLayout->addRow("Velocity Damping:", &mAirResistSpinBox);
+    velocityLayout->addRow("Inherit Parent Velocity:", &mInheritVelCheckBox);
+    velocityLayout->addRow("Velocity Inherit Rate:", &mVelInheritSpinBox);
+    mainLayout->addLayout(velocityLayout);
+
+    mainLayout->addStretch();
 
     setupConnections();
 }
@@ -76,40 +112,29 @@ void ChildVelocityInspector::setupConnections() {
             "SetChildVelInheritRate",
             &Ptcl::Emitter::childVelocityInheritRate,
             &Ptcl::Emitter::setChildVelocityInheritRate,
-            static_cast<f32>(value)
-        );
-    });
-
-    // Init Pos Rand
-    connect(&mInitPosRandSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
-        setEmitterProperty(
-            "Set Child Initial Position Random",
-            "SetChildInitPosRand",
-            &Ptcl::Emitter::childInitalPositionRand,
-            &Ptcl::Emitter::setChildInitialPositionRand,
-            static_cast<f32>(value)
+            static_cast<f32>(value / 100.0)
         );
     });
 
     // Figure Velocity
     connect(&mFigureVelSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
         setEmitterProperty(
-            "Set Child Figure Velocity",
+            "Set Child Emitter Velocity Inheritance",
             "SetChildFigureVel",
             &Ptcl::Emitter::childFigureVelocity,
             &Ptcl::Emitter::setChildFigureVelocity,
-            static_cast<f32>(value)
+            static_cast<f32>(value / 100.0)
         );
     });
 
     // Air Resistance
     connect(&mAirResistSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
         setEmitterProperty(
-            "Set Child Air Resistance",
+            "Set Child Velocity Damping",
             "SetChildAirResit",
             &Ptcl::Emitter::childAirResistance,
             &Ptcl::Emitter::setChildAirResistance,
-            static_cast<f32>(value)
+            static_cast<f32>(1.0 - value / 100.0)
         );
     });
 }
@@ -118,18 +143,16 @@ void ChildVelocityInspector::populateProperties() {
     QSignalBlocker b1(mRandVelSpinBox);
     QSignalBlocker b2(mGravitySpinBox);
     QSignalBlocker b3(mVelInheritSpinBox);
-    QSignalBlocker b4(mInitPosRandSpinBox);
-    QSignalBlocker b5(mFigureVelSpinBox);
-    QSignalBlocker b6(mAirResistSpinBox);
-    QSignalBlocker b7(mInheritVelCheckBox);
+    QSignalBlocker b4(mFigureVelSpinBox);
+    QSignalBlocker b5(mAirResistSpinBox);
+    QSignalBlocker b6(mInheritVelCheckBox);
 
     mRandVelSpinBox.setVector(mEmitter->childRandVelocity());
     mGravitySpinBox.setVector(mEmitter->childGravity());
-    mVelInheritSpinBox.setValue(mEmitter->childVelocityInheritRate());
+    mVelInheritSpinBox.setValue(mEmitter->childVelocityInheritRate() * 100.0);
     mVelInheritSpinBox.setEnabled(mEmitter->isChildInheritVelocity());
-    mInitPosRandSpinBox.setValue(mEmitter->childInitalPositionRand());
-    mFigureVelSpinBox.setValue(mEmitter->childFigureVelocity());
-    mAirResistSpinBox.setValue(mEmitter->childAirResistance());
+    mFigureVelSpinBox.setValue(mEmitter->childFigureVelocity() * 100.0);
+    mAirResistSpinBox.setValue((1.0 - mEmitter->childAirResistance()) * 100.0);
     mInheritVelCheckBox.setChecked(mEmitter->isChildInheritVelocity());
 }
 

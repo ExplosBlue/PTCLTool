@@ -1,6 +1,7 @@
 #include "editor/inspector/child/childGeneralInspector.h"
 
 #include <QFormLayout>
+#include <QVBoxLayout>
 
 namespace PtclEditor {
 
@@ -17,22 +18,48 @@ ChildGeneralInspector::ChildGeneralInspector(QWidget* parent) :
 
     mEnabledCheckBox.setText("Enable Child Emitter");
     mEnabledCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    mEnabledCheckBox.setToolTip("Enables or disables the child emitter.");
     mFollowCheckBox.setText("Follow Parent Emitter");
     mFollowCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    mFollowCheckBox.setToolTip("When enabled, the child emitter follows the parent emitter's position.");
     mParentFieldCheckBox.setText("Apply Parent's Field");
     mParentFieldCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    mParentFieldCheckBox.setToolTip("When enabled, the parent's force fields affect the child emitter's particles.");
 
     mDrawOrderComboBox.addItem("Above Parent", QVariant::fromValue(DrawOrder::AboveParent));
     mDrawOrderComboBox.addItem("Below Parent", QVariant::fromValue(DrawOrder::BelowParent));
 
-    auto* mainLayout = new QFormLayout(this);
-    mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    auto* mainLayout = new QVBoxLayout(this);
 
-    mainLayout->addRow("Child:", &mEnabledCheckBox);
-    mainLayout->addRow("Billboard Type:", &mBillboardComboBox);
-    mainLayout->addRow("Follow Type:", &mFollowCheckBox);
-    mainLayout->addRow("Field Type:", &mParentFieldCheckBox);
-    mainLayout->addRow("Draw Order:", &mDrawOrderComboBox);
+    // General
+    addSectionHeader(mainLayout, "General", this);
+
+    auto* generalLayout = new QFormLayout;
+    generalLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    generalLayout->addRow("Child:", &mEnabledCheckBox);
+    mainLayout->addLayout(generalLayout);
+
+    // Behavior
+    addSectionHeader(mainLayout, "Behavior", this);
+
+    auto* behaviorLayout = new QFormLayout;
+    behaviorLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    behaviorLayout->addRow("Follow Type:", &mFollowCheckBox);
+    behaviorLayout->addRow("Field Type:", &mParentFieldCheckBox);
+    mainLayout->addLayout(behaviorLayout);
+
+    // Rendering
+    addSectionHeader(mainLayout, "Rendering", this);
+
+    auto* renderingLayout = new QFormLayout;
+    renderingLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    renderingLayout->addRow("Billboard Type:", &mBillboardComboBox);
+    mBillboardComboBox.setToolTip("How child particles face the camera.");
+    renderingLayout->addRow("Draw Order:", &mDrawOrderComboBox);
+    mDrawOrderComboBox.setToolTip("Whether child particles are drawn above or below the parent.");
+    mainLayout->addLayout(renderingLayout);
+
+    mainLayout->addStretch();
 
     setupConnections();
 }

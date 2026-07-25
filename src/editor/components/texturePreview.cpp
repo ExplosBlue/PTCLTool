@@ -8,6 +8,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPainter>
+#include <QPainterPath>
 #include <QResizeEvent>
 #include <QVBoxLayout>
 #include <QGroupBox>
@@ -26,6 +27,7 @@ TexturePreview::TexturePreview(QWidget* parent) :
     setFocusPolicy(Qt::StrongFocus);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     setMinimumSize(128, 128);
+    setMaximumSize(256, 256);
 }
 
 QSize TexturePreview::sizeHint() const {
@@ -118,6 +120,11 @@ void TexturePreview::showFrameNumbers(bool show) {
     update();
 }
 
+void TexturePreview::setGreyFrameThreshold(s32 threshold) {
+    mDisabledFrameThreshold = threshold;
+    update();
+}
+
 void TexturePreview::updateLayoutCache() {
     if (mTexture.isNull()) {
         mTexRect = {};
@@ -199,6 +206,17 @@ QRect TexturePreview::frameRegionRect(s32 frameIndex) const {
         right - left,
         bottom - top
     };
+}
+
+s32 TexturePreview::frameAtPos(const QPoint& pos) const {
+    if (!mTexRect.contains(pos)) {
+        return -1;
+    }
+
+    const s32 fx = (pos.x() - mTexRect.left()) * mDivX / mTexRect.width();
+    const s32 fy = (pos.y() - mTexRect.top()) * mDivY / mTexRect.height();
+
+    return std::clamp(fy, 0, mDivY - 1) * mDivX + std::clamp(fx, 0, mDivX - 1);
 }
 
 void TexturePreview::drawTexture(QPainter& painter) {
@@ -283,6 +301,28 @@ void TexturePreview::drawFrameNumbers(QPainter& painter) {
     painter.restore();
 }
 
+void TexturePreview::drawDisabledFrameOverlay(QPainter& painter) {
+    const QRect firstFrame = frameRegionRect(0);
+    QPainterPath path;
+    path.addRect(mTexRect);
+    path.addRect(firstFrame);
+    path.setFillRule(Qt::OddEvenFill);
+
+    painter.save();
+    painter.setRenderHint(QPainter::Antialiasing, false);
+    painter.fillPath(path, QColor(0, 0, 0, 160));
+
+    painter.setClipPath(path);
+    painter.setPen(QPen(QColor(255, 255, 255, 80), 1));
+    for (s32 d = -mTexRect.height(); d < mTexRect.width() + mTexRect.height(); d += 6) {
+        painter.drawLine(
+            QPoint(mTexRect.left() + d, mTexRect.top()),
+            QPoint(mTexRect.left() + d - mTexRect.height(), mTexRect.bottom())
+            );
+    }
+    painter.restore();
+}
+
 void TexturePreview::paintEvent(QPaintEvent* event) {
     Q_UNUSED(event);
 
@@ -296,7 +336,12 @@ void TexturePreview::paintEvent(QPaintEvent* event) {
     }
 
     drawTexture(painter);
-    drawFrameRegions(painter);
+
+    if (mDisabledFrameThreshold >= 0) {
+        drawDisabledFrameOverlay(painter);
+    } else {
+        drawFrameRegions(painter);
+    }
 
     if (mShowFrameNumbers) {
         drawFrameNumbers(painter);
@@ -308,6 +353,22 @@ void TexturePreview::resizeEvent(QResizeEvent* event) {
 
     updateLayoutCache();
     update();
+}
+
+void TexturePreview::mouseMoveEvent(QMouseEvent* event) {
+    QWidget::mouseMoveEvent(event);
+
+    const s32 frame = frameAtPos(event->pos());
+    if (frame < 0) {
+        setToolTip({});
+        return;
+    }
+
+    if (mDisabledFrameThreshold >= 0 && frame >= mDisabledFrameThreshold) {
+        setToolTip("Only frame 0 is used for this emitter.");
+    } else {
+        setToolTip(QString("Frame %1").arg(frame));
+    }
 }
 
 

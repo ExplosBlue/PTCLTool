@@ -3,6 +3,13 @@
 #include "math/util.h"
 
 #include <QFormLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPainter>
+#include <QResizeEvent>
+#include <QVBoxLayout>
+
+#include <cmath>
 
 
 namespace PtclEditor {
@@ -22,6 +29,23 @@ static const std::array rotTypeOptions{ // NOLINT(cert-err58-cpp)
 
 ChildRotationScaleInspector::ChildRotationScaleInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
+
+    static constexpr QColor sColorAxisX = { 238, 51, 79 };
+    static constexpr QColor sColorAxisY = { 42, 125, 212 };
+
+    mGraphX.setLineColor(sColorAxisX);
+    mGraphX.setVerticalAxisLabel("Scale X");
+    mGraphX.setPosLabel("Life");
+    mGraphX.setValLabel("Scale");
+
+    mGraphY.setLineColor(sColorAxisY);
+    mGraphY.setVerticalAxisLabel("Scale Y");
+    mGraphY.setPosLabel("Life");
+    mGraphY.setValLabel("Scale");
+
+    constexpr s32 forcedPad = 56;
+    mGraphX.setFixedLeftPadding(forcedPad);
+    mGraphY.setFixedLeftPadding(forcedPad);
 
     auto* mainLayout = new QFormLayout(this);
     mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
@@ -63,7 +87,7 @@ ChildRotationScaleInspector::ChildRotationScaleInspector(QWidget* parent) :
     mInheritScaleCheckBox.setText("Inherit Parent Scale");
     mInheritScaleCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mainLayout->addRow("Inherit:", &mInheritScaleCheckBox);
-    mInheritScaleCheckBox.setToolTip("Copies the parent's scale.");
+    mInheritScaleCheckBox.setToolTip("When enabled, the initial scale is inherited from the parent particle's scale.");
 
     mInheritRateSpinBox.setRange(0.0, 100.0);
     mInheritRateSpinBox.setSuffix("%");
@@ -72,22 +96,57 @@ ChildRotationScaleInspector::ChildRotationScaleInspector(QWidget* parent) :
     mainLayout->addRow("Inherit Rate:", &mInheritRateSpinBox);
     mInheritRateSpinBox.setToolTip("How much of the parent's scale is inherited.");
 
-    mScaleSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
-    mScaleSpinBox.setDecimals(2);
-    mainLayout->addRow("Initial Scale:", &mScaleSpinBox);
-    mScaleSpinBox.setToolTip("Starting scale when spawned.");
+    mainLayout->addRow(&mGraphX);
+    mainLayout->addRow(&mGraphY);
 
-    mScaleTargetSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
-    mScaleTargetSpinBox.setDecimals(2);
-    mainLayout->addRow("Target Scale:", &mScaleTargetSpinBox);
-    mScaleTargetSpinBox.setToolTip("Scale at the end of the animation.");
+    // Position section
+    addSectionHeader(mainLayout, "Position", this);
 
-    mStartFrameSpinBox.setRange(0, std::numeric_limits<s32>::max());
-    mStartFrameSpinBox.setSuffix(" Frames");
-    mainLayout->addRow("Start Frame:", &mStartFrameSpinBox);
-    mStartFrameSpinBox.setToolTip("Frame when the scale animation starts.");
+    mInitPosRandSpinBox.setRange(0.0, std::numeric_limits<f32>::max());
+    mInitPosRandSpinBox.setDecimals(2);
+    mInitPosRandSpinBox.setToolTip("Maximum distance from the parent particle at which each child can spawn.");
+    mainLayout->addRow("Spawn Offset Variation:", &mInitPosRandSpinBox);
+
+    // Overlay for connector lines between graphs
+    mOverlay = new QWidget(this);
+    mOverlay->setAttribute(Qt::WA_TransparentForMouseEvents);
+    mOverlay->setAttribute(Qt::WA_TranslucentBackground);
+    mOverlay->setAttribute(Qt::WA_NoSystemBackground);
+    mOverlay->installEventFilter(this);
+    mOverlay->setGeometry(rect());
+    mOverlay->show();
+    mOverlay->raise();
 
     setupConnections();
+}
+
+void ChildRotationScaleInspector::resizeEvent(QResizeEvent* event) {
+    InspectorWidgetBase::resizeEvent(event);
+    mOverlay->setGeometry(rect());
+}
+
+bool ChildRotationScaleInspector::eventFilter(QObject* obj, QEvent* event) {
+    if (obj == mOverlay && event->type() == QEvent::Paint) {
+        QPainter p(mOverlay);
+        const auto pal = mOverlay->palette();
+        p.setPen(QPen(pal.color(QPalette::WindowText), 1, Qt::DashLine));
+
+        auto drawLine = [&](s32 idx) {
+            if (idx >= static_cast<s32>(mGraphX.getPoints().size()) ||
+                idx >= static_cast<s32>(mGraphY.getPoints().size())) {
+                return;
+            }
+            const QPointF px = mGraphX.handleVisualPos(idx);
+            const QPointF py = mGraphY.handleVisualPos(idx);
+            const QPoint sx = mOverlay->mapFromGlobal(mGraphX.mapToGlobal(px.toPoint()));
+            const QPoint sy = mOverlay->mapFromGlobal(mGraphY.mapToGlobal(py.toPoint()));
+            p.drawLine(sx, sy);
+        };
+        drawLine(1);
+
+        return true;
+    }
+    return InspectorWidgetBase::eventFilter(obj, event);
 }
 
 void ChildRotationScaleInspector::setupConnections() {
@@ -179,6 +238,7 @@ void ChildRotationScaleInspector::setupConnections() {
 
     // Scale connections
     connect(&mInheritScaleCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
+        mInheritRateSpinBox.setEnabled(checked);
         setEmitterProperty(
             "Toggle Child Inherit Scale",
             "ToggleChildInheritScale",
@@ -186,28 +246,7 @@ void ChildRotationScaleInspector::setupConnections() {
             &Ptcl::Emitter::setChildInheritScale,
             checked
         );
-    });
-
-    connect(&mScaleSpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
-        const auto scale = mScaleSpinBox.getVector();
-        setEmitterProperty(
-            "Set Child Scale",
-            "SetChildScale",
-            &Ptcl::Emitter::childScale,
-            &Ptcl::Emitter::setChildScale,
-            scale
-        );
-    });
-
-    connect(&mScaleTargetSpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
-        const auto target = mScaleTargetSpinBox.getVector();
-        setEmitterProperty(
-            "Set Child Target Scale",
-            "SetChildScaleTarget",
-            &Ptcl::Emitter::childScaleTarget,
-            &Ptcl::Emitter::setChildScaleTarget,
-            target
-        );
+        updateGraphs();
     });
 
     connect(&mInheritRateSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
@@ -218,17 +257,185 @@ void ChildRotationScaleInspector::setupConnections() {
             &Ptcl::Emitter::setChildScaleInheritRate,
             static_cast<f32>(value / 100.0)
         );
+        updateGraphs();
     });
 
-    connect(&mStartFrameSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
+    connect(&mGraphX, &AnimGraph::pointEdited, this, [this](s32 pointIndex, const AnimGraph::GraphPoint& point) {
+        updateAnimPoint(pointIndex, point, &Math::Vector2f::getX);
+    });
+
+    connect(&mGraphY, &AnimGraph::pointEdited, this, [this](s32 pointIndex, const AnimGraph::GraphPoint& point) {
+        updateAnimPoint(pointIndex, point, &Math::Vector2f::getY);
+    });
+
+    // Position connections
+    connect(&mInitPosRandSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
         setEmitterProperty(
-            "Set Child Scale Start Frame",
-            "SetChildScaleStartFrame",
-            &Ptcl::Emitter::childScaleStartFrame,
-            &Ptcl::Emitter::setChildScaleStartFrame,
-            value
+            "Set Child Initial Position Random",
+            "SetChildInitPosRand",
+            &Ptcl::Emitter::childInitalPositionRand,
+            &Ptcl::Emitter::setChildInitialPositionRand,
+            static_cast<f32>(value)
         );
     });
+}
+
+void ChildRotationScaleInspector::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphPoint& point, f32 (Math::Vector2f::*get)() const) {
+    auto state = mEmitter->childScaleState();
+
+    auto setVec = [&](Math::Vector2f& v, f32 val) {
+        if (get == &Math::Vector2f::getX) {
+            v.setX(val);
+        } else {
+            v.setY(val);
+        }
+    };
+
+    auto getVec = [&](const Math::Vector2f& v) -> f32 {
+        return (get == &Math::Vector2f::getX) ? v.getX() : v.getY();
+    };
+
+    const s32 childLife = mEmitter->childLife();
+    const bool inherited = mEmitter->isChildInheritScale();
+
+    switch (pointIndex) {
+    case 0:
+        if (!inherited) {
+            setVec(state.scale, point.value);
+        }
+        break;
+    case 1:
+    {
+        const f32 startFramePct = point.position;
+        state.startFrame = (childLife > 0)
+            ? static_cast<s32>(lround((startFramePct / 100.0) * static_cast<f64>(childLife)))
+            : 0;
+        if (!inherited) {
+            setVec(state.scale, point.value);
+        }
+        break;
+    }
+    case 2:
+    {
+        if (inherited) {
+            setVec(state.scaleTarget, point.value);
+        } else {
+            const f32 currentScale = getVec(state.scale);
+            if (currentScale != 0.0f) {
+                setVec(state.scaleTarget, point.value / currentScale);
+            }
+        }
+        break;
+    }
+    }
+
+    const QString axis = (get == &Math::Vector2f::getX) ? "X" : "Y";
+
+    QString handleName;
+    switch (pointIndex) {
+        case 0: handleName = "Start"; break;
+        case 1: handleName = "StartFrame"; break;
+        case 2: handleName = "End"; break;
+    }
+
+    QString key;
+    QString label;
+    if (pointIndex == 1) {
+        label = QString("Move Scale %1").arg(handleName);
+        key = QString("ChildScale_%1").arg(pointIndex);
+    } else {
+        label = QString("Move Scale %1 (%2)").arg(handleName, axis);
+        key = QString("ChildScale_%1_%2").arg(pointIndex).arg(axis);
+    }
+
+    setEmitterProperty(
+        label,
+        key,
+        &Ptcl::Emitter::childScaleState,
+        &Ptcl::Emitter::setChildScaleState,
+        state
+    );
+
+    updateGraphs();
+}
+
+void ChildRotationScaleInspector::updateGraphs() {
+    const s32 childLife = mEmitter->childLife();
+    const bool inherited = mEmitter->isChildInheritScale();
+    const Math::Vector2f& scale = mEmitter->childScale();
+    const Math::Vector2f& scaleTarget = mEmitter->childScaleTarget();
+    const s32 startFrame = mEmitter->childScaleStartFrame();
+
+    const f32 startFramePct = (childLife > 0)
+        ? (static_cast<f32>(startFrame) / static_cast<f32>(childLife)) * 100.0f
+        : 0.0f;
+
+    auto updateGraph = [&](AnimGraph& graph, f32 (Math::Vector2f::*get)() const) {
+        QSignalBlocker blocker(graph);
+
+        const f32 p0 = inherited ? 1.0f : (scale.*get)();
+        const f32 p2 = inherited
+            ? (scaleTarget.*get)()
+            : p0 * (scaleTarget.*get)();
+
+        const auto holdStartType = inherited
+            ? AnimGraph::HandleType::InheritedHoldStart
+            : AnimGraph::HandleType::HoldStart;
+        const auto holdEndType = inherited
+            ? AnimGraph::HandleType::InheritedHoldEnd
+            : AnimGraph::HandleType::HoldEnd;
+
+        AnimGraph::PointList points = {
+            { 0.0f,          p0, holdStartType },
+            { startFramePct, p0, holdEndType },
+            { 100.0f,        p2, AnimGraph::HandleType::Locked }
+        };
+        graph.setControlPoints(points);
+    };
+
+    updateGraph(mGraphX, &Math::Vector2f::getX);
+    updateGraph(mGraphY, &Math::Vector2f::getY);
+
+    if (inherited) {
+        mGraphX.setVerticalAxisLabel("Scale Multiplier X");
+        mGraphY.setVerticalAxisLabel("Scale Multiplier Y");
+        mGraphX.setTickStepSize(0.25f);
+        mGraphY.setTickStepSize(0.25f);
+    } else {
+        mGraphX.setVerticalAxisLabel("Scale X");
+        mGraphY.setVerticalAxisLabel("Scale Y");
+        mGraphX.setTickStepSize(1.0f);
+        mGraphY.setTickStepSize(1.0f);
+    }
+
+    mGraphX.zoomToFit();
+    mGraphY.zoomToFit();
+
+    if (inherited) {
+        mGraphX.setHandleTooltips({
+            "Scale Hold Start.\nLocked to 0% lifetime.\nValue is a multiplier relative to the inherited scale.",
+            "Scale Hold End.\nValue is synced with the Scale Hold Start handle.\nValue is a multiplier relative to the inherited scale.",
+            "Scale Target.\nLocked to 100% lifetime.\nValue is a multiplier relative to the inherited scale.",
+        });
+        mGraphY.setHandleTooltips({
+            "Scale Hold Start.\nLocked to 0% lifetime.\nValue is a multiplier relative to the inherited scale.",
+            "Scale Hold End.\nValue is synced with the Scale Hold Start handle.\nValue is a multiplier relative to the inherited scale.",
+            "Scale Target.\nLocked to 100% lifetime.\nValue is a multiplier relative to the inherited scale.",
+        });
+    } else {
+        mGraphX.setHandleTooltips({
+            "Scale Hold Start.\nLocked to 0% lifetime.",
+            "Scale Hold End.\nValue is synced with the Scale Hold Start handle.",
+            "Scale Target.\nLocked to 100% lifetime.",
+        });
+        mGraphY.setHandleTooltips({
+            "Scale Hold Start.\nLocked to 0% lifetime.",
+            "Scale Hold End.\nValue is synced with the Scale Hold Start handle.",
+            "Scale Target.\nLocked to 100% lifetime.",
+        });
+    }
+
+    mOverlay->update();
 }
 
 void ChildRotationScaleInspector::populateProperties() {
@@ -239,11 +446,9 @@ void ChildRotationScaleInspector::populateProperties() {
     QSignalBlocker b5(mRotVelRandSpinBox);
     QSignalBlocker b6(mRotBasisSpinBox);
     QSignalBlocker b7(mInheritRotCheckBox);
-    QSignalBlocker b8(mScaleSpinBox);
-    QSignalBlocker b9(mScaleTargetSpinBox);
-    QSignalBlocker b10(mInheritRateSpinBox);
-    QSignalBlocker b11(mStartFrameSpinBox);
-    QSignalBlocker b12(mInheritScaleCheckBox);
+    QSignalBlocker b8(mInheritRateSpinBox);
+    QSignalBlocker b9(mInheritScaleCheckBox);
+    QSignalBlocker b10(mInitPosRandSpinBox);
 
     auto idx2degVec = [](const Math::Vector3i& v) {
         return Math::Vector3f {
@@ -264,11 +469,25 @@ void ChildRotationScaleInspector::populateProperties() {
     updateAxis();
 
     // Scale properties
-    mScaleSpinBox.setVector(mEmitter->childScale());
-    mScaleTargetSpinBox.setVector(mEmitter->childScaleTarget());
+    const bool inherited = mEmitter->isChildInheritScale();
+    mInheritScaleCheckBox.setChecked(inherited);
+    mInheritRateSpinBox.setEnabled(inherited);
     mInheritRateSpinBox.setValue(mEmitter->childScaleInheritRate() * 100.0);
-    mStartFrameSpinBox.setValue(mEmitter->childScaleStartFrame());
-    mInheritScaleCheckBox.setChecked(mEmitter->isChildInheritScale());
+
+    const bool emitterChanged = (mEmitter != mLastEmitter);
+    mLastEmitter = mEmitter;
+
+    updateGraphs();
+
+    if (emitterChanged) {
+        mGraphX.zoomToFit();
+        mGraphY.zoomToFit();
+    }
+
+    // Position properties
+    mInitPosRandSpinBox.setValue(mEmitter->childInitalPositionRand());
+
+    update();
 }
 
 void ChildRotationScaleInspector::updateAxis() {

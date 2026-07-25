@@ -149,12 +149,12 @@ void InspectorPanel::buildTabs() {
 
     // Child
     mChildTabs->addTab(wrapInScroll(mChildGeneralInspector), "General");
+    mChildTabs->addTab(wrapInScroll(mChildEmissionInspector), "Life");
+    mChildTabs->addTab(wrapInScroll(mChildVelocityInspector), "Physics");
+    mChildTabs->addTab(wrapInScroll(mChildTextureInspector), "Texture");
     mChildTabs->addTab(wrapInScroll(mChildColorInspector), "Color");
     mChildTabs->addTab(wrapInScroll(mChildCombinerInspector), "Combiner");
-    mChildTabs->addTab(wrapInScroll(mChildEmissionInspector), "Emission");
     mChildTabs->addTab(wrapInScroll(mChildRotationScaleInspector), "Transform");
-    mChildTabs->addTab(wrapInScroll(mChildTextureInspector), "Texture");
-    mChildTabs->addTab(wrapInScroll(mChildVelocityInspector), "Velocity");
 }
 
 void InspectorPanel::updateTabVisibility() {

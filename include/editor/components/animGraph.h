@@ -14,7 +14,9 @@
 enum class GraphHandleType {
     Locked,
     HoldStart,
-    HoldEnd
+    HoldEnd,
+    InheritedHoldStart,
+    InheritedHoldEnd
 };
 
 
@@ -71,6 +73,8 @@ private:
 
         QFont titleFont{};
         QFontMetrics titleMetrics;
+
+        f32 valueDisplayScale{1.0f};
     };
 
 public:
@@ -86,7 +90,9 @@ public:
     void setValueBounds(f32 min, f32 max);
     void setTickStepSize(f32 stepSize);
     void setVerticalAxisLabel(const QString& label);
+    void setValueDisplayScale(f32 scale);
     void setFixedLeftPadding(s32 pad);
+    void setHandleTooltips(const QStringList& tooltips);
     void setPosLabel(const QString& text);
     void setValLabel(const QString& text);
 
@@ -167,8 +173,9 @@ private:
 
     f32 mTickStepSize = 1.0f;
 
-    // Font metric cache (rebuilt when widget font changes)
     QFont mCachedWidgetFont{};
+    f32 mCachedValueDisplayScale = -1.0f;
+    f32 mCachedTickStep = -1.0f;
     s32 mCachedMaxYTickW = 0;
 
     QPoint mPressPos{};
@@ -182,7 +189,10 @@ private:
     f32 mValueBoundsMin = 0.0f;
     f32 mValueBoundsMax = 1.0f;
 
+    f32 mValueDisplayScale = 1.0f;
+
     QColor mLineColor = Qt::white;
+    QStringList mHandleTooltips;
     QVector<EdgeIndicator> mEdgeIndicators{};
 
     // Ui Style
@@ -196,4 +206,3 @@ private:
 };
 
 // ========================================================================== //
-
