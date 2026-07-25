@@ -640,8 +640,8 @@ public:
 
     // Child Rotation
 
-    RotType childRotationType() const { return mRotType; }
-    void setChildRotationType(RotType type) { mRotType = type; }
+    RotType childRotationType() const { return mChild.rotType; }
+    void setChildRotationType(RotType type) { mChild.rotType = type; }
 
     const Math::Vector3i& childInitialRotation() const { return mChild.initRot; }
     void setChildInitialRotation(const Math::Vector3i& rotation) { mChild.initRot = rotation; }
