@@ -2,7 +2,7 @@
 
 #include "typedefs.h"
 
-#include <QDebug>
+#include <QString>
 
 
 namespace Ptcl {
@@ -31,32 +31,7 @@ enum class BillboardType : u32 {
     ComplexStripe   = 0x6,
     Primitive       = 0x7,
     BillboardY      = 0x8,
-
-    MAX
 };
-
-template<>
-inline QString toString<BillboardType>(const BillboardType& type) {
-    switch (type) {
-    case BillboardType::Billboard:          return "Camera Facing";
-    case BillboardType::PolygonXY:          return "Fixed (XY Plane)";
-    case BillboardType::PolygonXZ:          return "Fixed (XZ Plane)";
-    case BillboardType::VelLook:            return "Velocity Billboard";
-    case BillboardType::VelLookPolygon:     return "Velocity Polygon";
-    case BillboardType::Stripe:             return "Stripe";
-    case BillboardType::ComplexStripe:      return "Complex Stripe";
-    case BillboardType::Primitive:          return "Primitive";
-    case BillboardType::BillboardY:         return "Camera Facing (Y Axis)";
-    case BillboardType::MAX:                return "BILLBOARD_TYPE_MAX";
-    default: return "UNKNOWN";
-    }
-}
-
-inline QDebug operator<<(QDebug dbg, const BillboardType& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
-}
 
 
 // ========================================================================== //
@@ -66,26 +41,7 @@ enum class EmitterType : u32 {
     Simple     = 0x0,
     Complex    = 0x1,
     Compact    = 0x2,
-
-    MAX
 };
-
-template<>
-inline QString toString<EmitterType>(const EmitterType& type) {
-    switch (type) {
-    case EmitterType::Simple:           return "Simple";
-    case EmitterType::Complex:          return "Complex";
-    case EmitterType::Compact:          return "Compact";
-    case EmitterType::MAX:              return "EMITTER_TYPE_MAX";
-    default: return "UNKNOWN";
-    }
-}
-
-inline QDebug operator<<(QDebug dbg, const EmitterType& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
-}
 
 
 // ========================================================================== //
@@ -112,37 +68,7 @@ enum class VolumeType : u32 {
     LineSameDiv    = 0xC,
 
     Rectangle      = 0xD,
-
-    MAX
 };
-
-template<>
-inline QString toString<VolumeType>(const VolumeType& type) {
-    switch (type) {
-    case VolumeType::Point:           return "Point";
-    case VolumeType::Circle:          return "Circle";
-    case VolumeType::CircleSameDiv:   return "CircleSameDiv";
-    case VolumeType::CircleFill:      return "CircleFill";
-    case VolumeType::Sphere:          return "Sphere";
-    case VolumeType::SphereSameDiv:   return "SphereSameDiv";
-    case VolumeType::SphereFill:      return "SphereFill";
-    case VolumeType::Cylinder:        return "Cylinder";
-    case VolumeType::CylinderFill:    return "CylinderFill";
-    case VolumeType::Box:             return "Box";
-    case VolumeType::BoxFill:         return "BoxFill";
-    case VolumeType::Line:            return "Line";
-    case VolumeType::LineSameDiv:     return "LineSameDiv";
-    case VolumeType::Rectangle:       return "Rectangle";
-    case VolumeType::MAX:             return "VOLUME_TYPE_MAX";
-    default: return "UNKNOWN";
-    }
-}
-
-inline QDebug operator<<(QDebug dbg, const VolumeType& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
-}
 
 
 // ========================================================================== //
@@ -152,26 +78,7 @@ enum class FollowType : u32 {
     All         = 0x0,
     None        = 0x1,
     PosOnly     = 0x2,
-
-    MAX
 };
-
-template<>
-inline QString toString<FollowType>(const FollowType& type) {
-    switch (type) {
-    case FollowType::All:       return "All";
-    case FollowType::None:      return "None";
-    case FollowType::PosOnly:   return "PosOnly";
-    case FollowType::MAX:       return "FOLLOW_TYPE_MAX";
-    default: return "UNKNOWN";
-    }
-}
-
-inline QDebug operator<<(QDebug dbg, const FollowType& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
-}
 
 
 // ========================================================================== //
@@ -183,28 +90,7 @@ enum class RotType : u32 {
     RotY    = 0x2,
     RotZ    = 0x3,
     RotXYZ  = 0x4,
-
-    MAX
 };
-
-template<>
-inline QString toString<RotType>(const RotType& type) {
-    switch (type) {
-    case RotType::None:     return "None";
-    case RotType::RotX:     return "RotX";
-    case RotType::RotY:     return "RotY";
-    case RotType::RotZ:     return "RotZ";
-    case RotType::RotXYZ:   return "RotXYZ";
-    case RotType::MAX:      return "ROT_TYPE_MAX";
-    default: return "UNKNOWN";
-    }
-}
-
-inline QDebug operator<<(QDebug dbg, const RotType& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
-}
 
 
 // ========================================================================== //
@@ -214,26 +100,7 @@ enum class ColorCalcType : u8 {
     None        = 0x0,
     Pass1       = 0x1,
     Interpolate = 0x2,
-
-    MAX
 };
-
-template<>
-inline QString toString<ColorCalcType>(const ColorCalcType& type) {
-    switch (type) {
-    case ColorCalcType::None:        return "None";
-    case ColorCalcType::Pass1:       return "Pass1";
-    case ColorCalcType::Interpolate: return "Interpolate";
-    case ColorCalcType::MAX:         return "COMBINER_TYPE_MAX";
-    default: return "UNKNOWN";
-    }
-}
-
-inline QDebug operator<<(QDebug dbg, const ColorCalcType& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
-}
 
 
 // ========================================================================== //
@@ -244,27 +111,7 @@ enum class BlendFuncType : u32 {
     Additive        = 0x1,
     Subtractive     = 0x2,
     Transparence    = 0x3,
-
-    MAX
 };
-
-template<>
-inline QString toString<BlendFuncType>(const BlendFuncType& type) {
-    switch (type) {
-    case BlendFuncType::Translucent:    return "Translucent";
-    case BlendFuncType::Additive:       return "Additive";
-    case BlendFuncType::Subtractive:    return "Subtractive";
-    case BlendFuncType::Transparence:   return "Transparence";
-    case BlendFuncType::MAX:            return "BLEND_FUNC_TYPE_MAX";
-    default: return "UNKNOWN";
-    }
-}
-
-inline QDebug operator<<(QDebug dbg, const BlendFuncType& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
-}
 
 
 // ========================================================================== //
@@ -274,26 +121,7 @@ enum class DepthFuncType : u32 {
     Unk0    = 0x0,
     Unk1    = 0x1,
     Unk2    = 0x2,
-
-    MAX
 };
-
-template<>
-inline QString toString<DepthFuncType>(const DepthFuncType& type) {
-    switch (type) {
-    case DepthFuncType::Unk0:   return "Standard";
-    case DepthFuncType::Unk1:   return "No Test";
-    case DepthFuncType::Unk2:   return "No Write";
-    case DepthFuncType::MAX:    return "DEPTH_FUNC_TYPE_MAX";
-    default: return "UNKNOWN";
-    }
-}
-
-inline QDebug operator<<(QDebug dbg, const DepthFuncType& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
-}
 
 
 // ========================================================================== //
@@ -328,54 +156,11 @@ enum class ColorCombinerFuncType : u32 {
     CombinerConfig25    = 0x19,
     CombinerConfig26    = 0x1A,
     CombinerConfig27    = 0x1B,
-
-    MAX
 };
-
-template<>
-inline QString toString<ColorCombinerFuncType>(const ColorCombinerFuncType& type) {
-    switch (type) {
-    case ColorCombinerFuncType::CombinerConfig0:    return "Combiner Config 0";
-    case ColorCombinerFuncType::CombinerConfig1:    return "Combiner Config 1";
-    case ColorCombinerFuncType::CombinerConfig2:    return "Combiner Config 2";
-    case ColorCombinerFuncType::CombinerConfig3:    return "Combiner Config 3";
-    case ColorCombinerFuncType::CombinerConfig4:    return "Combiner Config 4";
-    case ColorCombinerFuncType::CombinerConfig5:    return "Combiner Config 5";
-    case ColorCombinerFuncType::CombinerConfig6:    return "Combiner Config 6";
-    case ColorCombinerFuncType::CombinerConfig7:    return "Combiner Config 7";
-    case ColorCombinerFuncType::CombinerConfig8:    return "Combiner Config 8";
-    case ColorCombinerFuncType::CombinerConfig9:    return "Combiner Config 9";
-    case ColorCombinerFuncType::CombinerConfig10:   return "Combiner Config 10";
-    case ColorCombinerFuncType::CombinerConfig11:   return "Combiner Config 11";
-    case ColorCombinerFuncType::CombinerConfig12:   return "Combiner Config 12";
-    case ColorCombinerFuncType::CombinerConfig13:   return "Combiner Config 13";
-    case ColorCombinerFuncType::CombinerConfig14:   return "Combiner Config 14";
-    case ColorCombinerFuncType::CombinerConfig15:   return "Combiner Config 15";
-    case ColorCombinerFuncType::CombinerConfig16:   return "Combiner Config 16";
-    case ColorCombinerFuncType::CombinerConfig17:   return "Combiner Config 17";
-    case ColorCombinerFuncType::CombinerConfig18:   return "Combiner Config 18";
-    case ColorCombinerFuncType::CombinerConfig19:   return "Combiner Config 19";
-    case ColorCombinerFuncType::CombinerConfig20:   return "Combiner Config 20";
-    case ColorCombinerFuncType::CombinerConfig21:   return "Combiner Config 21";
-    case ColorCombinerFuncType::CombinerConfig22:   return "Combiner Config 22";
-    case ColorCombinerFuncType::CombinerConfig23:   return "Combiner Config 23";
-    case ColorCombinerFuncType::CombinerConfig24:   return "Combiner Config 24";
-    case ColorCombinerFuncType::CombinerConfig25:   return "Combiner Config 25";
-    case ColorCombinerFuncType::CombinerConfig26:   return "Combiner Config 26";
-    case ColorCombinerFuncType::CombinerConfig27:   return "Combiner Config 27";
-    case ColorCombinerFuncType::MAX:    return "COLOR_COMBINER_FUNC_TYPE_MAX";
-    default: return "UNKNOWN";
-    }
-}
-
-inline QDebug operator<<(QDebug dbg, const ColorCombinerFuncType& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
-}
 
 
 // ========================================================================== //
+
 
 enum class TextureFormat : u16 {
     RGBA8888   = 0x0,
@@ -392,8 +177,6 @@ enum class TextureFormat : u16 {
     A4         = 0xB,
     ETC1       = 0xC,
     ETC1_A4    = 0xD,
-
-    MAX
 };
 
 template<>
@@ -413,19 +196,13 @@ inline QString toString<TextureFormat>(const TextureFormat& type) {
     case TextureFormat::A4:       return "A4";
     case TextureFormat::ETC1:     return "ETC1";
     case TextureFormat::ETC1_A4:  return "ETC1_A4";
-    default: return "Unknown";
+    default: std::unreachable();
     }
 }
 
 inline TextureFormat& assignFromInt(TextureFormat& type, int value) {
     type = static_cast<TextureFormat>(value);
     return type;
-}
-
-inline QDebug operator<<(QDebug dbg, const TextureFormat& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
 }
 
 
@@ -436,8 +213,6 @@ enum class TextureWrap : u8 {
     MirroredRepeat   = 0x0,
     Repeat           = 0x1,
     ClampToEdge      = 0x2,
-
-    MAX
 };
 
 template<>
@@ -446,19 +221,13 @@ inline QString toString<TextureWrap>(const TextureWrap& type) {
     case TextureWrap::MirroredRepeat: return "Mirrored repeat";
     case TextureWrap::Repeat:         return "Repeat";
     case TextureWrap::ClampToEdge:    return "Clamp to edge";
-    default: return "Unknown";
+    default: std::unreachable();
     }
 }
 
 inline TextureWrap& assignFromInt(TextureWrap& type, int value) {
     type = static_cast<TextureWrap>(value);
     return type;
-}
-
-inline QDebug operator<<(QDebug dbg, const TextureWrap& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
 }
 
 
@@ -468,8 +237,6 @@ inline QDebug operator<<(QDebug dbg, const TextureWrap& type) {
 enum class TextureFilter : u8 {
     Linear  = 0x0,
     Nearest = 0x1,
-
-    MAX
 };
 
 template<>
@@ -477,19 +244,13 @@ inline QString toString<TextureFilter>(const TextureFilter& type) {
     switch (type) {
     case TextureFilter::Linear:  return "Linear";
     case TextureFilter::Nearest: return "Nearest";
-    default: return "Unknown";
+    default: std::unreachable();
     }
 }
 
 inline TextureFilter& assignFromInt(TextureFilter& type, int value) {
     type = static_cast<TextureFilter>(value);
     return type;
-}
-
-inline QDebug operator<<(QDebug dbg, const TextureFilter& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
 }
 
 
@@ -572,30 +333,11 @@ enum class FieldSpinAxis : u32 {
     AxisX   = 0x0,
     AxisY   = 0x1,
     AxisZ   = 0x2,
-
-    MAX
 };
-
-template<>
-inline QString toString<FieldSpinAxis>(const FieldSpinAxis& type) {
-    switch (type) {
-    case FieldSpinAxis::AxisX: return "X-Axis";
-    case FieldSpinAxis::AxisY:  return "Y-Axis";
-    case FieldSpinAxis::AxisZ:  return "Z-Axis";
-    case FieldSpinAxis::MAX:    return "SPIN_AXIS_MAX";
-    default: return "Unknown";
-    }
-}
 
 inline FieldSpinAxis& assignFromInt(FieldSpinAxis& type, int value) {
     type = static_cast<FieldSpinAxis>(value);
     return type;
-}
-
-inline QDebug operator<<(QDebug dbg, const FieldSpinAxis& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
 }
 
 
@@ -605,29 +347,11 @@ inline QDebug operator<<(QDebug dbg, const FieldSpinAxis& type) {
 enum class FieldCollisionType : u16 {
     Die     = 0x0,
     Bounce  = 0x1,
-
-    MAX
 };
-
-template<>
-inline QString toString<FieldCollisionType>(const FieldCollisionType& type) {
-    switch (type) {
-    case FieldCollisionType::Die: return "Die";
-    case FieldCollisionType::Bounce:  return "Bounce";
-    case FieldCollisionType::MAX: return "COLLISION_TYPE_MAX";
-    default: return "Unknown";
-    }
-}
 
 inline FieldCollisionType& assignFromInt(FieldCollisionType& type, int value) {
     type = static_cast<FieldCollisionType>(value);
     return type;
-}
-
-inline QDebug operator<<(QDebug dbg, const FieldCollisionType& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
 }
 
 
@@ -637,29 +361,11 @@ inline QDebug operator<<(QDebug dbg, const FieldCollisionType& type) {
 enum class FieldConvergenceType : u32 {
     AssignedPos = 0x0,
     EmitterPos  = 0x1,
-
-    MAX
 };
-
-template<>
-inline QString toString<FieldConvergenceType>(const FieldConvergenceType& type) {
-    switch (type) {
-    case FieldConvergenceType::AssignedPos: return "Assigned Position";
-    case FieldConvergenceType::EmitterPos:  return "Emitter Position";
-    case FieldConvergenceType::MAX: return "CONVERGENCE_TYPE_MAX";
-    default: return "Unknown";
-    }
-}
 
 inline FieldConvergenceType& assignFromInt(FieldConvergenceType& type, int value) {
     type = static_cast<FieldConvergenceType>(value);
     return type;
-}
-
-inline QDebug operator<<(QDebug dbg, const FieldConvergenceType& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
 }
 
 
@@ -670,30 +376,11 @@ enum class StripeType : u32 {
     Billboard       = 0x0,
     EmitterMatrix   = 0x1,
     EmitterUpDown   = 0x2,
-
-    MAX
 };
-
-template<>
-inline QString toString<StripeType>(const StripeType& type) {
-    switch (type) {
-    case StripeType::Billboard: return "Billboard";
-    case StripeType::EmitterMatrix:  return "EmitterMatrix";
-    case StripeType::EmitterUpDown:  return "EmitterUpDown";
-    case StripeType::MAX: return "STRIPE_TYPE_MAX";
-    default: return "Unknown";
-    }
-}
 
 inline StripeType& assignFromInt(StripeType& type, int value) {
     type = static_cast<StripeType>(value);
     return type;
-}
-
-inline QDebug operator<<(QDebug dbg, const StripeType& type) {
-    QDebugStateSaver stateSaver(dbg);
-    dbg.nospace() << toString(type);
-    return dbg;
 }
 
 

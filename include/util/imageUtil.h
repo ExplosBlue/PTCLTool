@@ -15,29 +15,8 @@ namespace ImageUtil {
 enum class ETC1Quality {
     LowQuality,
     MediumQuality,
-    HighQuality,
-
-    MAX
+    HighQuality
 };
-
-template<typename EnumType>
-QString toString(const EnumType&)
-{
-    static_assert(sizeof(EnumType) == 0, "toString not implemented for this enum type");
-    return {};
-}
-
-template<>
-inline QString toString<ETC1Quality>(const ETC1Quality& type)
-{
-    switch (type) {
-    case ETC1Quality::LowQuality:    return "Low Quality";
-    case ETC1Quality::MediumQuality: return "Medium Quality";
-    case ETC1Quality::HighQuality:   return "High Quality";
-    case ETC1Quality::MAX:           return "ETC1QUALITY_MAX";
-    default: return "UNKNOWN";
-    }
-}
 
 
 // ========================================================================== //

@@ -9,12 +9,21 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
+static const std::array childBillboardTypeOptions{ // NOLINT(cert-err58-cpp)
+    EnumOption<Ptcl::BillboardType>{ Ptcl::BillboardType::Billboard,      "Camera Facing",         "Particle always faces the camera on all axes." },
+    EnumOption<Ptcl::BillboardType>{ Ptcl::BillboardType::PolygonXY,      "Fixed (XY Plane)",      "Particle is fixed flat on the XY plane (vertical)." },
+    EnumOption<Ptcl::BillboardType>{ Ptcl::BillboardType::PolygonXZ,      "Fixed (XZ Plane)",      "Particle is fixed flat on the XZ plane (horizontal)." },
+    EnumOption<Ptcl::BillboardType>{ Ptcl::BillboardType::VelLook,        "Velocity Billboard",    "Particle rotates to face along its direction of travel." },
+    EnumOption<Ptcl::BillboardType>{ Ptcl::BillboardType::VelLookPolygon, "Velocity Polygon",      "Particle is fixed to the velocity direction using emitter orientation." },
+    EnumOption<Ptcl::BillboardType>{ Ptcl::BillboardType::BillboardY,     "Camera Facing (Y Axis)", "Particle rotates to face camera, but only around the Y axis." },
+};
+
+
 ChildGeneralInspector::ChildGeneralInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
-    for (Ptcl::BillboardType type : sChildBillboardTypes) {
-        mBillboardComboBox.addItem(Ptcl::toString(type), QVariant::fromValue(type));
-    }
+    mBillboardComboBox.setOptions(childBillboardTypeOptions);
+    mBillboardComboBox.setDescription("How child particles face the camera.");
 
     mEnabledCheckBox.setText("Enable Child Emitter");
     mEnabledCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -54,7 +63,6 @@ ChildGeneralInspector::ChildGeneralInspector(QWidget* parent) :
     auto* renderingLayout = new QFormLayout;
     renderingLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     renderingLayout->addRow("Billboard Type:", &mBillboardComboBox);
-    mBillboardComboBox.setToolTip("How child particles face the camera.");
     renderingLayout->addRow("Draw Order:", &mDrawOrderComboBox);
     mDrawOrderComboBox.setToolTip("Whether child particles are drawn above or below the parent.");
     mainLayout->addLayout(renderingLayout);
@@ -100,7 +108,7 @@ void ChildGeneralInspector::setupConnections() {
 
     // Billboard Type
     connect(&mBillboardComboBox, &QComboBox::currentIndexChanged, this, [this]() {
-        const auto type = mBillboardComboBox.currentData().value<Ptcl::BillboardType>();
+        const auto type = mBillboardComboBox.currentEnum();
         setEmitterProperty(
             "Set Child Billboard Type",
             "SetChildBillboardType",
@@ -129,8 +137,7 @@ void ChildGeneralInspector::populateProperties() {
     QSignalBlocker b2(mFollowCheckBox);
     QSignalBlocker b3(mParentFieldCheckBox);
     QSignalBlocker b4(mDrawOrderComboBox);
-    const s32 billboardIndex = mBillboardComboBox.findData(QVariant::fromValue(mEmitter->childBillboardType()));
-    mBillboardComboBox.setCurrentIndex(billboardIndex);
+    mBillboardComboBox.setCurrentEnum(mEmitter->childBillboardType());
 
     mEnabledCheckBox.setChecked(mEmitter->isChildEnabled());
 

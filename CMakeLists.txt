@@ -154,7 +154,6 @@ set(PROJECT_HEADERS
     include/util/imageUtil.h
     include/util/nameValidator.h
     include/util/paintUtil.h
-    include/util/printUtil.h
     include/util/randomUtil.h
     include/util/settingsUtil.h
     include/util/stringUtil.h

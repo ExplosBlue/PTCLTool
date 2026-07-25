@@ -305,7 +305,6 @@ void PtclBinaryWriter::buildEmitters(const PtclRes& res) {
             if (emitter->type() == Ptcl::EmitterType::Simple) {
                 writeSimpleEmitter(*emitter);
             } else {
-                qDebug() << "Writing Complex Data";
                 writeComplexEmitter(*emitter);
             }
         }

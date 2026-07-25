@@ -1,6 +1,5 @@
 #include "ptcl/ptclBinary.h"
 #include "ptcl/ptclEmitter.h"
-#include "util/printUtil.h"
 
 
 namespace Ptcl {
@@ -236,18 +235,6 @@ QDataStream& operator<<(QDataStream& out, const BinHeaderData& item) {
     return out;
 }
 
-void BinHeaderData::printData(u32 indentationLevel) {
-    const char* indentation = PrintUtil::createIndentation(indentationLevel);
-
-    qDebug() << indentation << "- magic:"          << QString::fromUtf8(magic);
-    qDebug() << indentation << "- version:"        << Qt::hex << Qt::showbase << version;
-    qDebug() << indentation << "- numEmitterSet:"  << Qt::hex << Qt::showbase << numEmitterSet;
-    qDebug() << indentation << "- namePos:"        << Qt::hex << Qt::showbase << namePos;
-    qDebug() << indentation << "- nameTblPos:"     << Qt::hex << Qt::showbase << nameTblPos;
-    qDebug() << indentation << "- textureTblPos:"  << Qt::hex << Qt::showbase << textureTblPos;
-    qDebug() << indentation << "- textureTblSize:" << Qt::hex << Qt::showbase << textureTblSize;
-}
-
 
 // ========================================================================== //
 
@@ -272,18 +259,6 @@ QDataStream &operator<<(QDataStream& out, const BinEmitterSetData& item) {
         << item.emitterTblPos
         << item.emitterTbl;
     return out;
-}
-
-void BinEmitterSetData::printData(u32 indentationLevel) {
-    const char* indentation = PrintUtil::createIndentation(indentationLevel);
-
-    qDebug() << indentation << "- userData:       " << Qt::hex << Qt::showbase << userData;
-    qDebug() << indentation << "- lastUpdateDate: " << Qt::hex << Qt::showbase << lastUpdateDate;
-    qDebug() << indentation << "- namePos:        " << Qt::hex << Qt::showbase << namePos;
-    qDebug() << indentation << "- name:           " << Qt::hex << Qt::showbase << namePtr;
-    qDebug() << indentation << "- numEmitter:     " << Qt::hex << Qt::showbase << numEmitter;
-    qDebug() << indentation << "- emitterTblPos:  " << Qt::hex << Qt::showbase << emitterTblPos;
-    qDebug() << indentation << "- emitterTbl:     " << Qt::hex << Qt::showbase << emitterTbl;
 }
 
 
@@ -311,17 +286,6 @@ QDataStream& operator<<(QDataStream& out, const BinTextureRes& item) {
     static const std::array<char, 3> padding = {0, 0, 0};
     out.writeRawData(padding.data(), 3);
     return out;
-}
-
-void BinTextureRes::printData(u32 indentationLevel) {
-    const char* indentation = PrintUtil::createIndentation(indentationLevel);
-
-    qDebug() << indentation << "- width:        " << width;
-    qDebug() << indentation << "- height:       " << height;
-    qDebug() << indentation << "- format:       " << format;
-    qDebug() << indentation << "- lodLevel:     " << lodLevel;
-    qDebug() << indentation << "- wrapModes:    " << wrapModes;
-    qDebug() << indentation << "- filter:       " << filter;
 }
 
 
@@ -597,85 +561,6 @@ QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item) {
     return out;
 }
 
-void BinCommonEmitterData::printData(u32 indentationLevel) {
-    const char* indentation = PrintUtil::createIndentation(indentationLevel);
-
-    qDebug() << indentation << "- type:          " << type;
-    qDebug() << indentation << "- flag:          " << flag;
-    qDebug() << indentation << "- randomSeed:    " << randomSeed;
-    qDebug() << indentation << "- namePos:       " << namePos;
-    qDebug() << indentation << "- namePtr:       " << namePtr;
-    qDebug() << indentation << "- textureRes:    ";
-    textureRes.printData(indentationLevel + 1);
-    qDebug() << indentation << "- textureSize:           " << textureSize;
-    qDebug() << indentation << "- texturePos:            " << texturePos;
-    qDebug() << indentation << "- textureHandlePtr:      " << textureHandlePtr;
-    qDebug() << indentation << "- isPolygon:             " << isPolygon;
-    qDebug() << indentation << "- isFollow:              " << isFollow;
-    qDebug() << indentation << "- isEmitterBillboardMtx: " << isEmitterBillboardMtx;
-    qDebug() << indentation << "- isDirectional:         " << isDirectional;
-    qDebug() << indentation << "- isTexPatAnim:          " << isTexPatAnim;
-    qDebug() << indentation << "- isVelLook:             " << isVelLook;
-    qDebug() << indentation << "- volumeTblIndex:        " << volumeTblIndex;
-    qDebug() << indentation << "- isStopEmitInFade:      " << isStopEmitInFade;
-    qDebug() << indentation << "- volumeType:            " << volumeType;
-    qDebug() << indentation << "- volumeRadius:          " << volumeRadius;
-    qDebug() << indentation << "- volumeArcWidth:      " << volumeArcWidth;
-    qDebug() << indentation << "- volumeArcStart:      " << volumeArcStart;
-    qDebug() << indentation << "- figureVel:             " << figureVel;
-    qDebug() << indentation << "- emitterVelDir:         " << emitterVelDir;
-    qDebug() << indentation << "- initVel:               " << initVel;
-    qDebug() << indentation << "- initVelRnd:            " << initVelRnd;
-    qDebug() << indentation << "- spreadVec:             " << spreadVec;
-    qDebug() << indentation << "- startFrame:            " << startFrame;
-    qDebug() << indentation << "- endFrame:              " << endFrame;
-    qDebug() << indentation << "- lifeStep:              " << lifeStep;
-    qDebug() << indentation << "- lifeStepRnd:           " << lifeStepRnd;
-    qDebug() << indentation << "- emitRate:              " << emitRate;
-    qDebug() << indentation << "- ptclLife:              " << ptclLife;
-    qDebug() << indentation << "- ptclLifeRnd:           " << ptclLifeRnd;
-    qDebug() << indentation << "- airResistance:         " << airResistance;
-    qDebug() << indentation << "- blendFunc:             " << blendFunc;
-    qDebug() << indentation << "- billboardType:         " << billboardType;
-    qDebug() << indentation << "- depthFunc:             " << depthFunc;
-    qDebug() << indentation << "- gravity:               " << gravity;
-    qDebug() << indentation << "- color0:                " << color0.data();
-    qDebug() << indentation << "- color1:                " << color1;
-    qDebug() << indentation << "- colorSection1:         " << colorSection1;
-    qDebug() << indentation << "- colorSection2:         " << colorSection2;
-    qDebug() << indentation << "- colorSection3:         " << colorSection3;
-    qDebug() << indentation << "- colorNumRepeat:        " << colorNumRepeat;
-    qDebug() << indentation << "- initAlpha:             " << initAlpha;
-    qDebug() << indentation << "- diffAlpha21:           " << diffAlpha21;
-    qDebug() << indentation << "- diffAlpha32:           " << diffAlpha32;
-    qDebug() << indentation << "- alphaSection1:         " << alphaSection1;
-    qDebug() << indentation << "- alphaSection2:         " << alphaSection2;
-    qDebug() << indentation << "- initScale:             " << initScale;
-    qDebug() << indentation << "- diffScale21:           " << diffScale21;
-    qDebug() << indentation << "- diffScale32:           " << diffScale32;
-    qDebug() << indentation << "- scaleSection1:         " << scaleSection1;
-    qDebug() << indentation << "- scaleSection2:         " << scaleSection2;
-    qDebug() << indentation << "- scaleRand:             " << scaleRand;
-    qDebug() << indentation << "- rotCalcType:           " << rotCalcType;
-    qDebug() << indentation << "- followType:            " << followType;
-    qDebug() << indentation << "- colorCombinerFunc:     " << colorCombinerFunc;
-    qDebug() << indentation << "- initRot:               " << initRot;
-    qDebug() << indentation << "- initRotRand:           " << initRotRand;
-    qDebug() << indentation << "- rotVel:                " << rotVel;
-    qDebug() << indentation << "- rotVelRand:            " << rotVelRand;
-    qDebug() << indentation << "- rotBasis:              " << rotBasis;
-    qDebug() << indentation << "- transformSRT:          " << transformSRT;
-    qDebug() << indentation << "- transformRT:           " << transformRT;
-    qDebug() << indentation << "- alphaAddInFade:        " << alphaAddInFade;
-    qDebug() << indentation << "- numTexPat:             " << numTexPat;
-    qDebug() << indentation << "- numTexDivX:            " << numTexDivX;
-    qDebug() << indentation << "- numTexDivY:            " << numTexDivY;
-    qDebug() << indentation << "- texUVScale:            " << texUVScale;
-    qDebug() << indentation << "- texPatTbl:             " << texPatTbl.data();
-    qDebug() << indentation << "- texPatFreq:            " << texPatFreq;
-    qDebug() << indentation << "- texPatTblUse:          " << texPatTblUse;
-}
-
 
 // ========================================================================== //
 
@@ -719,20 +604,6 @@ QDataStream& operator<<(QDataStream& out, const BinComplexEmitterData& item) {
         << item.stripeDataOffset
         << item.mDataSize;
     return out;
-}
-
-void BinComplexEmitterData::printData(u32 indentationLevel) {
-    const char* indentation = PrintUtil::createIndentation(indentationLevel);
-
-    qDebug() << indentation << "- childFlag:             " << childFlag;
-    qDebug() << indentation << "- fieldFlag:             " << fieldFlag;
-    qDebug() << indentation << "- fluctuationFlag:       " << fluctuationFlag;
-    qDebug() << indentation << "- stripeFlag:            " << stripeFlag;
-    qDebug() << indentation << "- childDataOffset:       " << childDataOffset;
-    qDebug() << indentation << "- fieldDataOffset:       " << fieldDataOffset;
-    qDebug() << indentation << "- fluctuationDataOffset: " << fluctuationDataOffset;
-    qDebug() << indentation << "- stripeDataOffset:      " << stripeDataOffset;
-    qDebug() << indentation << "- mDataSize:             " << mDataSize;
 }
 
 
@@ -1083,13 +954,6 @@ QDataStream& operator<<(QDataStream& out, const BinEmitterTblData& item) {
     out << item.emitterPos
         << item.emitterPtr;
     return out;
-}
-
-void BinEmitterTblData::printData(u32 indentationLevel) {
-    const char* indentation = PrintUtil::createIndentation(indentationLevel);
-
-    qDebug() << indentation << "- emitterPos: " << emitterPos;
-    qDebug() << indentation << "- emitterPtr: " << emitterPtr;
 }
 
 

@@ -178,8 +178,6 @@ struct alignas(4) BinHeaderData {
 
     friend QDataStream& operator>>(QDataStream& in, BinHeaderData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinHeaderData& item);
-
-    void printData(u32 indentationLevel = 0);
 };
 
 static_assert(sizeof(BinHeaderData) == 0x1C, "BinHeaderData is incorrect size.");
@@ -200,8 +198,6 @@ struct alignas(4) BinEmitterSetData {
 
     friend QDataStream &operator>>(QDataStream& in, BinEmitterSetData& item);
     friend QDataStream &operator<<(QDataStream& out, const BinEmitterSetData& item);
-
-    void printData(u32 indentationLevel = 0);
 };
 
 static_assert(sizeof(BinEmitterSetData) == 0x1C, "BinEmitterSetData is incorrect size.");
@@ -221,8 +217,6 @@ struct alignas(4) BinTextureRes {
 
     friend QDataStream& operator>>(QDataStream& in, BinTextureRes& item);
     friend QDataStream& operator<<(QDataStream& out, const BinTextureRes& item);
-
-    void printData(u32 indentationLevel = 0);
 };
 
 static_assert(sizeof(BinTextureRes) == 0x0C, "BinTextureRes is incorrect size.");
@@ -312,8 +306,6 @@ struct alignas(4) BinCommonEmitterData {
 
     friend QDataStream& operator>>(QDataStream& in, BinCommonEmitterData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinCommonEmitterData& item);
-
-    void printData(u32 indentationLevel = 0);
 };
 
 static_assert(sizeof(BinCommonEmitterData) == 0x1F4, "BinCommonEmitterData is incorrect size.");
@@ -340,8 +332,6 @@ struct alignas(4) BinComplexEmitterData : BinCommonEmitterData {
 
     friend QDataStream& operator>>(QDataStream& in, BinComplexEmitterData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinComplexEmitterData& item);
-
-    void printData(u32 indentationLevel = 0);
 };
 
 static_assert(sizeof(BinComplexEmitterData) == 0x208, "BinComplexEmitterData is incorrect size.");
@@ -560,8 +550,6 @@ struct alignas(4) BinEmitterTblData {
 
     friend QDataStream& operator>>(QDataStream& in, BinEmitterTblData& item);
     friend QDataStream& operator<<(QDataStream& out, const BinEmitterTblData& item);
-
-    void printData(u32 indentationLevel = 0);
 };
 
 static_assert(sizeof(BinEmitterTblData) == 0x08, "BinEmitterTblData is incorrect size.");

@@ -376,8 +376,8 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
 }
 
 void Emitter::initComplexFromBinary(const BinComplexEmitterData& emitterData) {
-    mChildFlags = emitterData.childFlag,
-    mFieldFlags = emitterData.fieldFlag,
+    mChildFlags = emitterData.childFlag;
+    mFieldFlags = emitterData.fieldFlag;
     mFluctuationFlags = emitterData.fluctuationFlag;
     mStripeFlags = emitterData.stripeFlag;
 }
