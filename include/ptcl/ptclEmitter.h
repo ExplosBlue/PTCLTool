@@ -778,7 +778,7 @@ private:
     bool mIsPolygon{false};
     bool mIsVelLook{false};
     bool mIsEmitterBillboardMtx{false};
-    bool mIsFollow{false};
+    bool mIsFollow{true};
 
     // Gravity Properties
     bool mIsDirectional{false};
@@ -935,7 +935,7 @@ private:
 
     BitFlag<FieldFlag> mFieldFlags{};
 
-    // Child Propertiies
+    // Child Properties
     struct {
         // Basic Properties
         BillboardType billboardType{BillboardType::Billboard};
