@@ -4,6 +4,7 @@
 #include "ptcl/ptclEnum.h"
 
 #include <QColor>
+#include <QImage>
 
 
 namespace ImageUtil {
