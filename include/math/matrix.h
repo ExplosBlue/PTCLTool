@@ -36,7 +36,7 @@ public:
             std::copy(rowList.begin(), rowList.end(), rows[r].begin());
             ++r;
         }
-    }
+    }    
 
     T& operator()(std::size_t row, std::size_t col) {
         assert(row < RowCount && col < ColCount);
@@ -60,8 +60,8 @@ public:
 
 private:
     union {
-        std::array<std::array<f32, 4>, 3> rows;
-        std::array<f32, 12> cells;
+        std::array<std::array<T, ColCount>, RowCount> rows;
+        std::array<T, ColCount * RowCount> cells;
     };
 };
 
