@@ -11,6 +11,10 @@
 template <typename T>
 concept ScopedEnum = std::is_enum_v<T> && !std::is_convertible_v<T, int>;
 
+
+// ========================================================================== //
+
+
 template <ScopedEnum T>
 class BitFlag
 {
@@ -53,7 +57,7 @@ public:
     };
 
     bool any() const {
-        return mFlag == 0;
+        return mFlag != 0;
     }
 
     bool all(BitFlag other) const {
@@ -66,10 +70,12 @@ public:
 
     BitFlag& operator |=(BitFlag rhs) {
         mFlag |= rhs.mFlag;
+        return *this;
     }
 
     BitFlag& operator &=(BitFlag rhs) {
         mFlag &= rhs.mFlag;
+        return *this;
     }
 
     friend BitFlag operator|(BitFlag lhs, BitFlag rhs) {
