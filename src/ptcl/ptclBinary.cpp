@@ -272,7 +272,7 @@ QDataStream& operator>>(QDataStream& in, BinTextureRes& item) {
         >> item.lodLevel
         >> item.wrapModes
         >> item.filter;
-    in.readRawData(nullptr, 3);
+    in.skipRawData(3);
     return in;
 }
 

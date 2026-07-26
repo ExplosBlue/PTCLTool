@@ -35,9 +35,13 @@ bool Document::load(const QString& filePath) {
 }
 
 bool Document::save(const QString& filePath) {
+    if (!mData.save(filePath)) {
+        return false;
+    }
+
     mFilePath = filePath;
     mUndoStack.setClean();
-    return mData.save(filePath);
+    return true;
 }
 
 void Document::setProjectName(const QString& name) {
