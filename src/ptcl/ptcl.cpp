@@ -5,6 +5,7 @@
 #include <QDataStream>
 #include <QFile>
 
+#include <bit>
 #include <variant>
 
 
@@ -46,7 +47,7 @@ EmitterSetList PtclBinaryReader::readEmitterSets() {
 
     setList.reserve(mHeaderData.numEmitterSet);
     for (u32 idx = 0; idx < mHeaderData.numEmitterSet; idx++) {
-        setList.push_back(readEmitterSet(idx));
+        setList.push_back(readEmitterSet(static_cast<s32>(idx)));
     }
 
     return setList;
@@ -63,7 +64,7 @@ Texture* PtclBinaryReader::loadTexture(u32 texturePos, u32 size, u32 width, u32 
     mFile.seek(offset);
 
     std::vector<u8> textureData(size);
-    const s64 bytesRead = mStream.readRawData(reinterpret_cast<char*>(textureData.data()), size);
+    const s64 bytesRead = mStream.readRawData(std::bit_cast<char*>(textureData.data()), size);
 
     if (bytesRead != static_cast<s64>(size)) {
         qWarning() << "Expected to read" << size << "bytes, got" << bytesRead << "bytes.";
@@ -443,7 +444,7 @@ bool PtclRes::load(const QString& filePath) {
 }
 
 s32 PtclRes::emitterSetCount() const {
-    return mEmitterSets.size();
+    return static_cast<s32>(mEmitterSets.size());
 }
 
 s32 PtclRes::emitterCount(s32 setIndex) const {
@@ -464,7 +465,7 @@ u32 PtclRes::totalEmitterCount() const {
 }
 
 s32 PtclRes::textureCount() const {
-    return mTextures.size();
+    return static_cast<s32>(mTextures.size());
 }
 
 bool PtclRes::save(const QString& filePath) {

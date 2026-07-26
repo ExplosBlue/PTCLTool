@@ -438,7 +438,7 @@ void PtclList::populateList() {
     mListModel.clear();
     const auto& sets = mDocument->emitterSets();
     for (size_t setIndex = 0; setIndex < sets.size(); ++setIndex) {
-        insertEmitterSetNode(setIndex);
+        insertEmitterSetNode(static_cast<s32>(setIndex));
     }
 
     mTreeView.expandAll();
