@@ -19,6 +19,29 @@ Texture::Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFor
     }
 }
 
+Texture::Texture(Texture&& other) noexcept :
+    mEncodedData{std::move(other.mEncodedData)},
+    mTextureFormat{other.mTextureFormat},
+    mDecodedTexture{std::move(other.mDecodedTexture)},
+    mId{other.mId},
+    mIsPlaceholder{other.mIsPlaceholder},
+    mUserCountCallBack{std::move(other.mUserCountCallBack)},
+    mUserCount{other.mUserCount} {
+}
+
+Texture& Texture::operator=(Texture&& other) noexcept {
+    if (this != &other) {
+        mEncodedData = std::move(other.mEncodedData);
+        mTextureFormat = other.mTextureFormat;
+        mDecodedTexture = std::move(other.mDecodedTexture);
+        mId = other.mId;
+        mIsPlaceholder = other.mIsPlaceholder;
+        mUserCountCallBack = std::move(other.mUserCountCallBack);
+        mUserCount = other.mUserCount;
+    }
+    return *this;
+}
+
 const QImage& Texture::textureData() const {
     return mDecodedTexture;
 }

@@ -399,8 +399,7 @@ std::vector<u8> QImageToPicaTexture(const QImage& image, Ptcl::TextureFormat for
                 u32 imgX = tx + x;
                 u32 imgY = ty + y;
 
-                // Bounds check
-                if (imgX >= (u32) width || imgY >= (u32) height) {
+                if (imgX >= static_cast<u32>(width) || imgY >= static_cast<u32>(height)) {
                     continue;
                 }
 

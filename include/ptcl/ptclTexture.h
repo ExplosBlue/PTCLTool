@@ -18,8 +18,11 @@ public:
 public:
     Texture() = delete;
     Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format);
+    Texture(const Texture&) = delete;
+    Texture(Texture&& other) noexcept;
 
     Texture& operator=(const Texture&) = delete;
+    Texture& operator=(Texture&& other) noexcept;
 
     const QImage& textureData() const;
     const std::vector<u8>& textureDataRaw() const;
