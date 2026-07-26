@@ -34,7 +34,9 @@ void InspectorWidgetBase::setSelection(Ptcl::Selection* selection) {
     mSelection = selection;
 
     if (mSelection) {
-        connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type /*type*/) {
+        connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
+            Q_UNUSED(type);
+
             if (!mDocument) {
                 mEmitter = nullptr;
                 setEnabled(false);
@@ -70,24 +72,18 @@ void InspectorWidgetBase::onEmitterChanged(s32 setIndex, s32 emitterIndex) {
 }
 
 void InspectorWidgetBase::addSectionHeader(QVBoxLayout* layout, const QString& title, QWidget* parent) {
-    auto* row = new QHBoxLayout;
-    row->setContentsMargins(0, 4, 0, 0);
-    row->setSpacing(8);
-
-    auto* label = new QLabel(title, parent);
-    label->setStyleSheet("font-weight: bold;");
-    row->addWidget(label);
-
-    auto* line = new QFrame(parent);
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    line->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    row->addWidget(line);
-
+    auto* row = createHeaderRow(title, parent);
     layout->addLayout(row);
 }
 
 void InspectorWidgetBase::addSectionHeader(QFormLayout* layout, const QString& title, QWidget* parent) {
+    auto* row = createHeaderRow(title, parent);
+    auto* container = new QWidget(parent);
+    container->setLayout(row);
+    layout->addRow(container);
+}
+
+QHBoxLayout* InspectorWidgetBase::createHeaderRow(const QString& title, QWidget* parent) {
     auto* row = new QHBoxLayout;
     row->setContentsMargins(0, 4, 0, 0);
     row->setSpacing(8);
@@ -102,9 +98,7 @@ void InspectorWidgetBase::addSectionHeader(QFormLayout* layout, const QString& t
     line->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     row->addWidget(line);
 
-    auto* container = new QWidget(parent);
-    container->setLayout(row);
-    layout->addRow(container);
+    return row;
 }
 
 // ========================================================================== //

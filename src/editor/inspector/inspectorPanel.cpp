@@ -276,7 +276,9 @@ void InspectorPanel::setSelection(Ptcl::Selection* selection) {
     mChildVelocityInspector->setSelection(selection);
 
     if (mSelection) {
-        connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type /*type*/) {
+        connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex, Ptcl::Selection::Type type) {
+            Q_UNUSED(type);
+
             if (!mDocument) {
                 mEmitter = nullptr;
                 setEnabled(false);

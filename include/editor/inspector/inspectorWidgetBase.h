@@ -46,6 +46,9 @@ protected:
 protected slots:
     virtual void onEmitterChanged(s32 setIndex, s32 emitterIndex);
 
+private:
+    static QHBoxLayout* createHeaderRow(const QString& title, QWidget* parent);
+
 protected:
     Ptcl::Document* mDocument{nullptr};
     const Ptcl::Selection* mSelection{nullptr};
