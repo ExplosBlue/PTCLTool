@@ -162,6 +162,27 @@ void drawCheckerboard(QPainter& painter, const QRect& rect, s32 checkerSize, con
     painter.restore();
 }
 
+void drawRotatedText(QPainter& painter, const RotatedText& text, Qt::Alignment alignment) {
+    painter.save();
+
+    painter.translate(text.center);
+    painter.rotate(text.angle);
+
+    const QFontMetrics fm{
+        painter.font()
+    };
+
+    const QRect rect{
+        -fm.horizontalAdvance(text.text) / 2,
+        -fm.height() / 2,
+        fm.horizontalAdvance(text.text),
+        fm.height()
+    };
+
+    painter.drawText(rect, static_cast<s32>(alignment), text.text);
+
+    painter.restore();
+}
 
 // ========================================================================== //
 

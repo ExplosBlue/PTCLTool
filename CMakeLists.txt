@@ -47,6 +47,7 @@ set(PROJECT_SOURCES
     src/editor/components/texturePreview.cpp
     src/editor/components/thumbnailWidget.cpp
     src/editor/components/viewportScrollBar.cpp
+    src/editor/components/wavePreviewWidget.cpp
     src/editor/inspector/colorInspector.cpp
     src/editor/inspector/combinerInspector.cpp
     src/editor/inspector/emitterSetInspector.cpp
@@ -111,6 +112,7 @@ set(PROJECT_HEADERS
     include/editor/components/thumbnailWidget.h
     include/editor/components/vectorSpinBox.h
     include/editor/components/viewportScrollBar.h
+    include/editor/components/wavePreviewWidget.h
     include/editor/inspector/colorInspector.h
     include/editor/inspector/combinerInspector.h
     include/editor/inspector/emitterSetInspector.h

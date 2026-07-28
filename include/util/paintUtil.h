@@ -26,6 +26,13 @@ struct TextureFrameInfo {
 };
 
 
+struct RotatedText {
+    QString text;
+    QPointF center;
+    qreal angle;
+};
+
+
 // ========================================================================== //
 
 
@@ -49,6 +56,7 @@ QImage renderTexture(const QImage& texture, const QRectF& uvRect, Ptcl::TextureW
 
 void drawCheckerboard(QPainter& painter, const QRect& rect, s32 checkerSize, const QSize& sourceSize, const QColor& light = {220, 220, 220}, const QColor& dark = {180, 180, 180});
 
+void drawRotatedText(QPainter& painter, const RotatedText& text, Qt::Alignment alignment);
 
 // ========================================================================== //
 
