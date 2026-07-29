@@ -5,7 +5,7 @@
 #include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QCheckBox>
-#include <QSpinBox>
+#include <QDoubleSpinBox>
 #include <QWidget>
 
 
@@ -23,11 +23,12 @@ public:
 private:
     void populateProperties() final;
     void setupConnections();
+    void setWidgetsEnabled(bool enable);
 
 private:
-    QWidget* mControlsWidget{nullptr};
     EnumComboBox<Ptcl::FieldConvergenceType> mTypeSpinBox{};
-    VectorSpinBox<Math::Vector3f> mPosSpinBox{};
+    VectorSpinBox<Math::Vector2f> mPosSpinBox{};
+    QDoubleSpinBox mSpeedSpinBox{};
     QCheckBox mEnabledCheckBox{};
 };
 

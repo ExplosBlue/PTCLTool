@@ -22,11 +22,11 @@ public:
 private:
     void populateProperties() final;
     void setupConnections();
+    void setWidgetsEnabled(bool enable);
 
 private:
-    QWidget* mControlsWidget{nullptr};
-    QDoubleSpinBox mSpinRotateSpinBox{};
-    EnumComboBox<Ptcl::FieldSpinAxis> mSpinAxisSpinBox{};
+    QDoubleSpinBox mRotationSpinBox{};
+    EnumComboBox<Ptcl::FieldSpinAxis> mAxisSpinBox{};
     QCheckBox mEnabledCheckBox{};
 };
 

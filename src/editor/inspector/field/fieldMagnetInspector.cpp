@@ -1,6 +1,8 @@
 #include "editor/inspector/field/fieldMagnetInspector.h"
 
 #include <QFormLayout>
+#include <QHBoxLayout>
+
 
 namespace PtclEditor {
 
@@ -11,34 +13,54 @@ namespace PtclEditor {
 FieldMagnetInspector::FieldMagnetInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
-    // TODO: Better ranges?
-    mMagnetPowerSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
-    mMagnetPosSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
-    mEnabledCheckBox.setText("Enabled");
-    mEnabledCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    mAxisXCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    mAxisYCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    mAxisZCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-
-    mControlsWidget = new QWidget(this);
-    auto* controlsLayout = new QFormLayout(mControlsWidget);
-    controlsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    controlsLayout->addRow("Magnet Power:", &mMagnetPowerSpinBox);
-    controlsLayout->addRow("Magnet Position:", &mMagnetPosSpinBox);
-    controlsLayout->addRow("Target X-Axis:", &mAxisXCheckBox);
-    controlsLayout->addRow("Target Y-Axis:", &mAxisYCheckBox);
-    controlsLayout->addRow("Target Z-Axis:", &mAxisZCheckBox);
-
     auto* mainLayout = new QFormLayout(this);
     mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    mainLayout->addRow("Magnetic Force:", &mEnabledCheckBox);
-    mainLayout->addRow(mControlsWidget);
+
+    addSectionHeader(mainLayout, "Magnet", this);
+
+    mEnabledCheckBox.setToolTip("Attracts particles toward a target point by adjusting their velocity.");
+    mainLayout->addRow("Enable Magnetic Force:", &mEnabledCheckBox);
+
+    addSectionHeader(mainLayout, "Target", this);
+
+    mMagnetPowerSpinBox.setRange(0.0, 10.0);
+    mMagnetPowerSpinBox.setDecimals(3);
+    mMagnetPowerSpinBox.setSingleStep(0.1);
+    mMagnetPowerSpinBox.setToolTip("How strongly particles are pulled toward the target. Higher values = faster attraction.");
+    mainLayout->addRow("Magnet Power:", &mMagnetPowerSpinBox);
+
+    auto* axisWidget = new QWidget(this);
+    auto* axisLayout = new QHBoxLayout(axisWidget);
+    axisLayout->setContentsMargins(0, 0, 0, 0);
+
+    mAxisXCheckBox.setText("X");
+    mAxisXCheckBox.setToolTip("When checked, the magnetic force affects movement along the X axis.");
+    axisLayout->addWidget(&mAxisXCheckBox);
+
+    mAxisYCheckBox.setText("Y");
+    mAxisYCheckBox.setToolTip("When checked, the magnetic force affects movement along the Y axis.");
+    axisLayout->addWidget(&mAxisYCheckBox);
+
+    mAxisZCheckBox.setText("Z");
+    mAxisZCheckBox.setToolTip("When checked, the magnetic force affects movement along the Z axis.");
+    axisLayout->addWidget(&mAxisZCheckBox);
+
+    axisLayout->addStretch();
+
+    mainLayout->addRow("Target Axes:", axisWidget);
+
+    mMagnetPosSpinBox.setRange(-9999.0f, 9999.0f);
+    mMagnetPosSpinBox.setToolTip("The point in space that particles are attracted toward.");
+    mMagnetPosSpinBox.setAxisToolTip(VectorSpinBoxBase::Axis::X, "Target position on the X axis.");
+    mMagnetPosSpinBox.setAxisToolTip(VectorSpinBoxBase::Axis::Y, "Target position on the Y axis.");
+    mMagnetPosSpinBox.setAxisToolTip(VectorSpinBoxBase::Axis::Z, "Target position on the Z axis.");
+    mainLayout->addRow("Target Position:", &mMagnetPosSpinBox);
 
     setupConnections();
 }
 
+
 void FieldMagnetInspector::setupConnections() {
-    // Is Enabled
     connect(&mEnabledCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
         setEmitterProperty(
             "Toggle Field Magnet",
@@ -47,12 +69,12 @@ void FieldMagnetInspector::setupConnections() {
             &Ptcl::Emitter::setFieldMagnetEnabled,
             checked
         );
+        setWidgetsEnabled(checked);
     });
 
-    // Magnet Power
     connect(&mMagnetPowerSpinBox, &QDoubleSpinBox::valueChanged, this, [this](double value) {
         setEmitterProperty(
-            "Set Field Magnet Power",
+            "Set Magnet Power",
             "SetFieldMagnetPower",
             &Ptcl::Emitter::fieldMagnetPower,
             &Ptcl::Emitter::setFieldMagnetPower,
@@ -60,11 +82,10 @@ void FieldMagnetInspector::setupConnections() {
         );
     });
 
-    // Magnet pos
     connect(&mMagnetPosSpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
         const auto pos = mMagnetPosSpinBox.getVector();
         setEmitterProperty(
-            "Set Field Magnet Pos",
+            "Set Magnet Pos",
             "SetFieldMagnetPos",
             &Ptcl::Emitter::fieldMagnetPos,
             &Ptcl::Emitter::setFieldMagnetPos,
@@ -72,39 +93,55 @@ void FieldMagnetInspector::setupConnections() {
         );
     });
 
-    // Axis X
     connect(&mAxisXCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
         setEmitterProperty(
-            "Toggle Field Magnet X-Target",
+            "Toggle Magnet X-Target",
             "ToggleFieldMagnetTargetX",
             &Ptcl::Emitter::isFieldMagnetAxisTargetX,
             &Ptcl::Emitter::setFieldMagnetAxisTargetX,
             checked
         );
+        mMagnetPosSpinBox.disableAxis(VectorSpinBoxBase::Axis::X, !checked);
     });
 
-    // Axis Y
     connect(&mAxisYCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
         setEmitterProperty(
-            "Toggle Field Magnet Y-Target",
+            "Toggle Magnet Y-Target",
             "ToggleFieldMagnetTargetY",
             &Ptcl::Emitter::isFieldMagnetAxisTargetY,
             &Ptcl::Emitter::setFieldMagnetAxisTargetY,
             checked
         );
+        mMagnetPosSpinBox.disableAxis(VectorSpinBoxBase::Axis::Y, !checked);
     });
 
-    // Axis Z
     connect(&mAxisZCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
         setEmitterProperty(
-            "Toggle Field Magnet Z-Target",
+            "Toggle Magnet Z-Target",
             "ToggleFieldMagnetTargetZ",
             &Ptcl::Emitter::isFieldMagnetAxisTargetZ,
             &Ptcl::Emitter::setFieldMagnetAxisTargetZ,
             checked
         );
+        mMagnetPosSpinBox.disableAxis(VectorSpinBoxBase::Axis::Z, !checked);
     });
 }
+
+
+void FieldMagnetInspector::setWidgetsEnabled(bool enable) {
+    mMagnetPowerSpinBox.setEnabled(enable);
+    mMagnetPosSpinBox.setEnabled(enable);
+    mAxisXCheckBox.setEnabled(enable);
+    mAxisYCheckBox.setEnabled(enable);
+    mAxisZCheckBox.setEnabled(enable);
+
+    if (enable) {
+        mMagnetPosSpinBox.disableAxis(VectorSpinBoxBase::Axis::X, !mAxisXCheckBox.isChecked());
+        mMagnetPosSpinBox.disableAxis(VectorSpinBoxBase::Axis::Y, !mAxisYCheckBox.isChecked());
+        mMagnetPosSpinBox.disableAxis(VectorSpinBoxBase::Axis::Z, !mAxisZCheckBox.isChecked());
+    }
+}
+
 
 void FieldMagnetInspector::populateProperties() {
     QSignalBlocker b1(mMagnetPowerSpinBox);
@@ -122,7 +159,7 @@ void FieldMagnetInspector::populateProperties() {
 
     const bool isEnabled = mEmitter->isFieldMagnetEnabled();
     mEnabledCheckBox.setChecked(isEnabled);
-    mControlsWidget->setEnabled(isEnabled);
+    setWidgetsEnabled(isEnabled);
 }
 
 

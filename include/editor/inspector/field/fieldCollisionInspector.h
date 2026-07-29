@@ -4,7 +4,7 @@
 #include "editor/inspector/inspectorWidgetBase.h"
 
 #include <QCheckBox>
-#include <QSpinBox>
+#include <QDoubleSpinBox>
 #include <QWidget>
 
 
@@ -22,9 +22,9 @@ public:
 private:
     void populateProperties() final;
     void setupConnections();
+    void setWidgetsEnabled(bool enable);
 
 private:
-    QWidget* mControlsWidget{nullptr};
     EnumComboBox<Ptcl::FieldCollisionType> mCollisionTypeSpinBox{};
     QCheckBox mIsWorldCheckBox{};
     QDoubleSpinBox mCoefSpinBox{};

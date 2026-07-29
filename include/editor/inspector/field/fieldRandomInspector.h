@@ -22,11 +22,11 @@ public:
 private:
     void populateProperties() final;
     void setupConnections();
+    void setWidgetsEnabled(bool enable);
 
 private:
-    QWidget* mControlsWidget{nullptr};
-    QSpinBox mRandomBlankSpinBox{};
-    VectorSpinBox<Math::Vector3f> mRandomVelAddSpinBox{};
+    QSpinBox mBlankSpinBox{};
+    VectorSpinBox<Math::Vector3f> mVelAddSpinBox{};
     QCheckBox mEnabledCheckBox{};
 };
 

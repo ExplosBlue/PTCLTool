@@ -12,41 +12,43 @@ namespace PtclEditor {
 FieldPosAddInspector::FieldPosAddInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
-    // TODO: Set better limits?
-    mPosSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
-    mEnabledCheckBox.setText("Enabled");
-    mEnabledCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-
-    mControlsWidget = new QWidget(this);
-    auto* controlsLayout = new QFormLayout(mControlsWidget);
-    controlsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    controlsLayout->addRow("Add-on value:", &mPosSpinBox);
-
     auto* mainLayout = new QFormLayout(this);
     mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    mainLayout->addRow("Add to Position:", &mEnabledCheckBox);
-    mainLayout->addRow(mControlsWidget);
+
+    addSectionHeader(mainLayout, "Pos Add", this);
+
+    mEnabledCheckBox.setToolTip("Adds a constant offset to particle positions each frame.");
+    mainLayout->addRow("Enable Pos Add:", &mEnabledCheckBox);
+
+    addSectionHeader(mainLayout, "Offset", this);
+
+    mPosSpinBox.setRange(-9999.0f, 9999.0f);
+    mPosSpinBox.setToolTip("The amount added to the particle's position each frame.");
+    mPosSpinBox.setAxisToolTip(VectorSpinBoxBase::Axis::X, "Position offset on the X axis.");
+    mPosSpinBox.setAxisToolTip(VectorSpinBoxBase::Axis::Y, "Position offset on the Y axis.");
+    mPosSpinBox.setAxisToolTip(VectorSpinBoxBase::Axis::Z, "Position offset on the Z axis.");
+    mainLayout->addRow("Offset:", &mPosSpinBox);
 
     setupConnections();
 }
 
+
 void FieldPosAddInspector::setupConnections() {
-    // Is Enabled
     connect(&mEnabledCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
         setEmitterProperty(
-            "Toggle Field PosAdd",
+            "Toggle Field Pos Add",
             "ToggleFieldPosAdd",
             &Ptcl::Emitter::isFieldPosAddEnabled,
             &Ptcl::Emitter::setFieldPosAddEnabled,
             checked
         );
+        setWidgetsEnabled(checked);
     });
 
-    // Pos Add
     connect(&mPosSpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
         const auto pos = mPosSpinBox.getVector();
         setEmitterProperty(
-            "Set Field PosAdd Position",
+            "Set Pos Add Offset",
             "SetFieldPosAdd",
             &Ptcl::Emitter::fieldPosAddPosition,
             &Ptcl::Emitter::setFieldPosAddPosition,
@@ -54,6 +56,12 @@ void FieldPosAddInspector::setupConnections() {
         );
     });
 }
+
+
+void FieldPosAddInspector::setWidgetsEnabled(bool enable) {
+    mPosSpinBox.setEnabled(enable);
+}
+
 
 void FieldPosAddInspector::populateProperties() {
     QSignalBlocker b1(mPosSpinBox);
@@ -63,7 +71,7 @@ void FieldPosAddInspector::populateProperties() {
 
     const bool isEnabled = mEmitter->isFieldPosAddEnabled();
     mEnabledCheckBox.setChecked(isEnabled);
-    mControlsWidget->setEnabled(isEnabled);
+    setWidgetsEnabled(isEnabled);
 }
 
 

@@ -22,9 +22,9 @@ public:
 private:
     void populateProperties() final;
     void setupConnections();
+    void setWidgetsEnabled(bool enable);
 
 private:
-    QWidget* mControlsWidget{nullptr};
     QDoubleSpinBox mMagnetPowerSpinBox{};
     VectorSpinBox<Math::Vector3f> mMagnetPosSpinBox{};
     QCheckBox mAxisXCheckBox{};

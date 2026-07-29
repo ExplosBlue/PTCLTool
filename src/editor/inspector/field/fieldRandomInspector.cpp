@@ -2,6 +2,7 @@
 
 #include <QFormLayout>
 
+
 namespace PtclEditor {
 
 
@@ -11,28 +12,35 @@ namespace PtclEditor {
 FieldRandomInspector::FieldRandomInspector(QWidget* parent) :
     InspectorWidgetBase{parent} {
 
-    // TODO: Better ranges?
-    mRandomVelAddSpinBox.setRange(std::numeric_limits<f32>::lowest(), std::numeric_limits<f32>::max());
-    mRandomBlankSpinBox.setRange(std::numeric_limits<s32>::min(), std::numeric_limits<s32>::max());
-    mEnabledCheckBox.setText("Enabled");
-    mEnabledCheckBox.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-
-    mControlsWidget = new QWidget(this);
-    auto* controlsLayout = new QFormLayout(mControlsWidget);
-    controlsLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    controlsLayout->addRow("Random Velocity Add:", &mRandomVelAddSpinBox);
-    controlsLayout->addRow("Random Blank:", &mRandomBlankSpinBox);
-
     auto* mainLayout = new QFormLayout(this);
     mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    mainLayout->addRow("Randomness:", &mEnabledCheckBox);
-    mainLayout->addRow(mControlsWidget);
+
+    addSectionHeader(mainLayout, "Random", this);
+
+    mEnabledCheckBox.setToolTip("Randomly adjusts particle velocity at regular intervals.");
+    mainLayout->addRow("Enable Random:", &mEnabledCheckBox);
+
+    addSectionHeader(mainLayout, "Timing", this);
+
+    mBlankSpinBox.setRange(1, 9999);
+    mBlankSpinBox.setToolTip("How many frames between each random velocity kick. 1 = every frame, 10 = every 10th frame.");
+    mBlankSpinBox.setSuffix(" Frames");
+    mainLayout->addRow("Interval:", &mBlankSpinBox);
+
+    addSectionHeader(mainLayout, "Velocity", this);
+
+    mVelAddSpinBox.setRange(-9999.0f, 9999.0f);
+    mVelAddSpinBox.setToolTip("Maximum velocity offset applied per axis when a random kick fires.");
+    mVelAddSpinBox.setAxisToolTip(VectorSpinBoxBase::Axis::X, "Maximum velocity offset on the X axis applied when a random kick fires.");
+    mVelAddSpinBox.setAxisToolTip(VectorSpinBoxBase::Axis::Y, "Maximum velocity offset on the Y axis applied when a random kick fires.");
+    mVelAddSpinBox.setAxisToolTip(VectorSpinBoxBase::Axis::Z, "Maximum velocity offset on the Z axis applied when a random kick fires.");
+    mainLayout->addRow("Strength:", &mVelAddSpinBox);
 
     setupConnections();
 }
 
+
 void FieldRandomInspector::setupConnections() {
-    // Is Enabled
     connect(&mEnabledCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
         setEmitterProperty(
             "Toggle Field Random",
@@ -41,24 +49,23 @@ void FieldRandomInspector::setupConnections() {
             &Ptcl::Emitter::setFieldRandomEnabled,
             checked
         );
+        setWidgetsEnabled(checked);
     });
 
-    // Random Vel Add
-    connect(&mRandomVelAddSpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
-        const auto velocity = mRandomVelAddSpinBox.getVector();
+    connect(&mVelAddSpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
+        const auto vel = mVelAddSpinBox.getVector();
         setEmitterProperty(
-            "Set Field Random Velocity",
+            "Set Random Strength",
             "SetFieldRandomVelAdd",
             &Ptcl::Emitter::fieldRandomVelAdd,
             &Ptcl::Emitter::setFieldRandomVelAdd,
-            velocity
+            vel
         );
     });
 
-    // Random Blank
-    connect(&mRandomBlankSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
+    connect(&mBlankSpinBox, &QSpinBox::valueChanged, this, [this](s32 value) {
         setEmitterProperty(
-            "Set Field Random Blank",
+            "Set Random Interval",
             "SetFieldRandomBlank",
             &Ptcl::Emitter::fieldRandomBlank,
             &Ptcl::Emitter::setFieldRandomBlank,
@@ -67,17 +74,24 @@ void FieldRandomInspector::setupConnections() {
     });
 }
 
+
+void FieldRandomInspector::setWidgetsEnabled(bool enable) {
+    mBlankSpinBox.setEnabled(enable);
+    mVelAddSpinBox.setEnabled(enable);
+}
+
+
 void FieldRandomInspector::populateProperties() {
-    QSignalBlocker b1(mRandomBlankSpinBox);
-    QSignalBlocker b2(mRandomVelAddSpinBox);
+    QSignalBlocker b1(mBlankSpinBox);
+    QSignalBlocker b2(mVelAddSpinBox);
     QSignalBlocker b3(mEnabledCheckBox);
 
-    mRandomBlankSpinBox.setValue(mEmitter->fieldRandomBlank());
-    mRandomVelAddSpinBox.setVector(mEmitter->fieldRandomVelAdd());
+    mBlankSpinBox.setValue(mEmitter->fieldRandomBlank());
+    mVelAddSpinBox.setVector(mEmitter->fieldRandomVelAdd());
 
     const bool isEnabled = mEmitter->isFieldRandomEnabled();
     mEnabledCheckBox.setChecked(isEnabled);
-    mControlsWidget->setEnabled(isEnabled);
+    setWidgetsEnabled(isEnabled);
 }
 
 

@@ -87,6 +87,13 @@ public:
         if (mSpinBoxW) { mSpinBoxW->setSuffix(suffix); }
     }
 
+    void setAxisToolTip(Axis axis, const QString& tooltip) {
+        if ((axis & Axis::X) == Axis::X && mSpinBoxX) { mSpinBoxX->setToolTip(tooltip); }
+        if ((axis & Axis::Y) == Axis::Y && mSpinBoxY) { mSpinBoxY->setToolTip(tooltip); }
+        if ((axis & Axis::Z) == Axis::Z && mSpinBoxZ) { mSpinBoxZ->setToolTip(tooltip); }
+        if ((axis & Axis::W) == Axis::W && mSpinBoxW) { mSpinBoxW->setToolTip(tooltip); }
+    }
+
 signals:
     void valueChanged();
 
