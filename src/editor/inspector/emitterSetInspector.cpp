@@ -11,59 +11,36 @@ namespace PtclEditor {
 
 
 EmitterSetInspector::EmitterSetInspector(QWidget* parent) :
-    QWidget{parent} {
-    mNameLineEdit.setPlaceholderText("EmitterSetName");
-    mNameLineEdit.setValidator(new EmitterNameValidator(&mNameLineEdit));
-    // TODO: Check these
-    mUserDataSpinBox.setRange(std::numeric_limits<u32>::min(), std::numeric_limits<u32>::max());
-    mLastUpdateSpinBox.setRange(std::numeric_limits<u32>::min(), std::numeric_limits<u32>::max());
+    InspectorWidgetBase{parent} {
 
     auto* mainLayout = new QFormLayout(this);
     mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    mainLayout->addRow("EmitterSet Name:", &mNameLineEdit);
-    mainLayout->addRow("UserData:", &mUserDataSpinBox);
-    mainLayout->addRow("LastUpdate:", &mLastUpdateSpinBox);
+
+    addSectionHeader(mainLayout, "Emitter Set", this);
+
+    mNameLineEdit.setPlaceholderText("EmitterSetName");
+    mNameLineEdit.setValidator(new EmitterNameValidator(&mNameLineEdit));
+    mNameLineEdit.setToolTip("The name of this emitter set.");
+    mainLayout->addRow("Name:", &mNameLineEdit);
 
     setupConnections();
 }
 
+
 void EmitterSetInspector::setupConnections() {
-    // Name Edit
     connect(&mNameLineEdit, &QLineEdit::textEdited, this, [this](const QString& text) {
+        if (!mDocument || !mSelection) { return; }
         mDocument->setEmitterSetProperty(
             mSelection->emitterSetIndex(),
-            "Set EmitterSet Name",
-            "SetEmitterSetName",
+            QStringLiteral("Set EmitterSet Name"),
+            QStringLiteral("SetEmitterSetName"),
             &Ptcl::EmitterSet::name,
             &Ptcl::EmitterSet::setName,
             text
         );
     });
-
-    // User Data
-    connect(&mUserDataSpinBox, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
-        mDocument->setEmitterSetProperty(
-            mSelection->emitterSetIndex(),
-            "Set EmitterSet UserData",
-            "SetEmitterSetUserData",
-            &Ptcl::EmitterSet::userData,
-            &Ptcl::EmitterSet::setUserData,
-            static_cast<u32>(value)
-        );
-    });
-
-    // Last Update
-    connect(&mLastUpdateSpinBox, &SizedSpinBoxBase::valueChanged, this, [this](u64 value) {
-        mDocument->setEmitterSetProperty(
-            mSelection->emitterSetIndex(),
-            "Set EmitterSet LastUpdate",
-            "SetEmitterSetLastUpdate",
-            &Ptcl::EmitterSet::lastUpdateDate,
-            &Ptcl::EmitterSet::setLastUpdateDate,
-            static_cast<u32>(value)
-        );
-    });
 }
+
 
 void EmitterSetInspector::setDocument(Ptcl::Document* document) {
     if (mDocument) {
@@ -72,20 +49,15 @@ void EmitterSetInspector::setDocument(Ptcl::Document* document) {
 
     mDocument = document;
 
-    if (mDocument) {
-        connect(mDocument, &Ptcl::Document::emitterSetChanged, this, [this](s32 setIndex) {
-            if (!mEmitterSet) {
-                return;
-            }
+    if (!mDocument) { return; }
 
-            if (setIndex != mSelection->emitterSetIndex()) {
-                return;
-            }
-
-            populateProperties();
-        });
-    }
+    connect(mDocument, &Ptcl::Document::emitterSetChanged, this, [this](s32 setIndex) {
+        if (!mEmitterSet || !mSelection) { return; }
+        if (setIndex != mSelection->emitterSetIndex()) { return; }
+        populateProperties();
+    });
 }
+
 
 void EmitterSetInspector::setSelection(Ptcl::Selection* selection) {
     if (mSelection) {
@@ -95,7 +67,7 @@ void EmitterSetInspector::setSelection(Ptcl::Selection* selection) {
     mSelection = selection;
 
     if (mSelection) {
-        connect(selection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex) {
+        connect(mSelection, &Ptcl::Selection::selectionChanged, this, [this](s32 setIndex, s32 emitterIndex) {
             Q_UNUSED(emitterIndex);
 
             if (!mDocument) {
@@ -111,14 +83,15 @@ void EmitterSetInspector::setSelection(Ptcl::Selection* selection) {
     }
 }
 
+
 void EmitterSetInspector::populateProperties() {
     QSignalBlocker b1(mNameLineEdit);
-    QSignalBlocker b2(mUserDataSpinBox);
-    QSignalBlocker b3(mLastUpdateSpinBox);
+
+    if (!mEmitterSet) {
+        return;
+    }
 
     mNameLineEdit.setText(mEmitterSet->name());
-    mUserDataSpinBox.setValue(mEmitterSet->userData());
-    mLastUpdateSpinBox.setValue(mEmitterSet->lastUpdateDate());
 }
 
 

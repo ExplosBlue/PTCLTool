@@ -49,7 +49,7 @@ private:
     EmitterList mEmitters{};
 
     u32 mUserData{0};
-    u32 mLastUpdateDate{0}; // TODO: check this
+    u32 mLastUpdateDate{0};
 };
 
 

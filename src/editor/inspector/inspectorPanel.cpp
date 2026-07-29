@@ -44,6 +44,7 @@ InspectorPanel::InspectorPanel(QWidget* parent) :
     mProjNameLineEdit = new QLineEdit(this);
     mProjNameLineEdit->setPlaceholderText("PTCLProject");
     mProjNameLineEdit->setValidator(new EmitterNameValidator(mProjNameLineEdit));
+    mProjNameLineEdit->setToolTip("The name of the particle project file.");
 
     connect(mProjNameLineEdit, &QLineEdit::textChanged, this, [this](const QString& text) {
         mDocument->setProjectName(text);
