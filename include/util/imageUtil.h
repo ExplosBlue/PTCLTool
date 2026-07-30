@@ -6,6 +6,8 @@
 #include <QColor>
 #include <QImage>
 
+#include <atomic>
+
 
 namespace ImageUtil {
 
@@ -23,11 +25,23 @@ enum class ETC1Quality {
 // ========================================================================== //
 
 
-QImage picaTextureToQImage(const std::vector<u8>& textureData, s32 width, s32 height, Ptcl::TextureFormat format);
-std::vector<u8> QImageToPicaTexture(const QImage& image, Ptcl::TextureFormat format, ETC1Quality etcQuality = ETC1Quality::HighQuality, bool etcDither = false);
+inline const std::atomic<bool>& neverCancel() {
+    static std::atomic<bool> flag{false};
+    return flag;
+}
 
 
 // ========================================================================== //
 
 
-} // namespace ImageUitl
+QImage picaTextureToQImage(const std::vector<u8>& textureData, s32 width, s32 height, Ptcl::TextureFormat format);
+std::vector<u8> QImageToPicaTexture(const QImage& image, Ptcl::TextureFormat format, ETC1Quality etcQuality = ETC1Quality::HighQuality, bool etcDither = false, const std::atomic<bool>& cancelFlag = neverCancel());
+
+bool isValidTextureSize(s32 width, s32 height);
+s32 nearestValidTextureSize(s32 value);
+
+
+// ========================================================================== //
+
+
+} // namespace ImageUtil

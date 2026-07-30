@@ -30,14 +30,12 @@ set(PROJECT_SOURCES
     src/main.cpp
     src/editor/mainWindow.cpp
     src/editor/ptclListWidget.cpp
-    src/editor/textureListWidget.cpp
-    src/editor/textureImportDialog.cpp
-    src/editor/textureSelectDialog.cpp
     src/editor/components/animGraph.cpp
     src/editor/components/clickableLabel.cpp
     src/editor/components/collapsibleWidget.cpp
     src/editor/components/colorChannelSlider.cpp
     src/editor/components/colorGradientEditor.cpp
+    src/editor/components/cropWidget.cpp
     src/editor/components/combinerPreviewWidget.cpp
     src/editor/components/frameSelectorPopup.cpp
     src/editor/components/frameTimeline.cpp
@@ -73,6 +71,10 @@ set(PROJECT_SOURCES
     src/editor/inspector/field/fieldPosAddInspector.cpp
     src/editor/inspector/field/fieldRandomInspector.cpp
     src/editor/inspector/field/fieldSpinInspector.cpp
+    src/editor/texture/textureListWidget.cpp
+    src/editor/texture/textureImportDialog.cpp
+    src/editor/texture/textureImportProcessor.cpp
+    src/editor/texture/textureSelectDialog.cpp
     src/etc1/rg_etc1.cpp
     src/gfx/color.cpp
     src/ptcl/ptcl.cpp
@@ -92,14 +94,12 @@ set(PROJECT_HEADERS
     include/typedefs.h
     include/editor/mainWindow.h
     include/editor/ptclListWidget.h
-    include/editor/textureImportDialog.h
-    include/editor/textureListWidget.h
-    include/editor/textureSelectDialog.h
     include/editor/components/animGraph.h
     include/editor/components/clickableLabel.h
     include/editor/components/collapsibleWidget.h
     include/editor/components/colorChannelSlider.h
     include/editor/components/colorGradientEditor.h
+    include/editor/components/cropWidget.h
     include/editor/components/combinerPreviewWidget.h
     include/editor/components/enumComboBox.h
     include/editor/components/frameSelectorPopup.h
@@ -138,6 +138,10 @@ set(PROJECT_HEADERS
     include/editor/inspector/field/fieldPosAddInspector.h
     include/editor/inspector/field/fieldRandomInspector.h
     include/editor/inspector/field/fieldSpinInspector.h
+    include/editor/texture/textureImportDialog.h
+    include/editor/texture/textureImportProcessor.h
+    include/editor/texture/textureListWidget.h
+    include/editor/texture/textureSelectDialog.h
     include/etc1/rg_etc1.h
     include/gfx/color.h
     include/math/matrix.h

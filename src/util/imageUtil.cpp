@@ -3,6 +3,9 @@
 
 #include <QImage>
 
+#include <array>
+#include <cmath>
+
 
 namespace ImageUtil {
 
@@ -143,10 +146,11 @@ inline std::vector<u8> ETC1Decompress(const std::vector<u8>& input, s32 width, s
     return output;
 }
 
-inline std::vector<u8> ETC1Compress(const std::vector<u8>& rgba, s32 width, s32 height, bool alpha, ETC1Quality quality, bool dither) {
+inline std::vector<u8> ETC1Compress(const std::vector<u8>& rgba, s32 width, s32 height, bool alpha, ETC1Quality quality, bool dither, const std::atomic<bool>& cancelFlag) {
     std::vector<u8> output;
 
     for (s32 ty = 0; ty < height; ty += 8) {
+        if (cancelFlag.load()) { return {}; }
         for (s32 tx = 0; tx < width; tx += 8) {
             for (int t = 0; t < 4; ++t) {
                 std::array<u32, 16> block_rgba{};
@@ -368,7 +372,7 @@ QImage picaTextureToQImage(const std::vector<u8>& textureData, s32 width, s32 he
     return texture;
 }
 
-std::vector<u8> QImageToPicaTexture(const QImage& image, Ptcl::TextureFormat format, ETC1Quality etcQuality, bool etcDither) {
+std::vector<u8> QImageToPicaTexture(const QImage& image, Ptcl::TextureFormat format, ETC1Quality etcQuality, bool etcDither, const std::atomic<bool>& cancelFlag) {
     QImage rgbaImage = image.convertToFormat(QImage::Format_RGBA8888);
     s32 width = rgbaImage.width();
     s32 height = rgbaImage.height();
@@ -378,7 +382,7 @@ std::vector<u8> QImageToPicaTexture(const QImage& image, Ptcl::TextureFormat for
         size_t length = static_cast<size_t>(width) * static_cast<size_t>(height) * 4;
         std::vector<u8> pixelData(data, data + length);
         bool alpha = (format == Ptcl::TextureFormat::ETC1_A4);
-        return ETC1Compress(pixelData, width, height, alpha, etcQuality, etcDither);
+        return ETC1Compress(pixelData, width, height, alpha, etcQuality, etcDither, cancelFlag);
     }
 
     u32 increment = bitsPerPixel(format) / 8;
@@ -390,6 +394,7 @@ std::vector<u8> QImageToPicaTexture(const QImage& image, Ptcl::TextureFormat for
     u32 dstIdx = 0;
 
     for (s32 ty = 0; ty < height; ty += 8) {
+        if (cancelFlag.load()) { return {}; }
         for (s32 tx = 0; tx < width; tx += 8) {
             for (u32 px : swizzleLUT) {
 
@@ -510,6 +515,28 @@ std::vector<u8> QImageToPicaTexture(const QImage& image, Ptcl::TextureFormat for
 
 
 // ========================================================================== //
+
+
+bool isValidTextureSize(s32 width, s32 height) {
+    if (width < 8 || height < 8 || width > 512 || height > 512) {
+        return false;
+    }
+    return (width & (width - 1)) == 0 && (height & (height - 1)) == 0;
+}
+
+s32 nearestValidTextureSize(s32 value) {
+    constexpr std::array validSizes = {8, 16, 32, 64, 128, 256, 512};
+    s32 nearest = validSizes[0];
+    s32 minDiff = std::abs(value - nearest);
+    for (auto size : validSizes) {
+        s32 diff = std::abs(value - size);
+        if (diff < minDiff) {
+            minDiff = diff;
+            nearest = size;
+        }
+    }
+    return nearest;
+}
 
 
 } // namespace ImageUtil

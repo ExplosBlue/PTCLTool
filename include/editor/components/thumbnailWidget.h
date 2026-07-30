@@ -1,6 +1,12 @@
 #pragma once
 
+#include "typedefs.h"
+
+#include <QPoint>
+#include <QScrollBar>
+#include <QSize>
 #include <QWidget>
+#include <QWheelEvent>
 
 
 // ========================================================================== //
@@ -13,28 +19,45 @@ public:
 
     void setPixmap(const QPixmap& pixmap);
     void setThumbnailSize(QSize size);
+    void setZoomEnabled(bool enabled);
 
     void clear();
+    void resetView();
+
+    f32 zoom() const { return mZoom; }
+
+    void zoomIn();
+    void zoomOut();
 
 signals:
     void clicked();
 
 protected:
     void paintEvent(QPaintEvent* event) override;
-    QSize sizeHint() const override;
+    void wheelEvent(QWheelEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
+    QSize sizeHint() const override;
 
-private:
+protected:
     void calcTextureRect();
+    void updateScrollBars();
 
     void drawBackground(QPainter& painter) const;
     void drawCheckerboard(QPainter& painter) const;
     void drawTexture(QPainter& painter) const;
 
-private:
+protected:
     QPixmap mPixmap{};
     QSize mThumbnailSize{64, 64};
     QRect mTextureRect{};
+
+    f32 mZoom{1.0f};
+    bool mZoomEnabled{false};
+    QPoint mScrollOffset{0, 0};
+
+    QScrollBar* mHScrollBar{nullptr};
+    QScrollBar* mVScrollBar{nullptr};
 };
 
 

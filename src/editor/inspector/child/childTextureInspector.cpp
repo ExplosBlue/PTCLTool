@@ -1,6 +1,6 @@
 #include "editor/inspector/child/childTextureInspector.h"
 
-#include "editor/textureSelectDialog.h"
+#include "editor/texture/textureSelectDialog.h"
 
 #include <array>
 #include <cmath>

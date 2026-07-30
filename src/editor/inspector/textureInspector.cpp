@@ -1,6 +1,6 @@
 #include "editor/inspector/textureInspector.h"
 
-#include "editor/textureSelectDialog.h"
+#include "editor/texture/textureSelectDialog.h"
 
 #include "util/paintUtil.h"
 

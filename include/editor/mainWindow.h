@@ -3,7 +3,7 @@
 #include "ptcl/ptclDocument.h"
 #include "editor/inspector/inspectorPanel.h"
 #include "editor/ptclListWidget.h"
-#include "editor/textureListWidget.h"
+#include "editor/texture/textureListWidget.h"
 
 #include <QGroupBox>
 #include <QHBoxLayout>

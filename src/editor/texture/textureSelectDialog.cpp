@@ -1,4 +1,4 @@
-#include "editor/textureSelectDialog.h"
+#include "editor/texture/textureSelectDialog.h"
 
 #include "util/paintUtil.h"
 

@@ -1,5 +1,5 @@
-#include "editor/textureListWidget.h"
-#include "editor/textureImportDialog.h"
+#include "editor/texture/textureListWidget.h"
+#include "editor/texture/textureImportDialog.h"
 
 #include "ptcl/ptcl.h"
 #include "util/paintUtil.h"

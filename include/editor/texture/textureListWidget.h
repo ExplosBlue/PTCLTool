@@ -1,6 +1,6 @@
 #pragma once
 
-#include "components/thumbnailWidget.h"
+#include "editor/components/thumbnailWidget.h"
 #include "ptcl/ptcl.h"
 #include "ptcl/ptclDocument.h"
 
