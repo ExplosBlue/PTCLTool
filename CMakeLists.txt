@@ -75,6 +75,7 @@ set(PROJECT_SOURCES
     src/editor/texture/textureImportDialog.cpp
     src/editor/texture/textureImportProcessor.cpp
     src/editor/texture/textureSelectDialog.cpp
+    src/math/quaternion.cpp
     src/etc1/rg_etc1.cpp
     src/gfx/color.cpp
     src/ptcl/ptcl.cpp
@@ -145,6 +146,7 @@ set(PROJECT_HEADERS
     include/etc1/rg_etc1.h
     include/gfx/color.h
     include/math/matrix.h
+    include/math/quaternion.h
     include/math/util.h
     include/math/vector.h
     include/ptcl/ptcl.h
