@@ -34,8 +34,11 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mPtclLifeRnd = mPtclLifeRnd;
 
     // Transform Properties
-    newEmitter->mTransformSRT = mTransformSRT;
-    newEmitter->mTransformRT = mTransformRT;
+    newEmitter->mTranslation = mTranslation;
+    newEmitter->mRotation = mRotation;
+    newEmitter->mScale = mScale;
+    newEmitter->mCachedTransformRT = mCachedTransformRT;
+    newEmitter->mCachedTransformSRT = mCachedTransformSRT;
 
     // Termination Properties
     newEmitter->mIsStopEmitInFade = mIsStopEmitInFade;
@@ -136,6 +139,54 @@ std::unique_ptr<Emitter> Emitter::clone() const {
     newEmitter->mFieldPosAdd = mFieldPosAdd;
 
     return newEmitter;
+}
+
+void Emitter::rebuildCachedMatrices() {
+    const auto mtxR = mRotation.toMatrix();
+
+    for (s32 r = 0; r < 3; ++r) {
+        for (s32 c = 0; c < 3; ++c) {
+            mCachedTransformRT(r, c) = mtxR(r, c);
+        }
+        mCachedTransformRT(r, 3) = mTranslation[r];
+    }
+
+    for (s32 r = 0; r < 3; ++r) {
+        mCachedTransformSRT(r, 0) = mCachedTransformRT(r, 0) * mScale.getX();
+        mCachedTransformSRT(r, 1) = mCachedTransformRT(r, 1) * mScale.getY();
+        mCachedTransformSRT(r, 2) = mCachedTransformRT(r, 2) * mScale.getZ();
+        mCachedTransformSRT(r, 3) = mCachedTransformRT(r, 3);
+    }
+}
+
+const Math::Matrix34f& Emitter::transformRT() const {
+    return mCachedTransformRT;
+}
+
+const Math::Matrix34f& Emitter::transformSRT() const {
+    return mCachedTransformSRT;
+}
+
+void Emitter::setTransform(const Math::Vector3f& rotation, const Math::Vector3f& translation, const Math::Vector3f& scale) {
+    mRotation = Math::Quaternion::fromEulerXYZ(rotation);
+    mTranslation = translation;
+    mScale = scale;
+    rebuildCachedMatrices();
+}
+
+void Emitter::setTranslation(const Math::Vector3f& translation) {
+    mTranslation = translation;
+    rebuildCachedMatrices();
+}
+
+void Emitter::setRotation(const Math::Vector3f& rotation) {
+    mRotation = Math::Quaternion::fromEulerXYZ(rotation);
+    rebuildCachedMatrices();
+}
+
+void Emitter::setScale(const Math::Vector3f& scale) {
+    mScale = scale;
+    rebuildCachedMatrices();
 }
 
 BitFlag<EmitterFlag>& Emitter::flags() {
@@ -299,8 +350,25 @@ void Emitter::initFromBinary(const BinCommonEmitterData& emitterData) {
     mPtclLifeRnd = emitterData.ptclLifeRnd;
 
     // Transform Properties
-    mTransformSRT = emitterData.transformSRT.toMatrix34f();
-    mTransformRT = emitterData.transformRT.toMatrix34f();
+    {
+        const auto loadedRT = emitterData.transformRT.toMatrix34f();
+        const auto loadedSRT = emitterData.transformSRT.toMatrix34f();
+
+        mCachedTransformRT = loadedRT;
+        mCachedTransformSRT = loadedSRT;
+
+        mTranslation = Math::Util::getTranslation(loadedRT);
+
+        Math::Matrix33f rotMtx;
+        for (s32 r = 0; r < 3; ++r) {
+            for (s32 c = 0; c < 3; ++c) {
+                rotMtx(r, c) = loadedRT(r, c);
+            }
+        }
+        mRotation = Math::Quaternion::fromMatrix(rotMtx);
+
+        mScale = Math::Util::getScale(loadedSRT);
+    }
 
     // Termination Properties
     mIsStopEmitInFade = emitterData.isStopEmitInFade;
