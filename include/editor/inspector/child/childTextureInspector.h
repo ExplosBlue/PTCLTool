@@ -23,6 +23,7 @@ public:
 
 private slots:
     void changeTexture();
+    void onTextureChanged(s32 index) final;
 
 private:
     void populateProperties() final;

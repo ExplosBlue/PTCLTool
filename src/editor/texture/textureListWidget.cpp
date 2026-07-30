@@ -237,6 +237,12 @@ void TextureDetailsPanel::setTexture(const QModelIndex& index, Ptcl::Texture* te
     mThumbnailWidget.setPixmap(QPixmap::fromImage(mTexturePtr->textureData()));
 }
 
+void TextureDetailsPanel::refreshTexture() {
+    if (mTexturePtr) {
+        mThumbnailWidget.setPixmap(QPixmap::fromImage(mTexturePtr->textureData()));
+    }
+}
+
 
 // ========================================================================== //
 
@@ -348,6 +354,10 @@ void TextureListWidget::setDocument(Ptcl::Document* document) {
     connect(mDocument, &Ptcl::Document::textureChanged, this, [this](s32 index) {
         QModelIndex idx = mModel.index(index);
         emit mModel.dataChanged(idx, idx);
+
+        if (mDetailsPanel.matchesIndex(idx)) {
+            mDetailsPanel.refreshTexture();
+        }
     });
 
     connect(mDocument, &Ptcl::Document::textureAdded, this, [this](s32 index) {

@@ -45,6 +45,7 @@ protected:
 
 protected slots:
     virtual void onEmitterChanged(s32 setIndex, s32 emitterIndex);
+    virtual void onTextureChanged(s32 index);
 
 private:
     static QHBoxLayout* createHeaderRow(const QString& title, QWidget* parent);

@@ -567,6 +567,20 @@ void TextureInspector::updateDescription() {
     );
 }
 
+void TextureInspector::onTextureChanged(s32 index) {
+    if (!mEmitter || !mDocument) {
+        return;
+    }
+
+    if (index < 0 || static_cast<size_t>(index) >= mDocument->textures().size()) {
+        return;
+    }
+
+    if (mEmitter->texture() == mDocument->textures()[index].get()) {
+        populateProperties();
+    }
+}
+
 void TextureInspector::changeTexture() {
     const auto& textureList = mDocument->textures();
 

@@ -75,6 +75,8 @@ public:
     explicit TextureDetailsPanel(QWidget* parent = nullptr);
 
     void setTexture(const QModelIndex& index, Ptcl::Texture* texture);
+    void refreshTexture();
+    bool matchesIndex(const QModelIndex& index) const { return mIndex == index && mIndex.isValid(); }
 
 signals:
     void exportRequested(Ptcl::Texture* texture);

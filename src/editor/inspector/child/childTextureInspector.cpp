@@ -347,6 +347,20 @@ void ChildTextureInspector::populateProperties() {
     mFilterComboBox.setCurrentEnum(mEmitter->childTextureFilter());
 }
 
+void ChildTextureInspector::onTextureChanged(s32 index) {
+    if (!mEmitter || !mDocument) {
+        return;
+    }
+
+    if (index < 0 || static_cast<size_t>(index) >= mDocument->textures().size()) {
+        return;
+    }
+
+    if (mEmitter->childTexture() == mDocument->textures()[index].get()) {
+        populateProperties();
+    }
+}
+
 void ChildTextureInspector::changeTexture() {
     const auto& textureList = mDocument->textures();
 

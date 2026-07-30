@@ -23,6 +23,7 @@ void InspectorWidgetBase::setDocument(Ptcl::Document* document) {
 
     if (mDocument) {
         connect(mDocument, &Ptcl::Document::emitterChanged, this, &InspectorWidgetBase::onEmitterChanged);
+        connect(mDocument, &Ptcl::Document::textureChanged, this, &InspectorWidgetBase::onTextureChanged);
     }
 }
 
@@ -69,6 +70,10 @@ void InspectorWidgetBase::onEmitterChanged(s32 setIndex, s32 emitterIndex) {
     }
 
     populateProperties();
+}
+
+void InspectorWidgetBase::onTextureChanged(s32 index) {
+    Q_UNUSED(index);
 }
 
 void InspectorWidgetBase::addSectionHeader(QVBoxLayout* layout, const QString& title, QWidget* parent) {
