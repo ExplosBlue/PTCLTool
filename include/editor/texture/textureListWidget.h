@@ -1,98 +1,18 @@
 #pragma once
 
-#include "editor/components/thumbnailWidget.h"
-#include "ptcl/ptcl.h"
+#include "editor/texture/textureDetailsPanel.h"
+#include "editor/texture/textureItemDelegate.h"
+#include "editor/texture/textureListModel.h"
 #include "ptcl/ptclDocument.h"
 
-#include <QAbstractListModel>
-#include <QGridLayout>
+#include <QAction>
 #include <QListView>
-#include <QPushButton>
-#include <QScrollArea>
-#include <QStyledItemDelegate>
 #include <QToolBar>
 #include <QWidget>
 
 
 namespace PtclEditor {
 
-
-// ========================================================================== //
-
-
-class TextureItemDelegate final : public QStyledItemDelegate {
-    Q_OBJECT
-public:
-    explicit TextureItemDelegate(QObject* parent = nullptr);
-
-    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const final;
-    QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const final;
-
-private:
-    static constexpr s32 sThumbSize = 64;
-    static constexpr s32 sPaddingH = 8;
-    static constexpr s32 sPaddingV = 4;
-};
-
-
-// ========================================================================== //
-
-
-class TextureListModel final : public QAbstractListModel {
-    Q_OBJECT
-public:
-    enum Roles {
-        TexturePtrRole = Qt::UserRole + 1,
-        FormatRole,
-        SizeRole,
-        UserCountRole
-    };
-
-public:
-    explicit TextureListModel(QObject* parent = nullptr);
-
-    void setTextures(const Ptcl::TextureList* textures);
-
-    s32 rowCount(const QModelIndex& parent = {}) const final;
-    QVariant data(const QModelIndex& index, s32 role) const final;
-
-    void onTextureAdded(s32 index);
-    void onTextureRemoved(s32 index);
-
-private:
-    void emitRowChangedFor(Ptcl::Texture* texture);
-
-private:
-    const Ptcl::TextureList* mTextures{nullptr};
-};
-
-
-// ========================================================================== //
-
-class TextureDetailsPanel final : public QWidget {
-    Q_OBJECT
-public:
-    explicit TextureDetailsPanel(QWidget* parent = nullptr);
-
-    void setTexture(const QModelIndex& index, Ptcl::Texture* texture);
-    void refreshTexture();
-    bool matchesIndex(const QModelIndex& index) const { return mIndex == index && mIndex.isValid(); }
-
-signals:
-    void exportRequested(Ptcl::Texture* texture);
-    void replaceRequested(const QModelIndex& index);
-    void deleteRequested(const QModelIndex& index);
-
-private:
-    Ptcl::Texture* mTexturePtr{nullptr};
-    QModelIndex mIndex;
-
-    ThumbnailWidget mThumbnailWidget{};
-    QPushButton mExportButton{};
-    QPushButton mReplaceButton{};
-    QPushButton mDeleteButton{};
-
-};
 
 // ========================================================================== //
 

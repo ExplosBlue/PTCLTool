@@ -1,248 +1,18 @@
 #include "editor/texture/textureListWidget.h"
 #include "editor/texture/textureImportDialog.h"
+#include "editor/texture/textureListRoles.h"
 
-#include "ptcl/ptcl.h"
-#include "util/paintUtil.h"
 #include "util/settingsUtil.h"
 
-#include <QContextMenuEvent>
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
-#include <QPainter>
-#include <QSplitter>
-#include <QStandardItemModel>
 #include <QStandardPaths>
+
+#include <utility>
 
 
 namespace PtclEditor {
-
-
-// ========================================================================== //
-
-
-TextureItemDelegate::TextureItemDelegate(QObject* parent) :
-    QStyledItemDelegate{parent} {}
-
-void TextureItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-    painter->save();
-
-    if (option.state & QStyle::State_Selected) {
-        painter->fillRect(option.rect, option.palette.highlight());
-    }
-
-    if (option.state & QStyle::State_MouseOver) {
-        painter->fillRect(option.rect, option.palette.highlight());
-    }
-
-    const QRect thumbRect(
-        option.rect.left() + sPaddingH,
-        option.rect.top() + (option.rect.height() - sThumbSize) / 2,
-        sThumbSize,
-        sThumbSize
-    );
-
-    const auto pixmap = index.data(Qt::DecorationRole).value<QPixmap>();
-    PaintUtil::drawCheckerboard(*painter, thumbRect, 8, thumbRect.size());
-
-    if (!pixmap.isNull()) {
-        const auto scaledPixmap = pixmap.scaled(thumbRect.size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        QRect centeredRect = QRect(thumbRect.topLeft(), scaledPixmap.size());
-        centeredRect.moveCenter(thumbRect.center());
-        painter->drawPixmap(centeredRect.topLeft(), scaledPixmap);
-    }
-
-    const QRect textRect(
-        thumbRect.right() + sPaddingH,
-        option.rect.top(),
-        option.rect.width() - thumbRect.width() - (2 * sPaddingH),
-        option.rect.height()
-    );
-
-    const auto text = index.data(Qt::DisplayRole).toString();
-    painter->setPen(option.palette.text().color());
-    painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextWordWrap, text);
-
-    painter->restore();
-}
-
-QSize TextureItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const {
-    const QString text = index.data(Qt::DisplayRole).toString();
-    QFontMetrics fm(option.font);
-
-    QRect textRect = fm.boundingRect(QRect(0, 0, 1000, 1000), Qt::TextWordWrap, text);
-    s32 width = sPaddingH + sThumbSize + sPaddingH + textRect.width() + sPaddingH;
-    s32 height = std::max(sThumbSize, textRect.height()) + (2 * sPaddingV);
-
-    return {width, height};
-}
-
-
-// ========================================================================== //
-
-
-TextureListModel::TextureListModel(QObject* parent) :
-    QAbstractListModel{parent} {}
-
-void TextureListModel::setTextures(const Ptcl::TextureList* textures) {
-    beginResetModel();
-
-    mTextures = textures;
-
-    if (mTextures) {
-        for (auto & tex : *mTextures) {
-            tex->setUserCountCallback([this, texture = tex.get()]() {
-                emitRowChangedFor(texture);
-            });
-        }
-    }
-
-    endResetModel();
-}
-
-s32 TextureListModel::rowCount(const QModelIndex& index) const {
-    Q_UNUSED(index);
-    return mTextures ? static_cast<s32>(mTextures->size()) : 0;
-}
-
-QVariant TextureListModel::data(const QModelIndex& index, s32 role) const {
-    if (!mTextures || !index.isValid()) {
-        return {};
-    }
-
-    const auto& texture = (*mTextures)[index.row()];
-
-    switch (role) {
-        case Qt::DisplayRole: {
-            const auto& img = texture->textureData();
-            const auto sizeBytes = texture->textureDataRaw().size();
-
-            const QString sizeString = (sizeBytes < 1024)
-                ? QString("%1 Bytes").arg(sizeBytes)
-                : QString("%1 KB").arg(sizeBytes / 1024);
-
-            return QString("Format: %1\nDimensions: %2x%3\nSize %4\nUsers: %5")
-                .arg(toString(texture->textureFormat()))
-                .arg(img.width())
-                .arg(img.height())
-                .arg(sizeString)
-                .arg(texture->userCount());
-        }
-        case Qt::DecorationRole:
-            return QPixmap::fromImage(texture->textureData());
-        case Roles::TexturePtrRole:
-            return QVariant::fromValue<void*>(texture.get());
-        case Roles::UserCountRole:
-            return texture->userCount();
-        default:
-            return {};
-    }
-}
-
-void TextureListModel::emitRowChangedFor(Ptcl::Texture* texture) {
-    if (!mTextures || !texture) {
-        return;
-    }
-
-    const s32 rowCount = static_cast<s32>(mTextures->size());
-    for (s32 row = 0; row < rowCount; ++row) {
-        if ((*mTextures)[row].get() == texture) {
-            QModelIndex idx = index(row);
-            emit dataChanged(idx, idx, {Qt::DisplayRole, UserCountRole});
-            return;
-        }
-    }
-}
-
-void TextureListModel::onTextureAdded(s32 index) {
-    if (!mTextures) {
-        return;
-    }
-
-    beginInsertRows(QModelIndex(), index, index);
-
-    auto* texture = (*mTextures)[index].get();
-    texture->setUserCountCallback([this, texture]() {
-        emitRowChangedFor(texture);
-    });
-
-    endInsertRows();
-}
-
-void TextureListModel::onTextureRemoved(s32 index) {
-    if (!mTextures) {
-        return;
-    }
-
-    beginRemoveRows(QModelIndex(), index, index);
-    endRemoveRows();
-}
-
-
-// ========================================================================== //
-
-TextureDetailsPanel::TextureDetailsPanel(QWidget* parent) :
-    QWidget{parent} {
-    mThumbnailWidget.setThumbnailSize({256, 256});
-    mExportButton.setText("Export");
-    mReplaceButton.setText("Replace");
-    mDeleteButton.setText("Delete");
-
-    auto* mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-
-    mainLayout->addWidget(&mThumbnailWidget);
-
-    auto* buttonLayout = new QHBoxLayout;
-    buttonLayout->addWidget(&mExportButton);
-    buttonLayout->addWidget(&mReplaceButton);
-    buttonLayout->addWidget(&mDeleteButton);
-    mainLayout->addLayout(buttonLayout);
-    mainLayout->addStretch(1);
-
-    connect(&mExportButton, &QPushButton::clicked, this, [this](bool checked) {
-        Q_UNUSED(checked);
-        if (mTexturePtr) {
-            emit exportRequested(mTexturePtr);
-        }
-    });
-
-    connect(&mReplaceButton, &QPushButton::clicked, this, [this](bool checked) {
-        Q_UNUSED(checked);
-        if (mIndex.isValid()) {
-            emit replaceRequested(mIndex);
-        }
-    });
-
-    connect(&mDeleteButton, &QPushButton::clicked, this, [this](bool checked) {
-        Q_UNUSED(checked);
-        if (mIndex.isValid()) {
-            emit deleteRequested(mIndex);
-        }
-    });
-
-    setEnabled(false);
-}
-
-void TextureDetailsPanel::setTexture(const QModelIndex& index, Ptcl::Texture* texture) {
-    mTexturePtr = texture;
-    mIndex = index;
-
-    if (!mTexturePtr) {
-        setEnabled(false);
-        mThumbnailWidget.clear();
-        return;
-    }
-
-    setEnabled(true);
-    mThumbnailWidget.setPixmap(QPixmap::fromImage(mTexturePtr->textureData()));
-}
-
-void TextureDetailsPanel::refreshTexture() {
-    if (mTexturePtr) {
-        mThumbnailWidget.setPixmap(QPixmap::fromImage(mTexturePtr->textureData()));
-    }
-}
 
 
 // ========================================================================== //
@@ -259,6 +29,15 @@ TextureListWidget::TextureListWidget(QWidget *parent) :
     connect(&mDetailsPanel, &TextureDetailsPanel::exportRequested, this, &TextureListWidget::exportTexture);
     connect(&mDetailsPanel, &TextureDetailsPanel::replaceRequested, this, &TextureListWidget::replaceTexture);
     connect(&mDetailsPanel, &TextureDetailsPanel::deleteRequested, this, &TextureListWidget::deleteTexture);
+
+    connect(&mModel, &QAbstractItemModel::dataChanged, this, [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles) {
+        Q_UNUSED(bottomRight);
+        Q_UNUSED(roles);
+
+        if (mDetailsPanel.matchesIndex(topLeft)) {
+            mDetailsPanel.refreshTexture();
+        }
+    });
 }
 
 void TextureListWidget::setupToolbar() {
@@ -289,7 +68,7 @@ void TextureListWidget::setupContextMenu() {
             return;
         }
 
-        auto* texture = static_cast<Ptcl::Texture*>(index.data(TextureListModel::Roles::TexturePtrRole).value<void*>());
+        auto* texture = static_cast<Ptcl::Texture*>(index.data(TextureListRoles::TexturePtrRole).value<void*>());
 
         if (!texture) {
             return;
@@ -327,7 +106,7 @@ void TextureListWidget::setupSelectionHandling() {
 
         Ptcl::Texture* texture = nullptr;
         if (current.isValid()) {
-            texture = static_cast<Ptcl::Texture*>(current.data(TextureListModel::Roles::TexturePtrRole).value<void*>());
+            texture = static_cast<Ptcl::Texture*>(current.data(TextureListRoles::TexturePtrRole).value<void*>());
         }
         mDetailsPanel.setTexture(current, texture);
     });

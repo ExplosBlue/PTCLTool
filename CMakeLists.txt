@@ -71,9 +71,12 @@ set(PROJECT_SOURCES
     src/editor/inspector/field/fieldPosAddInspector.cpp
     src/editor/inspector/field/fieldRandomInspector.cpp
     src/editor/inspector/field/fieldSpinInspector.cpp
-    src/editor/texture/textureListWidget.cpp
+    src/editor/texture/textureDetailsPanel.cpp
     src/editor/texture/textureImportDialog.cpp
     src/editor/texture/textureImportProcessor.cpp
+    src/editor/texture/textureItemDelegate.cpp
+    src/editor/texture/textureListModel.cpp
+    src/editor/texture/textureListWidget.cpp
     src/editor/texture/textureSelectDialog.cpp
     src/math/quaternion.cpp
     src/etc1/rg_etc1.cpp
@@ -139,8 +142,12 @@ set(PROJECT_HEADERS
     include/editor/inspector/field/fieldPosAddInspector.h
     include/editor/inspector/field/fieldRandomInspector.h
     include/editor/inspector/field/fieldSpinInspector.h
+    include/editor/texture/textureDetailsPanel.h
     include/editor/texture/textureImportDialog.h
     include/editor/texture/textureImportProcessor.h
+    include/editor/texture/textureItemDelegate.h
+    include/editor/texture/textureListModel.h
+    include/editor/texture/textureListRoles.h
     include/editor/texture/textureListWidget.h
     include/editor/texture/textureSelectDialog.h
     include/etc1/rg_etc1.h
