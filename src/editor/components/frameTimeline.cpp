@@ -390,7 +390,7 @@ void FrameTimeline::drawTimelineCell(QPainter& painter, s32 trackY, s32 trackH, 
 
     QPixmap thumb = PaintUtil::renderTextureFrame(mFrameInfo, frame, sThumbSize);
     painter.setOpacity(style.thumbnailOpacity);
-    painter.drawPixmap(layout.thumbPos, thumb);
+    PaintUtil::drawTextureThumbnail(painter, QRect(layout.thumbPos, QSize(sThumbSize, sThumbSize)), thumb);
 
     if (style.thumbnailOpacity != 1.0f) {
         painter.restore();

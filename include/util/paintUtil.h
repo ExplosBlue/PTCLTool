@@ -56,6 +56,8 @@ QImage renderTexture(const QImage& texture, const QRectF& uvRect, Ptcl::TextureW
 
 void drawCheckerboard(QPainter& painter, const QRect& rect, s32 checkerSize, const QSize& sourceSize, const QColor& light = {220, 220, 220}, const QColor& dark = {180, 180, 180});
 
+void drawTextureThumbnail(QPainter& painter, const QRect& targetRect, const QPixmap& pixmap, s32 checkerSize = 0, bool smooth = true);
+
 void drawRotatedText(QPainter& painter, const RotatedText& text, Qt::Alignment alignment);
 
 // ========================================================================== //

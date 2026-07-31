@@ -44,8 +44,6 @@ protected:
     void updateScrollBars();
 
     void drawBackground(QPainter& painter) const;
-    void drawCheckerboard(QPainter& painter) const;
-    void drawTexture(QPainter& painter) const;
 
 protected:
     QPixmap mPixmap{};

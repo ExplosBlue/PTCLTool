@@ -1,5 +1,7 @@
 #include "util/paintUtil.h"
 
+#include <QRegion>
+
 
 namespace PaintUtil {
 
@@ -96,13 +98,27 @@ QPixmap renderTextureFrame(const TextureFrameInfo& frameInfo, s32 frame, s32 siz
         frameHeight
     };
 
+    const f32 texW = static_cast<f32>(frameInfo.texture->width());
+    const f32 texH = static_cast<f32>(frameInfo.texture->height());
+
+    const f32 regionW = texW * frameWidth;
+    const f32 regionH = texH * frameHeight;
+
+    const f32 scale = std::min(
+        static_cast<f32>(size) / regionW,
+        static_cast<f32>(size) / regionH
+    );
+
+    const s32 outW = std::max(1, static_cast<s32>(std::round(regionW * scale)));
+    const s32 outH = std::max(1, static_cast<s32>(std::round(regionH * scale)));
+
     auto tex = renderTexture(
         *frameInfo.texture,
         uvRect,
         frameInfo.wrapU,
         frameInfo.wrapV,
         frameInfo.filter,
-        {size, size}
+        {outW, outH}
     );
 
     return QPixmap::fromImage(tex);
@@ -159,6 +175,50 @@ void drawCheckerboard(QPainter& painter, const QRect& rect, s32 checkerSize, con
         }
     }
 
+    painter.restore();
+}
+
+void drawTextureThumbnail(QPainter& painter, const QRect& targetRect, const QPixmap& pixmap, s32 checkerSize, bool smooth) {
+    if (targetRect.isEmpty()) {
+        return;
+    }
+
+    QRect fittedRect = targetRect;
+    if (!pixmap.isNull()) {
+        QSize fitted = pixmap.size();
+        fitted.scale(targetRect.size(), Qt::KeepAspectRatio);
+        fittedRect = QRect(targetRect.topLeft(), fitted);
+        fittedRect.moveCenter(targetRect.center());
+    }
+
+    if (checkerSize <= 0 && !pixmap.isNull()) {
+        const f32 scaleX = static_cast<f32>(fittedRect.width()) / static_cast<f32>(pixmap.width());
+        const f32 scaleY = static_cast<f32>(fittedRect.height()) / static_cast<f32>(pixmap.height());
+        checkerSize = std::max(2, static_cast<s32>(std::round(std::min(scaleX, scaleY) * 4.0f)));
+    }
+
+    if (checkerSize <= 0) {
+        checkerSize = 8;
+    }
+
+    if (fittedRect != targetRect) {
+        QRegion outside(targetRect);
+        outside -= fittedRect;
+        for (const QRect& r : outside) {
+            painter.fillRect(r, QColor(0, 0, 0, 100));
+        }
+    }
+
+    drawCheckerboard(painter, fittedRect, checkerSize, fittedRect.size());
+
+    if (pixmap.isNull()) {
+        return;
+    }
+
+    painter.save();
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, smooth);
+    const QPixmap scaled = pixmap.scaled(fittedRect.size(), Qt::KeepAspectRatio, smooth ? Qt::SmoothTransformation : Qt::FastTransformation);
+    painter.drawPixmap(fittedRect.topLeft(), scaled);
     painter.restore();
 }
 

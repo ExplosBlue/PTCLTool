@@ -89,8 +89,7 @@ QPixmap StartFrameList::renderThumb(s32 frameIndex) const {
     thumb.fill(Qt::transparent);
 
     QPainter painter(&thumb);
-    PaintUtil::drawCheckerboard(painter, thumb.rect(), 8, thumb.size());
-    painter.drawPixmap(0, 0, frame);
+    PaintUtil::drawTextureThumbnail(painter, thumb.rect(), frame);
 
     return thumb;
 }

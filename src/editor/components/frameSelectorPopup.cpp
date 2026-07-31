@@ -108,7 +108,13 @@ void FrameSelectorPopup::positionAt(const QPoint& point) {
 QToolButton* FrameSelectorPopup::makeFrameButton(const TextureFrameInfo& frameInfo, s32 frameIdx)  {
     const s32 btnSize = sThumbSize + sButtonPadding;
 
-    const QPixmap thumb = PaintUtil::renderTextureFrame(frameInfo, frameIdx, sThumbSize);
+    const QPixmap frame = PaintUtil::renderTextureFrame(frameInfo, frameIdx, sThumbSize);
+
+    QPixmap thumb(sThumbSize, sThumbSize);
+    thumb.fill(Qt::transparent);
+
+    QPainter painter(&thumb);
+    PaintUtil::drawTextureThumbnail(painter, thumb.rect(), frame);
 
     auto* btn = new QToolButton(this);
     btn->setIcon(QIcon(thumb));

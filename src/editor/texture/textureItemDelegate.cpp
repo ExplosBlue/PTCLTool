@@ -35,14 +35,7 @@ void TextureItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
     );
 
     const auto pixmap = index.data(Qt::DecorationRole).value<QPixmap>();
-    PaintUtil::drawCheckerboard(*painter, thumbRect, 8, thumbRect.size());
-
-    if (!pixmap.isNull()) {
-        const auto scaledPixmap = pixmap.scaled(thumbRect.size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        QRect centeredRect = QRect(thumbRect.topLeft(), scaledPixmap.size());
-        centeredRect.moveCenter(thumbRect.center());
-        painter->drawPixmap(centeredRect.topLeft(), scaledPixmap);
-    }
+    PaintUtil::drawTextureThumbnail(*painter, thumbRect, pixmap);
 
     const QRect textRect(
         thumbRect.right() + sPaddingH,
