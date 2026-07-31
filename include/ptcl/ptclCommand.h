@@ -537,51 +537,28 @@ public:
 
         Texture* removedTexture = textures[mIndex].get();
 
-        const auto userCount = removedTexture->userCount();
+        const auto usages = resource().textureUsages(removedTexture);
+        mAffectedEmitters.reserve(usages.size());
 
-        if (userCount != 0) {
-            mAffectedEmitters.reserve(userCount);
-            detachTextureFromEmitters(removedTexture);
+        for (const auto& usage : usages) {
+            auto* em = emitter(usage.setIndex, usage.emitterIndex);
+            if (!em) {
+                continue;
+            }
+
+            mAffectedEmitters.push_back({
+                usage.setIndex,
+                usage.emitterIndex,
+                usage.isChild,
+                textureFor(*em, usage.isChild)
+            });
+
+            setTexture(*em, usage.isChild, nullptr);
+            notifyEmitterChanged(usage.setIndex, usage.emitterIndex);
         }
 
         mRemovedTexture = resource().removeTexture(mIndex);
         notifyTextureRemoved(mIndex);
-    }
-
-    void detachTextureFromEmitters(Texture* texture) {
-        auto& sets = resource().getEmitterSets();
-
-        for (s32 setIndex = 0; setIndex < static_cast<s32>(sets.size()); ++setIndex) {
-            auto& emitters = sets[setIndex]->emitters();
-
-            for (s32 emitterIndex = 0; emitterIndex < static_cast<s32>(emitters.size()); ++emitterIndex) {
-                auto& emitter = *emitters[emitterIndex];
-
-                bool detatched = false;
-                detatched |= detachTexture(emitter, setIndex, emitterIndex, false, texture);
-                detatched |= detachTexture(emitter, setIndex, emitterIndex, true, texture);
-
-                if (detatched) {
-                    notifyEmitterChanged(setIndex, emitterIndex);
-                }
-            }
-        }
-    }
-
-    bool detachTexture(Emitter& emitter, s32 setIndex, s32 emitterIndex, bool child, Texture* texture) {
-        if (textureFor(emitter, child) != texture) {
-            return false;
-        }
-
-        mAffectedEmitters.push_back({
-            setIndex,
-            emitterIndex,
-            child,
-            texture
-        });
-
-        setTexture(emitter, child, nullptr);
-        return true;
     }
 
     static Texture* textureFor(Emitter& emitter, bool child) {

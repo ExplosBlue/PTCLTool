@@ -71,6 +71,8 @@ public:
     const EmitterSetList& emitterSets() const { return mData.getEmitterSets(); }
     const TextureList& textures() const { return mData.textures(); }
 
+    std::vector<TextureUsage> textureUsages(const Texture* texture) const { return mData.textureUsages(texture); }
+
     const QString& projectName() const { return mData.name(); }
     void setProjectName(const QString& name);
 

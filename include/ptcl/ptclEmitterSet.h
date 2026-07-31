@@ -27,6 +27,7 @@ public:
     EmitterSet(const BinEmitterSet& binEmitterSet);
 
     EmitterList& emitters();
+    const EmitterList& emitters() const;
 
     const QString& name() const;
     void setName(const QString& name);

@@ -534,6 +534,32 @@ const Emitter* PtclRes::emitter(s32 setIndex, s32 emitterIndex) const {
     return set->emitters()[emitterIndex].get();
 }
 
+std::vector<TextureUsage> PtclRes::textureUsages(const Texture* texture) const {
+    if (!texture || texture->userCount() == 0) {
+        return {};
+    }
+
+    std::vector<TextureUsage> usages{};
+    usages.reserve(texture->userCount());
+
+    for (s32 setIndex = 0; setIndex < static_cast<s32>(mEmitterSets.size()); ++setIndex) {
+        const auto& emitters = mEmitterSets[setIndex]->emitters();
+
+        for (s32 emitterIndex = 0; emitterIndex < static_cast<s32>(emitters.size()); ++emitterIndex) {
+            const auto& emitter = *emitters[emitterIndex];
+
+            if (emitter.texture() == texture) {
+                usages.push_back({setIndex, emitterIndex, false});
+            }
+            if (emitter.childTexture() == texture) {
+                usages.push_back({setIndex, emitterIndex, true});
+            }
+        }
+    }
+
+    return usages;
+}
+
 const TextureList& PtclRes::textures() const {
     return mTextures;
 }

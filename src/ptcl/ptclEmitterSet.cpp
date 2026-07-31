@@ -19,6 +19,10 @@ EmitterList& EmitterSet::emitters() {
     return mEmitters;
 }
 
+const EmitterList& EmitterSet::emitters() const {
+    return mEmitters;
+}
+
 const QString& EmitterSet::name() const {
     return mName;
 }

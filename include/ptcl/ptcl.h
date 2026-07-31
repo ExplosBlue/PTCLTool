@@ -18,6 +18,13 @@ using TextureList = std::vector<std::unique_ptr<Texture>>;
 using EmitterSetList = std::vector<std::unique_ptr<EmitterSet>>;
 
 
+struct TextureUsage {
+    s32 setIndex{-1};
+    s32 emitterIndex{-1};
+    bool isChild{false};
+};
+
+
 // ========================================================================== //
 
 
@@ -141,6 +148,8 @@ public:
 
     Emitter* emitter(s32 setIndex, s32 emitterIndex);
     const Emitter* emitter(s32 setIndex, s32 emitterIndex) const;
+
+    std::vector<TextureUsage> textureUsages(const Texture* texture) const;
 
     TextureList& textures();
     const TextureList& textures() const;
