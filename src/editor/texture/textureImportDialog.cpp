@@ -296,6 +296,7 @@ void TextureImportDialog::updateTextureFormat() {
         mETCDither.setEnabled(false);
     }
 
+    mProcessor.setSettings(buildSettings());
     updateFormatPreview();
 }
 
