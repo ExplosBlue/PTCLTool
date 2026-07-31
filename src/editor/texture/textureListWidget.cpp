@@ -8,6 +8,7 @@
 #include <QContextMenuEvent>
 #include <QFileDialog>
 #include <QMenu>
+#include <QMessageBox>
 #include <QPainter>
 #include <QSplitter>
 #include <QStandardItemModel>
@@ -511,7 +512,29 @@ void TextureListWidget::deleteTexture(const QModelIndex& index) {
     }
 
     const s32 textureIndex = index.row();
-    mDocument->removeTexture(textureIndex);
+    const auto& textures = mDocument->textures();
+    if (textureIndex < 0 || static_cast<size_t>(textureIndex) >= textures.size()) {
+        return;
+    }
+
+    const auto* tex = textures[textureIndex].get();
+    const auto& img = tex->textureData();
+    const u32 users = tex->userCount();
+
+    QString msg = QString("Delete texture?\n\nDimensions: %1x%2\nUsers: %3")
+        .arg(img.width()).arg(img.height()).arg(users);
+
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("Delete Texture");
+    msgBox.setText(msg);
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    msgBox.button(QMessageBox::Yes)->setText("Delete");
+
+    if (msgBox.exec() == QMessageBox::Yes) {
+        mDocument->removeTexture(textureIndex);
+    }
 }
 
 
