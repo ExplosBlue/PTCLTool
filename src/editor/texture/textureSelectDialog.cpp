@@ -1,6 +1,7 @@
 #include "editor/texture/textureSelectDialog.h"
 
 #include "util/paintUtil.h"
+#include "util/stringUtil.h"
 
 #include <QDialogButtonBox>
 #include <QGridLayout>
@@ -281,16 +282,13 @@ void TextureSelectDialog::onSelectionChanged(const QModelIndex& current, const Q
     const s32 globalIdx = mSelectedIndex;
     const auto& tex = mTextures[globalIdx];
     const auto& img = tex->textureData();
-    const auto sizeBytes = tex->textureDataRaw().size();
 
     mPreviewWidget.setPixmap(QPixmap::fromImage(img));
 
     mNameLabel.setText(QString("Texture %1").arg(globalIdx));
     mFormatLabel.setText(QString("Format: %1").arg(Ptcl::toString(tex->textureFormat())));
     mDimensionsLabel.setText(QString("Dimensions: %1 x %2").arg(img.width()).arg(img.height()));
-    mSizeLabel.setText(sizeBytes < 1024
-        ? QString("Size: %1 Bytes").arg(sizeBytes)
-        : QString("Size: %1 KB").arg(sizeBytes / 1024));
+    mSizeLabel.setText(QString("Size: %1").arg(StringUtil::formatBytes(tex->textureDataRaw().size())));
     mUsersLabel.setText(QString("Users: %1").arg(tex->userCount()));
 }
 

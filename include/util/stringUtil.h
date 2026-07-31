@@ -122,6 +122,23 @@ inline QByteArray qStringToShiftJIS(const QString& input) {
     return outputBuffer.left(writtenSize);
 }
 
+template <typename T>
+inline QString formatBytes(T bytes) {
+    const auto value = static_cast<u64>(bytes);
+
+    constexpr u64 kB = 1024;
+
+    if (value < kB) {
+        return QString("%1 B").arg(value);
+    }
+
+    if (value < kB * kB) {
+        return QString("%1 KB").arg(value / kB);
+    }
+
+    return QString("%1 MB").arg(value / (kB * kB));
+}
+
 inline QString elidePath(const QString& path, const QFontMetrics& metrics, s32 width)
 {
     QString nativePath = QDir::toNativeSeparators(path);

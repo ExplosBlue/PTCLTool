@@ -1,5 +1,6 @@
 #include "editor/texture/textureImportDialog.h"
 #include "util/imageUtil.h"
+#include "util/stringUtil.h"
 
 #include <QtConcurrentRun>
 #include <QDialogButtonBox>
@@ -378,14 +379,8 @@ void TextureImportDialog::updateAdjustment() {
 void TextureImportDialog::updateTextureInfo() {
     auto width = mTexture->textureData().width();
     auto height = mTexture->textureData().height();
-    auto sizeBytes = mTexture->textureDataRaw().size();
 
-    QString sizeString;
-    if (sizeBytes < 1024) {
-        sizeString = QString("%1 Bytes").arg(sizeBytes);
-    } else {
-        sizeString = QString("%1 KB").arg(sizeBytes / 1024);
-    }
+    const QString sizeString = StringUtil::formatBytes(mTexture->textureDataRaw().size());
 
     auto text = QString("Dimensions: %1\u00D7%2\nSize: %3")
         .arg(width)
