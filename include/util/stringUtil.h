@@ -56,6 +56,7 @@ inline QString shiftJISToQString(const char* input, size_t inputLength = 0) {
                           &outBuf,
                           &outBytesLeft);
 #else
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     char* inBuf = const_cast<char*>(input);
     size_t result = iconv(cd,
                           &inBuf,
@@ -66,7 +67,7 @@ inline QString shiftJISToQString(const char* input, size_t inputLength = 0) {
 
     iconv_close(cd);
 
-    if (result == size_t(-1)) {
+    if (result == static_cast<size_t>(-1)) {
         throw std::runtime_error("iconv conversion failed");
     }
 
@@ -106,13 +107,14 @@ inline QByteArray qStringToShiftJIS(const QString& input) {
     const char** inBuf = &inBufPtr;
     size_t result = iconv(cd, inBuf, &inBytesLeft, &outBuf, &outBytesLeft);
 #else
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     char* inBuf = const_cast<char*>(inBufPtr);
     size_t result = iconv(cd, &inBuf, &inBytesLeft, &outBuf, &outBytesLeft);
 #endif
 
     iconv_close(cd);
 
-    if (result == size_t(-1)) {
+    if (result == static_cast<size_t>(-1)) {
         throw std::runtime_error("iconv conversion failed");
     }
 
