@@ -1,6 +1,8 @@
 #pragma once
 
 #include "editor/texture/textureDetailsPanel.h"
+#include "editor/texture/textureFilterBar.h"
+#include "editor/texture/textureFilterProxyModel.h"
 #include "editor/texture/textureItemDelegate.h"
 #include "editor/texture/textureListModel.h"
 #include "ptcl/ptclDocument.h"
@@ -37,6 +39,7 @@ private:
     void setupContextMenu();
     void setupLayout();
     void setupSelectionHandling();
+    void setupFilterBar();
 
 private:
     Ptcl::Document* mDocument{nullptr};
@@ -47,7 +50,10 @@ private:
 
     QListView mView{};
     TextureListModel mModel{};
+    TextureFilterProxyModel mProxyModel{};
     TextureItemDelegate mDelegate{};
+
+    TextureFilterBar mFilterBar{};
 
     TextureDetailsPanel mDetailsPanel{};
 };

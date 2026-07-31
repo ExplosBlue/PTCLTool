@@ -22,6 +22,7 @@ TextureListWidget::TextureListWidget(QWidget *parent) :
     QWidget{parent} {
     setupToolbar();
     setupView();
+    setupFilterBar();
     setupContextMenu();
     setupLayout();
     setupSelectionHandling();
@@ -37,6 +38,8 @@ TextureListWidget::TextureListWidget(QWidget *parent) :
         if (mDetailsPanel.matchesIndex(topLeft)) {
             mDetailsPanel.refreshTexture();
         }
+
+        mProxyModel.refreshFilter();
     });
 }
 
@@ -57,13 +60,30 @@ void TextureListWidget::setupView() {
     mView.setMouseTracking(true);
     mView.setSelectionMode(QAbstractItemView::SingleSelection);
     mView.setContextMenuPolicy(Qt::CustomContextMenu);
-    mView.setModel(&mModel);
+    mProxyModel.setSourceModel(&mModel);
+    mView.setModel(&mProxyModel);
     mView.setItemDelegate(&mDelegate);
+}
+
+void TextureListWidget::setupFilterBar() {
+    connect(&mFilterBar, &TextureFilterBar::formatsChanged, this,
+            [this](const QSet<Ptcl::TextureFormat>& formats) {
+        mProxyModel.setEnabledFormats(formats);
+    });
+    connect(&mFilterBar, &TextureFilterBar::unusedOnlyChanged, this, [this](bool enabled) {
+        mProxyModel.setShowUnusedOnly(enabled);
+    });
+    connect(&mFilterBar, &TextureFilterBar::sizeChanged, this, [this](s32 maxSize) {
+        mProxyModel.setMaxSize(maxSize);
+    });
+    connect(&mFilterBar, &TextureFilterBar::fileSizeChanged, this, [this](s32 maxFileSize) {
+        mProxyModel.setMaxFileSize(maxFileSize);
+    });
 }
 
 void TextureListWidget::setupContextMenu() {
     connect(&mView, &QListView::customContextMenuRequested, this, [this](const QPoint& pos) {
-        QModelIndex index = mView.indexAt(pos);
+        QModelIndex index = mProxyModel.mapToSource(mView.indexAt(pos));
         if (!index.isValid()) {
             return;
         }
@@ -93,7 +113,11 @@ void TextureListWidget::setupLayout() {
     auto* mainLayout = new QVBoxLayout(this);
 
     auto* listLayout = new QHBoxLayout;
-    listLayout->addWidget(&mView);
+    auto* listColumn = new QVBoxLayout;
+    listColumn->setSpacing(2);
+    listColumn->addWidget(&mFilterBar);
+    listColumn->addWidget(&mView);
+    listLayout->addLayout(listColumn);
     listLayout->addWidget(&mDetailsPanel);
     mainLayout->addLayout(listLayout);
 
@@ -104,11 +128,13 @@ void TextureListWidget::setupSelectionHandling() {
     connect(mView.selectionModel(), &QItemSelectionModel::currentChanged, this, [this](const QModelIndex& current, const QModelIndex& previous) {
         Q_UNUSED(previous);
 
+        const QModelIndex sourceIndex = mProxyModel.mapToSource(current);
+
         Ptcl::Texture* texture = nullptr;
-        if (current.isValid()) {
-            texture = static_cast<Ptcl::Texture*>(current.data(TextureListRoles::TexturePtrRole).value<void*>());
+        if (sourceIndex.isValid()) {
+            texture = static_cast<Ptcl::Texture*>(sourceIndex.data(TextureListRoles::TexturePtrRole).value<void*>());
         }
-        mDetailsPanel.setTexture(current, texture);
+        mDetailsPanel.setTexture(sourceIndex, texture);
     });
 }
 

@@ -42,6 +42,7 @@ set(PROJECT_SOURCES
     src/editor/components/loadingSpinner.cpp
     src/editor/components/rgbaColorWidget.cpp
     src/editor/components/startframelist.cpp
+    src/editor/components/stickyMenu.cpp
     src/editor/components/texturePreview.cpp
     src/editor/components/thumbnailWidget.cpp
     src/editor/components/viewportScrollBar.cpp
@@ -72,6 +73,8 @@ set(PROJECT_SOURCES
     src/editor/inspector/field/fieldRandomInspector.cpp
     src/editor/inspector/field/fieldSpinInspector.cpp
     src/editor/texture/textureDetailsPanel.cpp
+    src/editor/texture/textureFilterBar.cpp
+    src/editor/texture/textureFilterProxyModel.cpp
     src/editor/texture/textureImportDialog.cpp
     src/editor/texture/textureImportProcessor.cpp
     src/editor/texture/textureItemDelegate.cpp
@@ -112,6 +115,7 @@ set(PROJECT_HEADERS
     include/editor/components/rgbaColorWidget.h
     include/editor/components/sizedSpinBox.h
     include/editor/components/startframelist.h
+    include/editor/components/stickyMenu.h
     include/editor/components/texturePreview.h
     include/editor/components/thumbnailWidget.h
     include/editor/components/vectorSpinBox.h
@@ -143,6 +147,8 @@ set(PROJECT_HEADERS
     include/editor/inspector/field/fieldRandomInspector.h
     include/editor/inspector/field/fieldSpinInspector.h
     include/editor/texture/textureDetailsPanel.h
+    include/editor/texture/textureFilterBar.h
+    include/editor/texture/textureFilterProxyModel.h
     include/editor/texture/textureImportDialog.h
     include/editor/texture/textureImportProcessor.h
     include/editor/texture/textureItemDelegate.h
