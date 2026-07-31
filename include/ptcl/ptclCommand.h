@@ -16,7 +16,7 @@ namespace Ptcl {
 
 class DocumentCommandBase : public QUndoCommand {
 public:
-    explicit DocumentCommandBase(Document* document, QString label, QUndoCommand* parent = nullptr) :
+    explicit DocumentCommandBase(Document* document, const QString& label, QUndoCommand* parent = nullptr) :
         QUndoCommand{std::move(label), parent}, mDocument{document} {}
 
 protected:
@@ -226,7 +226,7 @@ void SetEmitterSetPropertyCommand<T>::apply(const T& value) {
 class RenameProjectNameCommand final : public DocumentCommandBase {
 public:
     RenameProjectNameCommand(Document* document, QString newName, QUndoCommand* parent = nullptr) :
-        DocumentCommandBase{document, std::move("Rename Project"), parent}, mNewName{std::move(newName)} {
+        DocumentCommandBase{document, "Rename Project", parent}, mNewName{std::move(newName)} {
         mOldName = document->projectName();
 
         if (mOldName == mNewName) {
@@ -275,7 +275,7 @@ private:
 
 class AddEmitterCommand final : public DocumentCommandBase {
 public:
-    AddEmitterCommand(Document* doc, s32 setIndex, QString label, std::unique_ptr<Emitter> emitter = nullptr, QUndoCommand* parent = nullptr) :
+    AddEmitterCommand(Document* doc, s32 setIndex, const QString& label, std::unique_ptr<Emitter> emitter = nullptr, QUndoCommand* parent = nullptr) :
         DocumentCommandBase{doc, std::move(label), parent}, mSetIndex{setIndex} {
 
         if (emitter) {
@@ -319,7 +319,7 @@ private:
 class RemoveEmitterCommand final : public DocumentCommandBase {
 public:
     RemoveEmitterCommand(Document* doc, s32 setIndex, s32 emitterIndex, QUndoCommand* parent = nullptr) :
-        DocumentCommandBase{doc, std::move("Remove Emitter"), parent}, mSetIndex{setIndex}, mEmitterIndex{emitterIndex} {
+        DocumentCommandBase{doc, "Remove Emitter", parent}, mSetIndex{setIndex}, mEmitterIndex{emitterIndex} {
     }
 
     s32 id() const override {
@@ -352,7 +352,7 @@ private:
 
 class AddEmitterSetCommand final : public DocumentCommandBase {
 public:
-    AddEmitterSetCommand(Document* doc, QString label, std::unique_ptr<EmitterSet> emitterSet = nullptr, QUndoCommand* parent = nullptr) :
+    AddEmitterSetCommand(Document* doc, const QString& label, std::unique_ptr<EmitterSet> emitterSet = nullptr, QUndoCommand* parent = nullptr) :
         DocumentCommandBase{doc, std::move(label), parent} {
 
         if (emitterSet) {
@@ -399,7 +399,7 @@ private:
 class RemoveEmitterSetCommand final : public DocumentCommandBase {
 public:
     RemoveEmitterSetCommand(Document* doc, s32 setIndex, QUndoCommand* parent = nullptr) :
-        DocumentCommandBase{doc, std::move("Remove EmitterSet"), parent}, mSetIndex{setIndex} {
+        DocumentCommandBase{doc, "Remove EmitterSet", parent}, mSetIndex{setIndex} {
     }
 
     s32 id() const override {
@@ -436,7 +436,7 @@ private:
 class AddTextureCommand final : public DocumentCommandBase {
 public:
     AddTextureCommand(Document* doc, std::unique_ptr<Texture> texture, QUndoCommand* parent = nullptr) :
-        DocumentCommandBase{doc, std::move("Add Texture"), parent}, mNewTexture{std::move(texture)} {
+        DocumentCommandBase{doc, "Add Texture", parent}, mNewTexture{std::move(texture)} {
     }
 
     s32 id() const override {
@@ -475,7 +475,7 @@ private:
 class ReplaceTextureCommand final : public DocumentCommandBase {
 public:
     ReplaceTextureCommand(Document* doc, s32 index, std::unique_ptr<Texture> texture, QUndoCommand* parent = nullptr) :
-        DocumentCommandBase{doc, std::move("Replace Texture"), parent}, mIndex{index}, mTexture{std::move(texture)} {
+        DocumentCommandBase{doc, "Replace Texture", parent}, mIndex{index}, mTexture{std::move(texture)} {
     }
 
     s32 id() const override {
@@ -507,7 +507,7 @@ private:
 class RemoveTextureCommand final : public DocumentCommandBase {
 public:
     RemoveTextureCommand(Document* doc, s32 index, QUndoCommand* parent = nullptr) :
-        DocumentCommandBase{doc, std::move("Remove Texture"), parent}, mIndex{index} {
+        DocumentCommandBase{doc, "Remove Texture", parent}, mIndex{index} {
     }
 
     s32 id() const override {
@@ -517,22 +517,96 @@ public:
     void undo() override {
         resource().insertTexture(mIndex, std::move(mRemovedTexture));
         notifyTextureAdded(mIndex);
+
+        for (const auto& entry : mAffectedEmitters) {
+            auto* em = emitter(entry.setIndex, entry.emitterIndex);
+            if (!em) {
+                continue;
+            }
+
+            setTexture(*em, entry.isChild, entry.oldTexture);
+            notifyEmitterChanged(entry.setIndex, entry.emitterIndex);
+        }
     }
 
     void redo() override {
-        auto removed = resource().removeTexture(mIndex);
-        if (!removed) {
-            Q_ASSERT(false && "removeTexture returned null");
-            return;
+        mAffectedEmitters.clear();
+
+        auto& textures = resource().textures();
+        Q_ASSERT(mIndex >= 0 &&  static_cast<size_t>(mIndex) < textures.size());
+
+        Texture* removedTexture = textures[mIndex].get();
+
+        const auto userCount = removedTexture->userCount();
+
+        if (userCount != 0) {
+            mAffectedEmitters.reserve(userCount);
+            detachTextureFromEmitters(removedTexture);
         }
 
-        mRemovedTexture = std::move(removed);
+        mRemovedTexture = resource().removeTexture(mIndex);
         notifyTextureRemoved(mIndex);
     }
 
+    void detachTextureFromEmitters(Texture* texture) {
+        auto& sets = resource().getEmitterSets();
+
+        for (s32 setIndex = 0; setIndex < static_cast<s32>(sets.size()); ++setIndex) {
+            auto& emitters = sets[setIndex]->emitters();
+
+            for (s32 emitterIndex = 0; emitterIndex < static_cast<s32>(emitters.size()); ++emitterIndex) {
+                auto& emitter = *emitters[emitterIndex];
+
+                bool detatched = false;
+                detatched |= detachTexture(emitter, setIndex, emitterIndex, false, texture);
+                detatched |= detachTexture(emitter, setIndex, emitterIndex, true, texture);
+
+                if (detatched) {
+                    notifyEmitterChanged(setIndex, emitterIndex);
+                }
+            }
+        }
+    }
+
+    bool detachTexture(Emitter& emitter, s32 setIndex, s32 emitterIndex, bool child, Texture* texture) {
+        if (textureFor(emitter, child) != texture) {
+            return false;
+        }
+
+        mAffectedEmitters.push_back({
+            setIndex,
+            emitterIndex,
+            child,
+            texture
+        });
+
+        setTexture(emitter, child, nullptr);
+        return true;
+    }
+
+    static Texture* textureFor(Emitter& emitter, bool child) {
+        return child ? emitter.childTexture() : emitter.texture();
+    }
+
+    static void setTexture(Emitter& emitter, bool child, Texture* texture) {
+        if (child) {
+            emitter.setChildTexture(texture);
+        } else {
+            emitter.setTexture(texture);
+        }
+    }
+
 private:
+    struct AffectedEmitter {
+        s32 setIndex;
+        s32 emitterIndex;
+        bool isChild;
+        Texture* oldTexture;
+    };
+
     s32 mIndex{0};
     std::unique_ptr<Texture> mRemovedTexture{};
+    std::vector<AffectedEmitter> mAffectedEmitters{};
 
     const s32 mId{static_cast<s32>(qHash("RemoveTexture"))};
 };

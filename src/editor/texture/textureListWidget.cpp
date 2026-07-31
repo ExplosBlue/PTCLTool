@@ -365,6 +365,10 @@ void TextureListWidget::setDocument(Ptcl::Document* document) {
     });
 
     connect(mDocument, &Ptcl::Document::textureRemoved, this, [this](s32 index) {
+        QModelIndex removedIdx = mModel.index(index);
+        if (mDetailsPanel.matchesIndex(removedIdx)) {
+            mDetailsPanel.setTexture({}, nullptr);
+        }
         mModel.onTextureRemoved(index);
     });
 
