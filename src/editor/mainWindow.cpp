@@ -70,6 +70,7 @@ void MainWindow::setupUi() {
     mInspector.setSelection(&mSelection);
 
     // Texture Widget
+    mTextureWidget.setSelection(&mSelection);
     mTexturePanel.setContentEnabled(false);
 
     setupMenus();

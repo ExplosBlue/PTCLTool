@@ -102,8 +102,12 @@ void ThumbnailWidget::calcTextureRect() {
         return;
     }
 
+    QSize fitSize = mThumbnailSize;
+    fitSize.setWidth(qMin(fitSize.width(), width()));
+    fitSize.setHeight(qMin(fitSize.height(), height()));
+
     QSize baseSize = mPixmap.size();
-    baseSize.scale(mThumbnailSize, Qt::KeepAspectRatio);
+    baseSize.scale(fitSize, Qt::KeepAspectRatio);
 
     QSize zoomedSize(
         static_cast<s32>(static_cast<f32>(baseSize.width()) * mZoom),

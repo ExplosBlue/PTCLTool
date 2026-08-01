@@ -39,7 +39,7 @@ TextureListWidget::TextureListWidget(QWidget *parent) :
         Q_UNUSED(roles);
 
         if (mDetailsPanel.matchesIndex(topLeft)) {
-            mDetailsPanel.refreshTexture();
+            mDetailsPanel.refresh();
         }
 
         mProxyModel.refreshFilter();
@@ -167,12 +167,17 @@ void TextureListWidget::setupSelectionHandling() {
     });
 }
 
+void TextureListWidget::setSelection(Ptcl::Selection* selection) {
+    mDetailsPanel.setSelection(selection);
+}
+
 void TextureListWidget::setDocument(Ptcl::Document* document) {
     if (mDocument) {
         mDocument->disconnect(this);
     }
 
     mDocument = document;
+    mDetailsPanel.setDocument(document);
 
     if (!mDocument) {
         mModel.setTextures(nullptr);
@@ -191,7 +196,7 @@ void TextureListWidget::setDocument(Ptcl::Document* document) {
         emit mModel.dataChanged(idx, idx);
 
         if (mDetailsPanel.matchesIndex(idx)) {
-            mDetailsPanel.refreshTexture();
+            mDetailsPanel.refresh();
         }
     });
 
@@ -205,6 +210,24 @@ void TextureListWidget::setDocument(Ptcl::Document* document) {
             mDetailsPanel.setTexture({}, nullptr);
         }
         mModel.onTextureRemoved(index);
+    });
+
+    connect(mDocument, &Ptcl::Document::emitterChanged, this, [this](s32 setIndex, s32 emitterIndex) {
+        Q_UNUSED(setIndex);
+        Q_UNUSED(emitterIndex);
+        mDetailsPanel.refreshUsers();
+    });
+
+    connect(mDocument, &Ptcl::Document::emitterAdded, this, [this](s32 setIndex, s32 emitterIndex) {
+        Q_UNUSED(setIndex);
+        Q_UNUSED(emitterIndex);
+        mDetailsPanel.refreshUsers();
+    });
+
+    connect(mDocument, &Ptcl::Document::emitterRemoved, this, [this](s32 setIndex, s32 emitterIndex) {
+        Q_UNUSED(setIndex);
+        Q_UNUSED(emitterIndex);
+        mDetailsPanel.refreshUsers();
     });
 
     mModel.setTextures(&mDocument->textures());

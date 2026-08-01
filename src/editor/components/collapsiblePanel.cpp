@@ -162,7 +162,7 @@ QSize CollapsiblePanel::minimumSizeHint() const {
 }
 
 s32 CollapsiblePanel::contentMinHeight() const {
-    return mContentWidget ? mContentWidget->sizeHint().height() : 0;
+    return mContentWidget ? mContentWidget->minimumSizeHint().height() : 0;
 }
 
 

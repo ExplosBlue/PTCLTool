@@ -416,6 +416,14 @@ void PtclList::setSelection(Ptcl::Selection* selection) {
             return;
         }
 
+        for (const QStandardItem* ancestor = item; ancestor; ancestor = ancestor->parent()) {
+            const QModelIndex ancestorSource = mListModel.indexFromItem(ancestor);
+            const QModelIndex ancestorProxy = mProxyModel.mapFromSource(ancestorSource);
+            if (ancestorProxy.isValid()) {
+                mTreeView.expand(ancestorProxy);
+            }
+        }
+
         const QModelIndex sourceIndex = mListModel.indexFromItem(item);
         const QModelIndex proxyIndex = mProxyModel.mapFromSource(sourceIndex);
 

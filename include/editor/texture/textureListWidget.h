@@ -25,6 +25,7 @@ public:
     explicit TextureListWidget(QWidget* parent = nullptr);
 
     void setDocument(Ptcl::Document* document);
+    void setSelection(Ptcl::Selection* selection);
 
 private slots:
     void exportAll();
