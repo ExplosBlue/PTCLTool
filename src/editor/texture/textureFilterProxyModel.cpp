@@ -43,7 +43,7 @@ void TextureFilterProxyModel::setMaxSize(s32 maxSize) {
     endFilterChange();
 }
 
-void TextureFilterProxyModel::setMaxFileSize(s32 maxFileSize) {
+void TextureFilterProxyModel::setMaxFileSize(s64 maxFileSize) {
     if (mMaxFileSize == maxFileSize) {
         return;
     }
@@ -87,7 +87,7 @@ bool TextureFilterProxyModel::filterAcceptsRow(s32 sourceRow, const QModelIndex&
     }
 
     if (mMaxFileSize > 0 &&
-        sourceModel()->data(index, TextureListRoles::SizeRole).toInt() > mMaxFileSize) {
+        sourceModel()->data(index, TextureListRoles::SizeRole).toLongLong() > mMaxFileSize) {
         return false;
     }
 

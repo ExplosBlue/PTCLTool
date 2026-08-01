@@ -1,7 +1,7 @@
 #pragma once
 
 #include "editor/texture/textureDetailsPanel.h"
-#include "editor/texture/textureFilterBar.h"
+#include "editor/texture/textureFilterPopup.h"
 #include "editor/texture/textureFilterProxyModel.h"
 #include "editor/texture/textureItemDelegate.h"
 #include "editor/texture/textureListModel.h"
@@ -39,7 +39,8 @@ private:
     void setupContextMenu();
     void setupLayout();
     void setupSelectionHandling();
-    void setupFilterBar();
+    void setupFilterPopup();
+    void setFilterButtonChecked(bool checked);
 
 private:
     Ptcl::Document* mDocument{nullptr};
@@ -47,13 +48,14 @@ private:
     QToolBar mToolbar{};
     QAction* mActionExportAll{nullptr};
     QAction* mActionImportTexture{nullptr};
+    QAction* mFilterAction{nullptr};
 
     QListView mView{};
     TextureListModel mModel{};
     TextureFilterProxyModel mProxyModel{};
     TextureItemDelegate mDelegate{};
 
-    TextureFilterBar mFilterBar{};
+    TextureFilterPopup mFilterPopup{};
 
     TextureDetailsPanel mDetailsPanel{};
 };

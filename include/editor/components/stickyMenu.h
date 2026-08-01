@@ -9,7 +9,7 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class StickyMenu final : public QMenu {
+class StickyMenu : public QMenu {
     Q_OBJECT
 public:
     explicit StickyMenu(QWidget* parent = nullptr);

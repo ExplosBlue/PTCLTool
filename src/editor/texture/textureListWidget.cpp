@@ -4,10 +4,13 @@
 
 #include "util/settingsUtil.h"
 
+#include <QCursor>
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
 #include <QStandardPaths>
+#include <QTimer>
+#include <QToolButton>
 
 #include <utility>
 
@@ -22,7 +25,7 @@ TextureListWidget::TextureListWidget(QWidget *parent) :
     QWidget{parent} {
     setupToolbar();
     setupView();
-    setupFilterBar();
+    setupFilterPopup();
     setupContextMenu();
     setupLayout();
     setupSelectionHandling();
@@ -31,7 +34,7 @@ TextureListWidget::TextureListWidget(QWidget *parent) :
     connect(&mDetailsPanel, &TextureDetailsPanel::replaceRequested, this, &TextureListWidget::replaceTexture);
     connect(&mDetailsPanel, &TextureDetailsPanel::deleteRequested, this, &TextureListWidget::deleteTexture);
 
-    connect(&mModel, &QAbstractItemModel::dataChanged, this, [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles) {
+    connect(&mModel, &QAbstractItemModel::dataChanged, this, [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<s32>& roles) {
         Q_UNUSED(bottomRight);
         Q_UNUSED(roles);
 
@@ -47,6 +50,13 @@ void TextureListWidget::setupToolbar() {
     mToolbar.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     mActionExportAll = mToolbar.addAction(QIcon(":/res/icons/export_image.png"), "Export All");
     mActionImportTexture = mToolbar.addAction(QIcon(":/res/icons/import_image.png"), "Import Texture");
+
+    auto* spacer = new QWidget(this);
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    mToolbar.addWidget(spacer);
+
+    mFilterAction = mToolbar.addAction(QIcon(":/res/icons/filter.png"), "Filter");
+    mFilterAction->setToolTip("Filter textures by format, usage, and size");
 
     connect(mActionExportAll, &QAction::triggered, this, &TextureListWidget::exportAll);
     connect(mActionImportTexture, &QAction::triggered, this, &TextureListWidget::importTexture);
@@ -65,20 +75,42 @@ void TextureListWidget::setupView() {
     mView.setItemDelegate(&mDelegate);
 }
 
-void TextureListWidget::setupFilterBar() {
-    connect(&mFilterBar, &TextureFilterBar::formatsChanged, this,
-            [this](const QSet<Ptcl::TextureFormat>& formats) {
-        mProxyModel.setEnabledFormats(formats);
+void TextureListWidget::setupFilterPopup() {
+    mFilterPopup.setParent(this, Qt::Popup);
+
+    connect(&mFilterPopup, &TextureFilterPopup::filterChanged, this,
+            [this](const TextureFilterState& state) {
+        mProxyModel.setEnabledFormats(state.formats);
+        mProxyModel.setShowUnusedOnly(state.unusedOnly);
+        mProxyModel.setMaxSize(state.maxDimension);
+        mProxyModel.setMaxFileSize(state.maxFileSize);
     });
-    connect(&mFilterBar, &TextureFilterBar::unusedOnlyChanged, this, [this](bool enabled) {
-        mProxyModel.setShowUnusedOnly(enabled);
+
+    connect(&mFilterPopup, &TextureFilterPopup::closed, this, [this] {
+        setFilterButtonChecked(false);
     });
-    connect(&mFilterBar, &TextureFilterBar::sizeChanged, this, [this](s32 maxSize) {
-        mProxyModel.setMaxSize(maxSize);
+
+    connect(mFilterAction, &QAction::triggered, this, [this] {
+        if (mFilterPopup.isVisible()) {
+            mFilterPopup.hide();
+            return;
+        }
+
+        const QWidget* anchorWidget = mToolbar.widgetForAction(mFilterAction);
+        const QPoint anchor = (anchorWidget && anchorWidget->isVisible())
+            ? anchorWidget->mapToGlobal(anchorWidget->rect().center())
+            : QCursor::pos();
+
+            mFilterPopup.popup(anchor);
+            setFilterButtonChecked(true);
     });
-    connect(&mFilterBar, &TextureFilterBar::fileSizeChanged, this, [this](s32 maxFileSize) {
-        mProxyModel.setMaxFileSize(maxFileSize);
-    });
+}
+
+void TextureListWidget::setFilterButtonChecked(bool checked) {
+    if (auto* button = qobject_cast<QToolButton*>(mToolbar.widgetForAction(mFilterAction))) {
+        button->setCheckable(true);
+        button->setChecked(checked);
+    }
 }
 
 void TextureListWidget::setupContextMenu() {
@@ -110,18 +142,15 @@ void TextureListWidget::setupContextMenu() {
 }
 
 void TextureListWidget::setupLayout() {
-    auto* mainLayout = new QVBoxLayout(this);
+    auto* mainLayout = new QHBoxLayout(this);
 
-    auto* listLayout = new QHBoxLayout;
     auto* listColumn = new QVBoxLayout;
     listColumn->setSpacing(2);
-    listColumn->addWidget(&mFilterBar);
-    listColumn->addWidget(&mView);
-    listLayout->addLayout(listColumn);
-    listLayout->addWidget(&mDetailsPanel);
-    mainLayout->addLayout(listLayout);
+    listColumn->addWidget(&mView, 1);
+    listColumn->addWidget(&mToolbar);
 
-    mainLayout->addWidget(&mToolbar);
+    mainLayout->addLayout(listColumn, 1);
+    mainLayout->addWidget(&mDetailsPanel);
 }
 
 void TextureListWidget::setupSelectionHandling() {

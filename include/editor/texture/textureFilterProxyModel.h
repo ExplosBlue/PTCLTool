@@ -21,7 +21,7 @@ public:
     void setEnabledFormats(const QSet<Ptcl::TextureFormat>& formats);
     void setShowUnusedOnly(bool show);
     void setMaxSize(s32 maxSize);
-    void setMaxFileSize(s32 maxFileSize);
+    void setMaxFileSize(s64 maxFileSize);
 
     void refreshFilter();
 
@@ -32,7 +32,7 @@ private:
     QSet<Ptcl::TextureFormat> mEnabledFormats{};
     bool mShowUnusedOnly{false};
     s32 mMaxSize{0};
-    s32 mMaxFileSize{0};
+    s64 mMaxFileSize{0};
 };
 
 

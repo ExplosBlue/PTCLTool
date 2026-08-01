@@ -73,7 +73,7 @@ set(PROJECT_SOURCES
     src/editor/inspector/field/fieldRandomInspector.cpp
     src/editor/inspector/field/fieldSpinInspector.cpp
     src/editor/texture/textureDetailsPanel.cpp
-    src/editor/texture/textureFilterBar.cpp
+    src/editor/texture/textureFilterPopup.cpp
     src/editor/texture/textureFilterProxyModel.cpp
     src/editor/texture/textureImportDialog.cpp
     src/editor/texture/textureImportProcessor.cpp
@@ -147,7 +147,7 @@ set(PROJECT_HEADERS
     include/editor/inspector/field/fieldRandomInspector.h
     include/editor/inspector/field/fieldSpinInspector.h
     include/editor/texture/textureDetailsPanel.h
-    include/editor/texture/textureFilterBar.h
+    include/editor/texture/textureFilterPopup.h
     include/editor/texture/textureFilterProxyModel.h
     include/editor/texture/textureImportDialog.h
     include/editor/texture/textureImportProcessor.h
