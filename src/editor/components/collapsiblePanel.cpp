@@ -116,10 +116,16 @@ CollapsiblePanel::CollapsiblePanel(const QString& title, QWidget* parent) :
 
 void CollapsiblePanel::setContent(QWidget* widget) {
     if (mContentWidget) {
+        disconnect(mContentWidget, nullptr, this, nullptr);
         mContentWidget->setParent(nullptr);
     }
 
     mContentWidget = widget;
+    if (mContentWidget) {
+        connect(mContentWidget, &QObject::destroyed, this, [this] {
+            mContentWidget = nullptr;
+        });
+    }
     layout()->addWidget(mContentWidget);
     mContentWidget->setVisible(!mCollapsed);
     updateGeometry();

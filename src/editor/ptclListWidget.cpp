@@ -454,7 +454,10 @@ void PtclList::populateList() {
 }
 
 void PtclList::insertEmitterSetNode(s32 setIndex) {
-    const auto& set = mDocument->emitterSet(setIndex);
+    const auto* set = mDocument->emitterSet(setIndex);
+    if (!set) {
+        return;
+    }
 
     QString setName = QString("%1: %2").arg(setIndex).arg(set->name());
     auto* setItem = new QStandardItem(setName);
@@ -467,11 +470,14 @@ void PtclList::insertEmitterSetNode(s32 setIndex) {
     for (s32 emitterIndex = 0; emitterIndex < mDocument->emitterCount(setIndex); ++emitterIndex) {
         insertEmitterNode(setItem, setIndex, emitterIndex);
     }
-    mListModel.appendRow(setItem);
+    mListModel.insertRow(setIndex, setItem);
 }
 
 void PtclList::insertEmitterNode(QStandardItem* setItem, s32 setIndex, s32 emitterIndex) {
-    const auto& emitter = mDocument->emitter(setIndex, emitterIndex);
+    const auto* emitter = mDocument->emitter(setIndex, emitterIndex);
+    if (!emitter) {
+        return;
+    }
 
     QString emitterName = QString("%1: %2").arg(emitterIndex).arg(emitter->name());
     auto* emitterItem = new QStandardItem(emitterName);
@@ -486,7 +492,7 @@ void PtclList::insertEmitterNode(QStandardItem* setItem, s32 setIndex, s32 emitt
     if (emitter->type() == Ptcl::EmitterType::Complex || emitter->type() == Ptcl::EmitterType::Compact) {
         addComplexNodes(emitterItem, setIndex, emitterIndex);
     }
-    setItem->appendRow(emitterItem);
+    setItem->insertRow(emitterIndex, emitterItem);
 }
 
 void PtclList::filterList(const QString& text) {
@@ -631,7 +637,10 @@ void PtclList::updateEmitter(s32 setIndex, s32 emitterIndex) {
         return;
     }
 
-    const auto& emitter = mDocument->emitter(setIndex, emitterIndex);
+    const auto* emitter = mDocument->emitter(setIndex, emitterIndex);
+    if (!emitter) {
+        return;
+    }
     emitterItem->setData(static_cast<u32>(emitter->type()), sRoleEmitterType);
 
     if (emitter->type() == Ptcl::EmitterType::Simple) {
@@ -653,7 +662,10 @@ void PtclList::updateEmitterName(s32 setIndex, s32 emitterIndex) {
         return;
     }
 
-    const auto& emitter = mDocument->emitter(setIndex, emitterIndex);
+    const auto* emitter = mDocument->emitter(setIndex, emitterIndex);
+    if (!emitter) {
+        return;
+    }
 
     QString emitterName = QString("%1: %2").arg(emitterIndex).arg(emitter->name());
     emitterItem->setText(emitterName);
@@ -665,7 +677,10 @@ void PtclList::updateEmitterSetName(s32 setIndex) {
         return;
     }
 
-    const auto& set = mDocument->emitterSet(setIndex);
+    const auto* set = mDocument->emitterSet(setIndex);
+    if (!set) {
+        return;
+    }
 
     QString setName = QString("%1: %2").arg(setIndex).arg(set->name());
     setItem->setText(setName);
@@ -834,7 +849,10 @@ void PtclList::reindexEmitters(QStandardItem* setItem, s32 setIndex) {
         }
 
         emitterItem->setData(i, sRoleEmitterIdx);
-        const auto& emitter = mDocument->emitter(setIndex, i);
+        const auto* emitter = mDocument->emitter(setIndex, i);
+        if (!emitter) {
+            continue;
+        }
         emitterItem->setText(QString("%1: %2").arg(i).arg(emitter->name()));
 
         for (s32 c = 0; c < emitterItem->rowCount(); ++c) {
@@ -854,7 +872,10 @@ void PtclList::reindexEmitterSets() {
         }
 
         setItem->setData(i, sRoleSetIdx);
-        const auto& set = mDocument->emitterSet(i);
+        const auto* set = mDocument->emitterSet(i);
+        if (!set) {
+            continue;
+        }
         setItem->setText(QString("%1: %2").arg(i).arg(set->name()));
         reindexEmitters(setItem, i);
     }
