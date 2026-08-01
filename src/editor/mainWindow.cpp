@@ -33,25 +33,32 @@ void MainWindow::setupUi() {
     // MainWindow
     setAcceptDrops(true);
 
-    // Top Splitter
-    mTopSplitter = new QSplitter(Qt::Horizontal, this);
-    mTopSplitter->addWidget(&mPtclList);
-    mTopSplitter->addWidget(&mInspector);
-    mTopSplitter->setStretchFactor(0, 0);
-    mTopSplitter->setStretchFactor(1, 1);
+    // Left Column: Ptcl List above History
+    mLeftSplitter = new PanelSplitter(Qt::Vertical, this);
+    mLeftSplitter->addWidget(&mPtclList);
+    mLeftSplitter->addWidget(&mHistoryPanel);
+    mLeftSplitter->setStretchFactor(0, 1);
+    mLeftSplitter->setStretchFactor(1, 0);
 
-    // Bottom Container
-    auto* bottomContainer = new QWidget(this);
-    auto* bottomLayout = new QHBoxLayout(bottomContainer);
-    bottomLayout->addWidget(&mUndoView, 0);
-    bottomLayout->addWidget(&mTextureWidget, 1);
+    // Right Column: Inspector above Textures
+    mRightSplitter = new PanelSplitter(Qt::Vertical, this);
+    mRightSplitter->addWidget(&mInspector);
+    mRightSplitter->addWidget(&mTexturePanel);
+    mRightSplitter->setStretchFactor(0, 1);
+    mRightSplitter->setStretchFactor(1, 0);
 
-    // Bottom Splitter
-    mBottomSplitter = new QSplitter(Qt::Vertical, this);
-    mBottomSplitter->addWidget(mTopSplitter);
-    mBottomSplitter->addWidget(bottomContainer);
-    mBottomSplitter->setStretchFactor(0, 1);
-    mBottomSplitter->setStretchFactor(1, 0);
+    // Root Splitter: columns side by side
+    mRootSplitter = new PanelSplitter(Qt::Horizontal, this);
+    mRootSplitter->addWidget(mLeftSplitter);
+    mRootSplitter->addWidget(mRightSplitter);
+    mRootSplitter->setStretchFactor(0, 0);
+    mRootSplitter->setStretchFactor(1, 1);
+
+    setCentralWidget(mRootSplitter);
+
+    // Dock Panel Content
+    mHistoryPanel.setContent(&mUndoView);
+    mTexturePanel.setContent(&mTextureWidget);
 
     // Ptcl List
     mPtclList.setEnabled(false);
@@ -63,9 +70,8 @@ void MainWindow::setupUi() {
     mInspector.setSelection(&mSelection);
 
     // Texture Widget
-    mTextureWidget.setEnabled(false);
+    mTexturePanel.setContentEnabled(false);
 
-    setCentralWidget(mBottomSplitter);
     setupMenus();
 
     // Undo View
@@ -79,6 +85,7 @@ void MainWindow::setupUi() {
     auto& settings = SettingsUtil::SettingsMgr::instance();
     restoreGeometry(settings.windowGeometry());
     restoreState(settings.windowState());
+    restoreSplitterState();
 
     updateWindowTitle();
 }
@@ -150,9 +157,33 @@ void MainWindow::setupMenus() {
     mEditMenu.addAction(mUndoAction);
     mEditMenu.addAction(mRedoAction);
 
+    // View Menu
+    mViewMenu.setTitle("View");
+
+    mHistoryAction = mViewMenu.addAction("History");
+    mHistoryAction->setCheckable(true);
+    mHistoryAction->setChecked(true);
+    connect(mHistoryAction, &QAction::triggered, this, [this](bool checked) {
+        mHistoryPanel.setCollapsed(!checked);
+    });
+    connect(&mHistoryPanel, &CollapsiblePanel::collapsedChanged, this, [this](bool collapsed) {
+        mHistoryAction->setChecked(!collapsed);
+    });
+
+    mTextureAction = mViewMenu.addAction("Textures");
+    mTextureAction->setCheckable(true);
+    mTextureAction->setChecked(true);
+    connect(mTextureAction, &QAction::triggered, this, [this](bool checked) {
+        mTexturePanel.setCollapsed(!checked);
+    });
+    connect(&mTexturePanel, &CollapsiblePanel::collapsedChanged, this, [this](bool collapsed) {
+        mTextureAction->setChecked(!collapsed);
+    });
+
     // Menu Bar
     menuBar()->addMenu(&mFileMenu);
     menuBar()->addMenu(&mEditMenu);
+    menuBar()->addMenu(&mViewMenu);
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
@@ -160,6 +191,7 @@ void MainWindow::closeEvent(QCloseEvent* event) {
         auto& settings = SettingsUtil::SettingsMgr::instance();
         settings.setWindowGeometry(saveGeometry());
         settings.setWindowState(saveState());
+        saveSplitterState();
 
         event->accept();
         return;
@@ -187,8 +219,36 @@ void MainWindow::closeEvent(QCloseEvent* event) {
     auto& settings = SettingsUtil::SettingsMgr::instance();
     settings.setWindowGeometry(saveGeometry());
     settings.setWindowState(saveState());
+    saveSplitterState();
 
     event->accept();
+}
+
+void MainWindow::saveSplitterState() {
+    if (!mRootSplitter || !mLeftSplitter || !mRightSplitter) {
+        return;
+    }
+
+    SettingsUtil::SettingsMgr::instance().setSplitterStates({
+        mRootSplitter->saveState(),
+        mLeftSplitter->saveState(),
+        mRightSplitter->saveState(),
+    });
+}
+
+void MainWindow::restoreSplitterState() {
+    if (!mRootSplitter || !mLeftSplitter || !mRightSplitter) {
+        return;
+    }
+
+    const auto states = SettingsUtil::SettingsMgr::instance().splitterStates();
+    if (states.size() < 3) {
+        return;
+    }
+
+    mRootSplitter->restoreState(states[0]);
+    mLeftSplitter->restoreState(states[1]);
+    mRightSplitter->restoreState(states[2]);
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent* event) {

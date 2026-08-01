@@ -44,6 +44,9 @@ public:
     QByteArray windowState() const;
     void setWindowState(const QByteArray& state);
 
+    QList<QByteArray> splitterStates() const;
+    void setSplitterStates(const QList<QByteArray>& states);
+
 private:
     SettingsMgr() = default;
 

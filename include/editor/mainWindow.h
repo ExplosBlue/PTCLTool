@@ -1,5 +1,7 @@
 #pragma once
 
+#include "editor/components/collapsiblePanel.h"
+#include "editor/components/panelSplitter.h"
 #include "ptcl/ptclDocument.h"
 #include "editor/inspector/inspectorPanel.h"
 #include "editor/ptclListWidget.h"
@@ -51,6 +53,9 @@ private:
     void updateWindowTitle();
     void updateStatusBar();
 
+    void saveSplitterState();
+    void restoreSplitterState();
+
     void bindUndoStack();
 
     void showFileNotFoundDialog(const QString& filePath);
@@ -70,9 +75,17 @@ private:
     QMenu mFileMenu{};
     QMenu mRecentFilesMenu{};
     QMenu mEditMenu{};
+    QMenu mViewMenu{};
 
-    QSplitter* mTopSplitter{nullptr};
-    QSplitter* mBottomSplitter{nullptr};
+    QAction* mHistoryAction{nullptr};
+    QAction* mTextureAction{nullptr};
+
+    PanelSplitter* mRootSplitter{nullptr};
+    PanelSplitter* mLeftSplitter{nullptr};
+    PanelSplitter* mRightSplitter{nullptr};
+
+    CollapsiblePanel mHistoryPanel{"History"};
+    CollapsiblePanel mTexturePanel{"Textures"};
 
     QUndoView mUndoView{};
 

@@ -32,15 +32,16 @@ set(PROJECT_SOURCES
     src/editor/ptclListWidget.cpp
     src/editor/components/animGraph.cpp
     src/editor/components/clickableLabel.cpp
-    src/editor/components/collapsibleWidget.cpp
     src/editor/components/colorChannelSlider.cpp
     src/editor/components/colorGradientEditor.cpp
     src/editor/components/cropWidget.cpp
+    src/editor/components/collapsiblePanel.cpp
     src/editor/components/combinerPreviewWidget.cpp
     src/editor/components/frameSelectorPopup.cpp
     src/editor/components/frameTimeline.cpp
     src/editor/components/loadingSpinner.cpp
     src/editor/components/rgbaColorWidget.cpp
+    src/editor/components/panelSplitter.cpp
     src/editor/components/startframelist.cpp
     src/editor/components/stickyMenu.cpp
     src/editor/components/texturePreview.cpp
@@ -103,16 +104,17 @@ set(PROJECT_HEADERS
     include/editor/ptclListWidget.h
     include/editor/components/animGraph.h
     include/editor/components/clickableLabel.h
-    include/editor/components/collapsibleWidget.h
     include/editor/components/colorChannelSlider.h
     include/editor/components/colorGradientEditor.h
     include/editor/components/cropWidget.h
+    include/editor/components/collapsiblePanel.h
     include/editor/components/combinerPreviewWidget.h
     include/editor/components/enumComboBox.h
     include/editor/components/frameSelectorPopup.h
     include/editor/components/frameTimeline.h
     include/editor/components/loadingSpinner.h
     include/editor/components/rgbaColorWidget.h
+    include/editor/components/panelSplitter.h
     include/editor/components/sizedSpinBox.h
     include/editor/components/startframelist.h
     include/editor/components/stickyMenu.h

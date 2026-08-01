@@ -82,6 +82,25 @@ void SettingsMgr::setWindowState(const QByteArray& state) {
     mSettings.setValue("windowState", state);
 }
 
+QList<QByteArray> SettingsMgr::splitterStates() const {
+    QList<QByteArray> states;
+    const auto values = mSettings.value("splitterStates").toList();
+    states.reserve(values.size());
+    for (const auto& value : values) {
+        states.push_back(value.toByteArray());
+    }
+    return states;
+}
+
+void SettingsMgr::setSplitterStates(const QList<QByteArray>& states) {
+    QVariantList values;
+    values.reserve(states.size());
+    for (const auto& state : states) {
+        values.push_back(state);
+    }
+    mSettings.setValue("splitterStates", values);
+}
+
 
 // ========================================================================== //
 
