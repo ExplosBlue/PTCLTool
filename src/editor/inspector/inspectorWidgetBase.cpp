@@ -20,6 +20,7 @@ void InspectorWidgetBase::setDocument(Ptcl::Document* document) {
     }
 
     mDocument = document;
+    mEmitter = nullptr;
 
     if (mDocument) {
         connect(mDocument, &Ptcl::Document::emitterChanged, this, &InspectorWidgetBase::onEmitterChanged);

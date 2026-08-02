@@ -193,6 +193,7 @@ void InspectorPanel::setDocument(Ptcl::Document* document) {
 
     mDocument = document;
     mLastSelectionType = Ptcl::Selection::Type::None;
+    mEmitter = nullptr;
 
     mEmitterSetInspector->setDocument(document);
 

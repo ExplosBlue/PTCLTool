@@ -48,9 +48,9 @@ void EmitterSetInspector::setDocument(Ptcl::Document* document) {
     }
 
     mDocument = document;
+    mEmitterSet = nullptr;
 
     if (!mDocument) { return; }
-
     connect(mDocument, &Ptcl::Document::emitterSetChanged, this, [this](s32 setIndex) {
         if (!mEmitterSet || !mSelection) { return; }
         if (setIndex != mSelection->emitterSetIndex()) { return; }
