@@ -60,6 +60,7 @@ private:
 
     void showFileNotFoundDialog(const QString& filePath);
     void showOpenErrorDialog(const QString& filePath);
+    void showSanitizeWarningDialog(const QString& filePath, const Ptcl::PtclSanitizeReport& report);
 
 private:
     std::unique_ptr<Ptcl::Document> mDocument{};

@@ -434,6 +434,10 @@ void MainWindow::loadPtclRes(const QString& path) {
 
     bindUndoStack();
 
+    if (mDocument->sanitizeReport().hasIssues()) {
+        showSanitizeWarningDialog(path, mDocument->sanitizeReport());
+    }
+
     SettingsUtil::SettingsMgr::instance().addRecentFile(path);
     SettingsUtil::SettingsMgr::instance().setLastOpenPath(QFileInfo(path).absolutePath());
     updateRecentFileList();
@@ -539,6 +543,28 @@ void MainWindow::showOpenErrorDialog(const QString& filePath) {
     msgBox.setInformativeText(QString("The file is not a valid .ptcl file:\n\n%1").arg(displayPath));
     msgBox.setStandardButtons(QMessageBox::Ok);
 
+    msgBox.exec();
+}
+
+void MainWindow::showSanitizeWarningDialog(const QString& filePath, const Ptcl::PtclSanitizeReport& report) {
+    QMessageBox msgBox(this);
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setWindowTitle("File loaded with warnings");
+    msgBox.setText("The file was malformed and some values were sanitized on load.");
+    msgBox.setInformativeText(
+        QString("There may be visual issues with this file:\n\n%1\n\n%2 value(s) were corrected.")
+            .arg(QDir::toNativeSeparators(filePath))
+            .arg(report.count())
+    );
+
+    QList<QString> details = report.issues();
+    if (details.size() > 20) {
+        details = details.mid(0, 20);
+        details.append(QStringLiteral("... and %1 more.").arg(report.count() - 20));
+    }
+    msgBox.setDetailedText(details.join('\n'));
+
+    msgBox.setStandardButtons(QMessageBox::Ok);
     msgBox.exec();
 }
 

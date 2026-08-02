@@ -1,5 +1,7 @@
 #include "ptcl/ptcl.h"
 #include "ptcl/ptclBinary.h"
+#include "ptcl/ptclValidator.h"
+#include "util/imageUtil.h"
 #include "util/stringUtil.h"
 
 #include <QDataStream>
@@ -8,6 +10,7 @@
 #include <algorithm>
 #include <bit>
 #include <stdexcept>
+#include <utility>
 #include <variant>
 
 
@@ -26,6 +29,17 @@ PtclBinaryReader::PtclBinaryReader(const QString& filePath) :
 
     mStream.setByteOrder(QDataStream::LittleEndian);
     mStream.setFloatingPointPrecision(QDataStream::SinglePrecision);
+}
+
+PtclReadResult PtclBinaryReader::readAll() {
+    readHeader();
+
+    PtclReadResult result;
+    result.name = readName(mHeaderData.namePos);
+    result.emitterSets = readEmitterSets();
+    result.textures = takeTextures();
+
+    return result;
 }
 
 void PtclBinaryReader::readHeader() {
@@ -53,12 +67,8 @@ void PtclBinaryReader::readHeader() {
     mTextureTblPos = mFile.pos();
 }
 
-QString PtclBinaryReader::readProjectName() {
-    return readName(mHeaderData.namePos);
-}
-
-EmitterSetList PtclBinaryReader::readEmitterSets() {
-    EmitterSetList setList{};
+std::vector<RawEmitterSetRecord> PtclBinaryReader::readEmitterSets() {
+    std::vector<RawEmitterSetRecord> setList{};
 
     const s64 maxSets = (mFile.size() - mEmitterSetTblPos) / static_cast<s64>(sizeof(BinEmitterSetData));
     const u32 numSets = std::min(mHeaderData.numEmitterSet, static_cast<u32>(std::max<s64>(maxSets, 0)));
@@ -71,12 +81,16 @@ EmitterSetList PtclBinaryReader::readEmitterSets() {
     return setList;
 }
 
-Texture* PtclBinaryReader::loadTexture(u32 texturePos, u32 size, u32 width, u32 height, TextureFormat format) {
+s32 PtclBinaryReader::loadTexture(u32 texturePos, u32 size, u32 width, u32 height, TextureFormat format) {
+    if (size > ImageUtil::maxTextureBytes()) {
+        throw std::runtime_error("PtclBinaryReader - Texture data size too large.");
+    }
+
     const u32 offset = mTextureTblPos + texturePos;
 
     auto it = mTextureOffsetMap.find(offset);
     if (it != mTextureOffsetMap.end()) {
-        return mTextures[it->second].get();
+        return static_cast<s32>(it->second);
     }
 
     mFile.seek(offset);
@@ -88,31 +102,36 @@ Texture* PtclBinaryReader::loadTexture(u32 texturePos, u32 size, u32 width, u32 
         qWarning() << "Expected to read" << size << "bytes, got" << bytesRead << "bytes.";
     }
 
-    auto texture = std::make_unique<Texture>(&textureData, width, height, format);
+    RawTextureData rawTexture{
+        .pos = texturePos,
+        .size = size,
+        .width = width,
+        .height = height,
+        .format = format,
+        .bytes = std::move(textureData)
+    };
 
     const u32 idx = static_cast<u32>(mTextures.size());
-    mTextures.push_back(std::move(texture));
+    mTextures.push_back(std::move(rawTexture));
     mTextureOffsetMap.emplace(offset, idx);
 
-    return mTextures.back().get();
+    return static_cast<s32>(idx);
 }
 
-std::unique_ptr<EmitterSet> PtclBinaryReader::readEmitterSet(s32 index) {
+RawEmitterSetRecord PtclBinaryReader::readEmitterSet(s32 index) {
     mFile.seek(mEmitterSetTblPos + index * static_cast<s64>((sizeof(BinEmitterSetData))));
 
     BinEmitterSetData setData{};
     mStream >> setData;
 
-    auto set = std::make_unique<EmitterSet>();
-    set->setName(readName(setData.namePos));
-
-    set->setUserData(setData.userData);
-    set->setLastUpdateDate(setData.lastUpdateDate);
+    RawEmitterSetRecord set;
+    set.name = readName(setData.namePos);
+    set.data = setData;
 
     const s64 maxEmitters = (mFile.size() - static_cast<s64>(setData.emitterTblPos)) / static_cast<s64>(sizeof(BinEmitterTblData));
     const u32 numEmitters = std::min(setData.numEmitter, static_cast<u32>(std::max<s64>(maxEmitters, 0)));
 
-    set->emitters().reserve(numEmitters);
+    set.emitters.reserve(numEmitters);
 
     for (u32 idx = 0; idx < numEmitters; ++idx) {
         mFile.seek(setData.emitterTblPos + idx * static_cast<s64>((sizeof(BinEmitterTblData))));
@@ -120,9 +139,10 @@ std::unique_ptr<EmitterSet> PtclBinaryReader::readEmitterSet(s32 index) {
         BinEmitterTblData tblData;
         mStream >> tblData;
 
-        auto emitter = std::make_unique<Emitter>();
+        RawEmitterRecord emitter;
         if (tblData.emitterPos <= 0) {
-            set->emitters().push_back(std::move(emitter));
+            emitter.isNull = true;
+            set.emitters.push_back(std::move(emitter));
             continue;
         }
 
@@ -131,49 +151,44 @@ std::unique_ptr<EmitterSet> PtclBinaryReader::readEmitterSet(s32 index) {
         BinCommonEmitterData commonData{};
         mStream >> commonData;
 
-        emitter->initFromBinary(commonData);
-        emitter->setName(readName(commonData.namePos));
-
-        emitter->setTexture(
-            loadTexture(
-                commonData.texturePos,
-                commonData.textureSize,
-                commonData.textureRes.width,
-                commonData.textureRes.height,
-                commonData.textureRes.format
-            )
+        emitter.name = readName(commonData.namePos);
+        emitter.common = commonData;
+        emitter.textureIndex = loadTexture(
+            commonData.texturePos,
+            commonData.textureSize,
+            commonData.textureRes.width,
+            commonData.textureRes.height,
+            commonData.textureRes.format
         );
 
         if (commonData.type == EmitterType::Complex || commonData.type == EmitterType::Compact) {
             mFile.seek(tblData.emitterPos + static_cast<qint64>(sizeof(BinCommonEmitterData)));
-            readComplexData(*emitter, commonData);
+            readComplexData(emitter, commonData);
         }
 
-        set->emitters().push_back(std::move(emitter));
+        set.emitters.push_back(std::move(emitter));
     }
     return set;
 }
 
-void PtclBinaryReader::readComplexData(Emitter& emitter, const BinCommonEmitterData& common) {
+void PtclBinaryReader::readComplexData(RawEmitterRecord& record, const BinCommonEmitterData& common) {
     BinComplexEmitterData complex{};
     mStream >> complex;
 
-    emitter.initComplexFromBinary(complex);
+    record.complex = complex;
 
     // ChildData
     if (complex.childFlag.isSet(ChildFlag::Enabled)) {
         BinChildData childData{};
         mStream >> childData;
-        emitter.initChild(childData);
 
-        emitter.setChildTexture(
-            loadTexture(
-                childData.childTexturePos,
-                childData.childTextureSize,
-                childData.childTextureRes.width,
-                childData.childTextureRes.height,
-                childData.childTextureRes.format
-            )
+        record.child = childData;
+        record.childTextureIndex = loadTexture(
+            childData.childTexturePos,
+            childData.childTextureSize,
+            childData.childTextureRes.width,
+            childData.childTextureRes.height,
+            childData.childTextureRes.format
         );
     }
 
@@ -181,39 +196,39 @@ void PtclBinaryReader::readComplexData(Emitter& emitter, const BinCommonEmitterD
     if (complex.fieldFlag.isSet(FieldFlag::Random)) {
         BinFieldRandomData randomData{};
         mStream >> randomData;
-        emitter.initFieldRandom(randomData);
+        record.fieldRandom = randomData;
     }
     if (complex.fieldFlag.isSet(FieldFlag::Magnet)) {
         BinFieldMagnetData magnetData{};
         mStream >> magnetData;
-        emitter.initFieldMagnet(magnetData);
+        record.fieldMagnet = magnetData;
     }
     if (complex.fieldFlag.isSet(FieldFlag::Spin)) {
         BinFieldSpinData spinData{};
         mStream >> spinData;
-        emitter.initFieldSpin(spinData);
+        record.fieldSpin = spinData;
     }
     if (complex.fieldFlag.isSet(FieldFlag::Collision)) {
         BinFieldCollisionData collisionData{};
         mStream >> collisionData;
-        emitter.initFieldCollision(collisionData);
+        record.fieldCollision = collisionData;
     }
     if (complex.fieldFlag.isSet(FieldFlag::Convergence)) {
         BinFieldConvergenceData convergenceData{};
         mStream >> convergenceData;
-        emitter.initFieldConvergence(convergenceData);
+        record.fieldConvergence = convergenceData;
     }
     if (complex.fieldFlag.isSet(FieldFlag::PosAdd)) {
         BinFieldPosAddData posAddData{};
         mStream >> posAddData;
-        emitter.initFieldPosAdd(posAddData);
+        record.fieldPosAdd = posAddData;
     }
 
     // FluctuationData
     if (complex.fluctuationFlag.isSet(FluctuationFlag::Enabled)) {
         BinFluctuationData fluctuationData{};
         mStream >> fluctuationData;
-        emitter.initFluctuationData(fluctuationData);
+        record.fluctuation = fluctuationData;
     }
 
     // StripeData
@@ -221,11 +236,11 @@ void PtclBinaryReader::readComplexData(Emitter& emitter, const BinCommonEmitterD
     if (billboardType == BillboardType::Stripe || billboardType == BillboardType::ComplexStripe) {
         BinStripeData stripeData{};
         mStream >> stripeData;
-        emitter.initStripeData(stripeData);
+        record.stripe = stripeData;
     }
 }
 
-TextureList PtclBinaryReader::takeTextures() {
+std::vector<RawTextureData> PtclBinaryReader::takeTextures() {
     return std::move(mTextures);
 }
 
@@ -458,13 +473,21 @@ void PtclBinaryWriter::write(const PtclRes& res) {
 
 
 bool PtclRes::load(const QString& filePath) {
+    mSanitizeReport = PtclSanitizeReport{};
+
     try {
         PtclBinaryReader reader(filePath);
 
-        reader.readHeader();
-        mName = reader.readProjectName();
-        mEmitterSets = reader.readEmitterSets();
-        mTextures = reader.takeTextures();
+        PtclReadResult result = reader.readAll();
+        const QString name = std::move(result.name);
+
+        PtclValidator validator;
+        PtclValidationResult validated = validator.validate(std::move(result));
+
+        mName = name;
+        mEmitterSets = std::move(validated.emitterSets);
+        mTextures = std::move(validated.textures);
+        mSanitizeReport = std::move(validated.report);
 
         return true;
     } catch (const std::exception& ex) {
@@ -474,6 +497,10 @@ bool PtclRes::load(const QString& filePath) {
     }
 
     return false;
+}
+
+const PtclSanitizeReport& PtclRes::sanitizeReport() const {
+    return mSanitizeReport;
 }
 
 s32 PtclRes::emitterSetCount() const {

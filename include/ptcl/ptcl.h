@@ -1,11 +1,16 @@
 #pragma once
 
+#include "ptcl/ptclBinary.h"
 #include "ptcl/ptclEmitterSet.h"
+#include "ptcl/ptclSanitizeReport.h"
 #include "ptcl/ptclTexture.h"
 #include "typedefs.h"
 
 #include <QFile>
 #include <QString>
+
+#include <optional>
+#include <vector>
 
 
 namespace Ptcl {
@@ -24,6 +29,44 @@ struct TextureUsage {
     bool isChild{false};
 };
 
+struct RawTextureData {
+    u32 pos{0};
+    u32 size{0};
+    u32 width{0};
+    u32 height{0};
+    TextureFormat format{TextureFormat::RGBA8888};
+    std::vector<u8> bytes{};
+};
+
+struct RawEmitterRecord {
+    bool isNull{false};
+    QString name{};
+    BinCommonEmitterData common{};
+    s32 textureIndex{-1};
+    std::optional<BinComplexEmitterData> complex{};
+    s32 childTextureIndex{-1};
+    std::optional<BinChildData> child{};
+    std::optional<BinFieldRandomData> fieldRandom{};
+    std::optional<BinFieldMagnetData> fieldMagnet{};
+    std::optional<BinFieldSpinData> fieldSpin{};
+    std::optional<BinFieldCollisionData> fieldCollision{};
+    std::optional<BinFieldConvergenceData> fieldConvergence{};
+    std::optional<BinFieldPosAddData> fieldPosAdd{};
+    std::optional<BinFluctuationData> fluctuation{};
+    std::optional<BinStripeData> stripe{};
+};
+
+struct RawEmitterSetRecord {
+    QString name{};
+    BinEmitterSetData data{};
+    std::vector<RawEmitterRecord> emitters{};
+};
+
+struct PtclReadResult {
+    QString name;
+    std::vector<RawEmitterSetRecord> emitterSets;
+    std::vector<RawTextureData> textures;
+};
 
 // ========================================================================== //
 
@@ -32,17 +75,18 @@ class PtclBinaryReader {
 public:
     explicit PtclBinaryReader(const QString& filePath);
 
-    void readHeader();
-    QString readProjectName();
-    EmitterSetList readEmitterSets();
-    TextureList takeTextures();
+    PtclReadResult readAll();
 
 private:
-    Texture* loadTexture(u32 texturePos, u32 size, u32 width, u32 height, TextureFormat format);
+    s32 loadTexture(u32 texturePos, u32 size, u32 width, u32 height, TextureFormat format);
 
-    std::unique_ptr<EmitterSet> readEmitterSet(s32 index);
-    void readComplexData(Emitter& emitter, const BinCommonEmitterData& common);
+    RawEmitterSetRecord readEmitterSet(s32 index);
+    void readComplexData(RawEmitterRecord& record, const BinCommonEmitterData& common);
     QString readName(u32 namePos);
+
+    void readHeader();
+    std::vector<RawEmitterSetRecord> readEmitterSets();
+    std::vector<RawTextureData> takeTextures();
 
 private:
     QFile mFile{};
@@ -53,7 +97,7 @@ private:
     s64 mTextureTblPos{0};
     BinHeaderData mHeaderData{};
 
-    TextureList mTextures{};
+    std::vector<RawTextureData> mTextures{};
     std::unordered_map<u32, u32> mTextureOffsetMap{};
 };
 
@@ -140,6 +184,8 @@ public:
     const QString& name() const;
     void setName(const QString& name);
 
+    const PtclSanitizeReport& sanitizeReport() const;
+
     EmitterSetList& getEmitterSets();
     const EmitterSetList& getEmitterSets() const;
 
@@ -168,8 +214,9 @@ public:
 
 private:
     QString mName;
-    EmitterSetList mEmitterSets;
     TextureList mTextures;
+    EmitterSetList mEmitterSets;
+    PtclSanitizeReport mSanitizeReport{};
 };
 
 

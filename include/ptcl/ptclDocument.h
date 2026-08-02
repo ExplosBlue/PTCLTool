@@ -76,6 +76,8 @@ public:
     const QString& projectName() const { return mData.name(); }
     void setProjectName(const QString& name);
 
+    const PtclSanitizeReport& sanitizeReport() const { return mData.sanitizeReport(); }
+
     bool isDirty() const { return !mUndoStack.isClean(); }
     QString filePath() const  { return mFilePath; }
 

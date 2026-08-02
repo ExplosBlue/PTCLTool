@@ -538,5 +538,16 @@ s32 nearestValidTextureSize(s32 value) {
     return nearest;
 }
 
+u64 textureDataMinBytes(s32 width, s32 height, Ptcl::TextureFormat format) {
+    if (format == Ptcl::TextureFormat::ETC1) {
+        return static_cast<u64>((width + 7) / 8) * ((height + 7) / 8) * 32;
+    }
+    if (format == Ptcl::TextureFormat::ETC1_A4) {
+        return static_cast<u64>((width + 7) / 8) * ((height + 7) / 8) * 64;
+    }
+
+    return (static_cast<u64>(width) * height * bitsPerPixel(format) + 7) / 8;
+}
+
 
 } // namespace ImageUtil

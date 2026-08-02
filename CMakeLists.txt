@@ -92,6 +92,7 @@ set(PROJECT_SOURCES
     src/ptcl/ptclEmitterSet.cpp
     src/ptcl/ptclSeed.cpp
     src/ptcl/ptclTexture.cpp
+    src/ptcl/ptclValidator.cpp
     src/util/imageUtil.cpp
     src/util/nameValidator.cpp
     src/util/paintUtil.cpp
@@ -171,8 +172,10 @@ set(PROJECT_HEADERS
     include/ptcl/ptclEmitter.h
     include/ptcl/ptclEmitterSet.h
     include/ptcl/ptclEnum.h
+    include/ptcl/ptclSanitizeReport.h
     include/ptcl/ptclSeed.h
     include/ptcl/ptclTexture.h
+    include/ptcl/ptclValidator.h
     include/util/bitflagUtil.h
     include/util/imageUtil.h
     include/util/nameValidator.h
