@@ -29,7 +29,6 @@ f32 wrapTextureCoord(f32 coord, Ptcl::TextureWrap wrap) {
         case Ptcl::TextureWrap::ClampToEdge:    return clampToEdgeCoord(coord);
         default: std::unreachable();
     }
-    return coord;
 }
 
 QColor sampleTexture(const QImage& texture, f32 u, f32 v, Ptcl::TextureFilter filter) {
