@@ -516,19 +516,32 @@ void AnimGraph::ensureHandleVisible(s32 idx) {
 }
 
 void AnimGraph::enforceOrdering(s32 draggedIndex) {
-    mPoints[0].position = 0.0f;
-    mPoints[3].position = 100.0f;
-
-    if (mPoints[1].position > mPoints[2].position) {
-        if (draggedIndex == 1) {
-            mPoints[2].position = mPoints[1].position;
-        } else {
-            mPoints[1].position = mPoints[2].position;
-        }
+    if (mPoints.size() < 2) {
+        return;
     }
 
-    mPoints[1].position = std::clamp(mPoints[1].position, 0.0f, 100.0f);
-    mPoints[2].position = std::clamp(mPoints[2].position, 0.0f, 100.0f);
+    const s32 last = static_cast<s32>(mPoints.size()) - 1;
+
+    mPoints[0].position = 0.0f;
+    mPoints[last].position = 100.0f;
+
+    if (mPoints.size() == 4) {
+        if (mPoints[1].position > mPoints[2].position) {
+            if (draggedIndex == 1) {
+                mPoints[2].position = mPoints[1].position;
+            } else {
+                mPoints[1].position = mPoints[2].position;
+            }
+        }
+
+        mPoints[1].position = std::clamp(mPoints[1].position, 0.0f, 100.0f);
+        mPoints[2].position = std::clamp(mPoints[2].position, 0.0f, 100.0f);
+        return;
+    }
+
+    for (s32 i = 1; i < last; ++i) {
+        mPoints[i].position = std::clamp(mPoints[i].position, mPoints[i - 1].position, mPoints[i + 1].position);
+    }
 }
 
 AnimGraph::GraphRange AnimGraph::currentGraphRange() const {
