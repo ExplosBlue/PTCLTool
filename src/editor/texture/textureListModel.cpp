@@ -13,7 +13,7 @@ namespace PtclEditor {
 
 
 TextureListModel::TextureListModel(QObject* parent) :
-    QAbstractListModel{parent} {}
+    QAbstractTableModel{parent} {}
 
 void TextureListModel::setTextures(const Ptcl::TextureList* textures) {
     beginResetModel();
@@ -36,6 +36,11 @@ s32 TextureListModel::rowCount(const QModelIndex& index) const {
     return mTextures ? static_cast<s32>(mTextures->size()) : 0;
 }
 
+s32 TextureListModel::columnCount(const QModelIndex& index) const {
+    Q_UNUSED(index);
+    return TextureColumnCount;
+}
+
 QVariant TextureListModel::data(const QModelIndex& index, s32 role) const {
     if (!mTextures || !index.isValid()) {
         return {};
@@ -45,24 +50,34 @@ QVariant TextureListModel::data(const QModelIndex& index, s32 role) const {
     const auto& img = texture->textureData();
 
     switch (role) {
-        case Qt::DisplayRole: {
-            const QString sizeString = StringUtil::formatBytes(texture->textureDataRaw().size());
-
-            return QString("Format: %1\nDimensions: %2x%3\nSize %4\nUsers: %5")
-                .arg(toString(texture->textureFormat()))
-                .arg(img.width())
-                .arg(img.height())
-                .arg(sizeString)
-                .arg(texture->userCount());
-        }
+        case Qt::DisplayRole:
+            switch (index.column()) {
+                case TextureColumn::ThumbnailColumn:
+                    return {};
+                case TextureColumn::FormatColumn:
+                    return toString(texture->textureFormat());
+                case TextureColumn::DimensionsColumn:
+                    return QString("%1 x %2").arg(img.width()).arg(img.height());
+                case TextureColumn::SizeColumn:
+                    return StringUtil::formatBytes(texture->textureDataRaw().size());
+                case TextureColumn::UsersColumn:
+                    return QString::number(texture->userCount());
+                default:
+                    return {};
+            }
         case Qt::DecorationRole:
-            return QPixmap::fromImage(texture->textureData());
+            if (index.column() == TextureColumn::ThumbnailColumn) {
+                return QPixmap::fromImage(img);
+            }
+            return {};
         case TextureListRoles::TexturePtrRole:
             return QVariant::fromValue<void*>(texture.get());
+        case TextureListRoles::IndexRole:
+            return index.row();
         case TextureListRoles::FormatRole:
             return static_cast<s32>(texture->textureFormat());
         case TextureListRoles::SizeRole:
-            return static_cast<qint64>(texture->textureDataRaw().size());
+            return static_cast<s32>(texture->textureDataRaw().size());
         case TextureListRoles::UserCountRole:
             return texture->userCount();
         case TextureListRoles::WidthRole:
@@ -74,6 +89,25 @@ QVariant TextureListModel::data(const QModelIndex& index, s32 role) const {
     }
 }
 
+QVariant TextureListModel::headerData(s32 section, Qt::Orientation orientation, s32 role) const {
+    if (role != Qt::DisplayRole) {
+        return {};
+    }
+
+    if (orientation == Qt::Vertical) {
+        return section;
+    }
+
+    switch (section) {
+        case TextureColumn::ThumbnailColumn:  return "Texture";
+        case TextureColumn::FormatColumn:     return "Format";
+        case TextureColumn::DimensionsColumn: return "Dimensions";
+        case TextureColumn::SizeColumn:       return "Size";
+        case TextureColumn::UsersColumn:      return "Users";
+        default: return {};
+    }
+}
+
 void TextureListModel::emitRowChangedFor(Ptcl::Texture* texture) {
     if (!mTextures || !texture) {
         return;
@@ -82,8 +116,9 @@ void TextureListModel::emitRowChangedFor(Ptcl::Texture* texture) {
     const s32 rowCount = static_cast<s32>(mTextures->size());
     for (s32 row = 0; row < rowCount; ++row) {
         if ((*mTextures)[row].get() == texture) {
-            QModelIndex idx = index(row);
-            emit dataChanged(idx, idx, {Qt::DisplayRole, UserCountRole});
+            const QModelIndex topLeft = index(row, TextureColumn::ThumbnailColumn);
+            const QModelIndex bottomRight = index(row, TextureColumn::TextureColumnCount - 1);
+            emit dataChanged(topLeft, bottomRight, {Qt::DisplayRole, Qt::DecorationRole, TextureListRoles::UserCountRole});
             return;
         }
     }

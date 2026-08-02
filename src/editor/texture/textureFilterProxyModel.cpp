@@ -1,5 +1,6 @@
 #include "editor/texture/textureFilterProxyModel.h"
 #include "editor/texture/textureListRoles.h"
+#include "ptcl/ptclTexture.h"
 
 #include <algorithm>
 
@@ -92,6 +93,67 @@ bool TextureFilterProxyModel::filterAcceptsRow(s32 sourceRow, const QModelIndex&
     }
 
     return true;
+}
+
+bool TextureFilterProxyModel::lessThan(const QModelIndex& left, const QModelIndex& right) const {
+    const auto* source = sourceModel();
+    const s32 rowLeft = left.row();
+    const s32 rowRight = right.row();
+
+    auto intData = [&](s32 role) {
+        return std::pair{
+            source->data(left, role).toInt(),
+            source->data(right, role).toInt()
+        };
+    };
+
+    switch (sortColumn()) {
+        case TextureColumn::ThumbnailColumn: {
+            const auto* texLeft = static_cast<const Ptcl::Texture*>(source->data(left, TextureListRoles::TexturePtrRole).value<void*>());
+            const auto* texRight = static_cast<const Ptcl::Texture*>(source->data(right, TextureListRoles::TexturePtrRole).value<void*>());
+            if (texLeft && texRight && texLeft->Id() != texRight->Id()) {
+                return texLeft->Id() < texRight->Id();
+            }
+            break;
+        }
+        case TextureColumn::FormatColumn: {
+            const auto fmt = intData(TextureListRoles::FormatRole);
+            if (fmt.first != fmt.second) {
+                return fmt.first < fmt.second;
+            }
+            break;
+        }
+        case TextureColumn::DimensionsColumn: {
+            const auto width = intData(TextureListRoles::WidthRole);
+            const auto height = intData(TextureListRoles::HeightRole);
+
+            const s32 maxLeft = std::max(width.first, height.first);
+            const s32 maxRight = std::max(width.second, height.second);
+
+            const s64 areaLeft = static_cast<s64>(width.first) * height.first;
+            const s64 areaRight = static_cast<s64>(width.second) * height.second;
+
+            return std::tie(maxLeft, areaLeft) < std::tie(maxRight, areaRight);
+        }
+        case TextureColumn::SizeColumn: {
+            const auto size = intData(TextureListRoles::SizeRole);
+            if (size.first != size.second) {
+                return size.first < size.second;
+            }
+            break;
+        }
+        case TextureColumn::UsersColumn: {
+            const auto users = intData(TextureListRoles::UserCountRole);
+            if (users.first != users.second) {
+                return users.first < users.second;
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
+    return rowLeft < rowRight;
 }
 
 

@@ -2,7 +2,7 @@
 
 #include "ptcl/ptcl.h"
 
-#include <QAbstractListModel>
+#include <QAbstractTableModel>
 
 
 namespace PtclEditor {
@@ -11,7 +11,7 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class TextureListModel final : public QAbstractListModel {
+class TextureListModel final : public QAbstractTableModel {
     Q_OBJECT
 public:
     explicit TextureListModel(QObject* parent = nullptr);
@@ -19,7 +19,10 @@ public:
     void setTextures(const Ptcl::TextureList* textures);
 
     s32 rowCount(const QModelIndex& parent = {}) const final;
+    s32 columnCount(const QModelIndex& parent = {}) const final;
+
     QVariant data(const QModelIndex& index, s32 role) const final;
+    QVariant headerData(s32 section, Qt::Orientation orientation, s32 role) const final;
 
     void onTextureAdded(s32 index);
     void onTextureRemoved(s32 index);

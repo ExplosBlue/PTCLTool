@@ -11,18 +11,19 @@ namespace PtclEditor {
 // ========================================================================== //
 
 
-class TextureItemDelegate final : public QStyledItemDelegate {
+class TextureGridDelegate final : public QStyledItemDelegate {
     Q_OBJECT
 public:
-    explicit TextureItemDelegate(QObject* parent = nullptr);
+    explicit TextureGridDelegate(s32 cellSize = sCellSize, QObject* parent = nullptr);
 
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const final;
     QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const final;
 
 private:
-    static constexpr s32 sThumbSize = 64;
-    static constexpr s32 sPaddingH = 8;
-    static constexpr s32 sPaddingV = 4;
+    static constexpr s32 sCellSize = 96;
+    static constexpr s32 sPadding = 8;
+
+    s32 mCellSize{sCellSize};
 };
 
 

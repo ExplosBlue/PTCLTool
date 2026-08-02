@@ -77,8 +77,8 @@ set(PROJECT_SOURCES
     src/editor/texture/textureFilterPopup.cpp
     src/editor/texture/textureFilterProxyModel.cpp
     src/editor/texture/textureImportDialog.cpp
+    src/editor/texture/textureGridDelegate.cpp
     src/editor/texture/textureImportProcessor.cpp
-    src/editor/texture/textureItemDelegate.cpp
     src/editor/texture/textureListModel.cpp
     src/editor/texture/textureListWidget.cpp
     src/editor/texture/textureSelectDialog.cpp
@@ -152,8 +152,8 @@ set(PROJECT_HEADERS
     include/editor/texture/textureFilterPopup.h
     include/editor/texture/textureFilterProxyModel.h
     include/editor/texture/textureImportDialog.h
+    include/editor/texture/textureGridDelegate.h
     include/editor/texture/textureImportProcessor.h
-    include/editor/texture/textureItemDelegate.h
     include/editor/texture/textureListModel.h
     include/editor/texture/textureListRoles.h
     include/editor/texture/textureListWidget.h

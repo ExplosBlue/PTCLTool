@@ -4,12 +4,14 @@
 
 #include "util/settingsUtil.h"
 
-#include <QCursor>
+#include <QAbstractItemView>
+#include <QActionGroup>
 #include <QFileDialog>
+#include <QHeaderView>
 #include <QMenu>
 #include <QMessageBox>
 #include <QStandardPaths>
-#include <QTimer>
+#include <QStyle>
 #include <QToolButton>
 
 #include <utility>
@@ -24,9 +26,9 @@ namespace PtclEditor {
 TextureListWidget::TextureListWidget(QWidget *parent) :
     QWidget{parent} {
     setupToolbar();
-    setupView();
+    setupViews();
     setupFilterPopup();
-    setupContextMenu();
+    setupContextMenus();
     setupLayout();
     setupSelectionHandling();
 
@@ -42,7 +44,12 @@ TextureListWidget::TextureListWidget(QWidget *parent) :
             mDetailsPanel.refresh();
         }
 
-        mProxyModel.refreshFilter();
+        mGridProxy.refreshFilter();
+        mDetailProxy.refreshFilter();
+
+        if (mDetailProxy.sortColumn() >= 0) {
+            mDetailProxy.sort(mDetailProxy.sortColumn(), mDetailProxy.sortOrder());
+        }
     });
 }
 
@@ -51,28 +58,76 @@ void TextureListWidget::setupToolbar() {
     mActionExportAll = mToolbar.addAction(QIcon(":/res/icons/export_image.png"), "Export All");
     mActionImportTexture = mToolbar.addAction(QIcon(":/res/icons/import_image.png"), "Import Texture");
 
+    mToolbar.addSeparator();
+
     auto* spacer = new QWidget(this);
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     mToolbar.addWidget(spacer);
 
-    mFilterAction = mToolbar.addAction(QIcon(":/res/icons/filter.png"), "Filter");
-    mFilterAction->setToolTip("Filter textures by format, usage, and size");
+    auto* viewMenu = new QMenu(&mToolbar);
+    auto* viewGroup = new QActionGroup(viewMenu);
+    viewGroup->setExclusive(true);
+    auto* gridAction = viewMenu->addAction("Grid");
+    auto* detailsAction = viewMenu->addAction("Details");
+    gridAction->setCheckable(true);
+    detailsAction->setCheckable(true);
+    detailsAction->setChecked(true);
+    viewGroup->addAction(gridAction);
+    viewGroup->addAction(detailsAction);
+
+    const auto activateMode = [this](const QString& label, ViewMode mode) {
+        mActionViewMode->setText(label);
+        mActionViewMode->setIcon(mToolbar.style()->standardIcon(
+            mode == ViewMode::Grid ? QStyle::SP_FileDialogListView : QStyle::SP_FileDialogDetailedView));
+        switchView(mode);
+    };
+    connect(gridAction, &QAction::triggered, this, [activateMode] { activateMode("Grid", ViewMode::Grid); });
+    connect(detailsAction, &QAction::triggered, this, [activateMode] { activateMode("Details", ViewMode::Details); });
+
+    mActionViewMode = mToolbar.addAction("Details");
+    mActionViewMode->setIcon(mToolbar.style()->standardIcon(QStyle::SP_FileDialogDetailedView));
+    mActionViewMode->setMenu(viewMenu);
+
+    if (auto* viewButton = qobject_cast<QToolButton*>(mToolbar.widgetForAction(mActionViewMode))) {
+        viewButton->setPopupMode(QToolButton::InstantPopup);
+    }
+
+    mActionFilter = mToolbar.addAction(QIcon(":/res/icons/filter.png"), "Filter");
+    mActionFilter->setToolTip("Filter textures by format, usage, and size");
 
     connect(mActionExportAll, &QAction::triggered, this, &TextureListWidget::exportAll);
     connect(mActionImportTexture, &QAction::triggered, this, &TextureListWidget::importTexture);
 }
 
-void TextureListWidget::setupView() {
-    mView.setViewMode(QListView::IconMode);
-    mView.setResizeMode(QListView::Adjust);
-    mView.setSpacing(10);
-    mView.setUniformItemSizes(true);
-    mView.setMouseTracking(true);
-    mView.setSelectionMode(QAbstractItemView::SingleSelection);
-    mView.setContextMenuPolicy(Qt::CustomContextMenu);
-    mProxyModel.setSourceModel(&mModel);
-    mView.setModel(&mProxyModel);
-    mView.setItemDelegate(&mDelegate);
+void TextureListWidget::setupViews() {
+    mGridView.setViewMode(QListView::IconMode);
+    mGridView.setResizeMode(QListView::Adjust);
+    mGridView.setSpacing(10);
+    mGridView.setUniformItemSizes(true);
+    mGridView.setMouseTracking(true);
+    mGridView.setSelectionMode(QAbstractItemView::SingleSelection);
+    mGridView.setContextMenuPolicy(Qt::CustomContextMenu);
+    mGridView.setItemDelegate(&mGridDelegate);
+    mGridView.setModel(&mGridProxy);
+
+    mDetailView.setSelectionMode(QAbstractItemView::SingleSelection);
+    mDetailView.setSelectionBehavior(QAbstractItemView::SelectRows);
+    mDetailView.setContextMenuPolicy(Qt::CustomContextMenu);
+    mDetailView.setModel(&mDetailProxy);
+    mDetailView.setSortingEnabled(true);
+    mDetailView.setItemDelegateForColumn(TextureColumn::ThumbnailColumn, &mDetailThumbDelegate);
+    mDetailView.verticalHeader()->setVisible(true);
+    mDetailView.verticalHeader()->setDefaultSectionSize(sDetailCellSize);
+    mDetailView.verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    mDetailView.horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+    mGridProxy.setSourceModel(&mModel);
+    mDetailProxy.setSourceModel(&mModel);
+    mDetailView.sortByColumn(TextureColumn::ThumbnailColumn, Qt::AscendingOrder);
+
+    mViewStack.addWidget(&mGridView);
+    mViewStack.addWidget(&mDetailView);
+    mViewStack.setCurrentWidget(&mDetailView);
 }
 
 void TextureListWidget::setupFilterPopup() {
@@ -80,65 +135,32 @@ void TextureListWidget::setupFilterPopup() {
 
     connect(&mFilterPopup, &TextureFilterPopup::filterChanged, this,
             [this](const TextureFilterState& state) {
-        mProxyModel.setEnabledFormats(state.formats);
-        mProxyModel.setShowUnusedOnly(state.unusedOnly);
-        mProxyModel.setMaxSize(state.maxDimension);
-        mProxyModel.setMaxFileSize(state.maxFileSize);
+        mGridProxy.setEnabledFormats(state.formats);
+        mGridProxy.setShowUnusedOnly(state.unusedOnly);
+        mGridProxy.setMaxSize(state.maxDimension);
+        mGridProxy.setMaxFileSize(state.maxFileSize);
+
+        mDetailProxy.setEnabledFormats(state.formats);
+        mDetailProxy.setShowUnusedOnly(state.unusedOnly);
+        mDetailProxy.setMaxSize(state.maxDimension);
+        mDetailProxy.setMaxFileSize(state.maxFileSize);
     });
 
-    connect(&mFilterPopup, &TextureFilterPopup::closed, this, [this] {
-        setFilterButtonChecked(false);
-    });
-
-    connect(mFilterAction, &QAction::triggered, this, [this] {
-        if (mFilterPopup.isVisible()) {
-            mFilterPopup.hide();
-            return;
-        }
-
-        const QWidget* anchorWidget = mToolbar.widgetForAction(mFilterAction);
-        const QPoint anchor = (anchorWidget && anchorWidget->isVisible())
-            ? anchorWidget->mapToGlobal(anchorWidget->rect().center())
-            : QCursor::pos();
-
-            mFilterPopup.popup(anchor);
-            setFilterButtonChecked(true);
-    });
-}
-
-void TextureListWidget::setFilterButtonChecked(bool checked) {
-    if (auto* button = qobject_cast<QToolButton*>(mToolbar.widgetForAction(mFilterAction))) {
-        button->setCheckable(true);
-        button->setChecked(checked);
+    mActionFilter->setMenu(&mFilterPopup);
+    if (auto* button = qobject_cast<QToolButton*>(mToolbar.widgetForAction(mActionFilter))) {
+        button->setPopupMode(QToolButton::InstantPopup);
     }
 }
 
-void TextureListWidget::setupContextMenu() {
-    connect(&mView, &QListView::customContextMenuRequested, this, [this](const QPoint& pos) {
-        QModelIndex index = mProxyModel.mapToSource(mView.indexAt(pos));
-        if (!index.isValid()) {
-            return;
-        }
-
-        auto* texture = static_cast<Ptcl::Texture*>(index.data(TextureListRoles::TexturePtrRole).value<void*>());
-
-        if (!texture) {
-            return;
-        }
-
-        QMenu menu(this);
-        menu.addAction("Export", this, [this, texture] {
-            exportTexture(texture);
+void TextureListWidget::setupContextMenus() {
+    auto connectContextMenu = [this](QAbstractItemView* view) {
+        connect(view, &QWidget::customContextMenuRequested, this, [this, view](const QPoint& pos) {
+            showContextMenu(pos, view);
         });
-        menu.addAction("Replace", this, [this, index] {
-            replaceTexture(index);
-        });
-        menu.addAction("Delete", this, [this, index] {
-            deleteTexture(index);
-        });
+    };
 
-        menu.exec(mView.viewport()->mapToGlobal(pos));
-    });
+    connectContextMenu(&mGridView);
+    connectContextMenu(&mDetailView);
 }
 
 void TextureListWidget::setupLayout() {
@@ -146,7 +168,7 @@ void TextureListWidget::setupLayout() {
 
     auto* listColumn = new QVBoxLayout;
     listColumn->setSpacing(2);
-    listColumn->addWidget(&mView, 1);
+    listColumn->addWidget(&mViewStack, 1);
     listColumn->addWidget(&mToolbar);
 
     mainLayout->addLayout(listColumn, 1);
@@ -154,21 +176,80 @@ void TextureListWidget::setupLayout() {
 }
 
 void TextureListWidget::setupSelectionHandling() {
-    connect(mView.selectionModel(), &QItemSelectionModel::currentChanged, this, [this](const QModelIndex& current, const QModelIndex& previous) {
+    auto onCurrentChanged = [this](TextureFilterProxyModel* proxy, const QModelIndex& current, const QModelIndex& previous) {
         Q_UNUSED(previous);
 
-        const QModelIndex sourceIndex = mProxyModel.mapToSource(current);
+        QModelIndex sourceIndex = proxy->mapToSource(current);
+        if (sourceIndex.isValid()) {
+            sourceIndex = mModel.index(sourceIndex.row(), TextureColumn::ThumbnailColumn);
+        }
 
         Ptcl::Texture* texture = nullptr;
         if (sourceIndex.isValid()) {
             texture = static_cast<Ptcl::Texture*>(sourceIndex.data(TextureListRoles::TexturePtrRole).value<void*>());
         }
         mDetailsPanel.setTexture(sourceIndex, texture);
+    };
+
+    connect(mGridView.selectionModel(), &QItemSelectionModel::currentChanged, this,
+            [this, onCurrentChanged](const QModelIndex& current, const QModelIndex& previous) {
+        onCurrentChanged(&mGridProxy, current, previous);
+    });
+    connect(mDetailView.selectionModel(), &QItemSelectionModel::currentChanged, this,
+            [this, onCurrentChanged](const QModelIndex& current, const QModelIndex& previous) {
+        onCurrentChanged(&mDetailProxy, current, previous);
     });
 }
 
 void TextureListWidget::setSelection(Ptcl::Selection* selection) {
     mDetailsPanel.setSelection(selection);
+}
+
+void TextureListWidget::switchView(ViewMode mode) {
+    mViewStack.setCurrentWidget(mode == ViewMode::Grid ? static_cast<QWidget*>(&mGridView) : static_cast<QWidget*>(&mDetailView));
+
+    QAbstractItemView* target = mode == ViewMode::Grid ? static_cast<QAbstractItemView*>(&mGridView) : static_cast<QAbstractItemView*>(&mDetailView);
+    QAbstractItemView* other = mode == ViewMode::Grid ? static_cast<QAbstractItemView*>(&mDetailView) : static_cast<QAbstractItemView*>(&mGridView);
+
+    const QModelIndex current = other->selectionModel()->currentIndex();
+    if (current.isValid()) {
+        const QModelIndex source = proxyForView(other)->mapToSource(current);
+        const QModelIndex mapped = proxyForView(target)->mapFromSource(source);
+        target->selectionModel()->setCurrentIndex(mapped, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Current);
+        target->scrollTo(mapped);
+    }
+}
+
+TextureFilterProxyModel* TextureListWidget::proxyForView(QAbstractItemView* view) {
+    if (view == &mGridView) {
+        return &mGridProxy;
+    }
+    return &mDetailProxy;
+}
+
+void TextureListWidget::showContextMenu(const QPoint& pos, QAbstractItemView* view) {
+    const QModelIndex index = proxyForView(view)->mapToSource(view->indexAt(pos));
+    if (!index.isValid()) {
+        return;
+    }
+
+    auto* texture = static_cast<Ptcl::Texture*>(index.data(TextureListRoles::TexturePtrRole).value<void*>());
+    if (!texture) {
+        return;
+    }
+
+    QMenu menu(this);
+    menu.addAction("Export", this, [this, texture] {
+        exportTexture(texture);
+    });
+    menu.addAction("Replace", this, [this, index] {
+        replaceTexture(index);
+    });
+    menu.addAction("Delete", this, [this, index] {
+        deleteTexture(index);
+    });
+
+    menu.exec(view->viewport()->mapToGlobal(pos));
 }
 
 void TextureListWidget::setDocument(Ptcl::Document* document) {
@@ -181,7 +262,10 @@ void TextureListWidget::setDocument(Ptcl::Document* document) {
 
     if (!mDocument) {
         mModel.setTextures(nullptr);
-        mView.selectionModel()->clear();
+        mGridView.selectionModel()->clearSelection();
+        mGridView.selectionModel()->clearCurrentIndex();
+        mDetailView.selectionModel()->clearSelection();
+        mDetailView.selectionModel()->clearCurrentIndex();
         mDetailsPanel.setTexture({}, nullptr);
 
         mActionExportAll->setEnabled(false);
@@ -192,12 +276,9 @@ void TextureListWidget::setDocument(Ptcl::Document* document) {
     }
 
     connect(mDocument, &Ptcl::Document::textureChanged, this, [this](s32 index) {
-        QModelIndex idx = mModel.index(index);
-        emit mModel.dataChanged(idx, idx);
-
-        if (mDetailsPanel.matchesIndex(idx)) {
-            mDetailsPanel.refresh();
-        }
+        const QModelIndex topLeft = mModel.index(index, TextureColumn::ThumbnailColumn);
+        const QModelIndex bottomRight = mModel.index(index, TextureColumn::TextureColumnCount - 1);
+        emit mModel.dataChanged(topLeft, bottomRight);
     });
 
     connect(mDocument, &Ptcl::Document::textureAdded, this, [this](s32 index) {
@@ -205,7 +286,7 @@ void TextureListWidget::setDocument(Ptcl::Document* document) {
     });
 
     connect(mDocument, &Ptcl::Document::textureRemoved, this, [this](s32 index) {
-        QModelIndex removedIdx = mModel.index(index);
+        const QModelIndex removedIdx = mModel.index(index, TextureColumn::ThumbnailColumn);
         if (mDetailsPanel.matchesIndex(removedIdx)) {
             mDetailsPanel.setTexture({}, nullptr);
         }

@@ -3,12 +3,14 @@
 #include "editor/texture/textureDetailsPanel.h"
 #include "editor/texture/textureFilterPopup.h"
 #include "editor/texture/textureFilterProxyModel.h"
-#include "editor/texture/textureItemDelegate.h"
+#include "editor/texture/textureGridDelegate.h"
 #include "editor/texture/textureListModel.h"
 #include "ptcl/ptclDocument.h"
 
 #include <QAction>
 #include <QListView>
+#include <QStackedWidget>
+#include <QTableView>
 #include <QToolBar>
 #include <QWidget>
 
@@ -35,13 +37,22 @@ private slots:
     void deleteTexture(const QModelIndex& index);
 
 private:
+    enum class ViewMode {
+        Grid,
+        Details
+    };
+
+private:
     void setupToolbar();
-    void setupView();
-    void setupContextMenu();
+    void setupViews();
+    void setupFilterPopup();
+    void setupContextMenus();
     void setupLayout();
     void setupSelectionHandling();
-    void setupFilterPopup();
-    void setFilterButtonChecked(bool checked);
+
+    void switchView(ViewMode mode);
+    void showContextMenu(const QPoint& pos, QAbstractItemView* view);
+    TextureFilterProxyModel* proxyForView(QAbstractItemView* view);
 
 private:
     Ptcl::Document* mDocument{nullptr};
@@ -49,16 +60,24 @@ private:
     QToolBar mToolbar{};
     QAction* mActionExportAll{nullptr};
     QAction* mActionImportTexture{nullptr};
-    QAction* mFilterAction{nullptr};
+    QAction* mActionViewMode{nullptr};
+    QAction* mActionFilter{nullptr};
 
-    QListView mView{};
+    QStackedWidget mViewStack{};
+    QListView mGridView{};
+    QTableView mDetailView{};
+
     TextureListModel mModel{};
-    TextureFilterProxyModel mProxyModel{};
-    TextureItemDelegate mDelegate{};
+    TextureFilterProxyModel mGridProxy{};
+    TextureFilterProxyModel mDetailProxy{};
+    TextureGridDelegate mGridDelegate{};
+    TextureGridDelegate mDetailThumbDelegate{sDetailCellSize};
 
     TextureFilterPopup mFilterPopup{};
 
     TextureDetailsPanel mDetailsPanel{};
+
+    static constexpr s32 sDetailCellSize = 64;
 };
 
 
