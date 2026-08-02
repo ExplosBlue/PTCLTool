@@ -83,6 +83,11 @@ CombinerInspector::CombinerInspector(QWidget* parent) :
     setupConnections();
 }
 
+void CombinerInspector::setDocument(Ptcl::Document* document) {
+    InspectorWidgetBase::setDocument(document);
+    mCombinerPreview.setCombinerSrc(nullptr, nullptr, nullptr);
+}
+
 void CombinerInspector::setupConnections() {
     connect(&mFogCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
         setEmitterProperty(
@@ -138,13 +143,13 @@ void CombinerInspector::populateProperties() {
     mBlendFuncComboBox.setCurrentEnum(mEmitter->blendFunction());
     mDepthFuncComboBox.setCurrentEnum(mEmitter->depthFunction());
     mCombinerFuncComboBox.setCurrentEnum(mEmitter->combinerFunction());
-    mCombinerPreview.setConfig(static_cast<s32>(mEmitter->combinerFunction()));
 
     const Gfx::Color black{0.0f, 0.0f, 0.0f, 1.0f};
-    const auto& primary = (mEmitter->colorCalcType() == Ptcl::ColorCalcType::None)
+    mPrimarySrc = (mEmitter->colorCalcType() == Ptcl::ColorCalcType::None)
         ? black
         : mEmitter->secondaryColor();
-    mCombinerPreview.setCombinerSrc(&mEmitter->textureHandle(), &mEmitter->primaryColor(), &primary);
+    mCombinerPreview.setCombinerSrc(&mEmitter->textureHandle(), &mEmitter->primaryColor(), &mPrimarySrc);
+    mCombinerPreview.setConfig(static_cast<s32>(mEmitter->combinerFunction()));
 }
 
 

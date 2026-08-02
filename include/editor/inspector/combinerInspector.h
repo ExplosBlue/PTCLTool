@@ -19,6 +19,8 @@ class CombinerInspector final : public InspectorWidgetBase {
 public:
     explicit CombinerInspector(QWidget* parent = nullptr);
 
+    void setDocument(Ptcl::Document* document) override;
+
 private:
     void populateProperties() final;
     void setupConnections();
@@ -29,6 +31,8 @@ private:
     EnumComboBox<Ptcl::DepthFuncType> mDepthFuncComboBox{};
     EnumComboBox<Ptcl::ColorCombinerFuncType> mCombinerFuncComboBox{};
     CombinerPreviewWidget mCombinerPreview{};
+
+    Gfx::Color mPrimarySrc{};
 };
 
 

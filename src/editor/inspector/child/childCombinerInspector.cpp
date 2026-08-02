@@ -134,10 +134,15 @@ void ChildCombinerInspector::populateProperties() {
     mBlendFuncComboBox.setCurrentEnum(mEmitter->childBlendFunc());
     mDepthFuncComboBox.setCurrentEnum(mEmitter->childDepthFunc());
     mCombinerFuncComboBox.setCurrentEnum(mEmitter->childCombinerFunc());
-    mCombinerPreview.setConfig(static_cast<s32>(mEmitter->childCombinerFunc()));
 
     mCombinerPreview.setCombinerSrc(&mEmitter->childTextureHandle(), &mEmitter->childPrimaryColor(), &mEmitter->childSecondaryColor());
+    mCombinerPreview.setConfig(static_cast<s32>(mEmitter->childCombinerFunc()));
     mCombinerPreview.updateStages();
+}
+
+void ChildCombinerInspector::setDocument(Ptcl::Document* document) {
+    InspectorWidgetBase::setDocument(document);
+    mCombinerPreview.setCombinerSrc(nullptr, nullptr, nullptr);
 }
 
 

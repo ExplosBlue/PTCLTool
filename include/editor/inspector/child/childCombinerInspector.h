@@ -18,6 +18,8 @@ class ChildCombinerInspector final : public InspectorWidgetBase {
 public:
     explicit ChildCombinerInspector(QWidget* parent = nullptr);
 
+    void setDocument(Ptcl::Document* document) override;
+
 private:
     void populateProperties() final;
     void setupConnections();
