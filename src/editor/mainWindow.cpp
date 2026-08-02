@@ -417,9 +417,18 @@ void MainWindow::loadPtclRes(const QString& path) {
     mSelection.set(-1, -1, Ptcl::Selection::Type::None);
 
     mDocument = std::make_unique<Ptcl::Document>();
-    if (!mDocument->load(path)) {
+
+    bool loaded = false;
+    try {
+        loaded = mDocument->load(path);
+    } catch (...) {
+        loaded = false;
+    }
+
+    if (!loaded) {
         mDocument.reset();
         bindUndoStack();
+        showOpenErrorDialog(path);
         return;
     }
 
@@ -515,6 +524,19 @@ void MainWindow::showFileNotFoundDialog(const QString& filePath) {
 
     QString displayPath = QDir::toNativeSeparators(filePath);
     msgBox.setInformativeText(QString("The file does not exist:\n\n%1").arg(displayPath));
+    msgBox.setStandardButtons(QMessageBox::Ok);
+
+    msgBox.exec();
+}
+
+void MainWindow::showOpenErrorDialog(const QString& filePath) {
+    QMessageBox msgBox(this);
+    msgBox.setIcon(QMessageBox::Critical);
+    msgBox.setWindowTitle("Failed to open file");
+    msgBox.setText("The file could not be opened.");
+
+    QString displayPath = QDir::toNativeSeparators(filePath);
+    msgBox.setInformativeText(QString("The file is not a valid .ptcl file:\n\n%1").arg(displayPath));
     msgBox.setStandardButtons(QMessageBox::Ok);
 
     msgBox.exec();

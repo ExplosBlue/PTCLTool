@@ -5,7 +5,9 @@
 #include <QDataStream>
 #include <QFile>
 
+#include <algorithm>
 #include <bit>
+#include <stdexcept>
 #include <variant>
 
 
@@ -19,7 +21,7 @@ PtclBinaryReader::PtclBinaryReader(const QString& filePath) :
     mFile{filePath}, mStream{&mFile} {
 
     if (!mFile.open(QIODevice::ReadOnly)) {
-        throw("PtclBinaryReader - Failed to open file.");
+        throw std::runtime_error("PtclBinaryReader - Failed to open file.");
     }
 
     mStream.setByteOrder(QDataStream::LittleEndian);
@@ -29,10 +31,23 @@ PtclBinaryReader::PtclBinaryReader(const QString& filePath) :
 void PtclBinaryReader::readHeader() {
     mStream >> mHeaderData;
 
+    constexpr std::array<char, 4> expectedMagic{'S', 'P', 'B', 'D'};
+    if (mHeaderData.magic != expectedMagic) {
+        throw std::runtime_error("PtclBinaryReader - Invalid file: bad magic.");
+    }
+
     mEmitterSetTblPos = mFile.pos();
+
+    if (mHeaderData.nameTblPos == 0 || mHeaderData.nameTblPos >= mFile.size()) {
+        throw std::runtime_error("PtclBinaryReader - Invalid file: name table out of bounds.");
+    }
 
     mFile.seek(mHeaderData.nameTblPos);
     mNameTbl = mFile.readAll();
+
+    if (mHeaderData.textureTblPos >= mFile.size()) {
+        throw std::runtime_error("PtclBinaryReader - Invalid file: texture table out of bounds.");
+    }
 
     mFile.seek(mHeaderData.textureTblPos);
     mTextureTblPos = mFile.pos();
@@ -45,8 +60,11 @@ QString PtclBinaryReader::readProjectName() {
 EmitterSetList PtclBinaryReader::readEmitterSets() {
     EmitterSetList setList{};
 
-    setList.reserve(mHeaderData.numEmitterSet);
-    for (u32 idx = 0; idx < mHeaderData.numEmitterSet; idx++) {
+    const s64 maxSets = (mFile.size() - mEmitterSetTblPos) / static_cast<s64>(sizeof(BinEmitterSetData));
+    const u32 numSets = std::min(mHeaderData.numEmitterSet, static_cast<u32>(std::max<s64>(maxSets, 0)));
+
+    setList.reserve(numSets);
+    for (u32 idx = 0; idx < numSets; idx++) {
         setList.push_back(readEmitterSet(static_cast<s32>(idx)));
     }
 
@@ -91,9 +109,12 @@ std::unique_ptr<EmitterSet> PtclBinaryReader::readEmitterSet(s32 index) {
     set->setUserData(setData.userData);
     set->setLastUpdateDate(setData.lastUpdateDate);
 
-    set->emitters().reserve(setData.numEmitter);
+    const s64 maxEmitters = (mFile.size() - static_cast<s64>(setData.emitterTblPos)) / static_cast<s64>(sizeof(BinEmitterTblData));
+    const u32 numEmitters = std::min(setData.numEmitter, static_cast<u32>(std::max<s64>(maxEmitters, 0)));
 
-    for (u32 idx = 0; idx < setData.numEmitter; ++idx) {
+    set->emitters().reserve(numEmitters);
+
+    for (u32 idx = 0; idx < numEmitters; ++idx) {
         mFile.seek(setData.emitterTblPos + idx * static_cast<s64>((sizeof(BinEmitterTblData))));
 
         BinEmitterTblData tblData;
@@ -209,7 +230,11 @@ TextureList PtclBinaryReader::takeTextures() {
 }
 
 QString PtclBinaryReader::readName(u32 namePos) {
-    return StringUtil::shiftJISToQString(mNameTbl.data() + namePos);
+    if (mNameTbl.isEmpty() || namePos >= static_cast<u32>(mNameTbl.size())) {
+        return {};
+    }
+
+    return StringUtil::shiftJISToQString(mNameTbl.constData() + namePos);
 }
 
 
@@ -219,7 +244,7 @@ QString PtclBinaryReader::readName(u32 namePos) {
 PtclBinaryWriter::PtclBinaryWriter(const QString& filePath) :
     mFile(filePath), mStream(&mFile) {
     if (!mFile.open(QIODevice::WriteOnly)) {
-        throw("PtclBinaryWriter - Failed to open file.");
+        throw std::runtime_error("PtclBinaryWriter - Failed to open file.");
     }
 
     mStream.setByteOrder(QDataStream::LittleEndian);
@@ -433,14 +458,22 @@ void PtclBinaryWriter::write(const PtclRes& res) {
 
 
 bool PtclRes::load(const QString& filePath) {
-    PtclBinaryReader reader(filePath);
+    try {
+        PtclBinaryReader reader(filePath);
 
-    reader.readHeader();
-    mName = reader.readProjectName();
-    mEmitterSets = reader.readEmitterSets();
-    mTextures = reader.takeTextures();
+        reader.readHeader();
+        mName = reader.readProjectName();
+        mEmitterSets = reader.readEmitterSets();
+        mTextures = reader.takeTextures();
 
-    return true;
+        return true;
+    } catch (const std::exception& ex) {
+        qWarning() << "Failed to load PTCL file" << filePath << ":" << ex.what();
+    } catch (...) {
+        qWarning() << "Failed to load PTCL file" << filePath << ": unknown error.";
+    }
+
+    return false;
 }
 
 s32 PtclRes::emitterSetCount() const {
