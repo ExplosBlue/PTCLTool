@@ -919,8 +919,8 @@ void FrameTimeline::zoomAt(s32 screenX, bool zoomIn) {
 }
 
 void FrameTimeline::setScrollOffset(s32 offset) {
-    const s32 maxOffset = std::max(0, contentWidth() - width());
-    mScrollOffset = std::clamp(offset, 0, maxOffset);
+    const s64 maxOffset = static_cast<s64>(contentWidth()) - width();
+    mScrollOffset = static_cast<s32>(std::clamp(static_cast<s64>(offset), static_cast<s64>(0), std::max<s64>(0, maxOffset)));
     updateScrollBar();
     update();
 }
