@@ -10,7 +10,6 @@
 #include <QHeaderView>
 #include <QMenu>
 #include <QMessageBox>
-#include <QStandardPaths>
 #include <QStyle>
 #include <QToolButton>
 
@@ -332,17 +331,9 @@ void TextureListWidget::exportAll() {
         return;
     }
 
-    QString basePath = SettingsUtil::SettingsMgr::instance().lastExportPath();
-    if (basePath.isEmpty()) {
-        QString lastOpenPath = SettingsUtil::SettingsMgr::instance().lastOpenPath();
-        if (!lastOpenPath.isEmpty()) {
-            basePath = lastOpenPath;
-        } else {
-            basePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-        }
-    }
-
-    QString dirPath = QFileDialog::getExistingDirectory(this, "Export textures", basePath, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    QString dirPath = QFileDialog::getExistingDirectory(this, "Export textures",
+        SettingsUtil::dialogPath(SettingsUtil::PathType::Export),
+        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
     if (dirPath.isEmpty()) {
         return;
@@ -354,7 +345,7 @@ void TextureListWidget::exportAll() {
         texture->textureData().save(QString("%1/tex_%2.png").arg(dirPath).arg(idx));
     }
 
-    SettingsUtil::SettingsMgr::instance().setLastExportPath(QFileInfo(dirPath).absolutePath());
+    SettingsUtil::setDialogPath(SettingsUtil::PathType::Export, dirPath);
 }
 
 void TextureListWidget::importTexture() {
@@ -362,17 +353,9 @@ void TextureListWidget::importTexture() {
         return;
     }
 
-    QString basePath = SettingsUtil::SettingsMgr::instance().lastImportPath();
-    if (basePath.isEmpty()) {
-        QString lastOpenPath = SettingsUtil::SettingsMgr::instance().lastOpenPath();
-        if (!lastOpenPath.isEmpty()) {
-            basePath = lastOpenPath;
-        } else {
-            basePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-        }
-    }
-
-    QString filePath = QFileDialog::getOpenFileName(this, "Import texture", basePath, "*.png");
+    QString filePath = QFileDialog::getOpenFileName(this, "Import texture",
+        SettingsUtil::dialogPath(SettingsUtil::PathType::Import),
+        "*.png");
 
     if (filePath.isEmpty()) {
         return;
@@ -387,7 +370,7 @@ void TextureListWidget::importTexture() {
         mDocument->addTexture(dialog.getTexture());
     }
 
-    SettingsUtil::SettingsMgr::instance().setLastImportPath(QFileInfo(filePath).absolutePath());
+    SettingsUtil::setDialogPath(SettingsUtil::PathType::Import, filePath);
 }
 
 void TextureListWidget::exportTexture(Ptcl::Texture* texture) {
@@ -395,17 +378,9 @@ void TextureListWidget::exportTexture(Ptcl::Texture* texture) {
         return;
     }
 
-    QString basePath = SettingsUtil::SettingsMgr::instance().lastExportPath();
-    if (basePath.isEmpty()) {
-        QString lastOpenPath = SettingsUtil::SettingsMgr::instance().lastOpenPath();
-        if (!lastOpenPath.isEmpty()) {
-            basePath = lastOpenPath;
-        } else {
-            basePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-        }
-    }
-
-    QString filePath = QFileDialog::getSaveFileName(this, "Export texture", basePath, "*.png");
+    QString filePath = QFileDialog::getSaveFileName(this, "Export texture",
+        SettingsUtil::dialogPath(SettingsUtil::PathType::Export),
+        "*.png");
 
     if (filePath.isEmpty()) {
         return;
@@ -417,7 +392,7 @@ void TextureListWidget::exportTexture(Ptcl::Texture* texture) {
 
     texture->textureData().save(filePath);
 
-    SettingsUtil::SettingsMgr::instance().setLastExportPath(QFileInfo(filePath).absolutePath());
+    SettingsUtil::setDialogPath(SettingsUtil::PathType::Export, filePath);
 }
 
 void TextureListWidget::replaceTexture(const QModelIndex& index) {
@@ -427,17 +402,9 @@ void TextureListWidget::replaceTexture(const QModelIndex& index) {
 
     const s32 textureIndex = index.row();
 
-    QString basePath = SettingsUtil::SettingsMgr::instance().lastImportPath();
-    if (basePath.isEmpty()) {
-        QString lastOpenPath = SettingsUtil::SettingsMgr::instance().lastOpenPath();
-        if (!lastOpenPath.isEmpty()) {
-            basePath = lastOpenPath;
-        } else {
-            basePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-        }
-    }
-
-    QString filePath = QFileDialog::getOpenFileName(this, "Import texture", basePath, "*.png");
+    QString filePath = QFileDialog::getOpenFileName(this, "Import texture",
+        SettingsUtil::dialogPath(SettingsUtil::PathType::Import),
+        "*.png");
 
     if (filePath.isEmpty()) {
         return;
@@ -453,7 +420,7 @@ void TextureListWidget::replaceTexture(const QModelIndex& index) {
         mDocument->replaceTexture(textureIndex, std::move(newTexture), "Replace Texture");
     }
 
-    SettingsUtil::SettingsMgr::instance().setLastImportPath(QFileInfo(filePath).absolutePath());
+    SettingsUtil::setDialogPath(SettingsUtil::PathType::Import, filePath);
 }
 
 void TextureListWidget::reEncodeTexture(const QModelIndex& index) {

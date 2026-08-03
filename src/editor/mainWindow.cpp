@@ -13,7 +13,6 @@
 #include <QLabel>
 #include <QMimeData>
 #include <QMessageBox>
-#include <QStandardPaths>
 #include <QStatusBar>
 
 
@@ -83,9 +82,8 @@ void MainWindow::setupUi() {
     mStatusLabel = new QLabel("No file loaded", status);
     status->addPermanentWidget(mStatusLabel);
 
-    auto& settings = SettingsUtil::SettingsMgr::instance();
-    restoreGeometry(settings.windowGeometry());
-    restoreState(settings.windowState());
+    restoreGeometry(SettingsUtil::windowGeometry());
+    restoreState(SettingsUtil::windowState());
     restoreSplitterState();
 
     updateWindowTitle();
@@ -137,7 +135,7 @@ void MainWindow::setupMenus() {
     mRecentFilesMenu.setIcon(QIcon(":/res/icons/recent.png"));
 
     // Recent Files Actions
-    s32 maxRecentFiles = SettingsUtil::SettingsMgr::instance().maxRecentFiles();
+    s32 maxRecentFiles = SettingsUtil::maxRecentFiles();
     for (s32 i = 0; i < maxRecentFiles; ++i) {
         QAction* recentFileAction = mRecentFilesMenu.addAction("");
         recentFileAction->setVisible(false);
@@ -189,9 +187,8 @@ void MainWindow::setupMenus() {
 
 void MainWindow::closeEvent(QCloseEvent* event) {
     if (!mDocument || !mDocument->isDirty()) {
-        auto& settings = SettingsUtil::SettingsMgr::instance();
-        settings.setWindowGeometry(saveGeometry());
-        settings.setWindowState(saveState());
+        SettingsUtil::setWindowGeometry(saveGeometry());
+        SettingsUtil::setWindowState(saveState());
         saveSplitterState();
 
         event->accept();
@@ -217,9 +214,8 @@ void MainWindow::closeEvent(QCloseEvent* event) {
         return;
     }
 
-    auto& settings = SettingsUtil::SettingsMgr::instance();
-    settings.setWindowGeometry(saveGeometry());
-    settings.setWindowState(saveState());
+    SettingsUtil::setWindowGeometry(saveGeometry());
+    SettingsUtil::setWindowState(saveState());
     saveSplitterState();
 
     event->accept();
@@ -230,7 +226,7 @@ void MainWindow::saveSplitterState() {
         return;
     }
 
-    SettingsUtil::SettingsMgr::instance().setSplitterStates({
+    SettingsUtil::setSplitterStates({
         mRootSplitter->saveState(),
         mLeftSplitter->saveState(),
         mRightSplitter->saveState(),
@@ -242,7 +238,7 @@ void MainWindow::restoreSplitterState() {
         return;
     }
 
-    const auto states = SettingsUtil::SettingsMgr::instance().splitterStates();
+    const auto states = SettingsUtil::splitterStates();
     if (states.size() < 3) {
         return;
     }
@@ -273,13 +269,9 @@ void MainWindow::dropEvent(QDropEvent* event) {
 }
 
 void MainWindow::openFile() {
-    QString basePath = SettingsUtil::SettingsMgr::instance().lastOpenPath();
-
-    if (basePath.isEmpty()) {
-        basePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-    }
-
-    QFileDialog openFileDialog(this, "Open File", basePath, "*.ptcl");
+    QFileDialog openFileDialog(this, "Open File",
+        SettingsUtil::dialogPath(SettingsUtil::PathType::Open),
+        "*.ptcl");
 
     if (openFileDialog.exec() == QFileDialog::DialogCode::Rejected) {
         return;
@@ -309,7 +301,7 @@ void MainWindow::saveFile() {
 
     statusBar()->showMessage("File Saved", 2000);
 
-    SettingsUtil::SettingsMgr::instance().addRecentFile(mDocument->filePath());
+    SettingsUtil::addRecentFile(mDocument->filePath());
     updateRecentFileList();
 }
 
@@ -318,17 +310,9 @@ void MainWindow::saveFileAs() {
         return;
     }
 
-    QString basePath = SettingsUtil::SettingsMgr::instance().lastSavePath();
-    if (basePath.isEmpty()) {
-        QString lastOpenPath = SettingsUtil::SettingsMgr::instance().lastOpenPath();
-        if (!lastOpenPath.isEmpty()) {
-            basePath = lastOpenPath;
-        } else {
-            basePath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-        }
-    }
-
-    QFileDialog dialog(this, "Save As", basePath, "*.ptcl");
+    QFileDialog dialog(this, "Save As",
+        SettingsUtil::dialogPath(SettingsUtil::PathType::Save),
+        "*.ptcl");
     if(dialog.exec() == QFileDialog::DialogCode::Rejected) {
         return;
     }
@@ -343,8 +327,8 @@ void MainWindow::saveFileAs() {
     statusBar()->showMessage("File Saved", 2000);
 
     mDocument->filePath() = filePath;
-    SettingsUtil::SettingsMgr::instance().addRecentFile(filePath);
-    SettingsUtil::SettingsMgr::instance().setLastSavePath(QFileInfo(filePath).absolutePath());
+    SettingsUtil::addRecentFile(filePath);
+    SettingsUtil::setDialogPath(SettingsUtil::PathType::Save, filePath);
     updateRecentFileList();
     updateWindowTitle();
 }
@@ -360,7 +344,7 @@ void MainWindow::openRecentFile() {
 
     if (!QFile::exists(filePath)) {
         showFileNotFoundDialog(filePath);
-        SettingsUtil::SettingsMgr::instance().addRecentFile(filePath);
+        SettingsUtil::addRecentFile(filePath);
         updateRecentFileList();
         return;
     }
@@ -369,19 +353,17 @@ void MainWindow::openRecentFile() {
 }
 
 void MainWindow::updateRecentFileList() {
-    auto& settings = SettingsUtil::SettingsMgr::instance();
-
-    auto recentFiles = settings.recentFiles();
+    auto recentFiles = SettingsUtil::recentFiles();
 
     recentFiles.removeIf([](const QString& file) {
         return !QFile::exists(file);
     });
 
-    if (recentFiles != settings.recentFiles()) {
-        settings.setRecentFiles(recentFiles);
+    if (recentFiles != SettingsUtil::recentFiles()) {
+        SettingsUtil::setRecentFiles(recentFiles);
     }
 
-    qsizetype numRecentFiles = qMin(recentFiles.size(), static_cast<qsizetype>(settings.maxRecentFiles()));
+    qsizetype numRecentFiles = qMin(recentFiles.size(), static_cast<qsizetype>(SettingsUtil::maxRecentFiles()));
 
     for (qsizetype i = 0; i < numRecentFiles; ++i) {
         auto& action = mRecentFileActions[i];
@@ -438,8 +420,8 @@ void MainWindow::loadPtclRes(const QString& path) {
         showSanitizeWarningDialog(path, mDocument->sanitizeReport());
     }
 
-    SettingsUtil::SettingsMgr::instance().addRecentFile(path);
-    SettingsUtil::SettingsMgr::instance().setLastOpenPath(QFileInfo(path).absolutePath());
+    SettingsUtil::addRecentFile(path);
+    SettingsUtil::setDialogPath(SettingsUtil::PathType::Open, path);
     updateRecentFileList();
 
     mPtclList.setDocument(mDocument.get());

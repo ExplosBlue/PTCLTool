@@ -1,5 +1,8 @@
 #include "util/settingsUtil.h"
 
+#include <QFileInfo>
+#include <QStandardPaths>
+
 
 namespace SettingsUtil {
 
@@ -7,84 +10,93 @@ namespace SettingsUtil {
 // ========================================================================== //
 
 
-QStringList SettingsMgr::recentFiles() const {
-    return mSettings.value("recentFiles").toStringList();
+namespace /* Anonymous */ {
+
+QString pathKey(PathType type) {
+    switch (type) {
+    case PathType::Open:   return "openPath";
+    case PathType::Save:   return "savePath";
+    case PathType::Import: return "importPath";
+    case PathType::Export: return "exportPath";
+    }
+    return {};
 }
 
-void SettingsMgr::addRecentFile(const QString& path) {
+QSettings& settings() {
+    static QSettings sSettings;
+    return sSettings;
+}
+
+} // namespace Anonymous
+
+
+// ========================================================================== //
+
+
+QStringList recentFiles() {
+    return settings().value("recentFiles").toStringList();
+}
+
+void addRecentFile(const QString& path) {
     auto recentFileList = recentFiles();
 
     recentFileList.removeAll(path);
     recentFileList.prepend(path);
 
-    while (recentFileList.size() > sMaxRecentFiles) {
+    while (recentFileList.size() > maxRecentFiles()) {
         recentFileList.removeLast();
     }
 
-    mSettings.setValue("recentFiles", recentFileList);
+    settings().setValue("recentFiles", recentFileList);
 }
 
-void SettingsMgr::removeRecentFile(const QString& path) {
+void removeRecentFile(const QString& path) {
     auto recentFileList = recentFiles();
     recentFileList.removeAll(path);
-    mSettings.setValue("recentFiles", recentFileList);
+    settings().setValue("recentFiles", recentFileList);
 }
 
-void SettingsMgr::setRecentFiles(const QStringList& files) {
-    mSettings.setValue("recentFiles", files);
+void setRecentFiles(const QStringList& files) {
+    settings().setValue("recentFiles", files);
 }
 
-QString SettingsMgr::lastOpenPath() const {
-    return mSettings.value("openPath").toString();
+QString dialogPath(PathType type) {
+    QString path = settings().value(pathKey(type)).toString();
+
+    if (path.isEmpty() && type != PathType::Open) {
+        path = settings().value(pathKey(PathType::Open)).toString();
+    }
+
+    if (path.isEmpty()) {
+        path = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+    }
+
+    return path;
 }
 
-void SettingsMgr::setLastOpenPath(const QString& path) {
-    mSettings.setValue("openPath", path);
+void setDialogPath(PathType type, const QString& path) {
+    settings().setValue(pathKey(type), QFileInfo(path).absolutePath());
 }
 
-QString SettingsMgr::lastSavePath() const {
-    return mSettings.value("savePath").toString();
+QByteArray windowGeometry() {
+    return settings().value("windowGeometry").toByteArray();
 }
 
-void SettingsMgr::setLastSavePath(const QString& path) {
-    mSettings.setValue("savePath", path);
+void setWindowGeometry(const QByteArray& geometry) {
+    settings().setValue("windowGeometry", geometry);
 }
 
-QString SettingsMgr::lastImportPath() const {
-    return mSettings.value("importPath").toString();
+QByteArray windowState() {
+    return settings().value("windowState").toByteArray();
 }
 
-void SettingsMgr::setLastImportPath(const QString& path) {
-    mSettings.setValue("importPath", path);
+void setWindowState(const QByteArray& state) {
+    settings().setValue("windowState", state);
 }
 
-QString SettingsMgr::lastExportPath() const {
-    return mSettings.value("exportPath").toString();
-}
-
-void SettingsMgr::setLastExportPath(const QString& path) {
-    mSettings.setValue("exportPath", path);
-}
-
-QByteArray SettingsMgr::windowGeometry() const {
-    return mSettings.value("windowGeometry").toByteArray();
-};
-
-void SettingsMgr::setWindowGeometry(const QByteArray& geometry) {
-    mSettings.setValue("windowGeometry", geometry);
-}
-
-QByteArray SettingsMgr::windowState() const {
-    return mSettings.value("windowState").toByteArray();
-};
-
-void SettingsMgr::setWindowState(const QByteArray& state) {
-    mSettings.setValue("windowState", state);
-}
-
-QList<QByteArray> SettingsMgr::splitterStates() const {
+QList<QByteArray> splitterStates() {
     QList<QByteArray> states;
-    const auto values = mSettings.value("splitterStates").toList();
+    const auto values = settings().value("splitterStates").toList();
     states.reserve(values.size());
     for (const auto& value : values) {
         states.push_back(value.toByteArray());
@@ -92,13 +104,13 @@ QList<QByteArray> SettingsMgr::splitterStates() const {
     return states;
 }
 
-void SettingsMgr::setSplitterStates(const QList<QByteArray>& states) {
+void setSplitterStates(const QList<QByteArray>& states) {
     QVariantList values;
     values.reserve(states.size());
     for (const auto& state : states) {
         values.push_back(state);
     }
-    mSettings.setValue("splitterStates", values);
+    settings().setValue("splitterStates", values);
 }
 
 
