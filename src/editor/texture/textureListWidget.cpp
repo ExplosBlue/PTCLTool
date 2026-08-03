@@ -242,9 +242,17 @@ void TextureListWidget::showContextMenu(const QPoint& pos, QAbstractItemView* vi
     menu.addAction("Export", this, [this, texture] {
         exportTexture(texture);
     });
+
     menu.addAction("Replace", this, [this, index] {
         replaceTexture(index);
     });
+
+    menu.addAction("Re-encode", this, [this, index] {
+        reEncodeTexture(index);
+    });
+
+    menu.addSeparator();
+
     menu.addAction("Delete", this, [this, index] {
         deleteTexture(index);
     });
@@ -371,7 +379,9 @@ void TextureListWidget::importTexture() {
     }
 
     TextureImportDialog dialog(this);
-    dialog.setFilePath(filePath);
+
+    const auto image = QImage(filePath);
+    dialog.setImage(image);
 
     if (dialog.exec() == QDialog::Accepted) {
         mDocument->addTexture(dialog.getTexture());
@@ -434,14 +444,33 @@ void TextureListWidget::replaceTexture(const QModelIndex& index) {
     }
 
     TextureImportDialog dialog(this);
-    dialog.setFilePath(filePath);
+
+    const auto image = QImage(filePath);
+    dialog.setImage(image);
 
     if (dialog.exec() == QDialog::Accepted) {
         auto newTexture = dialog.getTexture();
-        mDocument->replaceTexture(textureIndex, std::move(newTexture));
+        mDocument->replaceTexture(textureIndex, std::move(newTexture), "Replace Texture");
     }
 
     SettingsUtil::SettingsMgr::instance().setLastImportPath(QFileInfo(filePath).absolutePath());
+}
+
+void TextureListWidget::reEncodeTexture(const QModelIndex& index) {
+    if (!mDocument || !index.isValid()) {
+        return;
+    }
+
+    const s32 textureIndex = index.row();
+    const auto& texture = mDocument->textures()[textureIndex]->textureData();
+
+    TextureImportDialog dialog(this);
+    dialog.setImage(texture);
+
+    if (dialog.exec() == QDialog::Accepted) {
+        auto newTexture = dialog.getTexture();
+        mDocument->replaceTexture(textureIndex, std::move(newTexture), "Re-encode Texture");
+    }
 }
 
 void TextureListWidget::deleteTexture(const QModelIndex& index) {

@@ -72,8 +72,8 @@ void Document::removeTexture(s32 index) {
     mUndoStack.push(new RemoveTextureCommand(this, index));
 }
 
-void Document::replaceTexture(s32 index, std::unique_ptr<Texture> texture) {
-    mUndoStack.push(new ReplaceTextureCommand(this, index, std::move(texture)));
+void Document::replaceTexture(s32 index, std::unique_ptr<Texture> texture, const QString& label) {
+    mUndoStack.push(new ReplaceTextureCommand(this, index, std::move(texture), label));
 }
 
 

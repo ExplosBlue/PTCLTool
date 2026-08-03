@@ -474,8 +474,8 @@ private:
 
 class ReplaceTextureCommand final : public DocumentCommandBase {
 public:
-    ReplaceTextureCommand(Document* doc, s32 index, std::unique_ptr<Texture> texture, QUndoCommand* parent = nullptr) :
-        DocumentCommandBase{doc, "Replace Texture", parent}, mIndex{index}, mTexture{std::move(texture)} {
+    ReplaceTextureCommand(Document* doc, s32 index, std::unique_ptr<Texture> texture, QString label, QUndoCommand* parent = nullptr) :
+        DocumentCommandBase{doc, label, parent}, mIndex{index}, mTexture{std::move(texture)} {
     }
 
     s32 id() const override {

@@ -264,8 +264,8 @@ void TextureImportDialog::setupConnections() {
 
 }
 
-void TextureImportDialog::setFilePath(const QString& path) {
-    mFilePath = path;
+void TextureImportDialog::setImage(const QImage& image) {
+    mImage = image;
     updateImportPreview();
 }
 
@@ -301,8 +301,6 @@ void TextureImportDialog::updateTextureFormat() {
 }
 
 void TextureImportDialog::updateImportPreview() {
-    mImage.load(mFilePath);
-
     if (mImage.isNull()) {
         mImportPreview.clear();
         mFormatPreview.clear();

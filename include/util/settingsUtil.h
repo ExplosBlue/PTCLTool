@@ -1,5 +1,7 @@
 #pragma once
 
+#include "typedefs.h"
+
 #include <QSettings>
 
 
@@ -24,7 +26,7 @@ public:
     void removeRecentFile(const QString& path);
     void setRecentFiles(const QStringList& files);
 
-    inline constexpr int maxRecentFiles() { return sMaxRecentFiles; }
+    inline constexpr s32 maxRecentFiles() { return sMaxRecentFiles; }
 
     QString lastOpenPath() const;
     void setLastOpenPath(const QString& path);
@@ -50,7 +52,7 @@ public:
 private:
     SettingsMgr() = default;
 
-    static constexpr int sMaxRecentFiles = 5;
+    static constexpr s32 sMaxRecentFiles = 5;
 
 private:
     QSettings mSettings;

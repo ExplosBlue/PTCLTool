@@ -35,6 +35,7 @@ private slots:
     void exportTexture(Ptcl::Texture* texture);
     void replaceTexture(const QModelIndex& index);
     void deleteTexture(const QModelIndex& index);
+    void reEncodeTexture(const QModelIndex& index);
 
 private:
     enum class ViewMode {

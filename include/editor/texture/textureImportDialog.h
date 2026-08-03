@@ -29,7 +29,7 @@ public:
     explicit TextureImportDialog(QWidget* parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags());
     ~TextureImportDialog() override;
 
-    void setFilePath(const QString& path);
+    void setImage(const QImage& image);
     std::unique_ptr<Ptcl::Texture> getTexture();
 
 private slots:
@@ -76,7 +76,6 @@ private:
 
     QLabel mInfoLabel{};
 
-    QString mFilePath{};
     QImage mImage{};
     std::unique_ptr<Ptcl::Texture> mTexture{};
     QFutureWatcher<std::unique_ptr<Ptcl::Texture>> mWatcher{};

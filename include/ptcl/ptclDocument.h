@@ -104,7 +104,7 @@ public:
 
     void addTexture(std::unique_ptr<Texture> texture);
     void removeTexture(s32 index);
-    void replaceTexture(s32 index, std::unique_ptr<Texture> texture);
+    void replaceTexture(s32 index, std::unique_ptr<Texture> texture, const QString& label);
 
 private:
     TextureList& texturesMutable() { return mData.textures(); }
