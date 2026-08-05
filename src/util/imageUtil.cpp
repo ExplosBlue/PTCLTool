@@ -3,8 +3,11 @@
 
 #include <QImage>
 
+#include <algorithm>
 #include <array>
+#include <atomic>
 #include <cmath>
+#include <thread>
 
 
 namespace ImageUtil {
@@ -147,76 +150,118 @@ inline std::vector<u8> ETC1Decompress(const std::vector<u8>& input, s32 width, s
 }
 
 inline std::vector<u8> ETC1Compress(const std::vector<u8>& rgba, s32 width, s32 height, bool alpha, ETC1Quality quality, bool dither, const std::atomic<bool>& cancelFlag) {
-    std::vector<u8> output;
+    const u32 tilesX = static_cast<u32>(width) / 8;
+    const u32 tilesY = static_cast<u32>(height) / 8;
+    const u32 totalBlocks = tilesX * tilesY * 4;
+    const u32 bytesPerBlock = alpha ? 16 : 8;
 
-    for (s32 ty = 0; ty < height; ty += 8) {
-        if (cancelFlag.load()) { return {}; }
-        for (s32 tx = 0; tx < width; tx += 8) {
-            for (int t = 0; t < 4; ++t) {
-                std::array<u32, 16> block_rgba{};
-                u64 alphaBlock = 0;
+    std::vector<u8> output(static_cast<size_t>(totalBlocks) * bytesPerBlock, 0);
 
-                for (int i = 0; i < 16; ++i) {
-                    int px = XT[t] + (i % 4);
-                    int py = YT[t] + (i / 4);
-                    int dstX = tx + px;
-                    int dstY = ty + py;
+    Etc1::Etc1PackParams params;
+    switch (quality) {
+    case ImageUtil::ETC1Quality::LowQuality:
+        params.mQuality = Etc1::Etc1Quality::Low;
+        break;
+    case ImageUtil::ETC1Quality::MediumQuality:
+        params.mQuality = Etc1::Etc1Quality::Medium;
+        break;
+    default:
+        params.mQuality = Etc1::Etc1Quality::High;
+    }
+    params.mDithering = dither;
 
-                    u8 r = 0, g = 0, b = 0, a = 255;
+    auto packBlock = [&](u32 idx) {
+        const u32 t = idx & 3;
+        const u32 rem = idx >> 2;
+        const s32 tx = static_cast<s32>(rem % tilesX) * 8;
+        const s32 ty = static_cast<s32>(rem / tilesX) * 8;
 
-                    if (dstX < width && dstY < height) {
-                        int srcIdx = (dstY * width + dstX) * 4;
-                        r = rgba[srcIdx + 0];
-                        g = rgba[srcIdx + 1];
-                        b = rgba[srcIdx + 2];
-                        a = rgba[srcIdx + 3];
-                    }
+        std::array<u32, 16> block_rgba{};
+        u64 alphaBlock = 0;
 
-                    // Force alpha to 255 because ETC1 does not support alpha
-                    block_rgba[i] = (255 << 24) | (b << 16) | (g << 8) | r;
+        for (s32 i = 0; i < 16; ++i) {
+            s32 px = XT[t] + (i % 4);
+            s32 py = YT[t] + (i / 4);
+            s32 dstX = tx + px;
+            s32 dstY = ty + py;
 
-                    if (alpha) {
-                        int alphaShift = ((px & 3) * 4 + (py & 3)) << 2;
-                        u8 a4 = static_cast<u8>(a >> 4);
-                        alphaBlock |= (static_cast<u64>(a4) & 0xF) << alphaShift;
-                    }
-                }
+            u8 r = 0, g = 0, b = 0, a = 255;
 
-                // Compress color block
-                std::array<u8, 8> compressed_color;
-                Etc1::Etc1PackParams params;
+            if (dstX < width && dstY < height) {
+                s32 srcIdx = (dstY * width + dstX) * 4;
+                r = rgba[srcIdx + 0];
+                g = rgba[srcIdx + 1];
+                b = rgba[srcIdx + 2];
+                a = rgba[srcIdx + 3];
+            }
 
-                switch(quality) {
-                case ImageUtil::ETC1Quality::LowQuality:
-                    params.mQuality = Etc1::Etc1Quality::Low;
-                    [[fallthrough]];
-                case ImageUtil::ETC1Quality::MediumQuality:
-                    params.mQuality = Etc1::Etc1Quality::Medium;
-                    [[fallthrough]];
-                default:
-                    params.mQuality = Etc1::Etc1Quality::High;
-                }
+            // Force alpha to 255 because ETC1 does not support alpha
+            block_rgba[i] = (255 << 24) | (b << 16) | (g << 8) | r;
 
-                params.mDithering = dither;
-
-                Etc1::packEtc1Block(compressed_color.data(), block_rgba.data(), params);
-
-                // Write alpha block if needed
-                if (alpha) {
-                    std::array<u8, sizeof(u64)> aBytes{};
-                    std::memcpy(aBytes.data(), &alphaBlock, sizeof(u64));
-                    output.insert(output.end(), aBytes.begin(), aBytes.end());
-                }
-
-                // Write color block
-                u64 cBlock;
-                std::memcpy(&cBlock, compressed_color.data(), sizeof(u64));
-                cBlock = Swap64(cBlock);
-                std::array<u8, sizeof(u64)> cBytes{};
-                std::memcpy(cBytes.data(), &cBlock, sizeof(u64));
-                output.insert(output.end(), cBytes.begin(), cBytes.end());
+            if (alpha) {
+                s32 alphaShift = ((px & 3) * 4 + (py & 3)) << 2;
+                u8 a4 = static_cast<u8>(a >> 4);
+                alphaBlock |= (static_cast<u64>(a4) & 0xF) << alphaShift;
             }
         }
+
+        // Compress color block
+        std::array<u8, 8> compressed_color;
+        Etc1::packEtc1Block(compressed_color.data(), block_rgba.data(), params);
+
+        u8* dst = &output[static_cast<size_t>(idx) * bytesPerBlock];
+
+        // Write alpha block if needed
+        if (alpha) {
+            u64 aBlock = alphaBlock;
+            std::memcpy(dst, &aBlock, sizeof(u64));
+            dst += sizeof(u64);
+        }
+
+        // Write color block
+        u64 cBlock;
+        std::memcpy(&cBlock, compressed_color.data(), sizeof(u64));
+        cBlock = Swap64(cBlock);
+        std::memcpy(dst, &cBlock, sizeof(u64));
+    };
+
+    const u32 hwThreads = static_cast<u32>(std::thread::hardware_concurrency());
+    const u32 threadCount = std::clamp<u32>(hwThreads, 1, totalBlocks);
+
+    if (totalBlocks <= 1 || threadCount == 1) {
+        for (u32 idx = 0; idx < totalBlocks; ++idx) {
+            if (cancelFlag.load()) { return {}; }
+            packBlock(idx);
+        }
+        return output;
+    }
+
+    std::atomic<u32> nextBlock{0};
+    std::atomic<bool> aborted{false};
+
+    std::vector<std::thread> workers;
+    workers.reserve(threadCount);
+    for (u32 w = 0; w < threadCount; ++w) {
+        workers.emplace_back([&]() {
+            for (;;) {
+                if (aborted.load(std::memory_order_relaxed)) { return; }
+                if (cancelFlag.load(std::memory_order_relaxed)) {
+                    aborted.store(true, std::memory_order_relaxed);
+                    return;
+                }
+                const u32 idx = nextBlock.fetch_add(1, std::memory_order_relaxed);
+                if (idx >= totalBlocks) { return; }
+                packBlock(idx);
+            }
+        });
+    }
+
+    for (auto& thread : workers) {
+        thread.join();
+    }
+
+    if (aborted.load(std::memory_order_relaxed)) {
+        return {};
     }
 
     return output;
