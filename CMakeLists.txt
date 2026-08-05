@@ -83,7 +83,6 @@ set(PROJECT_SOURCES
     src/editor/texture/textureListWidget.cpp
     src/editor/texture/textureSelectDialog.cpp
     src/math/quaternion.cpp
-    src/etc1/rg_etc1.cpp
     src/gfx/color.cpp
     src/ptcl/ptcl.cpp
     src/ptcl/ptclBinary.cpp
@@ -159,7 +158,6 @@ set(PROJECT_HEADERS
     include/editor/texture/textureListRoles.h
     include/editor/texture/textureListWidget.h
     include/editor/texture/textureSelectDialog.h
-    include/etc1/rg_etc1.h
     include/gfx/color.h
     include/math/matrix.h
     include/math/quaternion.h
@@ -220,12 +218,6 @@ if(WIN32)
     target_sources(PTCLTool PRIVATE "${APP_ICON_RESOURCE}")
 endif()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set_source_files_properties(src/etc1/rg_etc1.cpp PROPERTIES
-        COMPILE_FLAGS "-Wno-pedantic -Wno-class-memaccess -Wno-type-limits"
-    )
-endif()
-
 if(APPLE)
     set_target_properties(PTCLTool PROPERTIES
         MACOSX_BUNDLE_ICON_FILE app_icon.icns
@@ -244,7 +236,9 @@ if(ENABLE_ASAN AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DADDRESS_SANITIZER)
 endif()
 
-target_link_libraries(PTCLTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Iconv::Iconv Qt${QT_VERSION_MAJOR}::Concurrent)
+add_subdirectory(third_party/ExETC1)
+
+target_link_libraries(PTCLTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Iconv::Iconv Qt${QT_VERSION_MAJOR}::Concurrent ExETC1::ExETC1)
 
 target_include_directories(PTCLTool PRIVATE include)
 

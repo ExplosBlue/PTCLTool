@@ -1,4 +1,4 @@
-#include "etc1/rg_etc1.h"
+#include <Etc1.h>
 #include "util/imageUtil.h"
 
 #include <QImage>
@@ -108,7 +108,7 @@ inline std::vector<u8> ETC1Decompress(const std::vector<u8>& input, s32 width, s
                 std::memcpy(etc1_block.data(), &colorBlock, sizeof(etc1_block));
 
                 std::array<u32, 16> decoded_rgba;
-                rg_etc1::unpack_etc1_block(etc1_block.data(), decoded_rgba.data(), true);
+                Etc1::unpackEtc1Block(etc1_block.data(), decoded_rgba.data(), true);
 
                 for (int i = 0; i < 16; ++i) {
                     int px = XT[t] + (i % 4);
@@ -184,22 +184,22 @@ inline std::vector<u8> ETC1Compress(const std::vector<u8>& rgba, s32 width, s32 
 
                 // Compress color block
                 std::array<u8, 8> compressed_color;
-                rg_etc1::etc1_pack_params params;
+                Etc1::Etc1PackParams params;
 
                 switch(quality) {
                 case ImageUtil::ETC1Quality::LowQuality:
-                    params.m_quality = rg_etc1::cLowQuality;
+                    params.mQuality = Etc1::Etc1Quality::Low;
                     [[fallthrough]];
                 case ImageUtil::ETC1Quality::MediumQuality:
-                    params.m_quality = rg_etc1::cMediumQuality;
+                    params.mQuality = Etc1::Etc1Quality::Medium;
                     [[fallthrough]];
                 default:
-                    params.m_quality = rg_etc1::cHighQuality;
+                    params.mQuality = Etc1::Etc1Quality::High;
                 }
 
-                params.m_dithering = dither;
+                params.mDithering = dither;
 
-                rg_etc1::pack_etc1_block(compressed_color.data(), block_rgba.data(), params);
+                Etc1::packEtc1Block(compressed_color.data(), block_rgba.data(), params);
 
                 // Write alpha block if needed
                 if (alpha) {
