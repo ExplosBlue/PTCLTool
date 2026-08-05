@@ -61,6 +61,9 @@ private:
     void showFileNotFoundDialog(const QString& filePath);
     void showOpenErrorDialog(const QString& filePath);
     void showSanitizeWarningDialog(const QString& filePath, const Ptcl::PtclSanitizeReport& report);
+    void showNoDocumentWarningDialog();
+
+    void dropImage(const QString& filePath);
 
 private:
     std::unique_ptr<Ptcl::Document> mDocument{};

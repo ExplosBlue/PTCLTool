@@ -177,6 +177,7 @@ set(PROJECT_HEADERS
     include/ptcl/ptclTexture.h
     include/ptcl/ptclValidator.h
     include/util/bitflagUtil.h
+    include/util/fileUtil.h
     include/util/imageUtil.h
     include/util/nameValidator.h
     include/util/paintUtil.h

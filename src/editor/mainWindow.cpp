@@ -1,4 +1,6 @@
 #include "editor/mainWindow.h"
+#include "editor/texture/textureImportDialog.h"
+#include "util/fileUtil.h"
 #include "util/settingsUtil.h"
 #include "util/stringUtil.h"
 
@@ -257,13 +259,26 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* event) {
 }
 
 void MainWindow::dropEvent(QDropEvent* event) {
-    const QList<QUrl> urls = event->mimeData()->urls();
+    const auto& urls = event->mimeData()->urls();
+
     for (const auto& url : urls) {
         auto localPath = url.toLocalFile();
 
         QFileInfo fileInfo(localPath);
-        if (fileInfo.exists()) {
+        if (!fileInfo.exists()) {
+            continue;
+        }
+
+        switch (FileUtil::classifyFile(localPath)) {
+        case FileUtil::FileType::PtclBinary:
             loadPtclRes(localPath);
+            break;
+        case FileUtil::FileType::Image:
+            dropImage(localPath);
+            break;
+        case FileUtil::FileType::Unknown:
+            showOpenErrorDialog(localPath);
+            break;
         }
     }
 }
@@ -438,6 +453,24 @@ void MainWindow::loadPtclRes(const QString& path) {
     mSaveAsAction.setEnabled(true);
 }
 
+void MainWindow::dropImage(const QString& filePath) {
+    if (!mDocument) {
+        showNoDocumentWarningDialog();
+        return;
+    }
+
+    TextureImportDialog dialog(this);
+
+    const auto image = QImage(filePath);
+    dialog.setImage(image);
+
+    if (dialog.exec() == QDialog::Accepted) {
+        mDocument->addTexture(dialog.getTexture());
+    }
+
+    SettingsUtil::setDialogPath(SettingsUtil::PathType::Import, filePath);
+}
+
 void MainWindow::updateWindowTitle() {
     QString title = "PTCLTool";
     if (mDocument && !mDocument->filePath().isEmpty()) {
@@ -550,6 +583,17 @@ void MainWindow::showSanitizeWarningDialog(const QString& filePath, const Ptcl::
     msgBox.exec();
 }
 
+void MainWindow::showNoDocumentWarningDialog() {
+    QMessageBox msgBox(this);
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setWindowTitle("No Project Open");
+    msgBox.setText("File could not be imported because no project is currently open.");
+    msgBox.setInformativeText(
+        "Open a project first, then drag and drop the file again."
+    );
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.exec();
+}
 
 // ========================================================================== //
 
