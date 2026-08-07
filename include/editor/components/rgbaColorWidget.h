@@ -11,6 +11,8 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include <vector>
+
 
 // ==========================================================================//
 

@@ -5,6 +5,8 @@
 
 
 #include <QUndoCommand>
+#include <functional>
+#include <memory>
 #include <utility>
 
 

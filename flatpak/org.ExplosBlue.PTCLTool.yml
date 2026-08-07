@@ -5,6 +5,7 @@ sdk: org.kde.Sdk
 command: PTCLTool
 
 finish-args:
+  - --share=ipc
   - --socket=wayland
   - --socket=x11
   - --device=dri
@@ -18,9 +19,8 @@ modules:
       - -DCMAKE_INSTALL_PREFIX=/app
 
     sources:
-      - type: git
-        url: https://github.com/ExplosBlue/PTCLTool.git
-        tag: v1.0.0
+      - type: dir
+        path: ..
 
     build-commands:
       - cmake --build .

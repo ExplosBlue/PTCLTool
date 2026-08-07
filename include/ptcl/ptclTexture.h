@@ -4,6 +4,9 @@
 
 #include <QImage>
 
+#include <functional>
+#include <vector>
+
 
 namespace Ptcl {
 

@@ -7,6 +7,8 @@
 #include <QWidget>
 #include <QCheckBox>
 
+#include <array>
+
 
 namespace PtclEditor {
 

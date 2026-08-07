@@ -7,6 +7,8 @@
 #include <QSpinBox>
 #include <QWidget>
 
+#include <limits>
+
 
 namespace PtclEditor {
 

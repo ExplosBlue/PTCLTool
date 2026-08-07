@@ -1,6 +1,7 @@
 #include "ptcl/ptclTexture.h"
 #include "util/imageUtil.h"
 
+#include <stdexcept>
 #include <utility>
 
 

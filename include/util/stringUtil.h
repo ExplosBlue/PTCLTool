@@ -4,7 +4,11 @@
 
 #include <iconv.h>
 
+#include <cstddef>
+#include <limits>
+
 #include <QDir>
+#include <QFileInfo>
 #include <QFontMetrics>
 #include <QString>
 
@@ -192,7 +196,9 @@ inline QString elidePath(const QString& path, const QFontMetrics& metrics, s32 w
         prefix = "~";
     } else {
         #ifdef Q_OS_WIN
-        prefix = QFileInfo(path).rootPath();
+        const QString absPath = QFileInfo(path).absoluteFilePath();
+        const qsizetype driveSepPos = absPath.indexOf(QLatin1Char('/'));
+        prefix = driveSepPos >= 0 ? absPath.left(driveSepPos + 1) : absPath;
         #else
         prefix = "/";
         #endif

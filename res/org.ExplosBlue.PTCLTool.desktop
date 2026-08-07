@@ -2,5 +2,5 @@
 Type=Application
 Name=PTCLTool
 Exec=PTCLTool
-Icon=org.explos.PTCLTool
+Icon=org.ExplosBlue.PTCLTool
 Categories=Utility;

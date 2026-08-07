@@ -8,6 +8,10 @@
 #include <QLineEdit>
 #include <QStyleOption>
 
+#include <algorithm>
+#include <limits>
+#include <type_traits>
+
 
 // ========================================================================== //
 

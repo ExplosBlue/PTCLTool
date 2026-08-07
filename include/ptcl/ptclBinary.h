@@ -13,6 +13,7 @@
 #include <QMatrix3x4>
 #include <QVector2D>
 #include <QVector3D>
+#include <array>
 
 
 namespace Ptcl {

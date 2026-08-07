@@ -4,6 +4,8 @@
 
 #include <QObject>
 #include <QUndoStack>
+#include <memory>
+#include <vector>
 
 
 namespace Ptcl {

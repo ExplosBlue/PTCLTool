@@ -5,8 +5,8 @@
 
 #include <QColor>
 #include <QImage>
-
 #include <atomic>
+#include <vector>
 
 
 namespace ImageUtil {

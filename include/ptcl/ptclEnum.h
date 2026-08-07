@@ -4,6 +4,8 @@
 
 #include <QString>
 
+#include <utility>
+
 
 namespace Ptcl {
 

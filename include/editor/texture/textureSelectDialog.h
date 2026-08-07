@@ -11,6 +11,8 @@
 #include <QPushButton>
 #include <QStyledItemDelegate>
 
+#include <vector>
+
 
 // ========================================================================== //
 

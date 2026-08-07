@@ -2,6 +2,7 @@
 
 #include <QDataStream>
 
+#include <initializer_list>
 #include <type_traits>
 
 

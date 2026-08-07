@@ -18,6 +18,7 @@
 #include <QString>
 
 #include <array>
+#include <memory>
 
 
 namespace Ptcl {

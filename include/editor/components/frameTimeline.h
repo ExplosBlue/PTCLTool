@@ -5,6 +5,9 @@
 #include <QScrollBar>
 #include <QWidget>
 
+#include <limits>
+#include <vector>
+
 
 namespace PtclEditor {
 

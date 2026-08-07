@@ -5,9 +5,11 @@
 #include <QSortFilterProxyModel>
 
 #include <array>
+#include <cstddef>
 #include <functional>
 #include <span>
 #include <type_traits>
+#include <utility>
 
 
 // ========================================================================== //

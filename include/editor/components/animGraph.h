@@ -7,6 +7,8 @@
 #include <QPushButton>
 #include <QWidget>
 
+#include <vector>
+
 
 // ========================================================================== //
 

@@ -14,6 +14,8 @@
 #include <QWidget>
 #include <QToolBar>
 
+#include <memory>
+
 
 namespace PtclEditor {
 

@@ -14,6 +14,8 @@
 #include <QGroupBox>
 #include <QWidget>
 
+#include <optional>
+
 
 namespace PtclEditor {
 

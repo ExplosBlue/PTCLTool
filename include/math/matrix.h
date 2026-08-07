@@ -4,7 +4,11 @@
 
 #include <cassert>
 #include <cstring>
+#include <algorithm>
 #include <array>
+#include <cstddef>
+#include <initializer_list>
+#include <type_traits>
 
 namespace Math {
 

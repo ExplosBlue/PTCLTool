@@ -18,6 +18,9 @@
 #include <QUndoView>
 #include <QVBoxLayout>
 
+#include <memory>
+#include <vector>
+
 
 namespace PtclEditor {
 

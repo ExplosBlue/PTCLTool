@@ -17,6 +17,12 @@ else()
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+if(APPLE)
+    # Qt 6.10's qyieldcpu.h calls __yield() on ARM assuming it's a builtin.
+    # Xcode 26's clang requires <arm_acle.h> to declare it.
+    add_compile_options(-include arm_acle.h)
+endif()
+
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Concurrent)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Concurrent)
 

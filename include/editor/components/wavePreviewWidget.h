@@ -6,6 +6,8 @@
 #include <QPainterPath>
 #include <QWidget>
 
+#include <array>
+
 
 // ==========================================================================//
 
