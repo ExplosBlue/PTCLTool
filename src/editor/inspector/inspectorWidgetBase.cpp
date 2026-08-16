@@ -95,7 +95,9 @@ QHBoxLayout* InspectorWidgetBase::createHeaderRow(const QString& title, QWidget*
     row->setSpacing(8);
 
     auto* label = new QLabel(title, parent);
-    label->setStyleSheet("font-weight: bold;");
+    QFont font = label->font();
+    font.setBold(true);
+    label->setFont(font);
     row->addWidget(label);
 
     auto* line = new QFrame(parent);
@@ -106,6 +108,7 @@ QHBoxLayout* InspectorWidgetBase::createHeaderRow(const QString& title, QWidget*
 
     return row;
 }
+
 
 // ========================================================================== //
 
