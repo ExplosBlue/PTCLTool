@@ -3,6 +3,7 @@
 #include "editor/texture/textureListRoles.h"
 
 #include "util/settingsUtil.h"
+#include "util/iconUtil.h"
 
 #include <QAbstractItemView>
 #include <QActionGroup>
@@ -30,6 +31,7 @@ TextureListWidget::TextureListWidget(QWidget *parent) :
     setupContextMenus();
     setupLayout();
     setupSelectionHandling();
+    applyIcons();
 
     connect(&mDetailsPanel, &TextureDetailsPanel::exportRequested, this, &TextureListWidget::exportTexture);
     connect(&mDetailsPanel, &TextureDetailsPanel::replaceRequested, this, &TextureListWidget::replaceTexture);
@@ -50,12 +52,14 @@ TextureListWidget::TextureListWidget(QWidget *parent) :
             mDetailProxy.sort(mDetailProxy.sortColumn(), mDetailProxy.sortOrder());
         }
     });
+
+    connect(&IconManager::instance(), &IconManager::iconsChanged, this, &TextureListWidget::applyIcons);
 }
 
 void TextureListWidget::setupToolbar() {
     mToolbar.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    mActionExportAll = mToolbar.addAction(QIcon(":/res/icons/export_image.png"), "Export All");
-    mActionImportTexture = mToolbar.addAction(QIcon(":/res/icons/import_image.png"), "Import Texture");
+    mActionExportAll = mToolbar.addAction("Export All");
+    mActionImportTexture = mToolbar.addAction("Import Texture");
 
     mToolbar.addSeparator();
 
@@ -66,22 +70,30 @@ void TextureListWidget::setupToolbar() {
     auto* viewMenu = new QMenu(&mToolbar);
     auto* viewGroup = new QActionGroup(viewMenu);
     viewGroup->setExclusive(true);
+
     auto* gridAction = viewMenu->addAction("Grid");
     auto* detailsAction = viewMenu->addAction("Details");
+
     gridAction->setCheckable(true);
     detailsAction->setCheckable(true);
     detailsAction->setChecked(true);
+
     viewGroup->addAction(gridAction);
     viewGroup->addAction(detailsAction);
 
-    const auto activateMode = [this](const QString& label, ViewMode mode) {
-        mActionViewMode->setText(label);
-        mActionViewMode->setIcon(mToolbar.style()->standardIcon(
-            mode == ViewMode::Grid ? QStyle::SP_FileDialogListView : QStyle::SP_FileDialogDetailedView));
-        switchView(mode);
-    };
-    connect(gridAction, &QAction::triggered, this, [activateMode] { activateMode("Grid", ViewMode::Grid); });
-    connect(detailsAction, &QAction::triggered, this, [activateMode] { activateMode("Details", ViewMode::Details); });
+    connect(gridAction, &QAction::triggered, this, [this] {
+        mViewMode = ViewMode::Grid;
+        mActionViewMode->setText("Grid");
+        switchView(mViewMode);
+        applyIcons();
+    });
+
+    connect(detailsAction, &QAction::triggered, this, [this] {
+        mViewMode = ViewMode::Details;
+        mActionViewMode->setText("Details");
+        switchView(mViewMode);
+        applyIcons();
+    });
 
     mActionViewMode = mToolbar.addAction("Details");
     mActionViewMode->setIcon(mToolbar.style()->standardIcon(QStyle::SP_FileDialogDetailedView));
@@ -91,7 +103,7 @@ void TextureListWidget::setupToolbar() {
         viewButton->setPopupMode(QToolButton::InstantPopup);
     }
 
-    mActionFilter = mToolbar.addAction(QIcon(":/res/icons/filter.png"), "Filter");
+    mActionFilter = mToolbar.addAction("Filter");
     mActionFilter->setToolTip("Filter textures by format, usage, and size");
 
     connect(mActionExportAll, &QAction::triggered, this, &TextureListWidget::exportAll);
@@ -194,10 +206,24 @@ void TextureListWidget::setupSelectionHandling() {
             [this, onCurrentChanged](const QModelIndex& current, const QModelIndex& previous) {
         onCurrentChanged(&mGridProxy, current, previous);
     });
+
     connect(mDetailView.selectionModel(), &QItemSelectionModel::currentChanged, this,
             [this, onCurrentChanged](const QModelIndex& current, const QModelIndex& previous) {
         onCurrentChanged(&mDetailProxy, current, previous);
     });
+}
+
+void TextureListWidget::applyIcons() {
+    constexpr QSize iconSize{16, 16};
+    IconUtil::setIcon(mActionExportAll, "export", this, iconSize);
+    IconUtil::setIcon(mActionImportTexture, "import", this,iconSize);
+    IconUtil::setIcon(mActionFilter, "filter", this, iconSize);
+
+    if (mViewMode == ViewMode::Grid) {
+        IconUtil::setIcon(mActionViewMode, "grid", this, iconSize);
+    } else {
+        IconUtil::setIcon(mActionViewMode, "details", this, iconSize);
+    }
 }
 
 void TextureListWidget::setSelection(Ptcl::Selection* selection) {

@@ -50,6 +50,7 @@ private:
     void setupContextMenus();
     void setupLayout();
     void setupSelectionHandling();
+    void applyIcons();
 
     void switchView(ViewMode mode);
     void showContextMenu(const QPoint& pos, QAbstractItemView* view);
@@ -67,6 +68,8 @@ private:
     QStackedWidget mViewStack{};
     QListView mGridView{};
     QTableView mDetailView{};
+
+    ViewMode mViewMode{ViewMode::Details};
 
     TextureListModel mModel{};
     TextureFilterProxyModel mGridProxy{};

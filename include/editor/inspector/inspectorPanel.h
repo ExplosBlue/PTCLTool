@@ -57,6 +57,7 @@ private:
 
     void buildTabs();
     void updateTabVisibility();
+    void applyIcons();
 
 private:
     Ptcl::Document* mDocument{nullptr};

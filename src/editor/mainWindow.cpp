@@ -3,6 +3,7 @@
 #include "util/fileUtil.h"
 #include "util/settingsUtil.h"
 #include "util/stringUtil.h"
+#include "util/iconUtil.h"
 
 #include <QDataStream>
 #include <QDragEnterEvent>
@@ -89,6 +90,9 @@ void MainWindow::setupUi() {
     restoreSplitterState();
 
     updateWindowTitle();
+
+    applyIcons();
+    connect(&IconManager::instance(), &IconManager::iconsChanged, this, &MainWindow::applyIcons);
 }
 
 MainWindow::~MainWindow() {
@@ -104,20 +108,17 @@ MainWindow::~MainWindow() {
 void MainWindow::setupMenus() {
     // Open File
     mOpenAction.setText("Open File");
-    mOpenAction.setIcon(QIcon(":/res/icons/open_file.png"));
     mOpenAction.setShortcut(QKeySequence::Open);
     connect(&mOpenAction, &QAction::triggered, this, &MainWindow::openFile);
 
     // Save
     mSaveAction.setText("Save");
-    mSaveAction.setIcon(QIcon(":/res/icons/save.png"));
     mSaveAction.setShortcut(QKeySequence::Save);
     mSaveAction.setEnabled(false);
     connect(&mSaveAction, &QAction::triggered, this, &MainWindow::saveFile);
 
     // Save As
     mSaveAsAction.setText("Save As");
-    mSaveAsAction.setIcon(QIcon(":/res/icons/save_as.png"));
     mSaveAsAction.setShortcut(QKeySequence::SaveAs);
     mSaveAsAction.setEnabled(false);
     connect(&mSaveAsAction, &QAction::triggered, this, &MainWindow::saveFileAs);
@@ -134,7 +135,6 @@ void MainWindow::setupMenus() {
 
     // Recent Files Menu
     mRecentFilesMenu.setTitle("Recent Files");
-    mRecentFilesMenu.setIcon(QIcon(":/res/icons/recent.png"));
 
     // Recent Files Actions
     s32 maxRecentFiles = SettingsUtil::maxRecentFiles();
@@ -185,6 +185,14 @@ void MainWindow::setupMenus() {
     menuBar()->addMenu(&mFileMenu);
     menuBar()->addMenu(&mEditMenu);
     menuBar()->addMenu(&mViewMenu);
+}
+
+void MainWindow::applyIcons() {
+    constexpr QSize iconSize{24, 24};
+    IconUtil::setIcon(&mOpenAction, "open", this, iconSize);
+    IconUtil::setIcon(&mSaveAction, "save", this, iconSize);
+    IconUtil::setIcon(&mSaveAsAction, "save_as", this, iconSize);
+    IconUtil::setIcon(&mRecentFilesMenu, "recent", this, iconSize);
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {

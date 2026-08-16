@@ -53,6 +53,8 @@ private:
     void setupUi();
     void setupMenus();
 
+    void applyIcons();
+
     void updateWindowTitle();
     void updateStatusBar();
 

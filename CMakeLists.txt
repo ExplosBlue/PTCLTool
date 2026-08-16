@@ -23,8 +23,8 @@ if(APPLE)
     add_compile_options(-include arm_acle.h)
 endif()
 
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Concurrent)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Concurrent)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Concurrent Svg)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Concurrent Svg)
 
 find_package(Iconv QUIET)
 if(NOT Iconv_FOUND)
@@ -99,6 +99,7 @@ set(PROJECT_SOURCES
     src/ptcl/ptclTexture.cpp
     src/ptcl/ptclValidator.cpp
     src/util/imageUtil.cpp
+    src/util/iconUtil.cpp
     src/util/nameValidator.cpp
     src/util/paintUtil.cpp
     src/util/settingsUtil.cpp
@@ -182,6 +183,7 @@ set(PROJECT_HEADERS
     include/ptcl/ptclValidator.h
     include/util/bitflagUtil.h
     include/util/fileUtil.h
+    include/util/iconUtil.h
     include/util/imageUtil.h
     include/util/nameValidator.h
     include/util/paintUtil.h
@@ -198,23 +200,37 @@ qt_add_executable(PTCLTool
 qt_add_resources(PTCLTool "icons"
     PREFIX "/"
     FILES
-        res/icons/add_emitter.png
-        res/icons/add_emitterset.png
-        res/icons/copy.png
-        res/icons/delete_image.png
-        res/icons/emitter.png
-        res/icons/emitterset.png
-        res/icons/emitterset_expanded.png
-        res/icons/export_image.png
-        res/icons/filter.png
-        res/icons/import_image.png
-        res/icons/open_file.png
-        res/icons/paste.png
-        res/icons/recent.png
-        res/icons/remove.png
-        res/icons/replace_image.png
-        res/icons/save.png
-        res/icons/save_as.png
+        res/icons/add_emitter.svg
+        res/icons/add_emitterset.svg
+        res/icons/collision.svg
+        res/icons/color.svg
+        res/icons/combiner.svg
+        res/icons/convergence.svg
+        res/icons/copy.svg
+        res/icons/details.svg
+        res/icons/emitter.svg
+        res/icons/emitterset.svg
+        res/icons/export.svg
+        res/icons/fluctuation.svg
+        res/icons/filter.svg
+        res/icons/general.svg
+        res/icons/grid.svg
+        res/icons/import.svg
+        res/icons/life.svg
+        res/icons/magnet.svg
+        res/icons/open.svg
+        res/icons/paste.svg
+        res/icons/physics.svg
+        res/icons/random.svg
+        res/icons/recent.svg
+        res/icons/remove.svg
+        res/icons/save.svg
+        res/icons/save_as.svg
+        res/icons/shape.svg
+        res/icons/spin.svg
+        res/icons/texture.svg
+        res/icons/transform.svg
+        res/icons/wind.svg
 )
 
 if(WIN32)
@@ -244,7 +260,7 @@ endif()
 
 add_subdirectory(third_party/ExETC1)
 
-target_link_libraries(PTCLTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Iconv::Iconv Qt${QT_VERSION_MAJOR}::Concurrent ExETC1::ExETC1)
+target_link_libraries(PTCLTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Iconv::Iconv Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Svg ExETC1::ExETC1)
 
 target_include_directories(PTCLTool PRIVATE include)
 

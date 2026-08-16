@@ -15,19 +15,19 @@ FieldPosAddInspector::FieldPosAddInspector(QWidget* parent) :
     auto* mainLayout = new QFormLayout(this);
     mainLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
-    addSectionHeader(mainLayout, "Pos Add", this);
+    addSectionHeader(mainLayout, "Wind", this);
 
-    mEnabledCheckBox.setToolTip("Adds a constant offset to particle positions each frame.");
-    mainLayout->addRow("Enable Pos Add:", &mEnabledCheckBox);
+    mEnabledCheckBox.setToolTip("Applies a constant force that pushes particles in the specified direction each frame.");
+    mainLayout->addRow("Enable Wind:", &mEnabledCheckBox);
 
-    addSectionHeader(mainLayout, "Offset", this);
+    addSectionHeader(mainLayout, "Strength", this);
 
     mPosSpinBox.setRange(-9999.0f, 9999.0f);
     mPosSpinBox.setToolTip("The amount added to the particle's position each frame.");
-    mPosSpinBox.setAxisToolTip(VectorSpinBoxBase::Axis::X, "Position offset on the X axis.");
-    mPosSpinBox.setAxisToolTip(VectorSpinBoxBase::Axis::Y, "Position offset on the Y axis.");
-    mPosSpinBox.setAxisToolTip(VectorSpinBoxBase::Axis::Z, "Position offset on the Z axis.");
-    mainLayout->addRow("Offset:", &mPosSpinBox);
+    mPosSpinBox.setAxisToolTip(VectorSpinBoxBase::Axis::X, "Wind strength on the X axis.");
+    mPosSpinBox.setAxisToolTip(VectorSpinBoxBase::Axis::Y, "Wind strength on the Y axis.");
+    mPosSpinBox.setAxisToolTip(VectorSpinBoxBase::Axis::Z, "Wind strength on the Z axis.");
+    mainLayout->addRow("Strength:", &mPosSpinBox);
 
     setupConnections();
 }
@@ -36,7 +36,7 @@ FieldPosAddInspector::FieldPosAddInspector(QWidget* parent) :
 void FieldPosAddInspector::setupConnections() {
     connect(&mEnabledCheckBox, &QCheckBox::clicked, this, [this](bool checked) {
         setEmitterProperty(
-            "Toggle Field Pos Add",
+            "Toggle Field Wind",
             "ToggleFieldPosAdd",
             &Ptcl::Emitter::isFieldPosAddEnabled,
             &Ptcl::Emitter::setFieldPosAddEnabled,
@@ -48,7 +48,7 @@ void FieldPosAddInspector::setupConnections() {
     connect(&mPosSpinBox, &VectorSpinBoxBase::valueChanged, this, [this]() {
         const auto pos = mPosSpinBox.getVector();
         setEmitterProperty(
-            "Set Pos Add Offset",
+            "Set Wind Strength",
             "SetFieldPosAdd",
             &Ptcl::Emitter::fieldPosAddPosition,
             &Ptcl::Emitter::setFieldPosAddPosition,

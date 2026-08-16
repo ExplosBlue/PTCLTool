@@ -87,6 +87,9 @@ private:
     void populateList();
     void setupFilterMenu();
     void setupContextMenu();
+    void applyIcons();
+
+    QIcon nodeIcon(NodeType type) const;
 
     void addComplexNodes(QStandardItem* emitterItem, s32 setIndex, s32 emitterIndex);
     void ensureComplexNode(QStandardItem* emitterItem, NodeType type, const QString& label, s32 setIndex, s32 emitterIndex, bool enabled);

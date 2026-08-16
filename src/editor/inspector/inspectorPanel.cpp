@@ -28,6 +28,7 @@
 #include "editor/inspector/field/fieldPosAddInspector.h"
 #include "editor/inspector/field/fieldRandomInspector.h"
 #include "editor/inspector/field/fieldSpinInspector.h"
+#include "util/iconUtil.h"
 #include "util/nameValidator.h"
 
 #include <QScrollArea>
@@ -113,6 +114,9 @@ InspectorPanel::InspectorPanel(QWidget* parent) :
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     buildTabs();
+    applyIcons();
+
+    connect(&IconManager::instance(), &IconManager::iconsChanged, this, &InspectorPanel::applyIcons);
 }
 
 void InspectorPanel::buildTabs() {
@@ -144,7 +148,7 @@ void InspectorPanel::buildTabs() {
     mFieldTabs->addTab(wrapInScroll(mFieldCollisionInspector), "Collision");
     mFieldTabs->addTab(wrapInScroll(mFieldConvergenceInspector), "Convergence");
     mFieldTabs->addTab(wrapInScroll(mFieldMagnetInspector), "Magnet");
-    mFieldTabs->addTab(wrapInScroll(mFieldPosAddInspector), "Pos Add");
+    mFieldTabs->addTab(wrapInScroll(mFieldPosAddInspector), "Wind");
     mFieldTabs->addTab(wrapInScroll(mFieldRandomInspector), "Random");
     mFieldTabs->addTab(wrapInScroll(mFieldSpinInspector), "Spin");
 
@@ -156,6 +160,59 @@ void InspectorPanel::buildTabs() {
     mChildTabs->addTab(wrapInScroll(mChildColorInspector), "Color");
     mChildTabs->addTab(wrapInScroll(mChildCombinerInspector), "Combiner");
     mChildTabs->addTab(wrapInScroll(mChildRotationScaleInspector), "Transform");
+}
+
+void InspectorPanel::applyIcons() {
+    const QSize iconSize{16, 16};
+
+    const auto setIcon = [this, &iconSize](QTabWidget* tabs, s32 index, const char* name) {
+        tabs->setTabIcon(index, IconManager::instance().icon(
+            QStringLiteral(":/res/icons/%1.svg").arg(QLatin1String(name)),
+            QPalette::Text,
+            this,
+            iconSize,
+            IconRotation::Clockwise90
+        ));
+    };
+
+    mEmitterSetTabs->setIconSize(iconSize);
+    mFluxTabs->setIconSize(iconSize);
+    mEmitterTabs->setIconSize(iconSize);
+    mFieldTabs->setIconSize(iconSize);
+    mChildTabs->setIconSize(iconSize);
+
+    // EmitterSet
+    setIcon(mEmitterSetTabs, 0, "emitterset");
+
+    // Emitter
+    setIcon(mEmitterTabs, 0, "general");
+    setIcon(mEmitterTabs, 1, "life");
+    setIcon(mEmitterTabs, 2, "physics");
+    setIcon(mEmitterTabs, 3, "shape");
+    setIcon(mEmitterTabs, 4, "texture");
+    setIcon(mEmitterTabs, 5, "color");
+    setIcon(mEmitterTabs, 6, "combiner");
+    setIcon(mEmitterTabs, 7, "transform");
+
+    // Field
+    setIcon(mFieldTabs, 0, "collision");
+    setIcon(mFieldTabs, 1, "convergence");
+    setIcon(mFieldTabs, 2, "magnet");
+    setIcon(mFieldTabs, 3, "wind");
+    setIcon(mFieldTabs, 4, "random");
+    setIcon(mFieldTabs, 5, "spin");
+
+    // Child
+    setIcon(mChildTabs, 0, "general");
+    setIcon(mChildTabs, 1, "life");
+    setIcon(mChildTabs, 2, "physics");
+    setIcon(mChildTabs, 3, "texture");
+    setIcon(mChildTabs, 4, "color");
+    setIcon(mChildTabs, 5, "combiner");
+    setIcon(mChildTabs, 6, "transform");
+
+    // Fluctuation
+    setIcon(mFluxTabs, 0, "fluctuation");
 }
 
 void InspectorPanel::updateTabVisibility() {

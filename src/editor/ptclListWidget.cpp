@@ -1,4 +1,5 @@
 #include "editor/ptclListWidget.h"
+#include "util/iconUtil.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -135,7 +136,7 @@ PtclList::PtclList(QWidget* parent) :
 
     mToolBar.addSeparator();
 
-    mRemoveAction = mToolBar.addAction(QIcon(":/res/icons/remove.png"), "Remove");
+    mRemoveAction = mToolBar.addAction("Remove");
     connect(mRemoveAction, &QAction::triggered, this, [this] { removeItem(); });
 
     mToolBar.addSeparator();
@@ -158,7 +159,6 @@ PtclList::PtclList(QWidget* parent) :
     });
 
     // Filter Button
-    mFilterButton.setIcon(QIcon(":/res/icons/filter.png"));
     mFilterButton.setPopupMode(QToolButton::InstantPopup);
     mFilterButton.setMenu(&mFilterMenu);
 
@@ -226,6 +226,65 @@ PtclList::PtclList(QWidget* parent) :
     mMainLayout.addLayout(searchLayout);
 
     setLayout(&mMainLayout);
+
+    applyIcons();
+    connect(&IconManager::instance(), &IconManager::iconsChanged, this, &PtclList::applyIcons);
+}
+
+QIcon PtclList::nodeIcon(NodeType type) const {
+    const char* name = nullptr;
+
+    switch (type) {
+    case NodeType::EmitterSet:
+        name = "emitterset";
+        break;
+    case NodeType::Emitter:
+        name = "emitter";
+        break;
+    default:
+        return {};
+    }
+
+    return IconManager::instance().icon(
+        QStringLiteral(":/res/icons/%1.svg").arg(QLatin1String(name)),
+        QPalette::Text,
+        this,
+        {24, 24},
+        IconRotation::None
+    );
+}
+
+void PtclList::applyIcons() {
+    constexpr QSize iconSize{24, 24};
+
+    IconUtil::setIcon(mAddEmitterSetAction, "add_emitterset", this, iconSize);
+    IconUtil::setIcon(mAddEmitterAction, "add_emitter", this, iconSize);
+    IconUtil::setIcon(mRemoveAction, "remove", this, iconSize);
+    IconUtil::setIcon(mCopyAction, "copy", this, iconSize);
+    IconUtil::setIcon(mPasteAction, "paste", this, iconSize);
+
+    IconUtil::setIcon(&mFilterButton, "filter", this, iconSize);
+
+    // Tree Nodes
+    const auto applyNodeIcon = [this](QStandardItem* item) {
+        const auto type = static_cast<NodeType>(
+            item->data(sRoleNodeType).toInt()
+            );
+
+        item->setIcon(nodeIcon(type));
+    };
+
+    std::function<void(QStandardItem*)> visit = [&](QStandardItem* item) {
+        applyNodeIcon(item);
+
+        for (s32 i = 0; i < item->rowCount(); ++i) {
+            visit(item->child(i));
+        }
+    };
+
+    for (s32 i = 0; i < mListModel.rowCount(); ++i) {
+        visit(mListModel.item(i));
+    }
 }
 
 void PtclList::setupFilterMenu() {
@@ -464,7 +523,7 @@ void PtclList::insertEmitterSetNode(s32 setIndex) {
     setItem->setEditable(false);
     setItem->setData(static_cast<s32>(NodeType::EmitterSet), sRoleNodeType);
     setItem->setData(setIndex, sRoleSetIdx);
-    setItem->setIcon(QIcon(":/res/icons/emitterset.png"));
+    setItem->setIcon(nodeIcon(NodeType::EmitterSet));
 
     // Emitters
     for (s32 emitterIndex = 0; emitterIndex < mDocument->emitterCount(setIndex); ++emitterIndex) {
@@ -486,7 +545,7 @@ void PtclList::insertEmitterNode(QStandardItem* setItem, s32 setIndex, s32 emitt
     emitterItem->setData(setIndex, sRoleSetIdx);
     emitterItem->setData(emitterIndex, sRoleEmitterIdx);
     emitterItem->setData(static_cast<u32>(emitter->type()), sRoleEmitterType);
-    emitterItem->setIcon(QIcon(":/res/icons/emitter.png"));
+    emitterItem->setIcon(nodeIcon(NodeType::Emitter));
 
     // Complex Data
     if (emitter->type() == Ptcl::EmitterType::Complex || emitter->type() == Ptcl::EmitterType::Compact) {
