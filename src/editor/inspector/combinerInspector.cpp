@@ -3,6 +3,7 @@
 #include <array>
 
 #include <QFormLayout>
+#include <QPalette>
 
 namespace PtclEditor {
 
@@ -144,7 +145,7 @@ void CombinerInspector::populateProperties() {
     mDepthFuncComboBox.setCurrentEnum(mEmitter->depthFunction());
     mCombinerFuncComboBox.setCurrentEnum(mEmitter->combinerFunction());
 
-    const Gfx::Color black{0.0f, 0.0f, 0.0f, 1.0f};
+    static const Gfx::Color black{0.0f, 0.0f, 0.0f, 1.0f};
     mPrimarySrc = (mEmitter->colorCalcType() == Ptcl::ColorCalcType::None)
         ? black
         : mEmitter->secondaryColor();

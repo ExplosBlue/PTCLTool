@@ -353,15 +353,7 @@ private:
     static constexpr s32 sParenW = sThumbSize / 3;
     static constexpr s32 sParenH = sThumbSize + (sParenPad * 2);
 
-    static constexpr QColor sEquationColor{200, 200, 200};
-    static constexpr QColor sBackgroundColor{40, 40, 40};
-    static constexpr QColor sBorderColor{70, 70, 70};
 
-    static constexpr QColor sThumbBackgroundColor{60, 60, 60};
-    static constexpr QColor sThumbBorderColor{90, 90, 90};
-
-    static constexpr QColor sScaleLabelColor{60, 60, 60};
-    static constexpr QColor sStageLabelColor{75, 75, 75};
 };
 
 

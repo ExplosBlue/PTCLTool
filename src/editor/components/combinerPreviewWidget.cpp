@@ -3,6 +3,7 @@
 #include <QGridLayout>
 #include <QPainter>
 #include <QPainterPath>
+#include <QPalette>
 
 
 namespace PtclEditor {
@@ -41,9 +42,10 @@ const QImage& CombinerStageWidget::getStageOutput() const {
 
 void CombinerStageWidget::drawBackground(QPainter& painter) {
     painter.save();
+    const QPalette pal = palette();
     QRectF drawRect = rect().adjusted(sMargin, sMargin, -sMargin, -sMargin);
-    painter.setBrush(sBackgroundColor);
-    painter.setPen(sBorderColor);
+    painter.setBrush(pal.color(QPalette::Window));
+    painter.setPen(pal.color(QPalette::Mid));
     painter.drawRoundedRect(drawRect, sBorderRadius, sBorderRadius);
     painter.restore();
 }
@@ -105,8 +107,9 @@ void CombinerStageWidget::drawInput(QPainter& painter, const QRect& drawRect, s3
     painter.save();
     const auto input = mStage.inputs[inputIdx];
 
-    painter.setBrush(sThumbBackgroundColor);
-    painter.setPen(sThumbBorderColor);
+    const QPalette pal = palette();
+    painter.setBrush(pal.color(QPalette::Base));
+    painter.setPen(pal.color(QPalette::Dark));
     painter.drawRoundedRect(drawRect, sThumbRadius, sThumbRadius);
 
     QString label;
@@ -172,7 +175,7 @@ void CombinerStageWidget::drawParen(QPainter& painter, const QRect& drawRect, bo
         path.quadTo(drawRect.right(), drawRect.bottom(), drawRect.left(), drawRect.bottom());
     }
 
-    QPen pen(sEquationColor);
+    QPen pen(palette().color(QPalette::Text));
     pen.setWidth(2);
     painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);
@@ -222,7 +225,7 @@ void CombinerStageWidget::drawMultAdd(QPainter& painter, const QRect& drawRect) 
     drawInput(painter, b, 1);
     drawInput(painter, c, 2);
 
-    painter.setPen(sEquationColor);
+    painter.setPen(palette().color(QPalette::Text));
     painter.setFont(equationFont());
     painter.drawText(opMul, Qt::AlignCenter, "×");
     painter.drawText(opAdd, Qt::AlignCenter, "+");
@@ -251,7 +254,7 @@ void CombinerStageWidget::drawBinaryOp(QPainter& painter, const QRect& drawRect,
     drawInput(painter, a, 0);
     drawInput(painter, b, 1);
 
-    painter.setPen(sEquationColor);
+    painter.setPen(palette().color(QPalette::Text));
     painter.setFont(equationFont());
     painter.drawText(op, Qt::AlignCenter, operand);
     painter.restore();
@@ -430,7 +433,7 @@ void CombinerStageWidget::drawScaleLabel(QPainter& painter, const QRect& drawRec
 
     painter.save();
     const QString text = "×2";
-    painter.setPen(sScaleLabelColor);
+    painter.setPen(palette().color(QPalette::Text));
     painter.setFont(scaleFont());
 
     QFontMetrics fm(painter.fontMetrics());
@@ -458,7 +461,7 @@ void CombinerStageWidget::drawStageLabel(QPainter& painter, const QRect& drawRec
 
     QString text = QStringLiteral("Stage %1 - %2").arg(mStageNum).arg(stageType);
 
-    painter.setPen(sStageLabelColor);
+    painter.setPen(palette().color(QPalette::Mid));
 
     painter.drawText(
         drawRect.left() + (sPadding / 2),
