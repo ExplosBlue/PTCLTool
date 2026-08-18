@@ -44,6 +44,8 @@ private slots:
     void saveFile();
     void saveFileAs();
 
+    void exportProject();
+
     void openRecentFile();
 
 private:
@@ -77,6 +79,7 @@ private:
     QAction mOpenAction{};
     QAction mSaveAction{};
     QAction mSaveAsAction{};
+    QAction mExportAction{};
     std::vector<QAction*> mRecentFileActions{};
 
     QAction* mUndoAction{nullptr};

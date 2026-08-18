@@ -95,6 +95,7 @@ set(PROJECT_SOURCES
     src/ptcl/ptclDocument.cpp
     src/ptcl/ptclEmitter.cpp
     src/ptcl/ptclEmitterSet.cpp
+    src/ptcl/ptcljson.cpp
     src/ptcl/ptclSeed.cpp
     src/ptcl/ptclTexture.cpp
     src/ptcl/ptclValidator.cpp
@@ -177,6 +178,7 @@ set(PROJECT_HEADERS
     include/ptcl/ptclEmitter.h
     include/ptcl/ptclEmitterSet.h
     include/ptcl/ptclEnum.h
+    include/ptcl/ptcljson.h
     include/ptcl/ptclSanitizeReport.h
     include/ptcl/ptclSeed.h
     include/ptcl/ptclTexture.h
@@ -194,7 +196,8 @@ set(PROJECT_HEADERS
 
 qt_add_executable(PTCLTool
     MANUAL_FINALIZATION
-    ${PROJECT_SOURCES} ${PROJECT_HEADERS}
+    ${PROJECT_SOURCES}
+    ${PROJECT_HEADERS}
 )
 
 qt_add_resources(PTCLTool "icons"

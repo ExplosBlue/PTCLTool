@@ -44,6 +44,14 @@ bool Document::save(const QString& filePath) {
     return true;
 }
 
+bool Document::exportProject(const QString& dirPath) {
+    if (!mData.exportProject(dirPath)) {
+        return false;
+    }
+
+    return true;
+}
+
 void Document::setProjectName(const QString& name) {
     mUndoStack.push(new RenameProjectNameCommand(this, name));
 }

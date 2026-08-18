@@ -1,6 +1,7 @@
 #include "ptcl/ptcl.h"
 #include "ptcl/ptclBinary.h"
 #include "ptcl/ptclValidator.h"
+#include "ptcl/ptcljson.h"
 #include "util/imageUtil.h"
 #include "util/stringUtil.h"
 
@@ -499,6 +500,16 @@ bool PtclRes::load(const QString& filePath) {
     return false;
 }
 
+bool PtclRes::save(const QString& filePath) {
+    PtclBinaryWriter writer(filePath);
+    writer.write(*this);
+    return true;
+}
+
+bool PtclRes::exportProject(const QString& dirPath) {
+    return PtclJson::exportProject(*this, dirPath);
+}
+
 const PtclSanitizeReport& PtclRes::sanitizeReport() const {
     return mSanitizeReport;
 }
@@ -527,13 +538,6 @@ u32 PtclRes::totalEmitterCount() const {
 s32 PtclRes::textureCount() const {
     return static_cast<s32>(mTextures.size());
 }
-
-bool PtclRes::save(const QString& filePath) {
-    PtclBinaryWriter writer(filePath);
-    writer.write(*this);
-    return true;
-}
-
 
 const QString& PtclRes::name() const {
     return mName;

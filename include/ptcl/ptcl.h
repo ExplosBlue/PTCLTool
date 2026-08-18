@@ -184,6 +184,8 @@ public:
     bool load(const QString& filePath);
     bool save(const QString& filePath);
 
+    bool exportProject(const QString& dirPath);
+
     const QString& name() const;
     void setName(const QString& name);
 

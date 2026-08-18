@@ -16,8 +16,9 @@ QString pathKey(PathType type) {
     switch (type) {
     case PathType::Open:   return "openPath";
     case PathType::Save:   return "savePath";
-    case PathType::Import: return "importPath";
-    case PathType::Export: return "exportPath";
+    case PathType::ImportTexture: return "importTexPath";
+    case PathType::ExportTexture: return "exportTexPath";
+    case PathType::ExportProject: return "exportProjPath";
     }
     return {};
 }

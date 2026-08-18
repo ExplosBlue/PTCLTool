@@ -123,6 +123,11 @@ void MainWindow::setupMenus() {
     mSaveAsAction.setEnabled(false);
     connect(&mSaveAsAction, &QAction::triggered, this, &MainWindow::saveFileAs);
 
+    // Export
+    mExportAction.setText("Export");
+    mExportAction.setEnabled(false);
+    connect(&mExportAction, &QAction::triggered, this, &MainWindow::exportProject);
+
     // Undo
     mUndoAction = new QAction("Undo", this);
     mUndoAction->setShortcut(QKeySequence::Undo);
@@ -150,6 +155,8 @@ void MainWindow::setupMenus() {
     mFileMenu.addAction(&mOpenAction);
     mFileMenu.addAction(&mSaveAction);
     mFileMenu.addAction(&mSaveAsAction);
+    mFileMenu.addSeparator();
+    mFileMenu.addAction(&mExportAction);
     mFileMenu.addSeparator();
     mFileMenu.addMenu(&mRecentFilesMenu);
 
@@ -192,6 +199,7 @@ void MainWindow::applyIcons() {
     IconUtil::setIcon(&mOpenAction, "open", this, iconSize);
     IconUtil::setIcon(&mSaveAction, "save", this, iconSize);
     IconUtil::setIcon(&mSaveAsAction, "save_as", this, iconSize);
+    IconUtil::setIcon(&mExportAction, "export", this, iconSize);
     IconUtil::setIcon(&mRecentFilesMenu, "recent", this, iconSize);
 }
 
@@ -333,9 +341,13 @@ void MainWindow::saveFileAs() {
         return;
     }
 
-    QFileDialog dialog(this, "Save As",
+    QFileDialog dialog(
+        this,
+        "Save As",
         SettingsUtil::dialogPath(SettingsUtil::PathType::Save),
-        "*.ptcl");
+        "*.ptcl"
+    );
+
     if(dialog.exec() == QFileDialog::DialogCode::Rejected) {
         return;
     }
@@ -354,6 +366,28 @@ void MainWindow::saveFileAs() {
     SettingsUtil::setDialogPath(SettingsUtil::PathType::Save, filePath);
     updateRecentFileList();
     updateWindowTitle();
+}
+
+void MainWindow::exportProject() {
+    if (!mDocument) {
+        return;
+    }
+
+    const auto dir = QFileDialog::getExistingDirectory(
+        this,
+        "Export",
+        SettingsUtil::dialogPath(SettingsUtil::PathType::ExportProject)
+    );
+
+    if (dir.isEmpty()) {
+        return;
+    }
+
+    mDocument->exportProject(dir);
+
+    statusBar()->showMessage("Project Exported", 2000);
+
+    SettingsUtil::setDialogPath(SettingsUtil::PathType::ExportProject, dir);
 }
 
 void MainWindow::openRecentFile() {
@@ -419,6 +453,7 @@ void MainWindow::loadPtclRes(const QString& path) {
     mTextureWidget.setDocument(nullptr);
 
     mSaveAsAction.setEnabled(false);
+    mExportAction.setEnabled(false);
     mSelection.set(-1, -1, Ptcl::Selection::Type::None);
 
     mDocument = std::make_unique<Ptcl::Document>();
@@ -459,6 +494,7 @@ void MainWindow::loadPtclRes(const QString& path) {
     updateWindowTitle();
 
     mSaveAsAction.setEnabled(true);
+    mExportAction.setEnabled(true);
 }
 
 void MainWindow::dropImage(const QString& filePath) {
@@ -476,7 +512,7 @@ void MainWindow::dropImage(const QString& filePath) {
         mDocument->addTexture(dialog.getTexture());
     }
 
-    SettingsUtil::setDialogPath(SettingsUtil::PathType::Import, filePath);
+    SettingsUtil::setDialogPath(SettingsUtil::PathType::ImportTexture, filePath);
 }
 
 void MainWindow::updateWindowTitle() {
