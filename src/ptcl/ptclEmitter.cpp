@@ -159,6 +159,23 @@ void Emitter::rebuildCachedMatrices() {
     }
 }
 
+void Emitter::setTransformFromMatrices(const Math::Matrix34f& rt, const Math::Matrix34f& srt) {
+    mCachedTransformRT = rt;
+    mCachedTransformSRT = srt;
+
+    mTranslation = Math::Util::getTranslation(rt);
+
+    Math::Matrix33f rotMtx;
+    for (s32 r = 0; r < 3; ++r) {
+        for (s32 c = 0; c < 3; ++c) {
+            rotMtx(r, c) = rt(r, c);
+        }
+    }
+    mRotation = Math::Quaternion::fromMatrix(rotMtx);
+
+    mScale = Math::Util::getScale(srt);
+}
+
 const Math::Matrix34f& Emitter::transformRT() const {
     return mCachedTransformRT;
 }

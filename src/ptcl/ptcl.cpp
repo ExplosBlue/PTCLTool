@@ -477,8 +477,14 @@ bool PtclRes::load(const QString& filePath) {
     mSanitizeReport = PtclSanitizeReport{};
 
     try {
-        PtclBinaryReader reader(filePath);
+        if (filePath.endsWith(".ptclproj")) {
+            mName.clear();
+            mEmitterSets.clear();
+            mTextures.clear();
+            return PtclJson::importProject(filePath, *this, mSanitizeReport);
+        }
 
+        PtclBinaryReader reader(filePath);
         PtclReadResult result = reader.readAll();
         const QString name = std::move(result.name);
 
@@ -489,7 +495,6 @@ bool PtclRes::load(const QString& filePath) {
         mEmitterSets = std::move(validated.emitterSets);
         mTextures = std::move(validated.textures);
         mSanitizeReport = std::move(validated.report);
-
         return true;
     } catch (const std::exception& ex) {
         qWarning() << "Failed to load PTCL file" << filePath << ":" << ex.what();

@@ -11,6 +11,8 @@ namespace Ptcl::PtclJson {
 
 bool exportProject(const PtclRes& res, const QString& dirPath);
 
+bool importProject(const QString& projPath, PtclRes& res, PtclSanitizeReport& report);
+
 
 // ========================================================================== //
 

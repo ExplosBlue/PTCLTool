@@ -287,7 +287,8 @@ void MainWindow::dropEvent(QDropEvent* event) {
 
         switch (FileUtil::classifyFile(localPath)) {
         case FileUtil::FileType::PtclBinary:
-            loadPtclRes(localPath);
+        case FileUtil::FileType::PtclProject:
+            loadDocument(localPath);
             break;
         case FileUtil::FileType::Image:
             dropImage(localPath);
@@ -302,7 +303,7 @@ void MainWindow::dropEvent(QDropEvent* event) {
 void MainWindow::openFile() {
     QFileDialog openFileDialog(this, "Open File",
         SettingsUtil::dialogPath(SettingsUtil::PathType::Open),
-        "*.ptcl");
+        "PTCL Binary (*.ptcl);;PTCL Project file (*.ptclproj)");
 
     if (openFileDialog.exec() == QFileDialog::DialogCode::Rejected) {
         return;
@@ -315,7 +316,7 @@ void MainWindow::openFile() {
     }
 
     auto filePath = files.first();
-    loadPtclRes(filePath);
+    loadDocument(filePath);
 }
 
 void MainWindow::saveFile() {
@@ -406,7 +407,7 @@ void MainWindow::openRecentFile() {
         return;
     }
 
-    loadPtclRes(filePath);
+    loadDocument(filePath);
 }
 
 void MainWindow::updateRecentFileList() {
@@ -442,7 +443,7 @@ void MainWindow::updateRecentFileList() {
     mRecentFilesMenu.setEnabled(numRecentFiles > 0);
 }
 
-void MainWindow::loadPtclRes(const QString& path) {
+void MainWindow::loadDocument(const QString& path) {
     if (!QFile::exists(path)) {
         showFileNotFoundDialog(path);
         return;

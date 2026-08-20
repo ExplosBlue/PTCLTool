@@ -50,7 +50,7 @@ private slots:
 
 private:
     void updateRecentFileList();
-    void loadPtclRes(const QString& path);
+    void loadDocument(const QString& path);
 
     void setupUi();
     void setupMenus();

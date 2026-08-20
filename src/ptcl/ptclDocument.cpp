@@ -28,10 +28,18 @@ Document::Document(QObject* parent) :
     QObject{parent} {}
 
 bool Document::load(const QString& filePath) {
-    mFilePath = filePath;
     mUndoStack.clear();
     mUndoStack.setClean();
-    return mData.load(filePath);
+
+    if (!mData.load(filePath)) {
+        return false;
+    }
+
+    if (!filePath.endsWith(".ptclproj")) {
+        mFilePath = filePath;
+    }
+
+    return true;
 }
 
 bool Document::save(const QString& filePath) {

@@ -13,6 +13,7 @@ namespace FileUtil {
 
 enum class FileType {
     PtclBinary,
+    PtclProject,
     Image,
     Unknown
 };
@@ -32,9 +33,23 @@ bool isPtclBinary(const QString& path) {
     return magic == "SPBD";
 }
 
+bool isPtclProject(const QString& path) {
+    QFile file(path);
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        return false;
+    }
+
+    return file.fileName().endsWith(".ptclproj");
+}
+
 FileType classifyFile(const QString& path) {
     if (QImageReader(path).canRead()) {
         return FileType::Image;
+    }
+
+    if (isPtclProject(path)) {
+        return FileType::PtclProject;
     }
 
     if (isPtclBinary(path)) {

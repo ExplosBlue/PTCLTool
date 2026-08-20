@@ -85,6 +85,8 @@ public:
     void initFromBinary(const BinCommonEmitterData& emitterData);
     void initComplexFromBinary(const BinComplexEmitterData& emitterData);
 
+    void setTransformFromMatrices(const Math::Matrix34f& rt, const Math::Matrix34f& srt);
+
     // ----- Basic Properties -----
 
     EmitterType type() const { return mType; }

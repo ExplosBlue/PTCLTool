@@ -11,8 +11,8 @@ namespace Ptcl {
 // ========================================================================== //
 
 
-Texture::Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format) :
-    mEncodedData{std::move(*encodedData)}, mTextureFormat{format}, mId{sNextId++} {
+Texture::Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format, std::optional<u32> id) :
+    mEncodedData{std::move(*encodedData)}, mTextureFormat{format}, mId{id.value_or(sNextId++)} {
     mDecodedTexture = ImageUtil::picaTextureToQImage(mEncodedData, width, height, format);
 
     if (mDecodedTexture.isNull()) {
