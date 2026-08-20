@@ -1,7 +1,5 @@
 #include "ptcl/ptcljson.h"
 
-#include "ptcl/ptclValidator.h"
-
 #include <QDataStream>
 
 #include <cmath>
@@ -25,6 +23,8 @@ enum class JsonFileType {
     EmitterFile    = 3,
 };
 
+namespace Internal {
+
 QJsonObject createMetaInfo(JsonFileType type, s32 version) {
     QJsonObject metaInfo{};
     metaInfo["fileType"] = static_cast<s32>(type);
@@ -34,9 +34,13 @@ QJsonObject createMetaInfo(JsonFileType type, s32 version) {
 
 QJsonValue floatToJson(f32 value) {
     if (value == 0.0f && std::signbit(value)) {
-        return {QString("-0")};
+        return {
+            QString{"-0"}
+        };
     }
-    return {static_cast<f64>(value)};
+    return {
+        static_cast<f64>(value)
+    };
 }
 
 QJsonObject vec3fToJson(const Math::Vector3f& vector) {
@@ -109,17 +113,19 @@ QJsonObject alphaAnimToJson(const Emitter::AlphaAnim& anim) {
     return animJson;
 }
 
-std::optional<QString> exportTexture(const Texture& texture, s32 idx, const QDir& dir) {
+QJsonObject buildTextureJson(const Texture& texture) {
     QJsonObject textureJson{};
-    textureJson["metaInfo"] = createMetaInfo(JsonFileType::TextureFile, 1);
-
     textureJson["format"] = static_cast<s32>(texture.textureFormat());
     textureJson["width"]  = texture.textureData().width();
     textureJson["height"] = texture.textureData().height();
-
     QByteArray bytes(texture.textureDataRaw());
-    QString base64 = QString::fromLatin1(bytes.toBase64());
-    textureJson["data"] = base64;
+    textureJson["data"] = QString::fromLatin1(bytes.toBase64());
+    return textureJson;
+}
+
+std::optional<QString> exportTexture(const Texture& texture, s32 idx, const QDir& dir) {
+    QJsonObject textureJson = buildTextureJson(texture);
+    textureJson["metaInfo"] = createMetaInfo(JsonFileType::TextureFile, 1);
 
     auto textureName = QString("tex_%1.ptex").arg(idx);
 
@@ -144,7 +150,7 @@ QJsonObject exportTextures(const TextureList& textures, const QDir& dir) {
     return texturesListJson;
 }
 
-std::optional<QString> exportEmitter(const Emitter& emitter, s32 idx, const QDir& dir) {
+QJsonObject buildEmitterJson(const Emitter& emitter, bool embedTextures) {
     QJsonObject emitterJson{};
     emitterJson["metaInfo"] = createMetaInfo(JsonFileType::EmitterFile, 1);
 
@@ -240,14 +246,15 @@ std::optional<QString> exportEmitter(const Emitter& emitter, s32 idx, const QDir
     emitterJson["texturePatFreq"] = emitter.texturePatternFrequency();
     emitterJson["texturePatFrameCount"] = emitter.texturePatternFrameCount();
     emitterJson["isTexPatAnim"] = emitter.isTexturePatternAnim();
-    // TODO: Handle embedding texture data if single export
-    if (!emitter.textureHandle().isValid()) {
-        emitterJson["texture"] = -1;
-    } else {
+
+    if (embedTextures && emitter.texture()) {
+        emitterJson["texture"] = buildTextureJson(*emitter.texture());
+    } else if (emitter.textureHandle().isValid()) {
         emitterJson["texture"] = static_cast<s64>(emitter.textureHandle()->Id());
+    } else {
+        emitterJson["texture"] = -1;
     }
 
-    // Complex properties
     {
         QJsonObject complexJson{};
         complexJson["fluctuationScale"] = floatToJson(emitter.fluctuationScale());
@@ -286,7 +293,6 @@ std::optional<QString> exportEmitter(const Emitter& emitter, s32 idx, const QDir
 
         complexJson["fieldFlags"] = emitter.fieldFlags().value();
 
-        // Child properties
         {
             QJsonObject childJson{};
             childJson["billboardType"] = static_cast<s64>(emitter.childBillboardType());
@@ -320,11 +326,13 @@ std::optional<QString> exportEmitter(const Emitter& emitter, s32 idx, const QDir
             childJson["textureLodLevel"] = emitter.childTextureLodLevel();
             childJson["textureFilter"] = static_cast<s64>(emitter.childTextureFilter());
             childJson["textureUVScale"] = vec2fToJson(emitter.childTextureUVScale());
-            // TODO: Handle embedding texture data if single export
-            if (!emitter.childTextureHandle().isValid()) {
-                childJson["texture"] = -1;
-            } else {
+
+            if (embedTextures && emitter.childTexture()) {
+                childJson["texture"] = buildTextureJson(*emitter.childTexture());
+            } else if (emitter.childTextureHandle().isValid()) {
                 childJson["texture"] = static_cast<s64>(emitter.childTextureHandle()->Id());
+            } else {
+                childJson["texture"] = -1;
             }
 
             childJson["color0"] = colorToJson(emitter.childSecondaryColor());
@@ -347,6 +355,12 @@ std::optional<QString> exportEmitter(const Emitter& emitter, s32 idx, const QDir
 
         emitterJson["complex"] = complexJson;
     }
+
+    return emitterJson;
+}
+
+std::optional<QString> exportEmitter(const Emitter& emitter, s32 idx, const QDir& dir) {
+    auto emitterJson = buildEmitterJson(emitter, false);
 
     auto emitterName = QString("emitter_%1_%2.pemt").arg(idx).arg(emitter.name());
 
@@ -639,6 +653,7 @@ std::unique_ptr<Emitter> importEmitter(const QString& filePath, const TextureLis
             }
         }
     }
+
     emitter->setColorSection1(emitterJson["colorSection1"].toInt());
     emitter->setColorSection2(emitterJson["colorSection2"].toInt());
     emitter->setColorSection3(emitterJson["colorSection3"].toInt());
@@ -861,6 +876,9 @@ std::optional<EmitterSetList> importEmitterSets(const QJsonObject& emitterSetsJs
 }
 
 
+} // namespace Internal
+
+
 // ========================================================================== //
 
 
@@ -879,10 +897,10 @@ bool exportProject(const PtclRes& res, const QString& dirPath) {
     QDir emitterSetsDir{projectDir.filePath("emitterSets")};
 
     QJsonObject projectJson{};
-    projectJson["metaInfo"]    = createMetaInfo(JsonFileType::ProjectFile, 1);
+    projectJson["metaInfo"]    = Internal::createMetaInfo(JsonFileType::ProjectFile, 1);
     projectJson["name"]        = res.name();
-    projectJson["textures"]    = exportTextures(res.textures(), texturesDir);
-    projectJson["emitterSets"] = exportEmitterSets(res.getEmitterSets(), emitterSetsDir);
+    projectJson["textures"]    = Internal::exportTextures(res.textures(), texturesDir);
+    projectJson["emitterSets"] = Internal::exportEmitterSets(res.getEmitterSets(), emitterSetsDir);
 
     auto projectName = QString("%1.ptclproj").arg(res.name());
 
@@ -892,6 +910,18 @@ bool exportProject(const PtclRes& res, const QString& dirPath) {
     }
 
     projectFile.write(QJsonDocument(projectJson).toJson());
+    return true;
+}
+
+bool exportEmitter(const Emitter& emitter, const QString& filePath) {
+    auto emitterJson = Internal::buildEmitterJson(emitter, true);
+
+    QFile emitterFile{filePath};
+    if (!emitterFile.open(QIODevice::WriteOnly)) {
+        return false;
+    }
+
+    emitterFile.write(QJsonDocument(emitterJson).toJson());
     return true;
 }
 
@@ -910,7 +940,7 @@ bool importProject(const QString& projPath, PtclRes& res, [[maybe_unused]] PtclS
 
     const QJsonObject projectJson = jsonDoc.object();
 
-    if (validateMetaInfo(projectJson["metaInfo"].toObject(), JsonFileType::ProjectFile, 1)) {
+    if (Internal::validateMetaInfo(projectJson["metaInfo"].toObject(), JsonFileType::ProjectFile, 1)) {
         return false;
     }
 
@@ -918,14 +948,14 @@ bool importProject(const QString& projPath, PtclRes& res, [[maybe_unused]] PtclS
 
     const QDir projectDir{QFileInfo(projPath).absolutePath()};
 
-    auto textures = importTextures(projectJson["textures"].toObject(), projectDir);
+    auto textures = Internal::importTextures(projectJson["textures"].toObject(), projectDir);
     if (!textures) {
         return false;
     }
 
     res.textures() = std::move(*textures);
 
-    auto emitterSets = importEmitterSets(projectJson["emitterSets"].toObject(), projectDir, res.textures());
+    auto emitterSets = Internal::importEmitterSets(projectJson["emitterSets"].toObject(), projectDir, res.textures());
     if (!emitterSets) {
         return false;
     }

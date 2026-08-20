@@ -2,6 +2,7 @@
 #include "util/iconUtil.h"
 
 #include <QApplication>
+#include <QFileDialog>
 #include <QMessageBox>
 
 
@@ -380,6 +381,35 @@ void PtclList::setupContextMenu() {
             } else if (type == NodeType::Emitter) {
                 menu.addAction("Duplicate", this, [this, item] {
                     duplicateEmitter(item);
+                });
+            }
+        }
+
+        if (item) {
+            auto type = static_cast<NodeType>(item->data(sRoleNodeType).toUInt());
+            if (type == NodeType::Emitter) {
+                menu.addAction("Export Emitter", this, [this, item] {
+                    s32 setIndex = item->data(sRoleSetIdx).toInt();
+                    s32 emitterIndex = item->data(sRoleEmitterIdx).toInt();
+
+                    const auto* emitter = mDocument->emitter(setIndex, emitterIndex);
+                    if (!emitter) {
+                        return;
+                    }
+
+                    QString defaultName = emitter->name() + ".pemt";
+                    QString filePath = QFileDialog::getSaveFileName(
+                        this,
+                        "Export Emitter",
+                        defaultName,
+                        "Emitter Files (*.pemt)"
+                    );
+
+                    if (filePath.isEmpty()) {
+                        return;
+                    }
+
+                    mDocument->exportEmitter(setIndex, emitterIndex, filePath);
                 });
             }
         }

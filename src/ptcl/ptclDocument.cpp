@@ -1,5 +1,6 @@
 #include "ptcl/ptclCommand.h"
 #include "ptcl/ptclDocument.h"
+#include "ptcl/ptcljson.h"
 
 #include <utility>
 
@@ -58,6 +59,15 @@ bool Document::exportProject(const QString& dirPath) {
     }
 
     return true;
+}
+
+bool Document::exportEmitter(s32 setIndex, s32 emitterIndex, const QString& filePath) {
+    const auto* emitter = mData.emitter(setIndex, emitterIndex);
+    if (!emitter) {
+        return false;
+    }
+
+    return PtclJson::exportEmitter(*emitter, filePath);
 }
 
 void Document::setProjectName(const QString& name) {
