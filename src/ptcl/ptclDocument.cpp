@@ -93,6 +93,16 @@ bool Document::importEmitter(s32 setIndex, const QString& filePath) {
     return true;
 }
 
+bool Document::importEmitterSet(const QString& filePath) {
+    auto result = PtclJson::importEmitterSet(filePath, {}, mData.textureCount());
+    if (!result) {
+        return false;
+    }
+
+    mUndoStack.push(new ImportEmitterSetCommand(this, std::move(result->emitterSet), std::move(result->textures), "Import EmitterSet"));
+    return true;
+}
+
 void Document::setProjectName(const QString& name) {
     mUndoStack.push(new RenameProjectNameCommand(this, name));
 }

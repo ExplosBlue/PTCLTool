@@ -338,6 +338,23 @@ void PtclList::setupContextMenu() {
             addEmitterSet(item);
         });
 
+        menu.addAction("Import EmitterSet", this, [this] {
+            QString filePath = QFileDialog::getOpenFileName(
+                this,
+                "Import EmitterSet",
+                {},
+                "Emitter Set Files (*.pset)"
+            );
+
+            if (filePath.isEmpty()) {
+                return;
+            }
+
+            if (!mDocument->importEmitterSet(filePath)) {
+                QMessageBox::warning(this, "Import EmitterSet", "Failed to import emitter set. The source project textures could not be found.");
+            }
+        });
+
         if (item) {
             auto type = static_cast<NodeType>(item->data(sRoleNodeType).toUInt());
             if (type == NodeType::EmitterSet || type == NodeType::Emitter) {

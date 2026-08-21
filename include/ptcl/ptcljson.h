@@ -25,6 +25,13 @@ struct ImportEmitterResult {
 
 std::optional<ImportEmitterResult> importEmitter(const QString& filePath, const QString& projectDir = {}, s32 textureIdOffset = 0);
 
+struct ImportEmitterSetResult {
+    std::unique_ptr<EmitterSet> emitterSet;
+    TextureList textures;
+};
+
+std::optional<ImportEmitterSetResult> importEmitterSet(const QString& filePath, const QString& projectDir = {}, s32 textureIdOffset = 0);
+
 bool importProject(const QString& projPath, PtclRes& res, PtclSanitizeReport& report);
 
 
