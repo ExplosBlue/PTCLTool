@@ -386,15 +386,19 @@ QJsonObject exportEmitters(const EmitterList& emitters, const QDir& dir) {
     return emitterSetListJson;
 }
 
-std::optional<QString> exportEmitterSet(const EmitterSet& emitterSet, s32 idx, const QDir& dir) {
-    const auto emitterSetName = QString("set_%1_%2").arg(idx).arg(emitterSet.name());
-
+QJsonObject buildEmitterSetJson(const EmitterSet& emitterSet) {
     QJsonObject emitterSetJson{};
     emitterSetJson["metaInfo"] = createMetaInfo(JsonFileType::EmitterSetFile, 1);
-
     emitterSetJson["name"]           = emitterSet.name();
     emitterSetJson["userData"]       = static_cast<s64>(emitterSet.userData());
     emitterSetJson["lastUpdateDate"] = static_cast<s64>(emitterSet.lastUpdateDate());
+    return emitterSetJson;
+}
+
+std::optional<QString> exportEmitterSet(const EmitterSet& emitterSet, s32 idx, const QDir& dir) {
+    const auto emitterSetName = QString("set_%1_%2").arg(idx).arg(emitterSet.name());
+
+    auto emitterSetJson = buildEmitterSetJson(emitterSet);
 
     dir.mkdir(emitterSetName);
     QDir emitterSetDir{dir.filePath(emitterSetName)};
@@ -959,6 +963,64 @@ bool exportEmitter(const Emitter& emitter, const QString& filePath) {
     }
 
     emitterFile.write(QJsonDocument(emitterJson).toJson());
+    return true;
+}
+
+bool exportEmitterSet(const EmitterSet& emitterSet, const QString& filePath) {
+    std::vector<Texture*> uniqueTextures{};
+    std::map<Texture*, s32> textureToIndex{};
+
+    const auto addTexture = [&](Texture* tex) {
+        if (!tex || tex->isPlaceholder()) {
+            return;
+        }
+        if (textureToIndex.find(tex) == textureToIndex.end()) {
+            textureToIndex[tex] = static_cast<s32>(uniqueTextures.size());
+            uniqueTextures.push_back(tex);
+        }
+    };
+
+    for (const auto& emitter : emitterSet.emitters()) {
+        addTexture(emitter->texture());
+        addTexture(emitter->childTexture());
+    }
+
+    QJsonObject texturesJson{};
+    for (const auto& [tex, idx] : textureToIndex) {
+        texturesJson[QString::number(idx)] = Internal::buildTextureJson(*tex);
+    }
+
+    QJsonObject emittersJson{};
+    for (s32 i = 0; i < emitterSet.emitterCount(); ++i) {
+        const auto& emitter = *emitterSet.emitters().at(i);
+        auto emitterJson = Internal::buildEmitterJson(emitter, false);
+
+        if (emitter.textureHandle().isValid() && textureToIndex.count(emitter.texture())) {
+            emitterJson["texture"] = textureToIndex.at(emitter.texture());
+        }
+        {
+            QJsonObject complexJson = emitterJson["complex"].toObject();
+            QJsonObject childJson = complexJson["child"].toObject();
+            if (emitter.childTextureHandle().isValid() && textureToIndex.count(emitter.childTexture())) {
+                childJson["texture"] = textureToIndex.at(emitter.childTexture());
+            }
+            complexJson["child"] = childJson;
+            emitterJson["complex"] = complexJson;
+        }
+
+        emittersJson[QString::number(i)] = emitterJson;
+    }
+
+    auto rootJson = Internal::buildEmitterSetJson(emitterSet);
+    rootJson["textures"]       = texturesJson;
+    rootJson["emitters"]       = emittersJson;
+
+    QFile file{filePath};
+    if (!file.open(QIODevice::WriteOnly)) {
+        return false;
+    }
+
+    file.write(QJsonDocument(rootJson).toJson());
     return true;
 }
 

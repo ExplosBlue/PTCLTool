@@ -435,6 +435,29 @@ void PtclList::setupContextMenu() {
 
                     mDocument->exportEmitter(setIndex, emitterIndex, filePath);
                 });
+            } else if (type == NodeType::EmitterSet) {
+                menu.addAction("Export EmitterSet", this, [this, item] {
+                    s32 setIndex = item->data(sRoleSetIdx).toInt();
+
+                    const auto* emitterSet = mDocument->emitterSet(setIndex);
+                    if (!emitterSet) {
+                        return;
+                    }
+
+                    QString defaultName = emitterSet->name() + ".pset";
+                    QString filePath = QFileDialog::getSaveFileName(
+                        this,
+                        "Export EmitterSet",
+                        defaultName,
+                        "Emitter Set Files (*.pset)"
+                    );
+
+                    if (filePath.isEmpty()) {
+                        return;
+                    }
+
+                    mDocument->exportEmitterSet(setIndex, filePath);
+                });
             }
         }
 

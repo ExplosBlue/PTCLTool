@@ -70,6 +70,15 @@ bool Document::exportEmitter(s32 setIndex, s32 emitterIndex, const QString& file
     return PtclJson::exportEmitter(*emitter, filePath);
 }
 
+bool Document::exportEmitterSet(s32 setIndex, const QString& filePath) {
+    const auto* emitterSet = mData.emitterSet(setIndex);
+    if (!emitterSet) {
+        return false;
+    }
+
+    return PtclJson::exportEmitterSet(*emitterSet, filePath);
+}
+
 bool Document::importEmitter(s32 setIndex, const QString& filePath) {
     if (setIndex < 0 || setIndex >= mData.emitterSetCount()) {
         return false;

@@ -16,6 +16,8 @@ bool exportProject(const PtclRes& res, const QString& dirPath);
 
 bool exportEmitter(const Emitter& emitter, const QString& filePath);
 
+bool exportEmitterSet(const EmitterSet& emitterSet, const QString& filePath);
+
 struct ImportEmitterResult {
     std::unique_ptr<Emitter> emitter;
     TextureList textures;
