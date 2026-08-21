@@ -70,6 +70,20 @@ bool Document::exportEmitter(s32 setIndex, s32 emitterIndex, const QString& file
     return PtclJson::exportEmitter(*emitter, filePath);
 }
 
+bool Document::importEmitter(s32 setIndex, const QString& filePath) {
+    if (setIndex < 0 || setIndex >= mData.emitterSetCount()) {
+        return false;
+    }
+
+    auto result = PtclJson::importEmitter(filePath, {}, mData.textureCount());
+    if (!result) {
+        return false;
+    }
+
+    mUndoStack.push(new ImportEmitterCommand(this, setIndex, std::move(result->emitter), std::move(result->textures), "Import Emitter"));
+    return true;
+}
+
 void Document::setProjectName(const QString& name) {
     mUndoStack.push(new RenameProjectNameCommand(this, name));
 }

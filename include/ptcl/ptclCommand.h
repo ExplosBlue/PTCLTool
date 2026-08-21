@@ -318,6 +318,61 @@ private:
 // ========================================================================== //
 
 
+class ImportEmitterCommand final : public DocumentCommandBase {
+public:
+    ImportEmitterCommand(Document* doc, s32 setIndex, std::unique_ptr<Emitter> emitter, TextureList textures, const QString& label, QUndoCommand* parent = nullptr) :
+        DocumentCommandBase{doc, std::move(label), parent}, mSetIndex{setIndex}, mNewEmitter{std::move(emitter)}, mTextures{std::move(textures)} {
+    }
+
+    s32 id() const override {
+        return mId;
+    }
+
+    void undo() override {
+        for (s32 i = static_cast<s32>(mTextureIndices.size()) - 1; i >= 0; --i) {
+            auto removed = resource().removeTexture(mTextureIndices[i]);
+            mTextures[i] = std::move(removed);
+            notifyTextureRemoved(mTextureIndices[i]);
+        }
+        mTextureIndices.clear();
+
+        auto* set = emitterSet(mSetIndex);
+        mNewEmitter = set->removeEmitter(mEmitterIndex);
+        notifyEmitterRemoved(mSetIndex, mEmitterIndex);
+    }
+
+    void redo() override {
+        auto& textures = resource().textures();
+
+        mTextureIndices.clear();
+        mTextureIndices.reserve(mTextures.size());
+
+        for (s32 i = 0; i < static_cast<s32>(mTextures.size()); ++i) {
+            mTextureIndices.push_back(textures.size());
+            resource().insertTexture(textures.size(), std::move(mTextures[i]));
+            notifyTextureAdded(mTextureIndices.back());
+        }
+
+        auto* set = emitterSet(mSetIndex);
+        mEmitterIndex = set->emitterCount();
+        set->insertEmitter(mEmitterIndex, std::move(mNewEmitter));
+        notifyEmitterAdded(mSetIndex, mEmitterIndex);
+    }
+
+private:
+    s32 mSetIndex{};
+    s32 mEmitterIndex{0};
+    std::unique_ptr<Emitter> mNewEmitter{};
+    TextureList mTextures{};
+    std::vector<s32> mTextureIndices{};
+
+    const s32 mId{static_cast<s32>(qHash("ImportEmitter"))};
+};
+
+
+// ========================================================================== //
+
+
 class RemoveEmitterCommand final : public DocumentCommandBase {
 public:
     RemoveEmitterCommand(Document* doc, s32 setIndex, s32 emitterIndex, QUndoCommand* parent = nullptr) :

@@ -70,6 +70,8 @@ public:
     bool exportProject(const QString& dirPath);
     bool exportEmitter(s32 setIndex, s32 emitterIndex, const QString& filePath);
 
+    bool importEmitter(s32 setIndex, const QString& filePath);
+
     const Emitter* emitter(s32 setIndex, s32 emitterIndex) const { return mData.emitter(setIndex, emitterIndex); }
     const EmitterSet* emitterSet(s32 index) const { return mData.emitterSet(index); }
 

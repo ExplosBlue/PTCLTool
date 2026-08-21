@@ -347,6 +347,30 @@ void PtclList::setupContextMenu() {
             }
         }
 
+        if (item) {
+            auto type = static_cast<NodeType>(item->data(sRoleNodeType).toUInt());
+            if (type == NodeType::EmitterSet) {
+                menu.addAction("Import Emitter", this, [this, item] {
+                    s32 setIndex = item->data(sRoleSetIdx).toInt();
+
+                    QString filePath = QFileDialog::getOpenFileName(
+                        this,
+                        "Import Emitter",
+                        {},
+                        "Emitter Files (*.pemt)"
+                    );
+
+                    if (filePath.isEmpty()) {
+                        return;
+                    }
+
+                    if (!mDocument->importEmitter(setIndex, filePath)) {
+                        QMessageBox::warning(this, "Import Emitter", "Failed to import emitter. The source project textures could not be found.");
+                    }
+                });
+            }
+        }
+
         menu.addSeparator();
 
         if (item) {
