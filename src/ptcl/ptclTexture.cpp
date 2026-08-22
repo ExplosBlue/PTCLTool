@@ -163,10 +163,6 @@ TextureHandle& TextureHandle::operator=(TextureHandle&& other) noexcept {
     return *this;
 }
 
-void TextureHandle::invalidate() {
-    mTexturePtr = nullptr;
-}
-
 bool TextureHandle::isValid() const {
     return mTexturePtr != nullptr;
 }

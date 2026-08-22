@@ -83,9 +83,6 @@ public:
 
     ~TextureHandle();
 
-    TextureHandle clone() const;
-
-    void invalidate();
     bool isValid() const;
 
     Texture* get() const;
