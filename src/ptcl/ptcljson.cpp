@@ -24,6 +24,8 @@ enum class JsonFileType {
     EmitterFile    = 3,
 };
 
+using TextureMap = std::unordered_map<const Texture*, s32>;
+
 namespace Internal {
 
 QJsonObject createMetaInfo(JsonFileType type, s32 version) {
@@ -151,7 +153,7 @@ QJsonObject exportTextures(const TextureList& textures, const QDir& dir) {
     return texturesListJson;
 }
 
-QJsonObject buildEmitterJson(const Emitter& emitter, bool embedTextures) {
+QJsonObject buildEmitterJson(const Emitter& emitter, bool embedTextures, const TextureMap* textureMap) {
     QJsonObject emitterJson{};
     emitterJson["metaInfo"] = createMetaInfo(JsonFileType::EmitterFile, 1);
 
@@ -251,7 +253,7 @@ QJsonObject buildEmitterJson(const Emitter& emitter, bool embedTextures) {
     if (embedTextures && emitter.textureHandle().isValid()) {
         emitterJson["texture"] = buildTextureJson(*emitter.texture());
     } else if (emitter.textureHandle().isValid()) {
-        emitterJson["texture"] = static_cast<s64>(emitter.textureHandle()->Id());
+        emitterJson["texture"] = static_cast<s64>(textureMap->at(emitter.textureHandle().get()));
     } else {
         emitterJson["texture"] = -1;
     }
@@ -331,7 +333,7 @@ QJsonObject buildEmitterJson(const Emitter& emitter, bool embedTextures) {
             if (embedTextures && emitter.childTextureHandle().isValid()) {
                 childJson["texture"] = buildTextureJson(*emitter.childTexture());
             } else if (emitter.childTextureHandle().isValid()) {
-                childJson["texture"] = static_cast<s64>(emitter.childTextureHandle()->Id());
+                childJson["texture"] = static_cast<s64>(textureMap->at(emitter.childTextureHandle().get()));
             } else {
                 childJson["texture"] = -1;
             }
@@ -360,8 +362,8 @@ QJsonObject buildEmitterJson(const Emitter& emitter, bool embedTextures) {
     return emitterJson;
 }
 
-std::optional<QString> exportEmitter(const Emitter& emitter, s32 idx, const QDir& dir) {
-    auto emitterJson = buildEmitterJson(emitter, false);
+std::optional<QString> exportEmitter(const Emitter& emitter, s32 idx, const QDir& dir, const TextureMap& textureMap) {
+    auto emitterJson = buildEmitterJson(emitter, false, &textureMap);
 
     auto emitterName = QString("emitter_%1_%2.pemt").arg(idx).arg(emitter.name());
 
@@ -374,10 +376,10 @@ std::optional<QString> exportEmitter(const Emitter& emitter, s32 idx, const QDir
     return emitterName;
 }
 
-QJsonObject exportEmitters(const EmitterList& emitters, const QDir& dir) {
+QJsonObject exportEmitters(const EmitterList& emitters, const QDir& dir, const TextureMap& textureMap) {
     QJsonObject emitterSetListJson{};
     for (s32 idx = 0; idx < static_cast<s32>(emitters.size()); ++idx) {
-        const auto emitterName = exportEmitter(*emitters.at(idx), idx, dir);
+        const auto emitterName = exportEmitter(*emitters.at(idx), idx, dir, textureMap);
 
         if (emitterName) {
             emitterSetListJson[QString::number(idx)] = dir.dirName() + "/" + *emitterName;
@@ -395,14 +397,14 @@ QJsonObject buildEmitterSetJson(const EmitterSet& emitterSet) {
     return emitterSetJson;
 }
 
-std::optional<QString> exportEmitterSet(const EmitterSet& emitterSet, s32 idx, const QDir& dir) {
+std::optional<QString> exportEmitterSet(const EmitterSet& emitterSet, s32 idx, const QDir& dir, const TextureMap& textureMap) {
     const auto emitterSetName = QString("set_%1_%2").arg(idx).arg(emitterSet.name());
 
     auto emitterSetJson = buildEmitterSetJson(emitterSet);
 
     dir.mkdir(emitterSetName);
     QDir emitterSetDir{dir.filePath(emitterSetName)};
-    emitterSetJson["emitters"] = exportEmitters(emitterSet.emitters(), emitterSetDir);
+    emitterSetJson["emitters"] = exportEmitters(emitterSet.emitters(), emitterSetDir, textureMap);
 
     auto emitterSetFileName = QString("%1.pset").arg(emitterSetName);
 
@@ -415,10 +417,10 @@ std::optional<QString> exportEmitterSet(const EmitterSet& emitterSet, s32 idx, c
     return emitterSetFileName;
 }
 
-QJsonObject exportEmitterSets(const EmitterSetList& emitterSets, const QDir& dir) {
+QJsonObject exportEmitterSets(const EmitterSetList& emitterSets, const QDir& dir, const TextureMap& textureMap) {
     QJsonObject emitterSetListJson{};
     for (s32 idx = 0; idx < static_cast<s32>(emitterSets.size()); ++idx) {
-        const auto emitterSetName = exportEmitterSet(*emitterSets.at(idx), idx, dir);
+        const auto emitterSetName = exportEmitterSet(*emitterSets.at(idx), idx, dir, textureMap);
 
         if (emitterSetName) {
             emitterSetListJson[QString::number(idx)] = dir.dirName() + "/" + *emitterSetName;
@@ -937,11 +939,18 @@ bool exportProject(const PtclRes& res, const QString& dirPath) {
     QDir texturesDir{projectDir.filePath("textures")};
     QDir emitterSetsDir{projectDir.filePath("emitterSets")};
 
+    TextureMap textureMap{};
+    textureMap.reserve(res.textures().size());
+
+    for (size_t idx = 0; idx < res.textures().size(); ++idx) {
+        textureMap.emplace(res.textures()[idx].get(), idx);
+    }
+
     QJsonObject projectJson{};
     projectJson["metaInfo"]    = Internal::createMetaInfo(JsonFileType::ProjectFile, 1);
     projectJson["name"]        = res.name();
     projectJson["textures"]    = Internal::exportTextures(res.textures(), texturesDir);
-    projectJson["emitterSets"] = Internal::exportEmitterSets(res.getEmitterSets(), emitterSetsDir);
+    projectJson["emitterSets"] = Internal::exportEmitterSets(res.getEmitterSets(), emitterSetsDir, textureMap);
 
     auto projectName = QString("%1.ptclproj").arg(res.name());
 
@@ -955,7 +964,7 @@ bool exportProject(const PtclRes& res, const QString& dirPath) {
 }
 
 bool exportEmitter(const Emitter& emitter, const QString& filePath) {
-    auto emitterJson = Internal::buildEmitterJson(emitter, true);
+    auto emitterJson = Internal::buildEmitterJson(emitter, true, nullptr);
 
     QFile emitterFile{filePath};
     if (!emitterFile.open(QIODevice::WriteOnly)) {
@@ -967,8 +976,8 @@ bool exportEmitter(const Emitter& emitter, const QString& filePath) {
 }
 
 bool exportEmitterSet(const EmitterSet& emitterSet, const QString& filePath) {
-    std::vector<Texture*> uniqueTextures{};
-    std::map<Texture*, s32> textureToIndex{};
+    std::vector<const Texture*> uniqueTextures{};
+    std::unordered_map<const Texture*, s32> textureToIndex{};
 
     const auto addTexture = [&](Texture* tex) {
         if (!tex || tex->isPlaceholder()) {
@@ -991,29 +1000,13 @@ bool exportEmitterSet(const EmitterSet& emitterSet, const QString& filePath) {
     }
 
     QJsonObject emittersJson{};
-    for (s32 i = 0; i < emitterSet.emitterCount(); ++i) {
-        const auto& emitter = *emitterSet.emitters().at(i);
-        auto emitterJson = Internal::buildEmitterJson(emitter, false);
-
-        if (emitter.textureHandle().isValid() && textureToIndex.count(emitter.texture())) {
-            emitterJson["texture"] = textureToIndex.at(emitter.texture());
-        }
-        {
-            QJsonObject complexJson = emitterJson["complex"].toObject();
-            QJsonObject childJson = complexJson["child"].toObject();
-            if (emitter.childTextureHandle().isValid() && textureToIndex.count(emitter.childTexture())) {
-                childJson["texture"] = textureToIndex.at(emitter.childTexture());
-            }
-            complexJson["child"] = childJson;
-            emitterJson["complex"] = complexJson;
-        }
-
-        emittersJson[QString::number(i)] = emitterJson;
+    for (s32 idx = 0; idx < emitterSet.emitterCount(); ++idx) {
+        emittersJson[QString::number(idx)] = Internal::buildEmitterJson(*emitterSet.emitters().at(idx), false, &textureToIndex);
     }
 
     auto rootJson = Internal::buildEmitterSetJson(emitterSet);
-    rootJson["textures"]       = texturesJson;
-    rootJson["emitters"]       = emittersJson;
+    rootJson["textures"] = texturesJson;
+    rootJson["emitters"] = emittersJson;
 
     QFile file{filePath};
     if (!file.open(QIODevice::WriteOnly)) {
