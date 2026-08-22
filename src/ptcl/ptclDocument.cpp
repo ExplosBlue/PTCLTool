@@ -84,7 +84,7 @@ bool Document::importEmitter(s32 setIndex, const QString& filePath) {
         return false;
     }
 
-    auto result = PtclJson::importEmitter(filePath, {}, mData.textureCount());
+    auto result = PtclJson::importEmitter(filePath, {});
     if (!result) {
         return false;
     }
@@ -94,7 +94,7 @@ bool Document::importEmitter(s32 setIndex, const QString& filePath) {
 }
 
 bool Document::importEmitterSet(const QString& filePath) {
-    auto result = PtclJson::importEmitterSet(filePath, {}, mData.textureCount());
+    auto result = PtclJson::importEmitterSet(filePath, {});
     if (!result) {
         return false;
     }

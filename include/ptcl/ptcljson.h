@@ -23,14 +23,14 @@ struct ImportEmitterResult {
     TextureList textures;
 };
 
-std::optional<ImportEmitterResult> importEmitter(const QString& filePath, const QString& projectDir = {}, s32 textureIdOffset = 0);
+std::optional<ImportEmitterResult> importEmitter(const QString& filePath, const QString& projectDir = {});
 
 struct ImportEmitterSetResult {
     std::unique_ptr<EmitterSet> emitterSet;
     TextureList textures;
 };
 
-std::optional<ImportEmitterSetResult> importEmitterSet(const QString& filePath, const QString& projectDir = {}, s32 textureIdOffset = 0);
+std::optional<ImportEmitterSetResult> importEmitterSet(const QString& filePath, const QString& projectDir = {});
 
 bool importProject(const QString& projPath, PtclRes& res, PtclSanitizeReport& report);
 

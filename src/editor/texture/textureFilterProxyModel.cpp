@@ -1,6 +1,5 @@
 #include "editor/texture/textureFilterProxyModel.h"
 #include "editor/texture/textureListRoles.h"
-#include "ptcl/ptclTexture.h"
 
 #include <algorithm>
 
@@ -109,12 +108,7 @@ bool TextureFilterProxyModel::lessThan(const QModelIndex& left, const QModelInde
 
     switch (sortColumn()) {
         case TextureColumn::ThumbnailColumn: {
-            const auto* texLeft = static_cast<const Ptcl::Texture*>(source->data(left, TextureListRoles::TexturePtrRole).value<void*>());
-            const auto* texRight = static_cast<const Ptcl::Texture*>(source->data(right, TextureListRoles::TexturePtrRole).value<void*>());
-            if (texLeft && texRight && texLeft->Id() != texRight->Id()) {
-                return texLeft->Id() < texRight->Id();
-            }
-            break;
+            return rowLeft < rowRight;
         }
         case TextureColumn::FormatColumn: {
             const auto fmt = intData(TextureListRoles::FormatRole);

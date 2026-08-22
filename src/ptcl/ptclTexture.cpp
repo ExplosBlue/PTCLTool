@@ -11,8 +11,8 @@ namespace Ptcl {
 // ========================================================================== //
 
 
-Texture::Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format, std::optional<u32> id) :
-    mEncodedData{std::move(*encodedData)}, mTextureFormat{format}, mId{id.value_or(sNextId++)} {
+Texture::Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format) :
+    mEncodedData{std::move(*encodedData)}, mTextureFormat{format} {
     mDecodedTexture = ImageUtil::picaTextureToQImage(mEncodedData, width, height, format);
 
     if (mDecodedTexture.isNull()) {
@@ -24,7 +24,6 @@ Texture::Texture(Texture&& other) noexcept :
     mEncodedData{std::move(other.mEncodedData)},
     mTextureFormat{other.mTextureFormat},
     mDecodedTexture{std::move(other.mDecodedTexture)},
-    mId{other.mId},
     mIsPlaceholder{other.mIsPlaceholder},
     mUserCountCallBack{std::move(other.mUserCountCallBack)},
     mUserCount{other.mUserCount} {
@@ -35,7 +34,6 @@ Texture& Texture::operator=(Texture&& other) noexcept {
         mEncodedData = std::move(other.mEncodedData);
         mTextureFormat = other.mTextureFormat;
         mDecodedTexture = std::move(other.mDecodedTexture);
-        mId = other.mId;
         mIsPlaceholder = other.mIsPlaceholder;
         mUserCountCallBack = std::move(other.mUserCountCallBack);
         mUserCount = other.mUserCount;
@@ -57,10 +55,6 @@ TextureFormat Texture::textureFormat() const {
 
 u32 Texture::userCount() const {
     return mUserCount;
-}
-
-u32 Texture::Id() const {
-    return mId;
 }
 
 bool Texture::isPlaceholder() const {

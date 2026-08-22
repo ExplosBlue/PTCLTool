@@ -5,7 +5,6 @@
 #include <QImage>
 
 #include <functional>
-#include <optional>
 #include <vector>
 
 
@@ -21,7 +20,7 @@ public:
 
 public:
     Texture() = delete;
-    Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format, std::optional<u32> id = std::nullopt);
+    Texture(std::vector<u8>* encodedData, s32 width, s32 height, TextureFormat format);
     Texture(const Texture&) = delete;
     Texture(Texture&& other) noexcept;
 
@@ -34,7 +33,6 @@ public:
     TextureFormat textureFormat() const;
 
     u32 userCount() const;
-    u32 Id() const;
 
     bool isPlaceholder() const;
 
@@ -56,9 +54,6 @@ private:
     TextureFormat mTextureFormat{};
     QImage mDecodedTexture{};
 
-    inline static u32 sNextId{0};
-
-    u32 mId{};
     bool mIsPlaceholder{false};
 
     UserCountCallback mUserCountCallBack{};

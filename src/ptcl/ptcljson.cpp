@@ -508,7 +508,7 @@ Emitter::AlphaAnim alphaAnimFromJson(const QJsonObject& json) {
     };
 }
 
-std::optional<Texture> importTexture(const QString& filePath, std::optional<u32> id = std::nullopt) {
+std::optional<Texture> importTexture(const QString& filePath) {
     QFile file{filePath};
 
     if (!file.open(QIODevice::ReadOnly)) {
@@ -539,12 +539,11 @@ std::optional<Texture> importTexture(const QString& filePath, std::optional<u32>
         &dataVec,
         width,
         height,
-        format,
-        id
+        format
     };
 }
 
-std::optional<Texture> importTextureFromJson(const QJsonObject& textureJson, std::optional<u32> id = std::nullopt) {
+std::optional<Texture> importTextureFromJson(const QJsonObject& textureJson) {
     const auto format = static_cast<TextureFormat>(textureJson["format"].toInt());
     const s32 width = textureJson["width"].toInt();
     const s32 height = textureJson["height"].toInt();
@@ -556,8 +555,7 @@ std::optional<Texture> importTextureFromJson(const QJsonObject& textureJson, std
         &dataVec,
         width,
         height,
-        format,
-        id
+        format
     };
 }
 
@@ -584,7 +582,7 @@ std::optional<TextureList> importTextures(const QJsonObject& texturesJson, const
         }
 
         const QString texturePath = projectDir.filePath(it.value().toString());
-        auto texture = importTexture(texturePath, static_cast<u32>(idx));
+        auto texture = importTexture(texturePath);
 
         if (!texture) {
             return std::nullopt;
@@ -701,14 +699,9 @@ std::unique_ptr<Emitter> importEmitterFromJson(const QJsonObject& emitterJson, c
 
     // Resolve texture handle
     {
-        const s32 texId = emitterJson["texture"].toInt();
-        if (texId >= 0) {
-            for (const auto& tex : textures) {
-                if (static_cast<s32>(tex->Id()) == texId) {
-                    emitter->setTexture(tex.get());
-                    break;
-                }
-            }
+        const s32 texIdx = emitterJson["texture"].toInt();
+        if (texIdx >= 0 && texIdx < static_cast<s32>(textures.size()) && textures[texIdx]) {
+            emitter->setTexture(textures[texIdx].get());
         }
     }
 
@@ -795,14 +788,9 @@ std::unique_ptr<Emitter> importEmitterFromJson(const QJsonObject& emitterJson, c
 
             // Resolve child texture handle
             {
-                const s32 childTexId = childJson["texture"].toInt();
-                if (childTexId >= 0) {
-                    for (const auto& tex : textures) {
-                        if (static_cast<s32>(tex->Id()) == childTexId) {
-                            emitter->setChildTexture(tex.get());
-                            break;
-                        }
-                    }
+                const s32 texIdx = childJson["texture"].toInt();
+                if (texIdx >= 0 && texIdx < static_cast<s32>(textures.size()) && textures[texIdx]) {
+                    emitter->setChildTexture(textures[texIdx].get());
                 }
             }
 
@@ -1017,7 +1005,7 @@ bool exportEmitterSet(const EmitterSet& emitterSet, const QString& filePath) {
     return true;
 }
 
-std::optional<ImportEmitterResult> importEmitter(const QString& filePath, const QString& projectDir, s32 textureIdOffset) {
+std::optional<ImportEmitterResult> importEmitter(const QString& filePath, const QString& projectDir) {
     QFile file{filePath};
     if (!file.open(QIODevice::ReadOnly)) {
         return std::nullopt;
@@ -1045,33 +1033,20 @@ std::optional<ImportEmitterResult> importEmitter(const QString& filePath, const 
 
     if (isStandalone) {
         TextureList textures{};
-        s32 texIdx = 0;
         if (texVal.isObject()) {
-            auto tex = Internal::importTextureFromJson(texVal.toObject(), textureIdOffset + texIdx);
+            auto tex = Internal::importTextureFromJson(texVal.toObject());
             if (tex) {
                 textures.push_back(std::make_unique<Texture>(std::move(*tex)));
             }
-            ++texIdx;
         }
         if (childTexVal.isObject()) {
-            auto tex = Internal::importTextureFromJson(childTexVal.toObject(), textureIdOffset + texIdx);
+            auto tex = Internal::importTextureFromJson(childTexVal.toObject());
             if (tex) {
                 textures.push_back(std::make_unique<Texture>(std::move(*tex)));
             }
         }
 
         auto emitter = Internal::importEmitter(filePath, textures);
-
-        if (emitter) {
-            s32 texIdx2 = 0;
-            if (texVal.isObject() && texIdx2 < static_cast<s32>(textures.size())) {
-                emitter->setTexture(textures[texIdx2].get());
-                ++texIdx2;
-            }
-            if (childTexVal.isObject() && texIdx2 < static_cast<s32>(textures.size())) {
-                emitter->setChildTexture(textures[texIdx2].get());
-            }
-        }
 
         return ImportEmitterResult{std::move(emitter), std::move(textures)};
     }
@@ -1131,14 +1106,12 @@ std::optional<ImportEmitterResult> importEmitter(const QString& filePath, const 
             return it->second;
         }
 
-        const u32 newId = static_cast<u32>(textureIdOffset) + sourceTex->Id();
         std::vector<u8> data{sourceTex->textureDataRaw().begin(), sourceTex->textureDataRaw().end()};
         auto newTex = std::make_unique<Texture>(
             &data,
             sourceTex->textureData().width(),
             sourceTex->textureData().height(),
-            sourceTex->textureFormat(),
-            newId
+            sourceTex->textureFormat()
         );
         auto* ptr = newTex.get();
         sourceToReIded[sourceTex] = ptr;
@@ -1160,7 +1133,7 @@ std::optional<ImportEmitterResult> importEmitter(const QString& filePath, const 
     return ImportEmitterResult{std::move(emitter), std::move(resultTextures)};
 }
 
-std::optional<ImportEmitterSetResult> importEmitterSet(const QString& filePath, const QString& projectDir, s32 textureIdOffset) {
+std::optional<ImportEmitterSetResult> importEmitterSet(const QString& filePath, const QString& projectDir) {
     QFile file{filePath};
     if (!file.open(QIODevice::ReadOnly)) {
         return std::nullopt;
@@ -1197,7 +1170,7 @@ std::optional<ImportEmitterSetResult> importEmitterSet(const QString& filePath, 
                 return std::nullopt;
             }
 
-            auto tex = Internal::importTextureFromJson(it.value().toObject(), static_cast<u32>(textureIdOffset + idx));
+            auto tex = Internal::importTextureFromJson(it.value().toObject());
             if (tex) {
                 if (idx >= static_cast<s32>(textures.size())) {
                     textures.resize(idx + 1);
@@ -1289,14 +1262,12 @@ std::optional<ImportEmitterSetResult> importEmitterSet(const QString& filePath, 
                 return it->second;
             }
 
-            const u32 newId = static_cast<u32>(textureIdOffset) + sourceTex->Id();
             std::vector<u8> data{sourceTex->textureDataRaw().begin(), sourceTex->textureDataRaw().end()};
             auto newTex = std::make_unique<Texture>(
                 &data,
                 sourceTex->textureData().width(),
                 sourceTex->textureData().height(),
-                sourceTex->textureFormat(),
-                newId
+                sourceTex->textureFormat()
             );
             auto* ptr = newTex.get();
             sourceToReIded[sourceTex] = ptr;
