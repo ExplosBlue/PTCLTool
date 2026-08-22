@@ -279,9 +279,9 @@ u32 PtclBinaryWriter::appendName(const QString& name) {
 }
 
 u32 PtclBinaryWriter::appendTexture(const TextureHandle& texture, u32& outSize) {
-    const u32 id = texture->Id();
+    const auto texturePtr = texture.get();
 
-    if (auto it = mTextureOffsetMap.find(id); it != mTextureOffsetMap.end()) {
+    if (auto it = mTextureOffsetMap.find(texturePtr); it != mTextureOffsetMap.end()) {
         outSize = texture->textureDataRaw().size();
         return it->second;
     }
@@ -290,7 +290,7 @@ u32 PtclBinaryWriter::appendTexture(const TextureHandle& texture, u32& outSize) 
     const u32 offset = mTextureTblCurOffset;
     const u32 size = static_cast<u32>(data.size());
 
-    mTextureOffsetMap.try_emplace(id, offset);
+    mTextureOffsetMap.try_emplace(texturePtr, offset);
     mTextureTbl.insert(mTextureTbl.end(), data.begin(), data.end());
 
     const u32 padding = (128 - (size % 128)) % 128;

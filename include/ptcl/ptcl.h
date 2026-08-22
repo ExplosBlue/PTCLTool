@@ -156,7 +156,7 @@ private:
     std::vector<char> mNameTbl;
     std::vector<char> mTextureTbl;
 
-    std::unordered_map<u32, u32> mTextureOffsetMap{};
+    std::unordered_map<Texture*, u32> mTextureOffsetMap{};
 
     u32 mEmitterSetsCurOffset{0};
     u32 mEmitterTblCurOffset{0};
