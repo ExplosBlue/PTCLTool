@@ -73,7 +73,21 @@ private:
         }
     };
 
+    struct BaseKey {
+        QString path;
+        QSize size;
+
+        bool operator==(const BaseKey&) const = default;
+    };
+
+    struct BaseKeyHash {
+        std::size_t operator()(const BaseKey& key) const noexcept {
+            return qHash(key.path) ^ qHash(key.size);
+        }
+    };
+
     std::unordered_map<CacheKey, QIcon, CacheKeyHash> mCache;
+    std::unordered_map<BaseKey, QPixmap, BaseKeyHash> mBaseCache;
 };
 
 

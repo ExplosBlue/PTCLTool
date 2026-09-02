@@ -59,27 +59,38 @@ void IconManager::refresh() {
 }
 
 QPixmap IconManager::renderIcon(const QString& path, const QColor& color, const QSize& size, IconRotation rotation) {
-    QSvgRenderer renderer(path);
-    if (!renderer.isValid()) {
-        return {};
+    const BaseKey baseKey { path, size };
+
+    QPixmap base = mBaseCache[baseKey];
+    if (base.isNull()) {
+        QSvgRenderer renderer(path);
+        if (!renderer.isValid()) {
+            return {};
+        }
+
+        renderer.setAspectRatioMode(Qt::KeepAspectRatio);
+
+        QPixmap source(size);
+        source.fill(Qt::transparent);
+
+        QPainter painter(&source);
+        renderer.render(&painter);
+
+        base = source;
+        mBaseCache[baseKey] = base;
     }
 
-    renderer.setAspectRatioMode(Qt::KeepAspectRatio);
-
-    QPixmap source(size);
-    source.fill(Qt::transparent);
-
-    QPainter painter(&source);
-    renderer.render(&painter);
-
-    painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
-    painter.fillRect(source.rect(), color);
+    QPixmap tinted(base);
+    QPainter tintPainter(&tinted);
+    tintPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    tintPainter.fillRect(tinted.rect(), color);
+    tintPainter.end();
 
     switch (rotation) {
-        case IconRotation::None:         return source;
-        case IconRotation::Clockwise90:  return source.transformed(QTransform().rotate(90));
-        case IconRotation::Clockwise180: return source.transformed(QTransform().rotate(180));
-        case IconRotation::Clockwise270: return source.transformed(QTransform().rotate(270));
+        case IconRotation::None:         return tinted;
+        case IconRotation::Clockwise90:  return tinted.transformed(QTransform().rotate(90));
+        case IconRotation::Clockwise180: return tinted.transformed(QTransform().rotate(180));
+        case IconRotation::Clockwise270: return tinted.transformed(QTransform().rotate(270));
     }
 
     std::unreachable();
