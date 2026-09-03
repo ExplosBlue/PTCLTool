@@ -6,7 +6,7 @@
 #include <QStyleOption>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 ViewportScrollBar::ViewportScrollBar(QWidget* parent) :
@@ -245,4 +245,4 @@ void ViewportScrollBar::leaveEvent(QEvent*) {
 }
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

@@ -4,7 +4,7 @@
 #include <algorithm>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -154,4 +154,4 @@ bool TextureFilterProxyModel::lessThan(const QModelIndex& left, const QModelInde
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

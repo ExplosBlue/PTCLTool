@@ -10,7 +10,7 @@
 #include <QVBoxLayout>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -434,4 +434,4 @@ void RotationScaleInspector::updateAxis() {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

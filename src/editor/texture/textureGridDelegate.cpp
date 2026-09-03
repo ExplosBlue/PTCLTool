@@ -5,7 +5,7 @@
 #include <QPainter>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -41,4 +41,4 @@ QSize TextureGridDelegate::sizeHint(const QStyleOptionViewItem& option, const QM
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

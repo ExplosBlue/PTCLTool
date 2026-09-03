@@ -5,7 +5,7 @@
 #include <QLabel>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -113,4 +113,4 @@ QHBoxLayout* InspectorWidgetBase::createHeaderRow(const QString& title, QWidget*
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

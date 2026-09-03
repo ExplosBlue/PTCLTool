@@ -12,7 +12,7 @@
 #include <cmath>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -533,4 +533,4 @@ void ChildRotationScaleInspector::updateAxis() {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

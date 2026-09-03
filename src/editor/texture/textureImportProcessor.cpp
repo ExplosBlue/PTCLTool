@@ -4,7 +4,7 @@
 // ========================================================================== //
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 QImage centerOnCanvas(const QImage& image, QSize canvasSize) {
@@ -70,4 +70,4 @@ std::unique_ptr<Ptcl::Texture> TextureImportProcessor::buildTexture(const std::a
     return std::make_unique<Ptcl::Texture>(&data, mAdjustedImage.width(), mAdjustedImage.height(), mSettings.format);
 }
 
-} // namespace PtclEditor
+} // namespace PtclTool

@@ -4,7 +4,7 @@
 #include <QHBoxLayout>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -272,4 +272,4 @@ void LifespanInspector::populateProperties() {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

@@ -6,7 +6,7 @@
 #include <QWidget>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -34,4 +34,4 @@ private:
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

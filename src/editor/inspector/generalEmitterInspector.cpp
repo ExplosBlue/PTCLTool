@@ -5,7 +5,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -496,4 +496,4 @@ void GeneralEmitterInspector::updateStripeSectionVisibility() {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

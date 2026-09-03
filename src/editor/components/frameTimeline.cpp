@@ -9,7 +9,7 @@
 #include <utility>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -33,8 +33,8 @@ s32 FrameTimelineModel::totalTicks() const {
     }
 
     switch (mode) {
-        case PtclEditor::FrameAnimMode::FixedSpeed: return totalTicksFixedSpeed();
-        case PtclEditor::FrameAnimMode::FitToLife:  return totalTicksFitToLife();
+        case PtclTool::FrameAnimMode::FixedSpeed: return totalTicksFixedSpeed();
+        case PtclTool::FrameAnimMode::FitToLife:  return totalTicksFitToLife();
         default: std::unreachable();
     }
 
@@ -71,8 +71,8 @@ s32 FrameTimelineModel::ticksForFrame(s32 frameIdx) const {
     }
 
     switch (mode) {
-        case PtclEditor::FrameAnimMode::FixedSpeed: return frameStep;
-        case PtclEditor::FrameAnimMode::FitToLife:  return cellStartTick(frameIdx + 1) - cellStartTick(frameIdx);
+        case PtclTool::FrameAnimMode::FixedSpeed: return frameStep;
+        case PtclTool::FrameAnimMode::FitToLife:  return cellStartTick(frameIdx + 1) - cellStartTick(frameIdx);
         default: std::unreachable();
     }
 
@@ -85,8 +85,8 @@ s32 FrameTimelineModel::cellStartTick(s32 frameIdx) const {
     }
 
     switch (mode) {
-        case PtclEditor::FrameAnimMode::FixedSpeed: return frameStartTickFixedSpeed(frameIdx);
-        case PtclEditor::FrameAnimMode::FitToLife:  return frameStartTickFitToLife(frameIdx);
+        case PtclTool::FrameAnimMode::FixedSpeed: return frameStartTickFixedSpeed(frameIdx);
+        case PtclTool::FrameAnimMode::FitToLife:  return frameStartTickFitToLife(frameIdx);
         default: std::unreachable();
     }
 
@@ -1009,4 +1009,4 @@ void FrameTimeline::forEachVisibleTick(s32 visStart, s32 visEnd, Func&& callback
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

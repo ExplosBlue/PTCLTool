@@ -17,7 +17,7 @@
 #include <utility>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -481,4 +481,4 @@ void TextureListWidget::deleteTexture(const QModelIndex& index) {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

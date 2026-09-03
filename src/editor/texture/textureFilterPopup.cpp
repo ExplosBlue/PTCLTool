@@ -14,7 +14,7 @@
 #include <utility>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -282,4 +282,4 @@ void TextureFilterPopup::reset() {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

@@ -11,7 +11,7 @@
 #include <QVBoxLayout>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -157,4 +157,4 @@ void FrameSelectorPopup::initialize(const TextureFrameInfo& frameInfo) {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

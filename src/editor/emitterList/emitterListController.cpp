@@ -5,7 +5,7 @@
 #include <algorithm>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -595,4 +595,4 @@ bool EmitterListController::exportEmitterSet(s32 setIndex, const QString& filePa
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

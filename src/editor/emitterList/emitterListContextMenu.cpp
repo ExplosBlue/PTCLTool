@@ -5,7 +5,7 @@
 #include <QMessageBox>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -188,4 +188,4 @@ void EmitterListContextMenu::addCopyPasteActions(NodeType type, QStandardItem* i
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

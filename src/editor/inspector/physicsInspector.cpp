@@ -4,7 +4,7 @@
 #include <QVBoxLayout>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -188,4 +188,4 @@ void PhysicsInspector::populateProperties() {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

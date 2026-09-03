@@ -6,7 +6,7 @@
 #include <QPixmap>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -152,4 +152,4 @@ void TextureListModel::onTextureRemoved(s32 index) {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

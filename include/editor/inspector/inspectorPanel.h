@@ -9,7 +9,7 @@
 #include <QWidget>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 class EmitterSetInspector;
 
@@ -108,4 +108,4 @@ private:
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

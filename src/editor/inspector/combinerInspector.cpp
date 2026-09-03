@@ -5,7 +5,7 @@
 #include <QFormLayout>
 #include <QPalette>
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -157,4 +157,4 @@ void CombinerInspector::populateProperties() {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

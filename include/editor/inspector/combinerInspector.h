@@ -8,7 +8,7 @@
 #include <QCheckBox>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -39,4 +39,4 @@ private:
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

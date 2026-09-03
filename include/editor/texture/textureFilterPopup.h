@@ -10,7 +10,7 @@
 #include <QSet>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -36,7 +36,7 @@ public:
     void popup(const QPoint& anchorGlobal);
 
 signals:
-    void filterChanged(const PtclEditor::TextureFilterState& state);
+    void filterChanged(const PtclTool::TextureFilterState& state);
     void closed();
 
 protected:
@@ -69,4 +69,4 @@ private:
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

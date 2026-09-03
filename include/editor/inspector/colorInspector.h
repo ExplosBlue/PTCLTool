@@ -11,7 +11,7 @@
 #include <QWidget>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -30,7 +30,7 @@ public:
 
 private slots:
     void updateColorSection(ColorGradientEditor::HandleType handleType);
-    void handleBehaviorChanged(PtclEditor::ColorInspector::Behavior behavior);
+    void handleBehaviorChanged(PtclTool::ColorInspector::Behavior behavior);
 
 private:
     void populateProperties() final;
@@ -66,4 +66,4 @@ private:
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

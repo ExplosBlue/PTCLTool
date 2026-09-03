@@ -5,7 +5,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -177,4 +177,4 @@ void FluctuationInspector::populateProperties() {
 // ==========================================================================//
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

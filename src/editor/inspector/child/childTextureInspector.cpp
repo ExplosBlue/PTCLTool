@@ -11,7 +11,7 @@
 #include <QVBoxLayout>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ==========================================================================//
@@ -386,4 +386,4 @@ void ChildTextureInspector::changeTexture() {
 // ==========================================================================//
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

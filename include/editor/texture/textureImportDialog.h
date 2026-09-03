@@ -46,7 +46,7 @@ private:
 
     void updateOkButton();
 
-    PtclEditor::TextureImportSettings buildSettings() const;
+    PtclTool::TextureImportSettings buildSettings() const;
 
     void setupFormatControls();
     void setupAdjustmentControls();
@@ -61,7 +61,7 @@ private:
     QCheckBox mETCDither{};
 
     QGroupBox mAdjustGroup{};
-    EnumComboBox<PtclEditor::TextureAdjustMode> mAdjustMode{};
+    EnumComboBox<PtclTool::TextureAdjustMode> mAdjustMode{};
     QComboBox mTargetWidth{};
     QComboBox mTargetHeight{};
     EnumComboBox<Qt::TransformationMode> mFilter{};
@@ -82,7 +82,7 @@ private:
     std::unique_ptr<Ptcl::Texture> mTexture{};
     QFutureWatcher<std::unique_ptr<Ptcl::Texture>> mWatcher{};
     LoadingSpinner mLoadingSpinner{};
-    PtclEditor::TextureImportProcessor mProcessor{};
+    PtclTool::TextureImportProcessor mProcessor{};
     QPushButton* mOkButton{nullptr};
     std::atomic<bool> mCanceled{false};
 };

@@ -3,7 +3,7 @@
 #include <QFormLayout>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -139,4 +139,4 @@ void FieldCollisionInspector::populateProperties() {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

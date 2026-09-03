@@ -19,7 +19,7 @@
 #include <QStatusBar>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -632,4 +632,4 @@ void MainWindow::showNoDocumentWarningDialog() {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

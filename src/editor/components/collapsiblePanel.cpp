@@ -10,7 +10,7 @@
 #include <QVBoxLayout>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -175,4 +175,4 @@ s32 CollapsiblePanel::contentMinHeight() const {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

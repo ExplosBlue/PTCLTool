@@ -3,7 +3,7 @@
 #include <QtCore/qnamespace.h>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -36,4 +36,4 @@ enum TextureColumn {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

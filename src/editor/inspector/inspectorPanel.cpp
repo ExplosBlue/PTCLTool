@@ -33,7 +33,7 @@
 
 #include <QScrollArea>
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -366,4 +366,4 @@ void InspectorPanel::populateProperties() {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

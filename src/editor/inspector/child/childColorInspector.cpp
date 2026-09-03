@@ -5,7 +5,7 @@
 #include <cmath>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ==========================================================================//
@@ -235,4 +235,4 @@ void ChildColorInspector::handleAlphaPointEdited(s32 pointIndex, const AnimGraph
 // ==========================================================================//
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

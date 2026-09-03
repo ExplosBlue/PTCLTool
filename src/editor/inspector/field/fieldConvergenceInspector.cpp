@@ -3,7 +3,7 @@
 #include <QFormLayout>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -131,4 +131,4 @@ void FieldConvergenceInspector::populateProperties() {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

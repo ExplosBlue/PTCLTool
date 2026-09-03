@@ -4,7 +4,7 @@
 #include <functional>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -332,4 +332,4 @@ void EmitterList::updateToolbarForSelection(const QStandardItem* item) {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

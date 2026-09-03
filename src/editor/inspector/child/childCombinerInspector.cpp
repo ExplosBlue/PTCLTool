@@ -6,7 +6,7 @@
 #include <QVBoxLayout>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -149,4 +149,4 @@ void ChildCombinerInspector::setDocument(Ptcl::Document* document) {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

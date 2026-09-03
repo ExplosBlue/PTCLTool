@@ -6,7 +6,7 @@
 #include <QPalette>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -123,4 +123,4 @@ QVariant EmitterFilterProxyModel::data(const QModelIndex& index, s32 role) const
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

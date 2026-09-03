@@ -12,7 +12,7 @@
 #include <QWidget>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -60,4 +60,4 @@ protected:
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

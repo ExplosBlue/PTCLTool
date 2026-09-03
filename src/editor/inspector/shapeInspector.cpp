@@ -5,7 +5,7 @@
 #include <QFormLayout>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -312,4 +312,4 @@ void ShapeInspector::updateVolumeFieldVisibility(Ptcl::VolumeType type) {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

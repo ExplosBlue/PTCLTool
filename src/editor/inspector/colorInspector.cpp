@@ -4,7 +4,7 @@
 #include <QLabel>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ==========================================================================//
@@ -492,4 +492,4 @@ void ColorInspector::updateAnimPoint(s32 pointIndex, const AnimGraph::GraphPoint
 // ==========================================================================//
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

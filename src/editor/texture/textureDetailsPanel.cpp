@@ -13,7 +13,7 @@
 #include <QVBoxLayout>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -271,4 +271,4 @@ void TextureDetailsPanel::navigateToUser(QTreeWidgetItem* item) {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

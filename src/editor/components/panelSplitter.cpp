@@ -8,7 +8,7 @@
 #include <functional>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -251,4 +251,4 @@ void PanelSplitterHandle::leaveEvent(QEvent* event) {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

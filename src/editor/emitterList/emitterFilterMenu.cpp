@@ -1,7 +1,7 @@
 #include "editor/emitterList/emitterFilterMenu.h"
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -52,4 +52,4 @@ EmitterFilterMenu::EmitterFilterMenu(QWidget* parent) :
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

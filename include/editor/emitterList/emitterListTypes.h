@@ -7,7 +7,7 @@
 #include <QStandardItem>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -70,4 +70,4 @@ inline ListNodeRef resolveListNodeRef(QStandardItem* item) {
 // ========================================================================== //
 
 
-} //namespace PtclEditor
+} //namespace PtclTool

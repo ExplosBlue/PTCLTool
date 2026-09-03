@@ -3,7 +3,7 @@
 #include <QFormLayout>
 #include <QVBoxLayout>
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -160,4 +160,4 @@ void ChildVelocityInspector::populateProperties() {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

@@ -17,7 +17,7 @@
 #include <QGroupBox>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -700,4 +700,4 @@ QImage TextureInspector::applyUVRepetition(const QImage& image, f32 repeatX, f32
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

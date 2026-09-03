@@ -14,7 +14,7 @@
 #include <QGroupBox>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -375,4 +375,4 @@ void TexturePreview::mouseMoveEvent(QMouseEvent* event) {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

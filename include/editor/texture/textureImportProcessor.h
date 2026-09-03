@@ -17,7 +17,7 @@
 // ========================================================================== //
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 enum class TextureAdjustMode {
     None,
@@ -50,7 +50,7 @@ private:
     TextureImportSettings mSettings;
 };
 
-} // namespace PtclEditor
+} // namespace PtclTool
 
 
 // ========================================================================== //

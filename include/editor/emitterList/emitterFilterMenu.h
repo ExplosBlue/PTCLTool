@@ -5,7 +5,7 @@
 #include <QMenu>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -16,11 +16,11 @@ public:
     explicit EmitterFilterMenu(QWidget* parent = nullptr);
 
 signals:
-    void emitterFilterChanged(const PtclEditor::EmitterFilter& filter);
+    void emitterFilterChanged(const PtclTool::EmitterFilter& filter);
 };
 
 
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

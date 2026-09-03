@@ -6,7 +6,7 @@
 #include <QPalette>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -534,4 +534,4 @@ void CombinerPreviewWidget::updateStages() {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

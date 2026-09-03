@@ -3,7 +3,7 @@
 #include <QMouseEvent>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -26,4 +26,4 @@ void StickyMenu::mouseReleaseEvent(QMouseEvent* event) {
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

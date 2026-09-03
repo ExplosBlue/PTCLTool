@@ -6,7 +6,7 @@
 
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ==========================================================================//
@@ -179,4 +179,4 @@ void StartFrameList::updateZeroFrameLabel() {
 // ==========================================================================//
 
 
-} // namespace PtclEditor
+} // namespace PtclTool

@@ -37,9 +37,9 @@ static const std::array etcQualityOptions{ // NOLINT(cert-err58-cpp)
 };
 
 static const std::array adjustModeOptions{ // NOLINT(cert-err58-cpp)
-    EnumOption<PtclEditor::TextureAdjustMode>{ PtclEditor::TextureAdjustMode::None,    "None",    "No adjustment. Cropped image is centered on the canvas." },
-    EnumOption<PtclEditor::TextureAdjustMode>{ PtclEditor::TextureAdjustMode::Stretch, "Stretch", "Cropped image is stretched to fill the entire canvas." },
-    EnumOption<PtclEditor::TextureAdjustMode>{ PtclEditor::TextureAdjustMode::Fit,     "Fit",     "Cropped image is scaled to fit within the canvas, preserving aspect ratio." },
+    EnumOption<PtclTool::TextureAdjustMode>{ PtclTool::TextureAdjustMode::None,    "None",    "No adjustment. Cropped image is centered on the canvas." },
+    EnumOption<PtclTool::TextureAdjustMode>{ PtclTool::TextureAdjustMode::Stretch, "Stretch", "Cropped image is stretched to fill the entire canvas." },
+    EnumOption<PtclTool::TextureAdjustMode>{ PtclTool::TextureAdjustMode::Fit,     "Fit",     "Cropped image is scaled to fit within the canvas, preserving aspect ratio." },
 };
 
 static const std::array filterOptions{ // NOLINT(cert-err58-cpp)
@@ -273,8 +273,8 @@ std::unique_ptr<Ptcl::Texture> TextureImportDialog::getTexture() {
     return std::move(mTexture);
 }
 
-PtclEditor::TextureImportSettings TextureImportDialog::buildSettings() const {
-    PtclEditor::TextureImportSettings s;
+PtclTool::TextureImportSettings TextureImportDialog::buildSettings() const {
+    PtclTool::TextureImportSettings s;
     s.mode = mAdjustMode.currentEnum();
     s.canvasSize = QSize(mTargetWidth.currentText().toInt(), mTargetHeight.currentText().toInt());
     s.cropRect = mImportPreview.cropRect();

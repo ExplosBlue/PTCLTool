@@ -22,7 +22,7 @@
 #include <vector>
 
 
-namespace PtclEditor {
+namespace PtclTool {
 
 
 // ========================================================================== //
@@ -102,9 +102,9 @@ private:
 
     QUndoView mUndoView{};
 
-    PtclEditor::EmitterList mEmitterList{};
-    PtclEditor::InspectorPanel mInspector{};
-    PtclEditor::TextureListWidget mTextureWidget{};
+    PtclTool::EmitterList mEmitterList{};
+    PtclTool::InspectorPanel mInspector{};
+    PtclTool::TextureListWidget mTextureWidget{};
 
     QLabel* mStatusLabel{nullptr};
 };
@@ -113,4 +113,4 @@ private:
 // ========================================================================== //
 
 
-} // namespace PtclEditor
+} // namespace PtclTool
