@@ -199,6 +199,7 @@ set(PROJECT_HEADERS
     include/ptcl/json/jsonEmitterSet.h
     include/ptcl/json/jsonTexture.h
     include/util/bitflagUtil.h
+    include/util/dialogUtil.h
     include/util/fileKind.h
     include/util/fileUtil.h
     include/util/iconUtil.h
