@@ -93,7 +93,14 @@ set(PROJECT_SOURCES
     src/editor/texture/textureListWidget.cpp
     src/editor/texture/textureSelectDialog.cpp
     src/math/quaternion.cpp
+    src/math/sinCosIdx.cpp
     src/gfx/color.cpp
+    src/ptcl/engine/ptclRandom.cpp
+    src/ptcl/json/json.cpp
+    src/ptcl/json/jsonCommon.cpp
+    src/ptcl/json/jsonEmitter.cpp
+    src/ptcl/json/jsonEmitterSet.cpp
+    src/ptcl/json/jsonTexture.cpp
     src/ptcl/ptcl.cpp
     src/ptcl/ptclBinary.cpp
     src/ptcl/ptclDocument.cpp
@@ -101,11 +108,6 @@ set(PROJECT_SOURCES
     src/ptcl/ptclEmitterSet.cpp
     src/ptcl/ptclSeed.cpp
     src/ptcl/ptclTexture.cpp
-    src/ptcl/json/json.cpp
-    src/ptcl/json/jsonCommon.cpp
-    src/ptcl/json/jsonEmitter.cpp
-    src/ptcl/json/jsonEmitterSet.cpp
-    src/ptcl/json/jsonTexture.cpp
     src/util/imageUtil.cpp
     src/util/iconUtil.cpp
     src/util/nameValidator.cpp
@@ -181,8 +183,15 @@ set(PROJECT_HEADERS
     include/gfx/color.h
     include/math/matrix.h
     include/math/quaternion.h
+    include/math/sinCosIdx.h
     include/math/util.h
     include/math/vector.h
+    include/ptcl/engine/ptclRandom.h
+    include/ptcl/json/json.h
+    include/ptcl/json/jsonCommon.h
+    include/ptcl/json/jsonEmitter.h
+    include/ptcl/json/jsonEmitterSet.h
+    include/ptcl/json/jsonTexture.h
     include/ptcl/ptcl.h
     include/ptcl/ptclBinary.h
     include/ptcl/ptclCommand.h
@@ -193,11 +202,6 @@ set(PROJECT_HEADERS
     include/ptcl/ptclSanitizeReport.h
     include/ptcl/ptclSeed.h
     include/ptcl/ptclTexture.h
-    include/ptcl/json/json.h
-    include/ptcl/json/jsonCommon.h
-    include/ptcl/json/jsonEmitter.h
-    include/ptcl/json/jsonEmitterSet.h
-    include/ptcl/json/jsonTexture.h
     include/util/bitflagUtil.h
     include/util/dialogUtil.h
     include/util/fileKind.h

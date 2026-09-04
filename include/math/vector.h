@@ -50,6 +50,18 @@ public:
 
     T length() const { return std::sqrt(mX * mX + mY * mY); }
 
+    T normalize() {
+        const T len = length();
+        if (len > 0)
+        {
+            const T invLen = 1 / len;
+            mX *= invLen;
+            mY *= invLen;
+        }
+
+        return len;
+    }
+
 private:
     T mX;
     T mY;
@@ -101,6 +113,19 @@ public:
     void setZ(T val) { mZ = val; }
 
     T length() const { return std::sqrt(mX * mX + mY * mY + mZ * mZ); }
+
+    T normalize() {
+        const T len = length();
+        if (len > 0)
+        {
+            const T invLen = 1 / len;
+            mX *= invLen;
+            mY *= invLen;
+            mZ *= invLen;
+        }
+
+        return len;
+    }
 
 private:
     T mX;
@@ -156,6 +181,20 @@ public:
     void setW(T val) { mW = val; }
 
     T length() const { return std::sqrt(mX * mX + mY * mY + mZ * mZ + mW * mW); }
+
+    T normalize() {
+        const T len = length();
+        if (len > 0)
+        {
+            const T invLen = 1 / len;
+            mX *= invLen;
+            mY *= invLen;
+            mZ *= invLen;
+            mW *= invLen;
+        }
+
+        return len;
+    }
 
 private:
     T mX;
