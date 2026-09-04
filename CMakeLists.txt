@@ -186,6 +186,7 @@ set(PROJECT_HEADERS
     include/math/sinCosIdx.h
     include/math/util.h
     include/math/vector.h
+    include/ptcl/engine/particleInstance.h
     include/ptcl/engine/ptclRandom.h
     include/ptcl/json/json.h
     include/ptcl/json/jsonCommon.h
