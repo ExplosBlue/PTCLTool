@@ -19,10 +19,10 @@ class Vector2 {
 
 public:
     Vector2() :
-        mX{}, mY{} {}
+        x{}, y{} {}
 
     Vector2(T x, T y) :
-        mX{x}, mY{y} {}
+        x{x}, y{y} {}
 
     Vector2(const Vector2&) = default;
     Vector2(Vector2&&) = default;
@@ -34,37 +34,41 @@ public:
 
     T& operator[](std::size_t i) {
         assert(i < sAxisCount);
-        return (&mX)[i];
+        return (&x)[i];
     }
 
     T operator[](std::size_t i) const {
         assert(i < sAxisCount);
-        return (&mX)[i];
+        return (&x)[i];
     }
 
-    T getX() const { return mX; }
-    T getY() const { return mY; }
+    T getX() const { return x; }
+    T getY() const { return y; }
 
-    void setX(T val) { mX = val; }
-    void setY(T val) { mY = val; }
+    void setX(T val) { x = val; }
+    void setY(T val) { y = val; }
 
-    T length() const { return std::sqrt(mX * mX + mY * mY); }
+    void setZero() {
+        x = T{};
+        y = T{};
+    }
+
+    T length() const { return std::sqrt(x * x + y * y); }
 
     T normalize() {
         const T len = length();
         if (len > 0)
         {
             const T invLen = 1 / len;
-            mX *= invLen;
-            mY *= invLen;
+            x *= invLen;
+            y *= invLen;
         }
 
         return len;
     }
 
-private:
-    T mX;
-    T mY;
+    T x;
+    T y;
 };
 
 using Vector2f = Vector2<f32>;
@@ -81,10 +85,10 @@ class Vector3 {
 
 public:
     Vector3() :
-        mX{}, mY{}, mZ{} {}
+        x{}, y{}, z{} {}
 
     Vector3(T x, T y, T z) :
-        mX{x}, mY{y}, mZ{z} {}
+        x{x}, y{y}, z{z} {}
 
     Vector3(const Vector3&) = default;
     Vector3(Vector3&&) = default;
@@ -96,41 +100,46 @@ public:
 
     T& operator[](std::size_t i) {
         assert(i < sAxisCount);
-        return (&mX)[i];
+        return (&x)[i];
     }
 
     T operator[](std::size_t i) const {
         assert(i < sAxisCount);
-        return (&mX)[i];
+        return (&x)[i];
     }
 
-    T getX() const { return mX; }
-    T getY() const { return mY; }
-    T getZ() const { return mZ; }
+    T getX() const { return x; }
+    T getY() const { return y; }
+    T getZ() const { return z; }
 
-    void setX(T val) { mX = val; }
-    void setY(T val) { mY = val; }
-    void setZ(T val) { mZ = val; }
+    void setX(T val) { x = val; }
+    void setY(T val) { y = val; }
+    void setZ(T val) { z = val; }
 
-    T length() const { return std::sqrt(mX * mX + mY * mY + mZ * mZ); }
+    void setZero() {
+        x = T{};
+        y = T{};
+        z = T{};
+    }
+
+    T length() const { return std::sqrt(x * x + y * y + z * z); }
 
     T normalize() {
         const T len = length();
         if (len > 0)
         {
             const T invLen = 1 / len;
-            mX *= invLen;
-            mY *= invLen;
-            mZ *= invLen;
+            x *= invLen;
+            y *= invLen;
+            z *= invLen;
         }
 
         return len;
     }
 
-private:
-    T mX;
-    T mY;
-    T mZ;
+    T x;
+    T y;
+    T z;
 };
 
 using Vector3f = Vector3<f32>;
@@ -147,10 +156,10 @@ class Vector4 {
 
 public:
     Vector4() :
-        mX{}, mY{}, mZ{}, mW{} {}
+        x{}, y{}, z{}, w{} {}
 
     Vector4(T x, T y, T z, T w) :
-        mX{x}, mY{y}, mZ{z}, mW{w} {}
+        x{x}, y{y}, z{z}, w{w} {}
 
     Vector4(const Vector4&) = default;
     Vector4(Vector4&&) = default;
@@ -162,45 +171,51 @@ public:
 
     T& operator[](std::size_t i) {
         assert(i < sAxisCount);
-        return (&mX)[i];
+        return (&x)[i];
     }
 
     T operator[](std::size_t i) const {
         assert(i < sAxisCount);
-        return (&mX)[i];
+        return (&x)[i];
     }
 
-    T getX() const { return mX; }
-    T getY() const { return mY; }
-    T getZ() const { return mZ; }
-    T getW() const { return mW; }
+    T getX() const { return x; }
+    T getY() const { return y; }
+    T getZ() const { return z; }
+    T getW() const { return w; }
 
-    void setX(T val) { mX = val; }
-    void setY(T val) { mY = val; }
-    void setZ(T val) { mZ = val; }
-    void setW(T val) { mW = val; }
+    void setX(T val) { x = val; }
+    void setY(T val) { y = val; }
+    void setZ(T val) { z = val; }
+    void setW(T val) { w = val; }
 
-    T length() const { return std::sqrt(mX * mX + mY * mY + mZ * mZ + mW * mW); }
+    void setZero() {
+        x = T{};
+        y = T{};
+        z = T{};
+        w = T{};
+    }
+
+    T length() const { return std::sqrt(x * x + y * y + z * z + w * w); }
 
     T normalize() {
         const T len = length();
         if (len > 0)
         {
             const T invLen = 1 / len;
-            mX *= invLen;
-            mY *= invLen;
-            mZ *= invLen;
-            mW *= invLen;
+            x *= invLen;
+            y *= invLen;
+            z *= invLen;
+            w *= invLen;
         }
 
         return len;
     }
 
-private:
-    T mX;
-    T mY;
-    T mZ;
-    T mW;
+    T x;
+    T y;
+    T z;
+    T w;
 };
 
 using Vector4f = Vector4<f32>;

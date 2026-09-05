@@ -72,6 +72,53 @@ private:
 using Matrix34f = Matrix<f32, 3, 4>;
 using Matrix33f = Matrix<f32, 3, 3>;
 
+inline void multiply(Matrix34f& out, const Matrix34f& a, const Matrix34f& b) {
+    const f32 a11 = a(0, 0);
+    const f32 a12 = a(0, 1);
+    const f32 a13 = a(0, 2);
+    const f32 a14 = a(0, 3);
+
+    const f32 a21 = a(1, 0);
+    const f32 a22 = a(1, 1);
+    const f32 a23 = a(1, 2);
+    const f32 a24 = a(1, 3);
+
+    const f32 a31 = a(2, 0);
+    const f32 a32 = a(2, 1);
+    const f32 a33 = a(2, 2);
+    const f32 a34 = a(2, 3);
+
+    const f32 b11 = b(0, 0);
+    const f32 b12 = b(0, 1);
+    const f32 b13 = b(0, 2);
+    const f32 b14 = b(0, 3);
+
+    const f32 b21 = b(1, 0);
+    const f32 b22 = b(1, 1);
+    const f32 b23 = b(1, 2);
+    const f32 b24 = b(1, 3);
+
+    const f32 b31 = b(2, 0);
+    const f32 b32 = b(2, 1);
+    const f32 b33 = b(2, 2);
+    const f32 b34 = b(2, 3);
+
+    out(0, 0) = a11 * b11 + a12 * b21 + a13 * b31;
+    out(0, 1) = a11 * b12 + a12 * b22 + a13 * b32;
+    out(0, 2) = a11 * b13 + a12 * b23 + a13 * b33;
+    out(0, 3) = a11 * b14 + a12 * b24 + a13 * b34 + a14;
+
+    out(1, 0) = a21 * b11 + a22 * b21 + a23 * b31;
+    out(1, 1) = a21 * b12 + a22 * b22 + a23 * b32;
+    out(1, 2) = a21 * b13 + a22 * b23 + a23 * b33;
+    out(1, 3) = a21 * b14 + a22 * b24 + a23 * b34 + a24;
+
+    out(2, 0) = a31 * b11 + a32 * b21 + a33 * b31;
+    out(2, 1) = a31 * b12 + a32 * b22 + a33 * b32;
+    out(2, 2) = a31 * b13 + a32 * b23 + a33 * b33;
+    out(2, 3) = a31 * b14 + a32 * b24 + a33 * b34 + a34;
+}
+
 
 // ========================================================================== //
 

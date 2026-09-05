@@ -6,6 +6,9 @@ namespace Ptcl::Engine {
 // ========================================================================== //
 
 
+constexpr f32 cU32ToF32Inverse = 1.0f / 4294967296.0f; // 1 / 0x100000000
+
+
 class MtRandom {
 public:
     MtRandom(u32 seed) {
@@ -32,7 +35,6 @@ public:
     }
 
     f32 getF32() {
-        constexpr f32 cU32ToF32Inverse = 1.0f / 4294967296.f; // 1 / 0x100000000
         return static_cast<f32>(getU32()) * cU32ToF32Inverse;
     }
 
@@ -93,6 +95,19 @@ const PtclRandom::Vec3Tbl& PtclRandom::normalizedVec3Table() {
     return tables().normalizedVec3;
 }
 
+PtclRandom::PtclRandom(u32 rnd, u16 vec3Idx, u16 normalizedVec3Idx) :
+    mVec3RndIdx{vec3Idx},
+    mNormalizedVec3RndIdx{normalizedVec3Idx},
+    mRnd{rnd} {}
+
+u32 PtclRandom::rnd() const {
+    return mRnd;
+}
+
+u16 PtclRandom::vec3RndIdx() const {
+    return mVec3RndIdx;
+}
+
 void PtclRandom::SetSeed(u32 val) {
     constexpr u32 cSeedIndexShift = 16;
     mVec3RndIdx = static_cast<u16>(val);
@@ -116,6 +131,19 @@ u32 PtclRandom::getU32Direct() {
     mRnd = mRnd * cLcgMultiplier + cLcgIncrement;
     return ret;
 }
+
+f32 PtclRandom::getF32() {
+    return static_cast<f32>(getU32Direct()) * cU32ToF32Inverse;
+}
+
+s32 PtclRandom::getS32() {
+    return static_cast<s32>(getU32Direct() >> 24);
+}
+
+s32 PtclRandom::getS32(s32 max) {
+    return static_cast<s32>((static_cast<u64>(getU32Direct()) * max) >> 32);
+}
+
 
 
 // ========================================================================== //

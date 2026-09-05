@@ -95,6 +95,7 @@ set(PROJECT_SOURCES
     src/math/quaternion.cpp
     src/math/sinCosIdx.cpp
     src/gfx/color.cpp
+    src/ptcl/engine/emitterCalc.cpp
     src/ptcl/engine/emitterInstance.cpp
     src/ptcl/engine/ptclRandom.cpp
     src/ptcl/json/json.cpp
@@ -187,8 +188,10 @@ set(PROJECT_HEADERS
     include/math/sinCosIdx.h
     include/math/util.h
     include/math/vector.h
+    include/ptcl/engine/emitterCalc.h
     include/ptcl/engine/emitterInstance.h
-    include/ptcl/engine/particleInstance.h
+    include/ptcl/engine/emitterSetInstance.h
+    include/ptcl/engine/ptclInstance.h
     include/ptcl/engine/ptclRandom.h
     include/ptcl/json/json.h
     include/ptcl/json/jsonCommon.h
