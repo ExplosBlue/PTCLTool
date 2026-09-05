@@ -123,7 +123,7 @@ const Math::Vector3f& PtclRandom::getNormalizedVec3() {
     return normalizedVec3Table()[(mNormalizedVec3RndIdx++) & cNumVec3TblMask];
 }
 
-u32 PtclRandom::getU32Direct() {
+u32 PtclRandom::getU32() {
     constexpr u32 cLcgMultiplier = 1103515245;
     constexpr u32 cLcgIncrement  = 12345;
 
@@ -133,17 +133,20 @@ u32 PtclRandom::getU32Direct() {
 }
 
 f32 PtclRandom::getF32() {
-    return static_cast<f32>(getU32Direct()) * cU32ToF32Inverse;
+    return static_cast<f32>(getU32()) * cU32ToF32Inverse;
 }
 
 s32 PtclRandom::getS32() {
-    return static_cast<s32>(getU32Direct() >> 24);
+    return static_cast<s32>(getU32() >> 24);
 }
 
 s32 PtclRandom::getS32(s32 max) {
-    return static_cast<s32>((static_cast<u64>(getU32Direct()) * max) >> 32);
+    return static_cast<s32>((static_cast<u64>(getU32()) * max) >> 32);
 }
 
+s32 PtclRandom::getAngle() {
+    return static_cast<s32>(getU32() >> 1) - 0x3FFFFFFF;
+}
 
 
 // ========================================================================== //

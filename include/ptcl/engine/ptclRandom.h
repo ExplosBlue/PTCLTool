@@ -27,11 +27,13 @@ public:
     const Math::Vector3f& getVec3();
     const Math::Vector3f& getNormalizedVec3();
 
-    u32 getU32Direct();
+    u32 getU32();
     f32 getF32();
 
     s32 getS32();
     s32 getS32(s32 max);
+
+    s32 getAngle();
 
     u32 rnd() const;
     u16 vec3RndIdx() const;

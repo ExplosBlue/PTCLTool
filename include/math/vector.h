@@ -67,6 +67,12 @@ public:
         return len;
     }
 
+    Vector2 normalized() const {
+        Vector2 out = *this;
+        out.normalize();
+        return out;
+    }
+
     T x;
     T y;
 };
@@ -84,17 +90,17 @@ class Vector3 {
     static constexpr s32 sAxisCount = 3;
 
 public:
-    Vector3() :
+    constexpr Vector3() :
         x{}, y{}, z{} {}
 
-    Vector3(T x, T y, T z) :
+    constexpr Vector3(T x, T y, T z) :
         x{x}, y{y}, z{z} {}
 
-    Vector3(const Vector3&) = default;
-    Vector3(Vector3&&) = default;
+    constexpr Vector3(const Vector3&) = default;
+    constexpr Vector3(Vector3&&) = default;
 
-    Vector3& operator=(const Vector3&) = default;
-    Vector3& operator=(Vector3&&) = default;
+    constexpr Vector3& operator=(const Vector3&) = default;
+    constexpr Vector3& operator=(Vector3&&) = default;
 
     bool operator==(const Vector3&) const = default;
 
@@ -135,6 +141,12 @@ public:
         }
 
         return len;
+    }
+
+    Vector3 normalized() const {
+        Vector3 out = *this;
+        out.normalize();
+        return out;
     }
 
     T x;
@@ -210,6 +222,12 @@ public:
         }
 
         return len;
+    }
+
+    Vector4 normalized() const {
+        Vector4 out = *this;
+        out.normalize();
+        return out;
     }
 
     T x;

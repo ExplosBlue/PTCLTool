@@ -95,9 +95,10 @@ set(PROJECT_SOURCES
     src/math/quaternion.cpp
     src/math/sinCosIdx.cpp
     src/gfx/color.cpp
-    src/ptcl/engine/emitterCalc.cpp
-    src/ptcl/engine/emitterInstance.cpp
-    src/ptcl/engine/ptclRandom.cpp
+src/ptcl/engine/emitterCalc.cpp
+   src/ptcl/engine/emitterInstance.cpp
+   src/ptcl/engine/ptclRandom.cpp
+   src/ptcl/engine/ptclSystem.cpp
     src/ptcl/json/json.cpp
     src/ptcl/json/jsonCommon.cpp
     src/ptcl/json/jsonEmitter.cpp
@@ -193,6 +194,7 @@ set(PROJECT_HEADERS
     include/ptcl/engine/emitterSetInstance.h
     include/ptcl/engine/ptclInstance.h
     include/ptcl/engine/ptclRandom.h
+    include/ptcl/engine/emitterCalcTables.h
     include/ptcl/json/json.h
     include/ptcl/json/jsonCommon.h
     include/ptcl/json/jsonEmitter.h

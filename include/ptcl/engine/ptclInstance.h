@@ -6,13 +6,24 @@
 #include "typedefs.h"
 
 
+namespace Ptcl {
+class Emitter;
+} // namespace Ptcl
+
+
 namespace Ptcl::Engine {
+
+
+struct PtclStripe;
 
 
 // ========================================================================== //
 
 
 struct PtclInstance {
+    const Ptcl::Emitter* res{nullptr};
+    PtclStripe* stripe{nullptr};
+
     Math::Vector3f position;
     Math::Vector3f velocity;
     Math::Vector3i rotation;
