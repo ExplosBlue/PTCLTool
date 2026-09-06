@@ -96,7 +96,10 @@ set(PROJECT_SOURCES
     src/math/sinCosIdx.cpp
     src/gfx/color.cpp
 src/ptcl/engine/emitterCalc.cpp
+   src/ptcl/engine/emitterField.cpp
+   src/ptcl/engine/emitterFlux.cpp
    src/ptcl/engine/emitterInstance.cpp
+   src/ptcl/engine/emitterSetInstance.cpp
    src/ptcl/engine/ptclRandom.cpp
    src/ptcl/engine/ptclSystem.cpp
     src/ptcl/json/json.cpp

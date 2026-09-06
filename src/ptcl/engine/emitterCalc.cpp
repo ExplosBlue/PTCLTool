@@ -133,8 +133,8 @@ void EmitterCalc::emitCommon(EmitterInstance& emitter, PtclInstance& ptcl) {
     ptcl.rotationVelocity.z = res.rotationVelocity().z + emitter.mRandom.getS32() * res.rotationVelocityRandom().z;
 
     if (!res.isFollow()) {
-        multiply(ptcl.emitterRT, set.RT, res.transformRT());
-        multiply(ptcl.emitterSRT, set.SRT, res.transformSRT());
+        Math::MatrixCalc::multiply(ptcl.emitterRT, set.RT, res.transformRT());
+        Math::MatrixCalc::multiply(ptcl.emitterSRT, set.SRT, res.transformSRT());
     }
 
     if (res.numTexturePattern() <= 1) {

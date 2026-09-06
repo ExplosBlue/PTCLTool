@@ -57,6 +57,26 @@ private:
         &EmitterCalc::emitRectangle,
     };
 
+    using FieldFunction = void (*)(EmitterInstance& emitter, PtclInstance& ptcl);
+
+    static void calcFieldRandom(EmitterInstance& emitter, PtclInstance& ptcl);
+    static void calcFieldMagnet(EmitterInstance& emitter, PtclInstance& ptcl);
+    static void calcFieldSpin(EmitterInstance& emitter, PtclInstance& ptcl);
+    static void calcFieldCollision(EmitterInstance& emitter, PtclInstance& ptcl);
+    static void calcFieldConvergence(EmitterInstance& emitter, PtclInstance& ptcl);
+    static void calcFieldPosAdd(EmitterInstance& emitter, PtclInstance& ptcl);
+
+    static void calcFluctuation(EmitterInstance& emitter, PtclInstance& ptcl);
+
+    static inline std::array<FieldFunction, 6> sFieldFunctions = {
+        &EmitterCalc::calcFieldRandom,
+        &EmitterCalc::calcFieldMagnet,
+        &EmitterCalc::calcFieldSpin,
+        &EmitterCalc::calcFieldCollision,
+        &EmitterCalc::calcFieldConvergence,
+        &EmitterCalc::calcFieldPosAdd,
+    };
+
 private:
     static PtclSystem* mSys;
 };

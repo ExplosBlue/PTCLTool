@@ -1,5 +1,6 @@
 #pragma once
 
+#include "math/vector.h"
 #include "typedefs.h"
 
 #include <cassert>
@@ -72,6 +73,10 @@ private:
 using Matrix34f = Matrix<f32, 3, 4>;
 using Matrix33f = Matrix<f32, 3, 3>;
 
+
+namespace MatrixCalc {
+
+
 inline void multiply(Matrix34f& out, const Matrix34f& a, const Matrix34f& b) {
     const f32 a11 = a(0, 0);
     const f32 a12 = a(0, 1);
@@ -118,6 +123,82 @@ inline void multiply(Matrix34f& out, const Matrix34f& a, const Matrix34f& b) {
     out(2, 2) = a31 * b13 + a32 * b23 + a33 * b33;
     out(2, 3) = a31 * b14 + a32 * b24 + a33 * b34 + a34;
 }
+
+inline void multiply(Vector3f& out, const Matrix34f& m, const Vector3f& v) {
+    out.x = m(0, 0) * v.x + m(0, 1) * v.y + m(0, 2) * v.z + m(0, 3);
+    out.y = m(1, 0) * v.x + m(1, 1) * v.y + m(1, 2) * v.z + m(1, 3);
+    out.z = m(2, 0) * v.x + m(2, 1) * v.y + m(2, 2) * v.z + m(2, 3);
+}
+
+inline void rotate(Vector3f& out, const Matrix34f& m, const Vector3f& v) {
+    out.x = m(0, 0) * v.x + m(1, 0) * v.y + m(2, 0) * v.z;
+    out.y = m(0, 1) * v.x + m(1, 1) * v.y + m(2, 1) * v.z;
+    out.z = m(0, 2) * v.x + m(1, 2) * v.y + m(2, 2) * v.z;
+}
+
+inline void invert(Matrix34f& out, const Matrix34f& a) {
+    const f32 m00 = a(0, 0);
+    const f32 m01 = a(0, 1);
+    const f32 m02 = a(0, 2);
+    const f32 m03 = a(0, 3);
+    const f32 m10 = a(1, 0);
+    const f32 m11 = a(1, 1);
+    const f32 m12 = a(1, 2);
+    const f32 m13 = a(1, 3);
+    const f32 m20 = a(2, 0);
+    const f32 m21 = a(2, 1);
+    const f32 m22 = a(2, 2);
+    const f32 m23 = a(2, 3);
+
+    const f32 v12 = m20 * m11;
+    const f32 v13 = -(m10 * m01 * m22) - (m01 * m12 * m20);
+    const f32 v14 = -(m00 * m21 * m12) - (m02 * m10 * m21);
+    const f32 det = (-(v12 * m02) - (m00 * m11 * m22)) + v13 + v14;
+
+    if (det == 0.0f) {
+        out = Matrix34f{
+            {1.0f, 0.0f, 0.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f, 0.0f},
+            {0.0f, 0.0f, 1.0f, 0.0f},
+        };
+        return;
+    }
+
+    const f32 invDet = 1.0f / det;
+
+    const f32 v18 = -(m11 * m02) - (m01 * m12);
+    const f32 v19 = -(m20 * m02) - (m00 * m22);
+    const f32 v20 = -(m10 * m02) - (m00 * m12);
+    const f32 v21 = -(m20 * m11) - (m10 * m21);
+    const f32 v22 = -(m20 * m01) - (m00 * m21);
+    const f32 v23 = -(m10 * m01) - (m00 * m11);
+
+    const f32 r00 = (-(m21 * m12) - (m11 * m22)) * invDet;
+    const f32 r01 = -((-(m21 * m02) - (m01 * m22)) * invDet);
+    const f32 r02 = v18 * invDet;
+    const f32 r10 = -((-(m20 * m12) - (m10 * m22)) * invDet);
+    const f32 r11 = v19 * invDet;
+    const f32 r12 = -(v20 * invDet);
+    const f32 r20 = v21 * invDet;
+    const f32 r21 = -(v22 * invDet);
+    const f32 r22 = v23 * invDet;
+
+    out(0, 0) = r00;
+    out(0, 1) = r01;
+    out(0, 2) = r02;
+    out(0, 3) = -(r02 * m23) - (-(r01 * m13) - -(r00 * m03));
+    out(1, 0) = r10;
+    out(1, 1) = r11;
+    out(1, 2) = r12;
+    out(1, 3) = -(r12 * m23) - (-(r11 * m13) - -(r10 * m03));
+    out(2, 0) = r20;
+    out(2, 1) = r21;
+    out(2, 2) = r22;
+    out(2, 3) = -(r22 * m23) - (-(r21 * m13) - -(r20 * m03));
+}
+
+
+} // MatrixCalc
 
 
 // ========================================================================== //

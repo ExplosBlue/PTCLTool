@@ -47,6 +47,8 @@ struct PtclInstance {
     s32 life;
     u32 random;
     s32 childEmitCount{0};
+    f32 fluctuationAlpha{0.0f};
+    f32 fluctuationScale{0.0f};
     PtclInstance* prev{nullptr};
     PtclInstance* next{nullptr};
 

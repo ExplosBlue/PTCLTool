@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "math/matrix.h"
 #include "math/vector.h"
 #include "typedefs.h"
@@ -7,11 +9,23 @@
 
 namespace Ptcl::Engine {
 
+class EmitterInstance;
+
 
 // ========================================================================== //
 
 
-struct EmitterSetInstance {
+class EmitterSetInstance {
+public:
+    void addEmitter(EmitterInstance& emitter);
+    void emitParticle(const Math::Vector3f& pos);
+
+public:
+    std::array<EmitterInstance*, 16> mInstance{};
+    s32 mNumEmitter{0};
+    s32 mNumEmitterFirst{0};
+    u32 mEmitterCreateID{0};
+
     Math::Vector3f emitterScale{1.0f, 1.0f, 1.0f};
 
     f32 figureVelocity{1.0f};

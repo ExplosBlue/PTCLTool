@@ -26,10 +26,14 @@ public:
 
 private:
     friend class EmitterCalc;
+    friend class EmitterSetInstance;
 
     const Ptcl::Emitter& mResource;
     EmitterSetInstance& mSet;
+    u32 mEmitterSetCreateID{0};
     PtclRandom mRandom;
+    Math::Matrix34f mEmitterRT{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}};
+    Math::Matrix34f mEmitterSRT{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}};
     s32 mEmissionInterval;
     u32 mLoopIntervalRaw;
     u32 mTickCount;
