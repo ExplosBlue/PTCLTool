@@ -98,6 +98,7 @@ set(PROJECT_SOURCES
 src/ptcl/engine/emitterCalc.cpp
    src/ptcl/engine/emitterField.cpp
    src/ptcl/engine/emitterFlux.cpp
+   src/ptcl/engine/emitterPtclCalc.cpp
    src/ptcl/engine/emitterInstance.cpp
    src/ptcl/engine/emitterSetInstance.cpp
    src/ptcl/engine/ptclRandom.cpp

@@ -2,6 +2,7 @@
 
 #include <array>
 
+#include "gfx/color.h"
 #include "math/matrix.h"
 #include "math/vector.h"
 #include "typedefs.h"
@@ -27,6 +28,8 @@ public:
     u32 mEmitterCreateID{0};
 
     Math::Vector3f emitterScale{1.0f, 1.0f, 1.0f};
+
+    Gfx::Color color{1.0f, 1.0f, 1.0f, 1.0f};
 
     f32 figureVelocity{1.0f};
     f32 directionalVelocity{1.0f};

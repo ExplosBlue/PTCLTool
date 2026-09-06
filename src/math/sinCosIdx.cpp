@@ -1,6 +1,7 @@
 #include "math/sinCosIdx.h"
 
 #include <array>
+#include <cmath>
 
 
 namespace Math {
@@ -277,8 +278,8 @@ void sinCosIdx(f32* sinOut, f32* cosOut, u32 idx) {
     const f32 fraction = static_cast<f32>(idx & 0xFFFFFF) / 0x1000000;
     const SinCosSample& sample = sSinCosTbl[index];
 
-    *sinOut = sample.sin + (sample.sinDelta * fraction);
-    *cosOut = sample.cos + (sample.cosDelta * fraction);
+    *sinOut = std::fmaf(sample.sinDelta, fraction, sample.sin);
+    *cosOut = std::fmaf(sample.cosDelta, fraction, sample.cos);
 }
 
 

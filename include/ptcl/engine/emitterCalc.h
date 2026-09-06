@@ -2,6 +2,8 @@
 
 #include <array>
 
+#include "math/matrix.h"
+
 
 namespace Ptcl::Engine {
 
@@ -75,6 +77,44 @@ private:
         &EmitterCalc::calcFieldCollision,
         &EmitterCalc::calcFieldConvergence,
         &EmitterCalc::calcFieldPosAdd,
+    };
+
+    using PtclCalcFunction = Math::Matrix34f* (*)(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+
+    static Math::Matrix34f* ptclCalcRotNoneColorNoWork(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* ptclCalcRotXColorNoWork(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* ptclCalcRotYColorNoWork(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* ptclCalcRotZColorNoWork(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* ptclCalcRotXYZColorNoWork(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+
+    static Math::Matrix34f* ptclCalcRotNonePassColor1(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* ptclCalcRotXPassColor1(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* ptclCalcRotYPassColor1(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* ptclCalcRotZPassColor1(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* ptclCalcRotXYZPassColor1(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+
+    static Math::Matrix34f* ptclCalcRotNoneInterpolate3Colors(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* ptclCalcRotXInterpolate3Colors(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* ptclCalcRotYInterpolate3Colors(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* ptclCalcRotZInterpolate3Colors(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* ptclCalcRotXYZInterpolate3Colors(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+
+    static inline std::array<PtclCalcFunction, 15> sPtclCalcFunctions = {
+        &EmitterCalc::ptclCalcRotNoneColorNoWork,
+        &EmitterCalc::ptclCalcRotXColorNoWork,
+        &EmitterCalc::ptclCalcRotYColorNoWork,
+        &EmitterCalc::ptclCalcRotZColorNoWork,
+        &EmitterCalc::ptclCalcRotXYZColorNoWork,
+        &EmitterCalc::ptclCalcRotNonePassColor1,
+        &EmitterCalc::ptclCalcRotXPassColor1,
+        &EmitterCalc::ptclCalcRotYPassColor1,
+        &EmitterCalc::ptclCalcRotZPassColor1,
+        &EmitterCalc::ptclCalcRotXYZPassColor1,
+        &EmitterCalc::ptclCalcRotNoneInterpolate3Colors,
+        &EmitterCalc::ptclCalcRotXInterpolate3Colors,
+        &EmitterCalc::ptclCalcRotYInterpolate3Colors,
+        &EmitterCalc::ptclCalcRotZInterpolate3Colors,
+        &EmitterCalc::ptclCalcRotXYZInterpolate3Colors,
     };
 
 private:
