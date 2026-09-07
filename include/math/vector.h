@@ -248,6 +248,12 @@ namespace VectorCalc {
 Vector3f multiply(const Matrix<f32, 3, 4>& m, const Vector3f& v);
 Vector3f rotate(const Matrix<f32, 3, 4>& m, const Vector3f& v);
 
+Vector3f add(const Vector3f& a, const Vector3f& b);
+Vector3f sub(const Vector3f& a, const Vector3f& b);
+Vector3f multScalar(const Vector3f& a, f32 scalar);
+Vector3f cross(const Vector3f& a, const Vector3f& b);
+void normalize(Vector3f& v);
+
 } // namespace VectorCalc
 
 

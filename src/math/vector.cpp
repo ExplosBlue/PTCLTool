@@ -29,6 +29,42 @@ Vector3f rotate(const Matrix34f& m, const Vector3f& v) {
     };
 }
 
+Vector3f add(const Vector3f& a, const Vector3f& b) {
+    return {
+        a.x + b.x,
+        a.y + b.y,
+        a.z + b.z
+    };
+}
+
+Vector3f sub(const Vector3f& a, const Vector3f& b) {
+    return {
+        a.x - b.x,
+        a.y - b.y,
+        a.z - b.z
+    };
+}
+
+Vector3f multScalar(const Vector3f& a, f32 scalar) {
+    return {
+        a.x * scalar,
+        a.y * scalar,
+        a.z * scalar
+    };
+}
+
+Vector3f cross(const Vector3f& a, const Vector3f& b) {
+    return {
+        a.y * b.z - a.z * b.y,
+        a.z * b.x - a.x * b.z,
+        a.x * b.y - a.y * b.x,
+    };
+}
+
+void normalize(Vector3f& v) {
+    v = v.normalized();
+}
+
 
 // ========================================================================== //
 
