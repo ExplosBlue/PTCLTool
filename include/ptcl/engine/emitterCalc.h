@@ -1,11 +1,18 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 
 #include "math/matrix.h"
 
 
 namespace Ptcl::Engine {
+
+
+// ========================================================================== //
+
+
+constexpr std::size_t cFollowOrientationWordOffset = 0x6C / sizeof(u32);
 
 
 // ========================================================================== //
@@ -68,7 +75,10 @@ private:
     static void calcFieldConvergence(EmitterInstance& emitter, PtclInstance& ptcl);
     static void calcFieldPosAdd(EmitterInstance& emitter, PtclInstance& ptcl);
 
+    static void calcFields(EmitterInstance& emitter, PtclInstance& ptcl);
+
     static void calcFluctuation(EmitterInstance& emitter, PtclInstance& ptcl);
+    static void calcTexPatAnim(EmitterInstance& emitter, PtclInstance& ptcl);
 
     static inline std::array<FieldFunction, 6> sFieldFunctions = {
         &EmitterCalc::calcFieldRandom,
@@ -115,6 +125,27 @@ private:
         &EmitterCalc::ptclCalcRotYInterpolate3Colors,
         &EmitterCalc::ptclCalcRotZInterpolate3Colors,
         &EmitterCalc::ptclCalcRotXYZInterpolate3Colors,
+    };
+
+    using PreCalcFunction = s32 (*)(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+
+    static s32 ptclPreCalcFollowAllSimple(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static s32 ptclPreCalcFollowNoneSimple(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static s32 ptclPreCalcFollowPosOnlySimple(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static s32 ptclPreCalcFollowAllComplex(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static s32 ptclPreCalcFollowNoneComplex(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static s32 ptclPreCalcFollowPosOnlyComplex(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+
+    static inline std::array<PreCalcFunction, 3> sSimplePreCalcFunctions = {
+        &EmitterCalc::ptclPreCalcFollowAllSimple,
+        &EmitterCalc::ptclPreCalcFollowNoneSimple,
+        &EmitterCalc::ptclPreCalcFollowPosOnlySimple,
+    };
+
+    static inline std::array<PreCalcFunction, 3> sComplexPreCalcFunctions = {
+        &EmitterCalc::ptclPreCalcFollowAllComplex,
+        &EmitterCalc::ptclPreCalcFollowNoneComplex,
+        &EmitterCalc::ptclPreCalcFollowPosOnlyComplex,
     };
 
 private:

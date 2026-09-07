@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <type_traits>
 
+
 namespace Math {
 
 // ========================================================================== //
@@ -239,8 +240,18 @@ public:
 using Vector4f = Vector4<f32>;
 using Vector4i = Vector4<s32>;
 
+template<typename T, std::size_t RowCount, std::size_t ColCount>
+class Matrix;
+
+namespace VectorCalc {
+
+Vector3f multiply(const Matrix<f32, 3, 4>& m, const Vector3f& v);
+Vector3f rotate(const Matrix<f32, 3, 4>& m, const Vector3f& v);
+
+} // namespace VectorCalc
+
 
 // ========================================================================== //
 
 
-} // Math
+} // namespace Math

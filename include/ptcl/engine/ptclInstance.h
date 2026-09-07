@@ -25,6 +25,7 @@ struct PtclInstance {
     PtclStripe* stripe{nullptr};
 
     Math::Vector3f position;
+    Math::Vector3f positionDiff;
     Math::Vector3f velocity;
     Math::Vector3i rotation;
     Math::Vector3i rotationVelocity;
@@ -49,6 +50,7 @@ struct PtclInstance {
     s32 childEmitCount{0};
     f32 fluctuationAlpha{0.0f};
     f32 fluctuationScale{0.0f};
+    Math::Vector3f posDiff;
     PtclInstance* prev{nullptr};
     PtclInstance* next{nullptr};
 

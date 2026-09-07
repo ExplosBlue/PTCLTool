@@ -94,15 +94,17 @@ set(PROJECT_SOURCES
     src/editor/texture/textureSelectDialog.cpp
     src/math/quaternion.cpp
     src/math/sinCosIdx.cpp
+    src/math/vector.cpp
     src/gfx/color.cpp
-src/ptcl/engine/emitterCalc.cpp
-   src/ptcl/engine/emitterField.cpp
-   src/ptcl/engine/emitterFlux.cpp
-   src/ptcl/engine/emitterPtclCalc.cpp
-   src/ptcl/engine/emitterInstance.cpp
-   src/ptcl/engine/emitterSetInstance.cpp
-   src/ptcl/engine/ptclRandom.cpp
-   src/ptcl/engine/ptclSystem.cpp
+    src/ptcl/engine/emitterCalc.cpp
+    src/ptcl/engine/emitterField.cpp
+    src/ptcl/engine/emitterFlux.cpp
+    src/ptcl/engine/emitterPtclCalc.cpp
+    src/ptcl/engine/emitterPtclPreCalc.cpp
+    src/ptcl/engine/emitterInstance.cpp
+    src/ptcl/engine/emitterSetInstance.cpp
+    src/ptcl/engine/ptclRandom.cpp
+    src/ptcl/engine/ptclSystem.cpp
     src/ptcl/json/json.cpp
     src/ptcl/json/jsonCommon.cpp
     src/ptcl/json/jsonEmitter.cpp
