@@ -1,8 +1,7 @@
 #include "ptcl/engine/emitterCalc.h"
 #include "ptcl/engine/emitterInstance.h"
 #include "math/vector.h"
-
-#include <bit>
+#include "ptcl/engine/ptclRenderer.h"
 
 
 namespace Ptcl::Engine {
@@ -13,26 +12,6 @@ namespace Ptcl::Engine {
 
 namespace /* Anonymous */ {
 
-
-s32 writeFollowOrientation(u32* buffAddr, const Math::Vector3f& direction) {
-    u32* dst = buffAddr + cFollowOrientationWordOffset;
-    dst[0] = std::bit_cast<u32>(0.0f);
-    dst[1] = std::bit_cast<u32>(direction.z);
-    dst[2] = std::bit_cast<u32>(direction.y);
-    dst[3] = std::bit_cast<u32>(direction.x);
-    return 1;
-}
-
-s32 writeFollowOrientation(u32* buffAddr, const Math::Matrix34f& basis) {
-    u32* dst = buffAddr + cFollowOrientationWordOffset;
-    for (s32 row = 0; row < 3; ++row) {
-        dst[row * 4 + 0] = std::bit_cast<u32>(0.0f);
-        dst[row * 4 + 1] = std::bit_cast<u32>(basis(row, 2));
-        dst[row * 4 + 2] = std::bit_cast<u32>(basis(row, 1));
-        dst[row * 4 + 3] = std::bit_cast<u32>(basis(row, 0));
-    }
-    return 3;
-}
 
 f32 adjustAlpha(const PtclInstance& ptcl) {
     f32 alpha = ptcl.alpha;
@@ -142,7 +121,7 @@ void EmitterCalc::calcTexPatAnim(EmitterInstance& emitter, PtclInstance& ptcl) {
 // ========================================================================== //
 
 
-s32 EmitterCalc::ptclPreCalcFollowAllSimple(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl) {
+ParticleState EmitterCalc::ptclPreCalcFollowAllSimple(EmitterInstance& emitter, PtclInstance& ptcl) {
     const auto& res = emitter.mResource;
 
     ptcl.position.x += ptcl.velocity.x;
@@ -167,15 +146,16 @@ s32 EmitterCalc::ptclPreCalcFollowAllSimple(u32* buffAddr, EmitterInstance& emit
 
     ptcl.tickCount++;
 
+    ParticleState state;
     if (res.isVelLook()) {
-        auto r = Math::VectorCalc::rotate(emitter.mEmitterSRT, ptcl.velocity);
-        return writeFollowOrientation(buffAddr, r);
+        state.followCount = 1;
+        state.followDirection = Math::VectorCalc::rotate(emitter.mEmitterSRT, ptcl.velocity);
     }
 
-    return 0;
+    return state;
 }
 
-s32 EmitterCalc::ptclPreCalcFollowNoneSimple(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl) {
+ParticleState EmitterCalc::ptclPreCalcFollowNoneSimple(EmitterInstance& emitter, PtclInstance& ptcl) {
     const auto& res = emitter.mResource;
 
     ptcl.position.x += ptcl.velocity.x;
@@ -200,19 +180,19 @@ s32 EmitterCalc::ptclPreCalcFollowNoneSimple(u32* buffAddr, EmitterInstance& emi
 
     ptcl.tickCount++;
 
+    ParticleState state;
     if (res.isPolygon()) {
-        return writeFollowOrientation(buffAddr, ptcl.emitterRT);
+        state.followCount = 3;
+        state.followBasis = ptcl.emitterRT;
+    } else if (res.isVelLook()) {
+        state.followCount = 1;
+        state.followDirection = Math::VectorCalc::rotate(ptcl.emitterSRT, ptcl.velocity);
     }
 
-    if (res.isVelLook()) {
-        auto r = Math::VectorCalc::rotate(ptcl.emitterSRT, ptcl.velocity);
-        return writeFollowOrientation(buffAddr, r);
-    }
-
-    return 0;
+    return state;
 }
 
-s32 EmitterCalc::ptclPreCalcFollowPosOnlySimple(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl) {
+ParticleState EmitterCalc::ptclPreCalcFollowPosOnlySimple(EmitterInstance& emitter, PtclInstance& ptcl) {
     const auto& res = emitter.mResource;
 
     ptcl.position.x += ptcl.velocity.x;
@@ -246,23 +226,23 @@ s32 EmitterCalc::ptclPreCalcFollowPosOnlySimple(u32* buffAddr, EmitterInstance& 
 
     ptcl.tickCount++;
 
+    ParticleState state;
     if (res.isPolygon()) {
-        return writeFollowOrientation(buffAddr, ptcl.emitterRT);
+        state.followCount = 3;
+        state.followBasis = ptcl.emitterRT;
+    } else if (res.isVelLook()) {
+        state.followCount = 1;
+        state.followDirection = Math::VectorCalc::rotate(ptcl.emitterSRT, ptcl.velocity);
     }
 
-    if (res.isVelLook()) {
-        auto r = Math::VectorCalc::rotate(ptcl.emitterSRT, ptcl.velocity);
-        return writeFollowOrientation(buffAddr, r);
-    }
-
-    return 0;
+    return state;
 }
 
 
 // ========================================================================== //
 
 
-s32 EmitterCalc::ptclPreCalcFollowAllComplex(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl) {
+ParticleState EmitterCalc::ptclPreCalcFollowAllComplex(EmitterInstance& emitter, PtclInstance& ptcl) {
     const auto& res = emitter.mResource;
 
     const auto prevPos = ptcl.position;
@@ -298,15 +278,16 @@ s32 EmitterCalc::ptclPreCalcFollowAllComplex(u32* buffAddr, EmitterInstance& emi
     ptcl.posDiff.y = ptcl.position.y - prevPos.y;
     ptcl.posDiff.z = ptcl.position.z - prevPos.z;
 
+    ParticleState state;
     if (res.isVelLook()) {
-        auto r = Math::VectorCalc::rotate(emitter.mEmitterSRT, ptcl.posDiff);
-        return writeFollowOrientation(buffAddr, r);
+        state.followCount = 1;
+        state.followDirection = Math::VectorCalc::rotate(emitter.mEmitterSRT, ptcl.posDiff);
     }
 
-    return 0;
+    return state;
 }
 
-s32 EmitterCalc::ptclPreCalcFollowNoneComplex(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl) {
+ParticleState EmitterCalc::ptclPreCalcFollowNoneComplex(EmitterInstance& emitter, PtclInstance& ptcl) {
     const auto& res = emitter.mResource;
 
     const auto prevPos = ptcl.position;
@@ -342,20 +323,20 @@ s32 EmitterCalc::ptclPreCalcFollowNoneComplex(u32* buffAddr, EmitterInstance& em
     ptcl.posDiff.y = ptcl.position.y - prevPos.y;
     ptcl.posDiff.z = ptcl.position.z - prevPos.z;
 
+    ParticleState state;
     if (res.isPolygon()) {
-        return writeFollowOrientation(buffAddr, ptcl.emitterRT);
+        state.followCount = 3;
+        state.followBasis = ptcl.emitterRT;
+    } else if (res.isVelLook()) {
+        state.followCount = 1;
+        state.followDirection = Math::VectorCalc::rotate(ptcl.emitterSRT, ptcl.posDiff);
     }
 
-    if (res.isVelLook()) {
-        auto r = Math::VectorCalc::rotate(ptcl.emitterSRT, ptcl.posDiff);
-        return writeFollowOrientation(buffAddr, r);
-    }
-
-    return 0;
+    return state;
 }
 
 
-s32 EmitterCalc::ptclPreCalcFollowPosOnlyComplex(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl) {
+ParticleState EmitterCalc::ptclPreCalcFollowPosOnlyComplex(EmitterInstance& emitter, PtclInstance& ptcl) {
     const auto& res = emitter.mResource;
 
     const auto prevPos = ptcl.position;
@@ -400,16 +381,16 @@ s32 EmitterCalc::ptclPreCalcFollowPosOnlyComplex(u32* buffAddr, EmitterInstance&
     ptcl.posDiff.y = ptcl.position.y - prevPos.y;
     ptcl.posDiff.z = ptcl.position.z - prevPos.z;
 
+    ParticleState state;
     if (res.isPolygon()) {
-        return writeFollowOrientation(buffAddr, ptcl.emitterRT);
+        state.followCount = 3;
+        state.followBasis = ptcl.emitterRT;
+    } else if (res.isVelLook()) {
+        state.followCount = 1;
+        state.followDirection = Math::VectorCalc::rotate(ptcl.emitterSRT, ptcl.posDiff);
     }
 
-    if (res.isVelLook()) {
-        auto r = Math::VectorCalc::rotate(ptcl.emitterSRT, ptcl.posDiff);
-        return writeFollowOrientation(buffAddr, r);
-    }
-
-    return 0;
+    return state;
 }
 
 
