@@ -18,18 +18,17 @@ namespace {
 
 constexpr const char* cVertShader = R"(#version 330 core
 in vec2 aPos;
-uniform vec2 uOffset;
-uniform vec2 uSize;
-uniform vec2 uPan;
-uniform vec2 uFactor;
+uniform vec3 uCenter;
+uniform vec3 uAxisX;
+uniform vec3 uAxisY;
+uniform mat4 uViewProj;
 uniform vec2 uUvOffset;
 uniform vec2 uUvScale;
 out vec2 vUv;
 void main() {
     vUv = uUvOffset + (aPos + 0.5) * uUvScale;
-    vec2 world = uOffset + aPos * uSize;
-    vec2 ndc = (world - uPan) * uFactor;
-    gl_Position = vec4(ndc, 0.0, 1.0);
+    vec3 world = uCenter + aPos.x * uAxisX + aPos.y * uAxisY;
+    gl_Position = uViewProj * vec4(world, 1.0);
 }
 )";
 
@@ -40,7 +39,6 @@ uniform int uHasTex;
 uniform vec4 uConstantColor;
 uniform vec4 uPrimaryColor;
 uniform int uCfg[32];
-uniform float uAlpha;
 out vec4 fragColor;
 
 vec4 stageSrc(int base, int idx, vec4 constant, vec4 primary, vec4 tex, vec4 prev) {
@@ -112,25 +110,24 @@ void main() {
     float aOut = evalAlphaStage(16, uConstantColor, uPrimaryColor, tex, prev);
     prev = vec4(0.0, 0.0, 0.0, aOut);
     aOut = evalAlphaStage(24, uConstantColor, uPrimaryColor, tex, prev);
-    fragColor = vec4(cOut, aOut * uAlpha);
+    fragColor = vec4(cOut, aOut);
 }
 )";
 
 constexpr const char* cVertShaderEs = R"(#version 300 es
 precision highp float;
 in vec2 aPos;
-uniform vec2 uOffset;
-uniform vec2 uSize;
-uniform vec2 uPan;
-uniform vec2 uFactor;
+uniform vec3 uCenter;
+uniform vec3 uAxisX;
+uniform vec3 uAxisY;
+uniform mat4 uViewProj;
 uniform vec2 uUvOffset;
 uniform vec2 uUvScale;
 out vec2 vUv;
 void main() {
     vUv = uUvOffset + (aPos + 0.5) * uUvScale;
-    vec2 world = uOffset + aPos * uSize;
-    vec2 ndc = (world - uPan) * uFactor;
-    gl_Position = vec4(ndc, 0.0, 1.0);
+    vec3 world = uCenter + aPos.x * uAxisX + aPos.y * uAxisY;
+    gl_Position = uViewProj * vec4(world, 1.0);
 }
 )";
 
@@ -142,7 +139,6 @@ uniform int uHasTex;
 uniform vec4 uConstantColor;
 uniform vec4 uPrimaryColor;
 uniform int uCfg[32];
-uniform float uAlpha;
 out vec4 fragColor;
 
 vec4 stageSrc(int base, int idx, vec4 constant, vec4 primary, vec4 tex, vec4 prev) {
@@ -214,7 +210,7 @@ void main() {
     float aOut = evalAlphaStage(16, uConstantColor, uPrimaryColor, tex, prev);
     prev = vec4(0.0, 0.0, 0.0, aOut);
     aOut = evalAlphaStage(24, uConstantColor, uPrimaryColor, tex, prev);
-    fragColor = vec4(cOut, aOut * uAlpha);
+    fragColor = vec4(cOut, aOut);
 }
 )";
 
@@ -246,6 +242,40 @@ precision highp float;
 out vec4 fragColor;
 void main() {
     fragColor = vec4(0.0, 0.0, 0.0, 1.0);
+}
+)";
+
+constexpr const char* cGridVertShader = R"(#version 330 core
+in vec3 aPos;
+uniform mat4 uViewProj;
+void main() {
+    gl_Position = uViewProj * vec4(aPos, 1.0);
+}
+)";
+
+constexpr const char* cGridFragShader = R"(#version 330 core
+uniform vec4 uColor;
+out vec4 fragColor;
+void main() {
+    fragColor = uColor;
+}
+)";
+
+constexpr const char* cGridVertShaderEs = R"(#version 300 es
+precision highp float;
+in vec3 aPos;
+uniform mat4 uViewProj;
+void main() {
+    gl_Position = uViewProj * vec4(aPos, 1.0);
+}
+)";
+
+constexpr const char* cGridFragShaderEs = R"(#version 300 es
+precision highp float;
+uniform vec4 uColor;
+out vec4 fragColor;
+void main() {
+    fragColor = uColor;
 }
 )";
 
@@ -291,6 +321,189 @@ GLuint uploadTexture(const Ptcl::Texture& texture) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, img.width(), img.height(), 0, GL_RGBA,
         GL_UNSIGNED_BYTE, img.constBits());
     return id;
+}
+
+using Mat4 = std::array<GLfloat, 16>;
+
+Mat4 multiplyMat4(const Mat4& a, const Mat4& b) {
+    Mat4 out{};
+    for (int col = 0; col < 4; ++col) {
+        for (int row = 0; row < 4; ++row) {
+            GLfloat sum = 0.0f;
+            for (int k = 0; k < 4; ++k) {
+                sum += b[col * 4 + k] * a[k * 4 + row];
+            }
+            out[col * 4 + row] = sum;
+        }
+    }
+    return out;
+}
+
+Mat4 makeOrtho(float left, float right, float bottom, float top, float nearZ, float farZ) {
+    Mat4 m{};
+    m[0] = 2.0f / (right - left);
+    m[5] = 2.0f / (top - bottom);
+    m[10] = -2.0f / (farZ - nearZ);
+    m[12] = -(right + left) / (right - left);
+    m[13] = -(top + bottom) / (top - bottom);
+    m[14] = -(farZ + nearZ) / (farZ - nearZ);
+    m[15] = 1.0f;
+    return m;
+}
+
+Mat4 makeLookAt(float ex, float ey, float ez, float cx, float cy, float cz, float upx, float upy, float upz) {
+    float fx = cx - ex;
+    float fy = cy - ey;
+    float fz = cz - ez;
+    float fl = std::sqrt(fx * fx + fy * fy + fz * fz);
+    if (fl > 0.0f) {
+        fx /= fl;
+        fy /= fl;
+        fz /= fl;
+    }
+
+    float sx = fy * upz - fz * upy;
+    float sy = fz * upx - fx * upz;
+    float sz = fx * upy - fy * upx;
+    float sl = std::sqrt(sx * sx + sy * sy + sz * sz);
+    if (sl > 0.0f) {
+        sx /= sl;
+        sy /= sl;
+        sz /= sl;
+    }
+
+    float ux = sy * fz - sz * fy;
+    float uy = sz * fx - sx * fz;
+    float uz = sx * fy - sy * fx;
+
+    Mat4 m{};
+    m[0] = sx;
+    m[1] = ux;
+    m[2] = -fx;
+    m[4] = sy;
+    m[5] = uy;
+    m[6] = -fy;
+    m[8] = sz;
+    m[9] = uz;
+    m[10] = -fz;
+    m[12] = -(sx * ex + sy * ey + sz * ez);
+    m[13] = -(ux * ex + uy * ey + uz * ez);
+    m[14] = fx * ex + fy * ey + fz * ez;
+    m[15] = 1.0f;
+    return m;
+}
+
+constexpr float cCameraDistance = 10000.0f;
+constexpr float cNear = 10.0f;
+constexpr float cFar = 20000.0f;
+constexpr float cHalfWidth = 200.0f;
+constexpr float cHalfHeight = 120.0f;
+constexpr float cZoomMin = 0.1f;
+constexpr float cZoomMax = 10.0f;
+constexpr float cZoomStep = 0.1f;
+constexpr float cZoomExponent = 1.1f;
+
+struct CameraBasis {
+    Math::Vector3f right;
+    Math::Vector3f up;
+    Math::Vector3f front;
+};
+
+CameraBasis makeCameraBasis(float yaw, float pitch, const Math::Vector3f& target) {
+    const float cyaw = std::cos(yaw);
+    const float syaw = std::sin(yaw);
+    const float cpitch = std::cos(pitch);
+    const float spitch = std::sin(pitch);
+
+    const float ex = target.getX() + cCameraDistance * cpitch * syaw;
+    const float ey = target.getY() + cCameraDistance * spitch;
+    const float ez = target.getZ() + cCameraDistance * cpitch * cyaw;
+
+    const Mat4 view = makeLookAt(ex, ey, ez, target.getX(), target.getY(), target.getZ(), 0.0f, 1.0f, 0.0f);
+
+    CameraBasis basis;
+    basis.right = {view[0], view[4], view[8]};
+    basis.up = {view[1], view[5], view[9]};
+    basis.front = {-view[2], -view[6], -view[10]};
+    return basis;
+}
+
+void computeParticleAxes(const Ptcl::Engine::EmitterState& state,
+    const Ptcl::Engine::ParticleState& particle, const CameraBasis& cam,
+    Math::Vector3f& axisX, Math::Vector3f& axisY) {
+    const float hx = particle.scale.getX() * 0.5f;
+    const float hy = particle.scale.getY() * 0.5f;
+    const auto& m = particle.matrix;
+
+    switch (state.billboardType) {
+    case Ptcl::BillboardType::BillboardY:
+        axisX = Math::VectorCalc::multScalar(cam.right, hx);
+        axisY = {0.0f, hy, 0.0f};
+        break;
+
+    case Ptcl::BillboardType::PolygonXY:
+        axisX = {m(0, 3) * hx, m(1, 3) * hx, m(2, 3) * hx};
+        axisY = {m(0, 2) * hy, m(1, 2) * hy, m(2, 2) * hy};
+        break;
+
+    case Ptcl::BillboardType::PolygonXZ:
+        axisX = {m(0, 3) * hx, m(1, 3) * hx, m(2, 3) * hx};
+        axisY = {m(0, 1) * hy, m(1, 1) * hy, m(2, 1) * hy};
+        break;
+
+    case Ptcl::BillboardType::VelLook:
+    case Ptcl::BillboardType::VelLookPolygon: {
+        Math::Vector3f dir = particle.followDirection;
+        if (dir.length() <= 0.0001f) {
+            dir = particle.positionDiff;
+        }
+        if (dir.length() <= 0.0001f) {
+            dir = cam.up;
+        }
+        Math::VectorCalc::normalize(dir);
+
+        axisY = Math::VectorCalc::multScalar(dir, hy);
+        Math::Vector3f right = Math::VectorCalc::cross(cam.front, dir);
+        if (right.length() <= 0.0001f) {
+            right = cam.right;
+        }
+        Math::VectorCalc::normalize(right);
+        axisX = Math::VectorCalc::multScalar(right, hx);
+        break;
+    }
+
+    case Ptcl::BillboardType::Stripe:
+    case Ptcl::BillboardType::ComplexStripe:
+    case Ptcl::BillboardType::Primitive:
+    default:
+        axisX = {m(0, 3) * hx, m(1, 3) * hx, m(2, 3) * hx};
+        axisY = {m(0, 2) * hy, m(1, 2) * hy, m(2, 2) * hy};
+        break;
+
+    case Ptcl::BillboardType::Billboard:
+        axisX = Math::VectorCalc::multScalar(cam.right, hx);
+        axisY = Math::VectorCalc::multScalar(cam.up, hy);
+        break;
+    }
+}
+
+Mat4 buildViewProj(float yaw, float pitch, const Math::Vector3f& target, float zoomFactor) {
+    const float cyaw = std::cos(yaw);
+    const float syaw = std::sin(yaw);
+    const float cpitch = std::cos(pitch);
+    const float spitch = std::sin(pitch);
+
+    const float ex = target.getX() + cCameraDistance * cpitch * syaw;
+    const float ey = target.getY() + cCameraDistance * spitch;
+    const float ez = target.getZ() + cCameraDistance * cpitch * cyaw;
+
+    const Mat4 view = makeLookAt(ex, ey, ez, target.getX(), target.getY(), target.getZ(), 0.0f, 1.0f, 0.0f);
+
+    const float halfWidth = cHalfWidth / zoomFactor;
+    const float halfHeight = cHalfHeight / zoomFactor;
+    const Mat4 proj = makeOrtho(-halfWidth, halfWidth, -halfHeight, halfHeight, cNear, cFar);
+
+    return multiplyMat4(proj, view);
 }
 
 
@@ -433,8 +646,19 @@ void PreviewViewport::cleanupGlResources() {
         delete mScreenProgram;
         mScreenProgram = nullptr;
     }
+    if (mGridProgram) {
+        mGridProgram->release();
+        delete mGridProgram;
+        mGridProgram = nullptr;
+    }
     mQuadVao.destroy();
     mQuadVbo.destroy();
+    mGridVao.destroy();
+    mGridVbo.destroy();
+    mAxisVao.destroy();
+    mAxisVbo.destroy();
+    mGridVertexCount = 0;
+    mAxisVertexCount = 0;
     mGlReady = false;
 }
 
@@ -481,6 +705,67 @@ void PreviewViewport::ensureGlResources() {
     mQuadVbo.release();
     mQuadVao.release();
 
+    mGridProgram = new QOpenGLShaderProgram(this);
+    if (!mGridProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,
+            mIsEs ? cGridVertShaderEs : cGridVertShader) ||
+        !mGridProgram->addShaderFromSourceCode(QOpenGLShader::Fragment,
+            mIsEs ? cGridFragShaderEs : cGridFragShader) ||
+        !mGridProgram->link()) {
+        std::fprintf(stderr, "[viewport] grid shader compile/link failed: %s\n",
+            mGridProgram->log().toUtf8().constData());
+    }
+
+    const int extent = 256;
+    std::vector<GLfloat> grid;
+    grid.reserve((2 * extent + 1) * 2 * 2 * 3);
+    for (int i = -extent; i <= extent; ++i) {
+        if (i == 0) {
+            continue;
+        }
+        const float x = static_cast<GLfloat>(i);
+        grid.push_back(x);
+        grid.push_back(0.0f);
+        grid.push_back(static_cast<GLfloat>(-extent));
+        grid.push_back(x);
+        grid.push_back(0.0f);
+        grid.push_back(static_cast<GLfloat>(extent));
+        grid.push_back(static_cast<GLfloat>(-extent));
+        grid.push_back(0.0f);
+        grid.push_back(x);
+        grid.push_back(static_cast<GLfloat>(extent));
+        grid.push_back(0.0f);
+        grid.push_back(x);
+    }
+    mGridVertexCount = static_cast<GLsizei>(grid.size() / 3);
+
+    mGridVao.create();
+    mGridVbo.create();
+    mGridVao.bind();
+    mGridVbo.bind();
+    mGridVbo.allocate(grid.data(), static_cast<int>(grid.size() * sizeof(GLfloat)));
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
+    mGridVbo.release();
+    mGridVao.release();
+
+    const std::array<GLfloat, 12> axes = {
+        static_cast<GLfloat>(-extent), 0.0f, 0.0f,
+        static_cast<GLfloat>(extent), 0.0f, 0.0f,
+        0.0f, 0.0f, static_cast<GLfloat>(-extent),
+        0.0f, 0.0f, static_cast<GLfloat>(extent),
+    };
+    mAxisVertexCount = 4;
+
+    mAxisVao.create();
+    mAxisVbo.create();
+    mAxisVao.bind();
+    mAxisVbo.bind();
+    mAxisVbo.allocate(axes.data(), static_cast<int>(axes.size() * sizeof(GLfloat)));
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
+    mAxisVbo.release();
+    mAxisVao.release();
+
     mGlReady = true;
 }
 
@@ -493,29 +778,51 @@ void PreviewViewport::paintGL() {
         return;
     }
 
-    const float aspect = (height() > 0) ? static_cast<float>(width()) / static_cast<float>(height()) : 1.0f;
-    const float factorY = 2.0f / mZoom;
-    const float factorX = factorY / aspect;
+    const Mat4 viewProj = buildViewProj(mYaw, mPitch, mTarget, mZoom);
+    const CameraBasis cameraBasis = makeCameraBasis(mYaw, mPitch, mTarget);
 
     glEnable(GL_BLEND);
-    glDisable(GL_DEPTH_TEST);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+
+    if (mGridProgram && mGridVertexCount > 0) {
+        const int gridVp = mGridProgram->uniformLocation("uViewProj");
+        const int gridCol = mGridProgram->uniformLocation("uColor");
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+
+        mGridProgram->bind();
+        glUniformMatrix4fv(gridVp, 1, GL_FALSE, viewProj.data());
+
+        mGridProgram->setUniformValue(gridCol, 0.25f, 0.29f, 0.33f, 1.0f);
+        mGridVao.bind();
+        glDrawArrays(GL_LINES, 0, mGridVertexCount);
+        mGridVao.release();
+
+        mGridProgram->setUniformValue(gridCol, 0.62f, 0.64f, 0.67f, 1.0f);
+        mAxisVao.bind();
+        glDrawArrays(GL_LINES, 0, mAxisVertexCount);
+        mAxisVao.release();
+
+        mGridProgram->release();
+    }
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
 
     mProgram->bind();
 
-    const int uOffset = mProgram->uniformLocation("uOffset");
-    const int uSize = mProgram->uniformLocation("uSize");
-    const int uPan = mProgram->uniformLocation("uPan");
-    const int uFactor = mProgram->uniformLocation("uFactor");
+    const int uCenter = mProgram->uniformLocation("uCenter");
+    const int uAxisX = mProgram->uniformLocation("uAxisX");
+    const int uAxisY = mProgram->uniformLocation("uAxisY");
+    const int uViewProj = mProgram->uniformLocation("uViewProj");
     const int uCfg = mProgram->uniformLocation("uCfg");
     const int uConstantColor = mProgram->uniformLocation("uConstantColor");
     const int uPrimaryColor = mProgram->uniformLocation("uPrimaryColor");
     const int uHasTex = mProgram->uniformLocation("uHasTex");
-    const int uAlpha = mProgram->uniformLocation("uAlpha");
     const int uUvOffset = mProgram->uniformLocation("uUvOffset");
     const int uUvScale = mProgram->uniformLocation("uUvScale");
 
-    mProgram->setUniformValue(uPan, static_cast<GLfloat>(mPan.x()), static_cast<GLfloat>(mPan.y()));
-    mProgram->setUniformValue(uFactor, factorX, factorY);
+    glUniformMatrix4fv(uViewProj, 1, GL_FALSE, viewProj.data());
 
     glActiveTexture(GL_TEXTURE0);
     mQuadVao.bind();
@@ -594,26 +901,34 @@ void PreviewViewport::paintGL() {
 
         for (const auto& particle : batch.particles) {
             const Math::Vector3f& pos = particle.positionDiff;
-            const Math::Vector2f& scale = particle.scale;
 
+            Math::Vector3f axisX;
+            Math::Vector3f axisY;
+            computeParticleAxes(batch.state, particle, cameraBasis, axisX, axisY);
+
+            mProgram->setUniformValue(uCenter,
+                static_cast<GLfloat>(pos.getX()),
+                static_cast<GLfloat>(pos.getY()),
+                static_cast<GLfloat>(pos.getZ()));
+            mProgram->setUniformValue(uAxisX,
+                static_cast<GLfloat>(axisX.getX()),
+                static_cast<GLfloat>(axisX.getY()),
+                static_cast<GLfloat>(axisX.getZ()));
+            mProgram->setUniformValue(uAxisY,
+                static_cast<GLfloat>(axisY.getX()),
+                static_cast<GLfloat>(axisY.getY()),
+                static_cast<GLfloat>(axisY.getZ()));
             mProgram->setUniformValue(uPrimaryColor,
                 static_cast<GLfloat>(particle.color.r()),
                 static_cast<GLfloat>(particle.color.g()),
                 static_cast<GLfloat>(particle.color.b()),
-                1.0f);
-            mProgram->setUniformValue(uOffset,
-                static_cast<GLfloat>(pos.getX()),
-                static_cast<GLfloat>(pos.getY()));
-            mProgram->setUniformValue(uSize,
-                static_cast<GLfloat>(scale.getX()),
-                static_cast<GLfloat>(scale.getY()));
+                static_cast<GLfloat>(particle.alpha));
             mProgram->setUniformValue(uUvOffset,
                 static_cast<GLfloat>(particle.uvOffset.getX()),
                 static_cast<GLfloat>(particle.uvOffset.getY()));
             mProgram->setUniformValue(uUvScale,
                 static_cast<GLfloat>(particle.uvSubOffset.getX()),
                 static_cast<GLfloat>(particle.uvSubOffset.getY()));
-            mProgram->setUniformValue(uAlpha, static_cast<GLfloat>(particle.alpha));
 
             glDrawArrays(GL_TRIANGLES, 0, 6);
             ++drawCount;
@@ -625,6 +940,7 @@ void PreviewViewport::paintGL() {
     mProgram->release();
 
     glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
 
     if (mScreenProgram) {
@@ -643,16 +959,23 @@ void PreviewViewport::resizeGL(int, int) {
 }
 
 void PreviewViewport::wheelEvent(QWheelEvent* event) {
-    const float factor = event->angleDelta().y() > 0 ? 0.9f : 1.1f;
-    mZoom *= factor;
-    mZoom = qBound(0.5f, mZoom, 500.0f);
+    const bool zoomIn = event->angleDelta().y() > 0;
+    const float zoomChange = zoomIn ? cZoomStep : -cZoomStep;
+    mZoom += zoomChange * std::pow(mZoom, cZoomExponent);
+    mZoom = qBound(cZoomMin, mZoom, cZoomMax);
     update();
     event->accept();
 }
 
 void PreviewViewport::mousePressEvent(QMouseEvent* event) {
-    if (event->button() == Qt::MiddleButton) {
-        mDragging = true;
+    if (event->button() == Qt::LeftButton) {
+        mOrbitDragging = true;
+        mLastMouse = event->pos();
+        event->accept();
+        return;
+    }
+    if (event->button() == Qt::MiddleButton || event->button() == Qt::RightButton) {
+        mPanDragging = true;
         mLastMouse = event->pos();
         event->accept();
         return;
@@ -661,16 +984,68 @@ void PreviewViewport::mousePressEvent(QMouseEvent* event) {
 }
 
 void PreviewViewport::mouseMoveEvent(QMouseEvent* event) {
-    if (mDragging) {
-        QPointF delta = event->pos() - mLastMouse;
-        mPan.rx() -= delta.x() * mZoom / static_cast<float>(width());
-        mPan.ry() += delta.y() * mZoom / static_cast<float>(height());
+    if (mOrbitDragging) {
+        const QPoint delta = event->pos() - mLastMouse;
+        mYaw -= delta.x() * 0.01f;
+        mPitch = qBound(-1.55f, mPitch + delta.y() * 0.01f, 1.55f);
+        mLastMouse = event->pos();
+        update();
+        event->accept();
+        return;
+    }
+    if (mPanDragging) {
+        const QPoint delta = event->pos() - mLastMouse;
+        const float worldPerPixel = (2.0f * (cHalfHeight / mZoom)) / static_cast<float>(height());
+
+        const float cyaw = std::cos(mYaw);
+        const float syaw = std::sin(mYaw);
+        const float cpitch = std::cos(mPitch);
+        const float spitch = std::sin(mPitch);
+
+        const float fwdX = -cpitch * syaw;
+        const float fwdY = -spitch;
+        const float fwdZ = -cpitch * cyaw;
+
+        float rx = fwdZ;
+        float ry = 0.0f;
+        float rz = -fwdX;
+        const float rl = std::sqrt(rx * rx + rz * rz);
+        if (rl > 0.0f) {
+            rx /= rl;
+            rz /= rl;
+        }
+
+        const float ux = ry * fwdZ - rz * fwdY;
+        const float uy = rz * fwdX - rx * fwdZ;
+        const float uz = rx * fwdY - ry * fwdX;
+
+        const float dx = static_cast<float>(-delta.x()) * worldPerPixel;
+        const float dy = static_cast<float>(delta.y()) * worldPerPixel;
+
+        mTarget.setX(mTarget.getX() + rx * dx + ux * dy);
+        mTarget.setY(mTarget.getY() + ry * dx + uy * dy);
+        mTarget.setZ(mTarget.getZ() + rz * dx + uz * dy);
+
         mLastMouse = event->pos();
         update();
         event->accept();
         return;
     }
     QOpenGLWidget::mouseMoveEvent(event);
+}
+
+void PreviewViewport::mouseReleaseEvent(QMouseEvent* event) {
+    if (event->button() == Qt::LeftButton) {
+        mOrbitDragging = false;
+        event->accept();
+        return;
+    }
+    if (event->button() == Qt::MiddleButton || event->button() == Qt::RightButton) {
+        mPanDragging = false;
+        event->accept();
+        return;
+    }
+    QOpenGLWidget::mouseReleaseEvent(event);
 }
 
 

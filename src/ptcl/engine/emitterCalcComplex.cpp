@@ -134,7 +134,8 @@ s32 EmitterCalc::calcComplex(EmitterInstance& emitter, PtclRenderer& renderer) {
 
                 const bool isStripeBillboard = static_cast<u32>(res.billboardType()) == static_cast<u32>(BillboardType::Stripe);
                 if (res.childFlags().isSet(ChildFlag::Unk80) && !isStripeBillboard) {
-                    emitParticleState(renderer, set, emitter, draw, *cur);
+                    emitParticleState(renderer, set, emitter, draw, *cur, cur->fluctuationAlpha,
+                        cur->fluctuationScale);
                 }
 
                 calcComplexParticle(emitter, *cur);

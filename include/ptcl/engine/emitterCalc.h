@@ -194,7 +194,8 @@ private:
     static void emitParentState(PtclRenderer& renderer, const EmitterInstance& emitter);
     static void emitChildState(PtclRenderer& renderer, const EmitterInstance& emitter);
     static void emitParticleState(PtclRenderer& renderer, const EmitterSetInstance& set,
-        const EmitterInstance& emitter, ParticleState& draw, const PtclInstance& ptcl);
+        const EmitterInstance& emitter, ParticleState& draw, const PtclInstance& ptcl,
+        f32 fluctuationAlpha = 1.0f, f32 fluctuationScale = 1.0f);
 
 private:
     static PtclSystem* mSys;

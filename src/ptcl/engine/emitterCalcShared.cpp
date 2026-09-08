@@ -177,13 +177,14 @@ void EmitterCalc::emitChildState(PtclRenderer& renderer, const EmitterInstance& 
 }
 
 void EmitterCalc::emitParticleState(PtclRenderer& renderer, const EmitterSetInstance& set,
-    const EmitterInstance& emitter, ParticleState& draw, const PtclInstance& ptcl) {
+    const EmitterInstance& emitter, ParticleState& draw, const PtclInstance& ptcl, f32 fluctuationAlpha,
+    f32 fluctuationScale) {
     draw.positionDiff = ptcl.positionDiff;
     draw.scale = {
-        ptcl.scale.x * set.mParticleScaleForCalc.x,
-        ptcl.scale.y * set.mParticleScaleForCalc.y,
+        (ptcl.scale.x * set.mParticleScaleForCalc.x) * fluctuationScale,
+        (ptcl.scale.y * set.mParticleScaleForCalc.y) * fluctuationScale,
     };
-    draw.alpha = (ptcl.alpha * set.color.a()) * emitter.mFadeAlpha;
+    draw.alpha = (ptcl.alpha * set.color.a()) * (fluctuationAlpha * emitter.mFadeAlpha);
     draw.uvOffset = ptcl.uvOffset;
     draw.uvSubOffset = ptcl.uvSubOffset;
     draw.color = {draw.matrix(0, 0), draw.matrix(1, 0), draw.matrix(2, 0), 1.0f};

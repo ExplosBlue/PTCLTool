@@ -61,6 +61,7 @@ protected:
     void wheelEvent(QWheelEvent* event) final;
     void mousePressEvent(QMouseEvent* event) final;
     void mouseMoveEvent(QMouseEvent* event) final;
+    void mouseReleaseEvent(QMouseEvent* event) final;
 
 private:
     void rebuild(const Ptcl::EmitterSet& emitterSet);
@@ -80,16 +81,26 @@ private:
 
     QOpenGLShaderProgram* mProgram{nullptr};
     QOpenGLShaderProgram* mScreenProgram{nullptr};
+    QOpenGLShaderProgram* mGridProgram{nullptr};
     QOpenGLBuffer mQuadVbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLVertexArrayObject mQuadVao{};
+    QOpenGLBuffer mGridVbo{QOpenGLBuffer::VertexBuffer};
+    QOpenGLVertexArrayObject mGridVao{};
+    GLsizei mGridVertexCount{0};
+    QOpenGLBuffer mAxisVbo{QOpenGLBuffer::VertexBuffer};
+    QOpenGLVertexArrayObject mAxisVao{};
+    GLsizei mAxisVertexCount{0};
     std::unordered_map<const Ptcl::Texture*, GLuint> mTextureCache{};
     bool mIsEs{false};
     bool mGlReady{false};
     std::size_t mLastDrawCount{0};
 
-    float mZoom{60.0f};
-    QPointF mPan{};
-    bool mDragging{false};
+    float mZoom{1.0f};
+    float mYaw{0.0f};
+    float mPitch{0.0f};
+    Math::Vector3f mTarget{};
+    bool mOrbitDragging{false};
+    bool mPanDragging{false};
     QPoint mLastMouse{};
 };
 
