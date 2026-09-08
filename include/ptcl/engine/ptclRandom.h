@@ -12,6 +12,9 @@ namespace Ptcl::Engine {
 // ========================================================================== //
 
 
+class EmitterCalc;
+
+
 class PtclRandom {
 public:
     static constexpr u32 cNumVec3Tbl = 512;
@@ -38,6 +41,8 @@ public:
     u32 rnd() const;
     u16 vec3RndIdx() const;
 
+    void setRndRaw(u32 val);
+
     static u32 getGlobalU32();
 
 private:
@@ -48,6 +53,8 @@ private:
     u16 mVec3RndIdx;
     u16 mNormalizedVec3RndIdx;
     u32 mRnd;
+
+    friend class EmitterCalc;
 };
 
 

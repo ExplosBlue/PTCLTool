@@ -14,6 +14,11 @@ namespace Ptcl::Engine {
 
 
 class EmitterCalc;
+
+struct EmitterController {
+    u32 emitRatePerFrame{256};
+};
+
 class EmitterInstance {
 public:
     EmitterInstance(const Ptcl::Emitter& emitterRes, EmitterSetInstance& set, u32 randomSeed,
@@ -27,6 +32,7 @@ public:
 private:
     friend class EmitterCalc;
     friend class EmitterSetInstance;
+    friend class PtclSystem;
 
     const Ptcl::Emitter& mResource;
     EmitterSetInstance& mSet;
@@ -36,10 +42,14 @@ private:
     Math::Matrix34f mEmitterSRT{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}};
     s32 mEmissionInterval;
     u32 mLoopIntervalRaw;
-    u32 mTickCount;
+    s32 mTickCount;
     f32 mFadeAlpha;
     bool mIsAlive{true};
     PtclInstance* mPtclHead{nullptr};
+    EmitterController mController;
+    EmitterInstance* mPrev{nullptr};
+    EmitterInstance* mNext{nullptr};
+    PtclInstance* mChildHead{nullptr};
 };
 
 

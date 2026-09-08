@@ -108,6 +108,10 @@ u16 PtclRandom::vec3RndIdx() const {
     return mVec3RndIdx;
 }
 
+void PtclRandom::setRndRaw(u32 val) {
+    mRnd = val;
+}
+
 void PtclRandom::SetSeed(u32 val) {
     constexpr u32 cSeedIndexShift = 16;
     mVec3RndIdx = static_cast<u16>(val);

@@ -43,6 +43,12 @@ public:
     bool isSetDirectional{false};
     bool hasSRT{false};
 
+    bool mCalcAlphaAnim{false};
+    s32 mStartFrame{0};
+    s32 mNumParticleEmissionPoint{0};
+    std::array<Math::Vector3f, 24> mParticleEmissionPoints{};
+    Math::Vector2f mParticleScaleForCalc{1.0f, 1.0f};
+
     Math::Matrix34f SRT{
         { 1.0f, 0.0f, 0.0f, 0.0f },
         { 0.0f, 1.0f, 0.0f, 0.0f },
