@@ -42,19 +42,28 @@ void MainWindow::setupUi() {
     mLeftSplitter->setStretchFactor(0, 1);
     mLeftSplitter->setStretchFactor(1, 0);
 
-    // Right Column: Inspector above Textures
+    // Middle Column: Viewport above Textures
+    mPreviewViewport = std::make_unique<PreviewViewport>();
+    mPreviewSplitter = new PanelSplitter(Qt::Vertical, this);
+    mPreviewSplitter->addWidget(mPreviewViewport.get());
+    mPreviewSplitter->addWidget(&mTexturePanel);
+    mPreviewSplitter->setStretchFactor(0, 1);
+    mPreviewSplitter->setStretchFactor(1, 0);
+
+    // Right Column: Inspector
     mRightSplitter = new PanelSplitter(Qt::Vertical, this);
     mRightSplitter->addWidget(&mInspector);
-    mRightSplitter->addWidget(&mTexturePanel);
     mRightSplitter->setStretchFactor(0, 1);
-    mRightSplitter->setStretchFactor(1, 0);
 
     // Root Splitter: columns side by side
     mRootSplitter = new PanelSplitter(Qt::Horizontal, this);
     mRootSplitter->addWidget(mLeftSplitter);
+    mRootSplitter->addWidget(mPreviewSplitter);
     mRootSplitter->addWidget(mRightSplitter);
     mRootSplitter->setStretchFactor(0, 0);
     mRootSplitter->setStretchFactor(1, 1);
+    mRootSplitter->setStretchFactor(2, 0);
+    mRootSplitter->setSizes({ 260, 400, 300 });
 
     setCentralWidget(mRootSplitter);
 
@@ -74,6 +83,10 @@ void MainWindow::setupUi() {
     // Texture Widget
     mTextureWidget.setSelection(&mSelection);
     mTexturePanel.setContentEnabled(false);
+
+    // Preview Viewport
+    mPreviewViewport->setEnabled(false);
+    connect(&mSelection, &Ptcl::Selection::selectionChanged, this, &MainWindow::updatePreviewSet);
 
     setupMenus();
 
@@ -97,6 +110,7 @@ void MainWindow::setupUi() {
 }
 
 MainWindow::~MainWindow() {
+    mPreviewViewport->clearPreview();
     mEmitterList.setDocument(nullptr);
     mInspector.setDocument(nullptr);
     mTextureWidget.setDocument(nullptr);
@@ -104,6 +118,8 @@ MainWindow::~MainWindow() {
     if (mDocument) {
         mDocument->undoStack()->disconnect(this);
     }
+
+    mPreviewViewport.release();
 }
 
 void MainWindow::setupMenus() {
@@ -241,7 +257,7 @@ void MainWindow::closeEvent(QCloseEvent* event) {
 }
 
 void MainWindow::saveSplitterState() {
-    if (!mRootSplitter || !mLeftSplitter || !mRightSplitter) {
+    if (!mRootSplitter || !mLeftSplitter || !mRightSplitter || !mPreviewSplitter) {
         return;
     }
 
@@ -249,22 +265,29 @@ void MainWindow::saveSplitterState() {
         mRootSplitter->saveState(),
         mLeftSplitter->saveState(),
         mRightSplitter->saveState(),
+        mPreviewSplitter->saveState(),
     });
 }
 
 void MainWindow::restoreSplitterState() {
-    if (!mRootSplitter || !mLeftSplitter || !mRightSplitter) {
+    if (!mRootSplitter || !mLeftSplitter || !mRightSplitter || !mPreviewSplitter) {
         return;
     }
 
     const auto states = SettingsUtil::splitterStates();
-    if (states.size() < 3) {
+    if (states.size() < 4) {
+        if (states.size() >= 3) {
+            mRootSplitter->restoreState(states[0]);
+            mLeftSplitter->restoreState(states[1]);
+            mRightSplitter->restoreState(states[2]);
+        }
         return;
     }
 
     mRootSplitter->restoreState(states[0]);
     mLeftSplitter->restoreState(states[1]);
     mRightSplitter->restoreState(states[2]);
+    mPreviewSplitter->restoreState(states[3]);
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent* event) {
@@ -440,6 +463,8 @@ void MainWindow::loadDocument(const QString& path) {
     mEmitterList.setDocument(nullptr);
     mInspector.setDocument(nullptr);
     mTextureWidget.setDocument(nullptr);
+    mPreviewViewport->setEnabled(false);
+    mPreviewViewport->clearPreview();
 
     mSaveAsAction.setEnabled(false);
     mExportAction.setEnabled(false);
@@ -476,6 +501,8 @@ void MainWindow::loadDocument(const QString& path) {
     mTextureWidget.setDocument(mDocument.get());
     connect(mDocument.get(), &Ptcl::Document::importReportReady, this, &MainWindow::showSanitizeWarningDialog);
 
+    mPreviewViewport->setEnabled(true);
+
     if (mDocument->emitterSetCount() != 0) {
         mSelection.set(0, 0, Ptcl::Selection::Type::EmitterSet);
     }
@@ -485,6 +512,16 @@ void MainWindow::loadDocument(const QString& path) {
 
     mSaveAsAction.setEnabled(true);
     mExportAction.setEnabled(true);
+}
+
+void MainWindow::updatePreviewSet(s32 setIndex) {
+    if (!mDocument || setIndex < 0) {
+        mPreviewViewport->clearPreview();
+        return;
+    }
+
+    const Ptcl::EmitterSet* set = mDocument->emitterSet(setIndex);
+    mPreviewViewport->setEmitterSet(set);
 }
 
 void MainWindow::dropImage(const QString& filePath) {

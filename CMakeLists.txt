@@ -23,8 +23,8 @@ if(APPLE)
     add_compile_options(-include arm_acle.h)
 endif()
 
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Concurrent Svg)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Concurrent Svg)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Concurrent Svg OpenGL OpenGLWidgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Concurrent Svg OpenGL OpenGLWidgets)
 
 find_package(Iconv QUIET)
 if(NOT Iconv_FOUND)
@@ -92,11 +92,15 @@ set(PROJECT_SOURCES
     src/editor/texture/textureListModel.cpp
     src/editor/texture/textureListWidget.cpp
     src/editor/texture/textureSelectDialog.cpp
+    src/editor/viewport/previewViewport.cpp
     src/math/quaternion.cpp
     src/math/sinCosIdx.cpp
     src/math/vector.cpp
     src/gfx/color.cpp
     src/ptcl/engine/emitterCalc.cpp
+    src/ptcl/engine/emitterCalcShared.cpp
+    src/ptcl/engine/emitterCalcSimple.cpp
+    src/ptcl/engine/emitterCalcComplex.cpp
     src/ptcl/engine/emitterField.cpp
     src/ptcl/engine/emitterFlux.cpp
     src/ptcl/engine/emitterPtclCalc.cpp
@@ -189,6 +193,7 @@ set(PROJECT_HEADERS
     include/editor/texture/textureListRoles.h
     include/editor/texture/textureListWidget.h
     include/editor/texture/textureSelectDialog.h
+    include/editor/viewport/previewViewport.h
     include/gfx/color.h
     include/math/matrix.h
     include/math/quaternion.h
@@ -200,6 +205,7 @@ set(PROJECT_HEADERS
     include/ptcl/engine/emitterSetInstance.h
     include/ptcl/engine/ptclInstance.h
     include/ptcl/engine/ptclRandom.h
+    include/ptcl/engine/ptclRenderer.h
     include/ptcl/engine/emitterCalcTables.h
     include/ptcl/json/json.h
     include/ptcl/json/jsonCommon.h
@@ -298,7 +304,7 @@ endif()
 
 add_subdirectory(third_party/ExETC1)
 
-target_link_libraries(PTCLTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Iconv::Iconv Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Svg ExETC1::ExETC1)
+target_link_libraries(PTCLTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Iconv::Iconv Qt${QT_VERSION_MAJOR}::Concurrent Qt${QT_VERSION_MAJOR}::Svg Qt${QT_VERSION_MAJOR}::OpenGL Qt${QT_VERSION_MAJOR}::OpenGLWidgets ExETC1::ExETC1)
 
 target_include_directories(PTCLTool PRIVATE include)
 

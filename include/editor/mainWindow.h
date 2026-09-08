@@ -6,6 +6,7 @@
 #include "editor/inspector/inspectorPanel.h"
 #include "editor/emitterList/emitterList.h"
 #include "editor/texture/textureListWidget.h"
+#include "editor/viewport/previewViewport.h"
 
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -52,6 +53,8 @@ private:
     void updateRecentFileList();
     void loadDocument(const QString& path);
 
+    void updatePreviewSet(s32 setIndex);
+
     void setupUi();
     void setupMenus();
 
@@ -95,6 +98,7 @@ private:
 
     PanelSplitter* mRootSplitter{nullptr};
     PanelSplitter* mLeftSplitter{nullptr};
+    PanelSplitter* mPreviewSplitter{nullptr};
     PanelSplitter* mRightSplitter{nullptr};
 
     CollapsiblePanel mHistoryPanel{"History"};
@@ -105,6 +109,7 @@ private:
     PtclTool::EmitterList mEmitterList{};
     PtclTool::InspectorPanel mInspector{};
     PtclTool::TextureListWidget mTextureWidget{};
+    std::unique_ptr<PtclTool::PreviewViewport> mPreviewViewport{};
 
     QLabel* mStatusLabel{nullptr};
 };
