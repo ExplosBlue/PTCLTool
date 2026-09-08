@@ -33,6 +33,10 @@ struct EmitterState {
     bool isFogEnabled{false};
     Math::Vector2f rotationBasis{};
     Gfx::Color color{};
+    Gfx::Color secondaryColor{};
+    TextureWrap textureWrapS{TextureWrap::ClampToEdge};
+    TextureWrap textureWrapT{TextureWrap::ClampToEdge};
+    TextureFilter textureFilter{TextureFilter::Linear};
     Math::Matrix34f emitterRT{};
 };
 

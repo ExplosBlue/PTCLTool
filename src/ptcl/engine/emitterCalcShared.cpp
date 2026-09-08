@@ -130,7 +130,16 @@ void EmitterCalc::emitParentState(PtclRenderer& renderer, const EmitterInstance&
             res.primaryColor().b() * set.color.b(),
             1.0f,
         },
-        .emitterRT = emitter.mEmitterRT
+        .secondaryColor = {
+            res.secondaryColor().r() * set.color.r(),
+            res.secondaryColor().g() * set.color.g(),
+            res.secondaryColor().b() * set.color.b(),
+            1.0f,
+        },
+        .textureWrapS     = res.textureWrapS(),
+        .textureWrapT     = res.textureWrapT(),
+        .textureFilter    = res.textureFilter(),
+        .emitterRT = emitter.mEmitterRT,
     });
 }
 
@@ -154,7 +163,16 @@ void EmitterCalc::emitChildState(PtclRenderer& renderer, const EmitterInstance& 
             res.childPrimaryColor().b() * set.color.b(),
             1.0f,
         },
-        .emitterRT = emitter.mEmitterRT
+        .secondaryColor = {
+            res.childSecondaryColor().r() * set.color.r(),
+            res.childSecondaryColor().g() * set.color.g(),
+            res.childSecondaryColor().b() * set.color.b(),
+            1.0f,
+        },
+        .textureWrapS     = res.childTextureWrapS(),
+        .textureWrapT     = res.childTextureWrapT(),
+        .textureFilter    = res.childTextureFilter(),
+        .emitterRT = emitter.mEmitterRT,
     });
 }
 

@@ -13,6 +13,7 @@
 #include <QTimer>
 
 #include <memory>
+#include <unordered_map>
 
 
 // ========================================================================== //
@@ -20,6 +21,7 @@
 
 namespace Ptcl {
 class EmitterSet;
+class Texture;
 } // namespace Ptcl
 
 
@@ -77,8 +79,10 @@ private:
     Ptcl::Engine::EmitterDrawFrame mFrame{};
 
     QOpenGLShaderProgram* mProgram{nullptr};
+    QOpenGLShaderProgram* mScreenProgram{nullptr};
     QOpenGLBuffer mQuadVbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLVertexArrayObject mQuadVao{};
+    std::unordered_map<const Ptcl::Texture*, GLuint> mTextureCache{};
     bool mIsEs{false};
     bool mGlReady{false};
     std::size_t mLastDrawCount{0};

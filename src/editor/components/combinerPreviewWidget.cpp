@@ -91,9 +91,9 @@ QImage CombinerStageWidget::applyOperandTransform(const QImage& src, Combiner::O
         for (s32 x = 0; x < src.width(); ++x) {
             QColor c = src.pixelColor(x, y);
 
-            if (op == Combiner::Operand::SrcR) {
-                s32 r = c.red();
-                out.setPixelColor(x, y, QColor(r, r, r, 255));
+            if (op == Combiner::Operand::SrcG) {
+                s32 g = c.green();
+                out.setPixelColor(x, y, QColor(g, g, g, 255));
             } else if (op == Combiner::Operand::OneMinusSrc) {
                 out.setPixelColor(x, y, QColor(255 - c.red(), 255 - c.green(), 255 - c.blue(), 255));
             }
