@@ -4,6 +4,12 @@
 #include <cstddef>
 
 #include "math/matrix.h"
+#include "ptcl/engine/ptclRenderer.h"
+
+
+namespace Ptcl {
+class Emitter;
+} // namespace Ptcl
 
 
 namespace Ptcl::Engine {
@@ -12,15 +18,13 @@ namespace Ptcl::Engine {
 // ========================================================================== //
 
 
-constexpr std::size_t cFollowOrientationWordOffset = 0x6C / sizeof(u32);
-
-
-// ========================================================================== //
-
-
 class EmitterInstance;
 class PtclInstance;
 class PtclSystem;
+class EmitterSetInstance;
+
+std::size_t ptclRotCombinerIndex(const Ptcl::Emitter& res);
+void unlinkPtcl(PtclInstance*& head, PtclInstance* ptcl);
 
 class EmitterCalc {
 public:
@@ -29,8 +33,21 @@ public:
 
     static PtclInstance* emitParticle(EmitterInstance& emitter);
 
+    static s32 calcSimple(EmitterInstance& emitter, PtclRenderer& renderer);
+    static s32 calcComplex(EmitterInstance& emitter, PtclRenderer& renderer);
+
+    static s32 calc(EmitterInstance& emitter, PtclRenderer& renderer);
+
 private:
     friend class PtclSystem;
+
+    using CalcFunction = s32 (*)(EmitterInstance& emitter, PtclRenderer& renderer);
+
+    static inline std::array<CalcFunction, 3> sCalcFunctions = {
+        &EmitterCalc::calcSimple,
+        &EmitterCalc::calcComplex,
+        nullptr,
+    };
 
     using EmitFunction = PtclInstance* (*)(EmitterInstance&);
 
@@ -91,6 +108,12 @@ private:
 
     using PtclCalcFunction = Math::Matrix34f* (*)(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
 
+    static void calcRotNone(Math::Matrix34f& matrix, PtclInstance& ptcl);
+    static void calcRotX(Math::Matrix34f& matrix, PtclInstance& ptcl);
+    static void calcRotY(Math::Matrix34f& matrix, PtclInstance& ptcl);
+    static void calcRotZ(Math::Matrix34f& matrix, PtclInstance& ptcl);
+    static void calcRotXYZ(Math::Matrix34f& matrix, PtclInstance& ptcl);
+
     static Math::Matrix34f* ptclCalcRotNoneColorNoWork(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
     static Math::Matrix34f* ptclCalcRotXColorNoWork(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
     static Math::Matrix34f* ptclCalcRotYColorNoWork(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
@@ -127,14 +150,28 @@ private:
         &EmitterCalc::ptclCalcRotXYZInterpolate3Colors,
     };
 
-    using PreCalcFunction = s32 (*)(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* childPtclCalcRotNone(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* childPtclCalcRotX(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* childPtclCalcRotY(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* childPtclCalcRotZ(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static Math::Matrix34f* childPtclCalcRotXYZ(Math::Matrix34f* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
 
-    static s32 ptclPreCalcFollowAllSimple(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
-    static s32 ptclPreCalcFollowNoneSimple(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
-    static s32 ptclPreCalcFollowPosOnlySimple(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
-    static s32 ptclPreCalcFollowAllComplex(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
-    static s32 ptclPreCalcFollowNoneComplex(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
-    static s32 ptclPreCalcFollowPosOnlyComplex(u32* buffAddr, EmitterInstance& emitter, PtclInstance& ptcl);
+    static inline std::array<PtclCalcFunction, 5> sChildPtclCalcFunctions = {
+        &EmitterCalc::childPtclCalcRotNone,
+        &EmitterCalc::childPtclCalcRotX,
+        &EmitterCalc::childPtclCalcRotY,
+        &EmitterCalc::childPtclCalcRotZ,
+        &EmitterCalc::childPtclCalcRotXYZ,
+    };
+
+    using PreCalcFunction = ParticleState (*)(EmitterInstance& emitter, PtclInstance& ptcl);
+
+    static ParticleState ptclPreCalcFollowAllSimple(EmitterInstance& emitter, PtclInstance& ptcl);
+    static ParticleState ptclPreCalcFollowNoneSimple(EmitterInstance& emitter, PtclInstance& ptcl);
+    static ParticleState ptclPreCalcFollowPosOnlySimple(EmitterInstance& emitter, PtclInstance& ptcl);
+    static ParticleState ptclPreCalcFollowAllComplex(EmitterInstance& emitter, PtclInstance& ptcl);
+    static ParticleState ptclPreCalcFollowNoneComplex(EmitterInstance& emitter, PtclInstance& ptcl);
+    static ParticleState ptclPreCalcFollowPosOnlyComplex(EmitterInstance& emitter, PtclInstance& ptcl);
 
     static inline std::array<PreCalcFunction, 3> sSimplePreCalcFunctions = {
         &EmitterCalc::ptclPreCalcFollowAllSimple,
@@ -147,6 +184,17 @@ private:
         &EmitterCalc::ptclPreCalcFollowNoneComplex,
         &EmitterCalc::ptclPreCalcFollowPosOnlyComplex,
     };
+
+    static void calcComplexParticle(EmitterInstance& emitter, PtclInstance& ptcl);
+    static s32 calcComplexChild(EmitterInstance& emitter, PtclRenderer& renderer);
+
+    static bool stepFadeAlpha(EmitterInstance& emitter, bool& canEmit);
+    static void scheduleEmission(EmitterInstance& emitter, s32 frame, bool canEmit);
+    static void beginEmitterMatrices(EmitterInstance& emitter);
+    static void emitParentState(PtclRenderer& renderer, const EmitterInstance& emitter);
+    static void emitChildState(PtclRenderer& renderer, const EmitterInstance& emitter);
+    static void emitParticleState(PtclRenderer& renderer, const EmitterSetInstance& set,
+        const EmitterInstance& emitter, ParticleState& draw, const PtclInstance& ptcl);
 
 private:
     static PtclSystem* mSys;

@@ -1,5 +1,8 @@
 #include "ptcl/engine/emitterCalc.h"
 
+#include <cstddef>
+#include <cstdio>
+
 #include "math/sinCosIdx.h"
 #include "ptcl/engine/emitterInstance.h"
 #include "ptcl/engine/emitterCalcTables.h"
@@ -820,6 +823,21 @@ PtclInstance* EmitterCalc::emitRectangle(EmitterInstance& emitter) {
     }
 
     return lastPtcl;
+}
+
+
+// ========================================================================== //
+
+
+s32 EmitterCalc::calc(EmitterInstance& emitter, PtclRenderer& renderer) {
+    const std::size_t typeIdx = static_cast<std::size_t>(emitter.mResource.type());
+
+    if (typeIdx >= sCalcFunctions.size() || sCalcFunctions[typeIdx] == nullptr) {
+        std::fprintf(stderr, "EmitterCalc: emitter type %d is not ported yet\n", static_cast<int>(emitter.mResource.type()));
+        return 0;
+    }
+
+    return sCalcFunctions[typeIdx](emitter, renderer);
 }
 
 
