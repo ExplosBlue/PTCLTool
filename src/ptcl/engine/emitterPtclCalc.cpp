@@ -16,7 +16,8 @@ static void interpolate3Colors(const Ptcl::Emitter& res, PtclInstance& ptcl) {
     const auto& color = res.color0();
 
     if (res.isColorRandom()) {
-        ptcl.color = color[ptcl.random % 3];
+        const auto& c = color[ptcl.random % 3];
+        ptcl.color = {c.r(), c.g(), c.b(), 0.0f};
         return;
     }
 
@@ -32,7 +33,8 @@ static void interpolate3Colors(const Ptcl::Emitter& res, PtclInstance& ptcl) {
     const s32 sec3 = (res.colorSection3() * freq) / 100;
 
     if (localCount < sec1) {
-        ptcl.color = color[0];
+        const auto& c = color[0];
+        ptcl.color = {c.r(), c.g(), c.b(), 0.0f};
     } else if (localCount < sec2) {
         const f32 t = static_cast<f32>(localCount - sec1) / static_cast<f32>(sec2 - sec1);
 
@@ -40,6 +42,7 @@ static void interpolate3Colors(const Ptcl::Emitter& res, PtclInstance& ptcl) {
             std::fmaf(color[1].r() - color[0].r(), t, color[0].r()),
             std::fmaf(color[1].g() - color[0].g(), t, color[0].g()),
             std::fmaf(color[1].b() - color[0].b(), t, color[0].b()),
+            0.0f,
         };
     } else if (localCount < sec3) {
         const f32 t = static_cast<f32>(localCount - sec2) / static_cast<f32>(sec3 - sec2);
@@ -48,9 +51,11 @@ static void interpolate3Colors(const Ptcl::Emitter& res, PtclInstance& ptcl) {
             std::fmaf(color[2].r() - color[1].r(), t, color[1].r()),
             std::fmaf(color[2].g() - color[1].g(), t, color[1].g()),
             std::fmaf(color[2].b() - color[1].b(), t, color[1].b()),
+            0.0f,
         };
     } else {
-        ptcl.color = color[2];
+        const auto& c = color[2];
+        ptcl.color = {c.r(), c.g(), c.b(), 0.0f};
     }
 }
 
