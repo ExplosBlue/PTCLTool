@@ -333,8 +333,8 @@ PtclInstance* EmitterCalc::emitFillCircle(EmitterInstance& emitter) {
         ptcl->res = &res;
         ptcl->stripe = nullptr;
 
-        const f32 radius = emitter.mRandom.getF32();
         const u32 rotation = (emitter.mRandom.getU32() % arcStart) + arcWidth;
+        const f32 radius = emitter.mRandom.getF32();
 
         f32 sinV, cosV;
         Math::sinCosIdx(&sinV, &cosV, rotation);
@@ -472,9 +472,9 @@ PtclInstance* EmitterCalc::emitFillSphere(EmitterInstance& emitter) {
         ptcl->res = &res;
         ptcl->stripe = nullptr;
 
-        const f32 rad = emitter.mRandom.getF32();
         const u32 angleAIdx = (emitter.mRandom.getU32() % arcStart) + arcWidth;
         const u32 angleBIdx = emitter.mRandom.getAngle();
+        const f32 rad = emitter.mRandom.getF32();
 
         f32 sinA, cosA, sinB, cosB;
         Math::sinCosIdx(&sinA, &cosA, angleAIdx);
