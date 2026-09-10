@@ -838,7 +838,7 @@ private:
 
     // Combiner Properties
     BlendFuncType mBlendFunc{BlendFuncType::Translucent};
-    DepthFuncType mDepthFunc{DepthFuncType::Unk0};
+    DepthFuncType mDepthFunc{DepthFuncType::TestOnly};
     ColorCombinerFuncType mCombinerFunc{ColorCombinerFuncType::CombinerConfig0};
 
     // Color Properties
@@ -984,7 +984,7 @@ private:
 
         // Combiner Properties
         BlendFuncType blendFunc{BlendFuncType::Translucent};
-        DepthFuncType depthFunc{DepthFuncType::Unk0};
+        DepthFuncType depthFunc{DepthFuncType::TestOnly};
         ColorCombinerFuncType combinerFunc{ColorCombinerFuncType::CombinerConfig0};
     } mChild;
 

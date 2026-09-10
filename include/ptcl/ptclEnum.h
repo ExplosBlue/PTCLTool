@@ -120,9 +120,9 @@ enum class BlendFuncType : u32 {
 
 
 enum class DepthFuncType : u32 {
-    Unk0    = 0x0,
-    Unk1    = 0x1,
-    Unk2    = 0x2,
+    TestOnly        = 0x0,
+    Disabled        = 0x1,
+    TestAndWrite    = 0x2,
 };
 
 

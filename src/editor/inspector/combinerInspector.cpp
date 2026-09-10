@@ -19,9 +19,9 @@ static const std::array blendFuncOptions{ // NOLINT(cert-err58-cpp)
 };
 
 static const std::array depthFuncOptions{ // NOLINT(cert-err58-cpp)
-    EnumOption<Ptcl::DepthFuncType>{ Ptcl::DepthFuncType::Unk0, "Standard",    "Depth test enabled, depth write enabled." },
-    EnumOption<Ptcl::DepthFuncType>{ Ptcl::DepthFuncType::Unk1, "No Test",     "Depth test disabled, depth write enabled." },
-    EnumOption<Ptcl::DepthFuncType>{ Ptcl::DepthFuncType::Unk2, "No Write",    "Depth test enabled, depth write disabled." },
+    EnumOption<Ptcl::DepthFuncType>{ Ptcl::DepthFuncType::TestOnly,     "Test Only",    "Perform depth testing without writing to the depth buffer." },
+    EnumOption<Ptcl::DepthFuncType>{ Ptcl::DepthFuncType::Disabled,     "Disabled",     "Disable depth testing and depth buffer writes." },
+    EnumOption<Ptcl::DepthFuncType>{ Ptcl::DepthFuncType::TestAndWrite, "Test & Write", "Perform depth testing and write passing depths to the depth buffer." },
 };
 
 static const std::array combinerFuncOptions{ // NOLINT(cert-err58-cpp)

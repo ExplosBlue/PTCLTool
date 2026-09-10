@@ -27,7 +27,7 @@ struct EmitterState {
     BillboardType billboardType{BillboardType::Billboard};
     bool isEmitterBillboardMtx{false};
     BlendFuncType blendFunction{BlendFuncType::Translucent};
-    DepthFuncType depthFunction{DepthFuncType::Unk0};
+    DepthFuncType depthFunction{DepthFuncType::TestOnly};
     ColorCombinerFuncType combinerFunction{ColorCombinerFuncType::CombinerConfig0};
     ColorCalcType colorCalcType{ColorCalcType::None};
     bool isFogEnabled{false};

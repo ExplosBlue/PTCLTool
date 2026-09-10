@@ -807,7 +807,8 @@ void PreviewViewport::paintGL() {
     }
 
     glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_FALSE);
 
     mProgram->bind();
 
@@ -849,6 +850,28 @@ void PreviewViewport::paintGL() {
         default:
             glBlendEquation(GL_FUNC_ADD);
             glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+            break;
+        }
+
+        switch (batch.state.depthFunction) {
+        case Ptcl::DepthFuncType::TestOnly:
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LESS);
+            glDepthMask(GL_FALSE);
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+            break;
+        case Ptcl::DepthFuncType::Disabled:
+            glDisable(GL_DEPTH_TEST);
+            glDepthMask(GL_FALSE);
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+            break;
+        case Ptcl::DepthFuncType::TestAndWrite:
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LESS);
+            glDepthMask(GL_TRUE);
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+            break;
+        default:
             break;
         }
 
@@ -940,6 +963,8 @@ void PreviewViewport::paintGL() {
     mProgram->release();
 
     glBindTexture(GL_TEXTURE_2D, 0);
+    glDepthMask(GL_TRUE);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
 
