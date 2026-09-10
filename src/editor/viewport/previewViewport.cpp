@@ -520,7 +520,8 @@ PreviewViewport::PreviewViewport(QWidget* parent) :
     setFormat(fmt);
 
     setMinimumSize(320, 240);
-    mTimer.setInterval(16);
+    mTimer.setTimerType(Qt::PreciseTimer);
+    mTimer.setInterval(1);
     connect(&mTimer, &QTimer::timeout, this, &PreviewViewport::stepFrame);
 }
 
@@ -569,6 +570,8 @@ void PreviewViewport::rebuild(const Ptcl::EmitterSet& emitterSet) {
         mEmitters.push_back(std::move(instance));
     }
 
+    mElapsedTimer.restart();
+    mLastFrameNs = -cFrameIntervalNs;
     stepFrame();
     mTimer.start();
 }
@@ -595,6 +598,12 @@ void PreviewViewport::stepFrame() {
     if (mSystem == nullptr) {
         return;
     }
+    const qint64 now = mElapsedTimer.nsecsElapsed();
+    if (now - mLastFrameNs < cFrameIntervalNs) {
+        return;
+    }
+    mLastFrameNs = now;
+    mSetInstance.setMtx(mSetInstance.SRT);
     mSystem->calc(*this);
     update();
 }

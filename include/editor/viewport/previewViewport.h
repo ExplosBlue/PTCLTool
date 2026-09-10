@@ -9,6 +9,7 @@
 #include <QOpenGLFunctions_2_0>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
+#include <QElapsedTimer>
 #include <QOpenGLWidget>
 #include <QTimer>
 
@@ -77,6 +78,11 @@ private:
     std::unique_ptr<Ptcl::Engine::PtclSystem> mSystem{};
     Ptcl::Engine::EmitterSetInstance mSetInstance{};
     std::vector<std::unique_ptr<Ptcl::Engine::EmitterInstance>> mEmitters{};
+    static constexpr qint64 cFrameIntervalNs = 1000000000LL / 60;
+
+    QElapsedTimer mElapsedTimer{};
+    qint64 mLastFrameNs{0};
+
     Ptcl::Engine::EmitterDrawFrame mFrame{};
 
     QOpenGLShaderProgram* mProgram{nullptr};
