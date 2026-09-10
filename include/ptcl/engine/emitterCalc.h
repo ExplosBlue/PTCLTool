@@ -186,6 +186,7 @@ private:
     };
 
     static void calcComplexParticle(EmitterInstance& emitter, PtclInstance& ptcl);
+    static s32 calcComplexParent(EmitterInstance& emitter, PtclRenderer& renderer);
     static s32 calcComplexChild(EmitterInstance& emitter, PtclRenderer& renderer);
 
     static bool stepFadeAlpha(EmitterInstance& emitter, bool& canEmit);

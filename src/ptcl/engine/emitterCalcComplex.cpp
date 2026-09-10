@@ -106,66 +106,84 @@ s32 EmitterCalc::calcComplex(EmitterInstance& emitter, PtclRenderer& renderer) {
 
     ++emitter.mTickCount;
 
-    if (!(res.emitEndFrame() > frame || canEmit) && emitter.mPtclHead == nullptr && emitter.mChildHead == nullptr) {
+    if (!(res.emitEndFrame() > frame && canEmit) && emitter.mPtclHead == nullptr && emitter.mChildHead == nullptr) {
         mSys->killEmitter(emitter);
         return 0;
     }
 
     beginEmitterMatrices(emitter);
 
+    s32 aliveCount = calcComplexParent(emitter, renderer);
+
+    aliveCount += calcComplexChild(emitter, renderer);
+
+    return aliveCount;
+}
+
+
+// ========================================================================== //
+
+
+s32 EmitterCalc::calcComplexParent(EmitterInstance& emitter, PtclRenderer& renderer) {
+    const auto& res = emitter.mResource;
+    const auto& set = emitter.mSet;
+
+    if (emitter.mPtclHead == nullptr) {
+        return 0;
+    }
+
+    emitParentState(renderer, emitter);
+
     s32 aliveCount = 0;
 
-    if (emitter.mPtclHead != nullptr) {
-        emitParentState(renderer, emitter);
+    PtclInstance* ptcl = emitter.mPtclHead;
+    while (ptcl != nullptr) {
+        PtclInstance* cur = ptcl;
+        ptcl = cur->next;
 
-        PtclInstance* ptcl = emitter.mPtclHead;
-        while (ptcl != nullptr) {
-            PtclInstance* cur = ptcl;
-            ptcl = cur->next;
 
-            if (cur->life > cur->tickCount) {
-                if (cur->tickCount == 0) {
-                    cur->fluctuationAlpha = 1.0f;
-                    cur->fluctuationScale = 1.0f;
-                }
+        ++aliveCount;
 
-                ParticleState draw = sComplexPreCalcFunctions[static_cast<std::size_t>(res.followType())](emitter, *cur);
-                sPtclCalcFunctions[ptclRotCombinerIndex(res)](&draw.matrix, emitter, *cur);
+        if (cur->life > cur->tickCount) {
+            if (cur->tickCount == 0) {
+                cur->fluctuationAlpha = 1.0f;
+                cur->fluctuationScale = 1.0f;
+            }
 
-                const bool isStripeBillboard = static_cast<u32>(res.billboardType()) == static_cast<u32>(BillboardType::Stripe);
-                if (res.childFlags().isSet(ChildFlag::Unk80) && !isStripeBillboard) {
-                    emitParticleState(renderer, set, emitter, draw, *cur, cur->fluctuationAlpha,
-                        cur->fluctuationScale);
-                }
+            ParticleState draw = sComplexPreCalcFunctions[static_cast<std::size_t>(res.followType())](emitter, *cur);
+            sPtclCalcFunctions[ptclRotCombinerIndex(res)](&draw.matrix, emitter, *cur);
 
-                calcComplexParticle(emitter, *cur);
-                ++aliveCount;
+            const bool isStripeBillboard = static_cast<u32>(res.billboardType()) == static_cast<u32>(BillboardType::Stripe);
+            if (res.childFlags().isSet(ChildFlag::Unk80) && !isStripeBillboard) {
+                emitParticleState(renderer, set, emitter, draw, *cur, cur->fluctuationAlpha,
+                    cur->fluctuationScale);
+            }
+
+            calcComplexParticle(emitter, *cur);
+        } else {
+            PtclStripe* stripe = cur->stripe;
+            if (stripe == nullptr) {
+                cur->res = nullptr;
+                unlinkPtcl(emitter.mPtclHead, cur);
+                continue;
+            }
+            if (stripe->histQStart != stripe->histQEnd) {
+                stripe->histQStart = (stripe->histQStart + 1) & cStripeNumHistoryMask;
+                --stripe->numHistory;
+                stripe->color = {
+                    set.color.r(),
+                    set.color.g(),
+                    set.color.b(),
+                    (cur->alpha * set.color.a()) * emitter.mFadeAlpha,
+                };
+                stripe->emitterSRT = emitter.mEmitterSRT;
             } else {
-                PtclStripe* stripe = cur->stripe;
-                if (stripe == nullptr) {
-                    unlinkPtcl(emitter.mPtclHead, cur);
-                    break;
-                }
-                if (stripe->histQStart != stripe->histQEnd) {
-                    stripe->histQStart = (stripe->histQStart + 1) & cStripeNumHistoryMask;
-                    --stripe->numHistory;
-                    stripe->color = {
-                        set.color.r(),
-                        set.color.g(),
-                        set.color.b(),
-                        (cur->alpha * set.color.a()) * emitter.mFadeAlpha,
-                    };
-                    stripe->emitterSRT = emitter.mEmitterSRT;
-                } else {
-                    mSys->removeStripe(*stripe);
-                    cur->stripe = nullptr;
-                    unlinkPtcl(emitter.mPtclHead, cur);
-                }
+                mSys->removeStripe(*stripe);
+                cur->stripe = nullptr;
+                unlinkPtcl(emitter.mPtclHead, cur);
             }
         }
     }
-
-    aliveCount += calcComplexChild(emitter, renderer);
 
     return aliveCount;
 }
@@ -266,7 +284,7 @@ void EmitterCalc::calcComplexParticle(EmitterInstance& emitter, PtclInstance& pt
         const s32 threshold = static_cast<s32>(emitTime >> 5) - static_cast<s32>(emitTime >> 31);
 
         if (count >= threshold) {
-            if (res.childEmitStep() <= childEmitCount) {
+            if (childEmitCount > 0) {
                 childEmitCount = 0;
 
                 for (s32 i = 0; i < res.childEmitRate(); ++i) {
@@ -300,22 +318,14 @@ void EmitterCalc::calcComplexParticle(EmitterInstance& emitter, PtclInstance& pt
                     if (res.childFlags().isSet(ChildFlag::RotateInherit)) {
                         child->rotation = ptcl.rotation;
                     } else {
-                        u32 rnd;
-                        emitter.mRandom.getU32(); rnd = emitter.mRandom.rnd();
-                        child->rotation.x = res.childInitialRotation().x + static_cast<s32>(rnd >> 24) * res.childInitialRotationRandom().x;
-                        emitter.mRandom.getU32(); rnd = emitter.mRandom.rnd();
-                        child->rotation.y = res.childInitialRotation().y + static_cast<s32>(rnd >> 24) * res.childInitialRotationRandom().y;
-                        emitter.mRandom.getU32(); rnd = emitter.mRandom.rnd();
-                        child->rotation.z = res.childInitialRotation().z + static_cast<s32>(rnd >> 24) * res.childInitialRotationRandom().z;
+                        child->rotation.x = res.childInitialRotation().x + emitter.mRandom.getS32() * res.childInitialRotationRandom().x;
+                        child->rotation.y = res.childInitialRotation().y + emitter.mRandom.getS32() * res.childInitialRotationRandom().y;
+                        child->rotation.z = res.childInitialRotation().z + emitter.mRandom.getS32() * res.childInitialRotationRandom().z;
                     }
 
-                    u32 rnd;
-                    emitter.mRandom.getU32(); rnd = emitter.mRandom.rnd();
-                    child->rotationVelocity.x = res.childRotationVelocity().x + static_cast<s32>(rnd >> 24) * res.childRotationVelocityRandom().x;
-                    emitter.mRandom.getU32(); rnd = emitter.mRandom.rnd();
-                    child->rotationVelocity.y = res.childRotationVelocity().y + static_cast<s32>(rnd >> 24) * res.childRotationVelocityRandom().y;
-                    emitter.mRandom.getU32(); rnd = emitter.mRandom.rnd();
-                    child->rotationVelocity.z = res.childRotationVelocity().z + static_cast<s32>(rnd >> 24) * res.childRotationVelocityRandom().z;
+                    child->rotationVelocity.x = res.childRotationVelocity().x + emitter.mRandom.getS32() * res.childRotationVelocityRandom().x;
+                    child->rotationVelocity.y = res.childRotationVelocity().y + emitter.mRandom.getS32() * res.childRotationVelocityRandom().y;
+                    child->rotationVelocity.z = res.childRotationVelocity().z + emitter.mRandom.getS32() * res.childRotationVelocityRandom().z;
 
                     if (res.childFlags().isSet(ChildFlag::Color0Inherit)) {
                         child->color = ptcl.color;
@@ -362,8 +372,7 @@ void EmitterCalc::calcComplexParticle(EmitterInstance& emitter, PtclInstance& pt
                     }
 
                     child->posDiff = child->position;
-                    emitter.mRandom.getU32();
-                    child->random = emitter.mRandom.rnd();
+                    child->random = emitter.mRandom.getU32();
 
                     child->prev = nullptr;
                     child->next = emitter.mChildHead;
@@ -406,6 +415,8 @@ s32 EmitterCalc::calcComplexChild(EmitterInstance& emitter, PtclRenderer& render
                 cur->emitterRT = emitter.mEmitterRT;
             }
 
+            const Math::Vector3f prevPos = cur->position;
+
             if (res.childFlags().isSet(ChildFlag::Unk100)) {
                 cur->velocity = Math::VectorCalc::add(cur->velocity, Math::VectorCalc::rotate(emitter.mEmitterRT, res.childGravity()));
             } else {
@@ -439,8 +450,7 @@ s32 EmitterCalc::calcComplexChild(EmitterInstance& emitter, PtclRenderer& render
                 const u32 childBillboard = static_cast<u32>(res.childBillboardType());
                 if (childBillboard == 3 || childBillboard == 4) {
                     followCount = 1;
-                    const Math::Vector3f dir = Math::VectorCalc::rotate(cur->emitterSRT, Math::VectorCalc::sub(cur->position, cur->posDiff));
-                    cur->posDiff = cur->position;
+                    const Math::Vector3f dir = Math::VectorCalc::rotate(cur->emitterSRT, Math::VectorCalc::sub(cur->position, prevPos));
                     draw.followDirection = dir;
                 }
             }
