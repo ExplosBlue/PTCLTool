@@ -42,7 +42,7 @@ private:
     Math::Matrix34f mEmitterRT{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}};
     Math::Matrix34f mEmitterSRT{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.0f}};
     s32 mEmissionInterval;
-    u32 mLoopIntervalRaw;
+    s32 mLoopInterval;
     s32 mTickCount;
     f32 mFadeAlpha;
     bool mIsAlive{true};

@@ -72,15 +72,17 @@ void EmitterCalc::scheduleEmission(EmitterInstance& emitter, s32 frame, bool can
     const auto& res = emitter.mResource;
     const auto& set = emitter.mSet;
 
-    if (!canEmit || frame < res.emitStartFrame() || frame > res.emitEndFrame()) {
+    if (!canEmit || res.emitEndFrame() <= frame) {
         return;
     }
 
-    const u32 ratePerFrame = emitter.mController.emitRatePerFrame;
-    const s32 interval = static_cast<s32>(static_cast<u32>(emitter.mEmissionInterval) * ratePerFrame) >> 8;
+    if (res.emitStartFrame() > frame) {
+        return;
+    }
 
-    if (interval > static_cast<s32>(emitter.mLoopIntervalRaw)) {
-        emitter.mLoopIntervalRaw++;
+    const s32 scaledInterval = static_cast<s32>((static_cast<s64>(emitter.mEmissionInterval) * emitter.mController.emitRatePerFrame) >> 8);
+    if (scaledInterval > emitter.mLoopInterval) {
+        emitter.mLoopInterval++;
         return;
     }
 
@@ -98,7 +100,8 @@ void EmitterCalc::scheduleEmission(EmitterInstance& emitter, s32 frame, bool can
             }
         }
     }
-    emitter.mLoopIntervalRaw = 0;
+
+    emitter.mLoopInterval = 0;
     emitter.mEmissionInterval = emitter.mRandom.getS32(res.lifeStepRandom()) + res.lifeStep();
 }
 

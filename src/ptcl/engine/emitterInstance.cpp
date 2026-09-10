@@ -14,7 +14,7 @@ EmitterInstance::EmitterInstance(const Ptcl::Emitter& emitterRes, EmitterSetInst
     mSet{set},
     mRandom{randomSeed, static_cast<u16>(vec3Idx), static_cast<u16>(normalizedVec3Idx)},
     mEmissionInterval{emissionInterval},
-    mLoopIntervalRaw{cInitLoopIntervalRaw},
+    mLoopInterval{cInitLoopIntervalRaw},
     mTickCount{0},
     mFadeAlpha{1.0f} {}
 
