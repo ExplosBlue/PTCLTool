@@ -54,13 +54,13 @@ public:
         y = T{};
     }
 
-    T length() const { return std::sqrt(x * x + y * y); }
+    T length() const { return std::sqrt(std::fmaf(y, y, x * x)); }
 
     T normalize() {
         const T len = length();
-        if (len > 0)
-        {
-            const T invLen = 1 / len;
+
+        if (len > 0.0f) {
+            const T invLen = 1.0f / len;
             x *= invLen;
             y *= invLen;
         }
@@ -129,13 +129,13 @@ public:
         z = T{};
     }
 
-    T length() const { return std::sqrt(x * x + y * y + z * z); }
+    T length() const { return std::sqrt(std::fmaf(z, z, std::fmaf(y, y, x * x))); }
 
     T normalize() {
         const T len = length();
-        if (len > 0)
-        {
-            const T invLen = 1 / len;
+
+        if (len > 0.0f) {
+            const T invLen = 1.0f / len;
             x *= invLen;
             y *= invLen;
             z *= invLen;
@@ -209,13 +209,15 @@ public:
         w = T{};
     }
 
-    T length() const { return std::sqrt(x * x + y * y + z * z + w * w); }
+    T length() const {
+        return std::sqrt(std::fmaf(w, w, std::fmaf(z, z, std::fmaf(y, y, x * x))));
+    }
 
     T normalize() {
         const T len = length();
-        if (len > 0)
-        {
-            const T invLen = 1 / len;
+
+        if (len > 0.0f) {
+            const T invLen = 1.0f / len;
             x *= invLen;
             y *= invLen;
             z *= invLen;
