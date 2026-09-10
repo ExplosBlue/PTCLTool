@@ -127,14 +127,12 @@ void EmitterCalc::calcFieldCollision(EmitterInstance& emitter, PtclInstance& ptc
 
 void EmitterCalc::calcFieldConvergence(EmitterInstance& emitter, PtclInstance& ptcl) {
     const auto& res = emitter.mResource;
-    const Math::Vector3f& pos = res.fieldConvergencePos();
+    const Math::Vector3f& target = res.fieldConvergencePos();
+    const f32 rate = res.fieldConvergenceRate();
 
-    const f32 targetX =
-        (res.fieldConvergenceType() == Ptcl::FieldConvergenceType::EmitterPos) ? 1.0f : 0.0f;
-
-    ptcl.position.x += (targetX - ptcl.position.x) * pos.z;
-    ptcl.position.y += (pos.x   - ptcl.position.y) * pos.z;
-    ptcl.position.z += (pos.y   - ptcl.position.z) * pos.z;
+    ptcl.position.x += (target.x - ptcl.position.x) * rate;
+    ptcl.position.y += (target.y - ptcl.position.y) * rate;
+    ptcl.position.z += (target.z - ptcl.position.z) * rate;
 }
 
 void EmitterCalc::calcFieldPosAdd(EmitterInstance& emitter, PtclInstance& ptcl) {

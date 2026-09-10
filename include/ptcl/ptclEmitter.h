@@ -534,11 +534,11 @@ public:
     bool isFieldConvergenceEnabled() const { return mFieldFlags.isSet(FieldFlag::Convergence); }
     void setFieldConvergenceEnabled(bool enabled) { mFieldFlags.set(FieldFlag::Convergence, enabled); }
 
-    FieldConvergenceType fieldConvergenceType() const { return mFieldConvergence.convergenceType; }
-    void setFieldConvergenceType(FieldConvergenceType type) { mFieldConvergence.convergenceType = type; }
-
     const Math::Vector3f& fieldConvergencePos() const { return mFieldConvergence.convergencePos; }
     void setFieldConvergencePos(const Math::Vector3f& pos) { mFieldConvergence.convergencePos = pos; }
+
+    f32 fieldConvergenceRate() const { return mFieldConvergence.convergenceRate; }
+    void setFieldConvergenceRate(f32 rate) { mFieldConvergence.convergenceRate = rate; }
 
     // Field PosAdd
 
@@ -920,8 +920,8 @@ private:
     } mFieldCollision;
 
     struct {
-        FieldConvergenceType convergenceType{FieldConvergenceType::AssignedPos};
         Math::Vector3f convergencePos{0.0f, 0.0f, 0.0f};
+        f32 convergenceRate{0.0f};
     } mFieldConvergence;
 
     struct {

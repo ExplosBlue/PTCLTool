@@ -846,19 +846,19 @@ QDataStream& operator<<(QDataStream& out, const BinFieldCollisionData& item) {
 
 
 BinFieldConvergenceData::BinFieldConvergenceData(const Ptcl::Emitter& emitterData) {
-    fieldConvergenceType = emitterData.fieldConvergenceType();
     fieldConvergencePos = emitterData.fieldConvergencePos();
+    fieldConvergenceRate = emitterData.fieldConvergenceRate();
 }
 
 QDataStream& operator>>(QDataStream& in, BinFieldConvergenceData& item) {
-    in >> item.fieldConvergenceType
-        >> item.fieldConvergencePos;
+    in >> item.fieldConvergencePos
+        >> item.fieldConvergenceRate;
     return in;
 }
 
 QDataStream& operator<<(QDataStream& out, const BinFieldConvergenceData& item) {
-    out << item.fieldConvergenceType
-        << item.fieldConvergencePos;
+    out << item.fieldConvergencePos
+        << item.fieldConvergenceRate;
     return out;
 }
 

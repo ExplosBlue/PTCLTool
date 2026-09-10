@@ -105,8 +105,8 @@ QJsonObject complexToJson(const Emitter& emitter, bool embedTextures, const Text
     json.insert("fieldCollisionCoord",   floatToJson(emitter.fieldCollisionCoord()));
     json.insert("fieldCollisionCoef",    floatToJson(emitter.fieldCollisionCoef()));
 
-    json.insert("fieldConvergenceType", static_cast<s64>(emitter.fieldConvergenceType()));
     json.insert("fieldConvergencePos",  vec3fToJson(emitter.fieldConvergencePos()));
+    json.insert("fieldConvergenceRate", floatToJson(emitter.fieldConvergenceRate()));
 
     json.insert("fieldPosAddPosition", vec3fToJson(emitter.fieldPosAddPosition()));
 
@@ -418,8 +418,8 @@ bool complexFromJson(Emitter& emitter, const QJsonObject& json, const TextureLis
     const auto fieldCollisionCoord   = json["fieldCollisionCoord"];
     const auto fieldCollisionCoef    = json["fieldCollisionCoef"];
 
-    const auto fieldConvergenceType = json["fieldConvergenceType"];
     const auto fieldConvergencePos  = json["fieldConvergencePos"];
+    const auto fieldConvergenceRate = json["fieldConvergenceRate"];
 
     const auto fieldPosAddPosition = json["fieldPosAddPosition"];
 
@@ -486,9 +486,6 @@ bool complexFromJson(Emitter& emitter, const QJsonObject& json, const TextureLis
     if (!isNumberValue(fieldCollisionCoord) || !isNumberValue(fieldCollisionCoef)) {
         return false;
     }
-    if (!fieldConvergenceType.isDouble()) {
-        return false;
-    }
     if (!fieldConvergencePos.isObject()) {
         return false;
     }
@@ -540,8 +537,8 @@ bool complexFromJson(Emitter& emitter, const QJsonObject& json, const TextureLis
     emitter.setFieldCollisionCoord(jsonToFloat(fieldCollisionCoord));
     emitter.setFieldCollisionCoef(jsonToFloat(fieldCollisionCoef));
 
-    emitter.setFieldConvergenceType(static_cast<FieldConvergenceType>(fieldConvergenceType.toInteger()));
     emitter.setFieldConvergencePos(jsonToVec3f(fieldConvergencePos.toObject()));
+    emitter.setFieldConvergenceRate(jsonToFloat(fieldConvergenceRate));
 
     emitter.setFieldPosAddPosition(jsonToVec3f(fieldPosAddPosition.toObject()));
 

@@ -360,20 +360,6 @@ inline FieldCollisionType& assignFromInt(FieldCollisionType& type, int value) {
 // ========================================================================== //
 
 
-enum class FieldConvergenceType : u32 {
-    AssignedPos = 0x0,
-    EmitterPos  = 0x1,
-};
-
-inline FieldConvergenceType& assignFromInt(FieldConvergenceType& type, int value) {
-    type = static_cast<FieldConvergenceType>(value);
-    return type;
-}
-
-
-// ========================================================================== //
-
-
 enum class StripeType : u32 {
     Billboard       = 0x0,
     EmitterMatrix   = 0x1,

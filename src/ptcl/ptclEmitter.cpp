@@ -247,8 +247,8 @@ void Emitter::initFieldCollision(const BinFieldCollisionData& collisionData) {
 
 void Emitter::initFieldConvergence(const BinFieldConvergenceData& convergenceData) {
     mFieldConvergence = {
-        .convergenceType = convergenceData.fieldConvergenceType,
-        .convergencePos = Math::Vector3f(convergenceData.fieldConvergencePos.x, convergenceData.fieldConvergencePos.y, convergenceData.fieldConvergencePos.z)
+        .convergencePos = Math::Vector3f(convergenceData.fieldConvergencePos.x, convergenceData.fieldConvergencePos.y, convergenceData.fieldConvergencePos.z),
+        .convergenceRate = convergenceData.fieldConvergenceRate
     };
 }
 
@@ -535,9 +535,6 @@ void Emitter::validate(PtclSanitizeReport& report) {
     }
     if (mFieldFlags.isSet(FieldFlag::Collision)) {
         mFieldCollision.collisionType = report.sanitize<FieldCollisionType>(mFieldCollision.collisionType, FieldCollisionType::Bounce, "fieldCollisionType");
-    }
-    if (mFieldFlags.isSet(FieldFlag::Convergence)) {
-        mFieldConvergence.convergenceType = report.sanitize<FieldConvergenceType>(mFieldConvergence.convergenceType, FieldConvergenceType::EmitterPos, "fieldConvergenceType");
     }
 
     // Stripe data

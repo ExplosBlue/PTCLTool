@@ -469,8 +469,8 @@ static_assert(sizeof(BinFieldCollisionData) == 0xC, "BinFieldCollisionData is in
 
 // Size 0x10
 struct alignas(4) BinFieldConvergenceData {
-    FieldConvergenceType fieldConvergenceType;  // 0x00
-    binVec3f fieldConvergencePos;               // 0x04
+    binVec3f fieldConvergencePos;   // 0x00
+    f32 fieldConvergenceRate;       // 0x0C
 
     BinFieldConvergenceData() = default;
     BinFieldConvergenceData(const Ptcl::Emitter& emitterData);
