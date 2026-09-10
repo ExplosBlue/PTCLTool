@@ -17,6 +17,7 @@ class EmitterCalc;
 
 struct EmitterController {
     u32 emitRatePerFrame{256};
+    u32 lifeScale{256};
 };
 
 class EmitterInstance {

@@ -1,8 +1,5 @@
 #include "ptcl/engine/emitterCalc.h"
 
-#include <cstddef>
-#include <cstdio>
-
 #include "math/sinCosIdx.h"
 #include "ptcl/engine/emitterInstance.h"
 #include "ptcl/engine/emitterCalcTables.h"
@@ -63,10 +60,7 @@ void EmitterCalc::emitCommon(EmitterInstance& emitter, PtclInstance& ptcl) {
     } else {
         const s32 ptclLifeRnd = emitter.mRandom.getS32(res.ptclLifeRandom());
         const s64 life = static_cast<s64>(res.ptclLife()) - ptclLifeRnd;
-
-        // The 256 here is originally `(life * *mController->_8) >> 8` in engine.
-        // However, this value is always fixed at 256 (in NSMB2).
-        ptcl.life = static_cast<s32>((life * 256) >> 8);
+        ptcl.life = static_cast<s32>((life * emitter.mController.lifeScale) >> 8);
     }
 
     const f32 scaleRnd = 1.0f - res.scaleRand() * emitter.mRandom.getF32();
@@ -93,8 +87,9 @@ void EmitterCalc::emitCommon(EmitterInstance& emitter, PtclInstance& ptcl) {
         ptcl.scale.y = res.scaleAnim().initScale.y * initScaleY;
     } else {
         // Alpha
-        ptcl.alphaSection1 = (res.alphaAnim().alphaSection1 * maxTime) / 10;
-        ptcl.alphaSection2 = (res.alphaAnim().alphaSection2 * maxTime) / 10;
+        const s32 rawAlphaSec1 = res.alphaAnim().isFlatStart ? -127 : res.alphaAnim().alphaSection1;
+        ptcl.alphaSection1 = (rawAlphaSec1 * maxTime) / 100;
+        ptcl.alphaSection2 = (res.alphaAnim().alphaSection2 * maxTime) / 100;
 
         ptcl.alphaAddSection1 = res.alphaAnim().diffAlpha21 / static_cast<f32>(ptcl.alphaSection1);
         ptcl.alphaAddSection2 = res.alphaAnim().diffAlpha32 / static_cast<f32>(maxTime - ptcl.alphaSection2);
@@ -102,8 +97,9 @@ void EmitterCalc::emitCommon(EmitterInstance& emitter, PtclInstance& ptcl) {
         ptcl.alpha = res.alphaAnim().initAlpha - ptcl.alphaAddSection1;
 
         // Scale
-        ptcl.scaleSection1 = (res.scaleAnim().scaleSection1 * maxTime) / 10;
-        ptcl.scaleSection2 = (res.scaleAnim().scaleSection2 * maxTime) / 10;
+        const s32 rawScaleSec1 = res.scaleAnim().isFlatStart ? -127 : res.scaleAnim().scaleSection1;
+        ptcl.scaleSection1 = (rawScaleSec1 * maxTime) / 100;
+        ptcl.scaleSection2 = (res.scaleAnim().scaleSection2 * maxTime) / 100;
 
         const f32 invScaleSec1 = 1.0f / static_cast<f32>(ptcl.scaleSection1);
         const f32 invScaleSec2 = 1.0f / static_cast<f32>(maxTime - ptcl.scaleSection2);
@@ -114,8 +110,8 @@ void EmitterCalc::emitCommon(EmitterInstance& emitter, PtclInstance& ptcl) {
         const f32 scaleAddSec2X = res.scaleAnim().diffScale32.x * invScaleSec2;
         const f32 scaleAddSec2Y = res.scaleAnim().diffScale32.y * invScaleSec2;
 
-        const f32 scaleX = res.scaleAnim().initScale.x - scaleAddSec1X;
-        const f32 scaleY = res.scaleAnim().initScale.y - scaleAddSec1Y;
+        const f32 scaleX = res.scaleAnim().initScale.x - scaleAddSec1X * initScaleX;
+        const f32 scaleY = res.scaleAnim().initScale.y - scaleAddSec1Y * initScaleY;
 
         ptcl.scaleAddSection1.x = scaleAddSec1X * initScaleX;
         ptcl.scaleAddSection1.y = scaleAddSec1Y * initScaleY;
@@ -149,8 +145,8 @@ void EmitterCalc::emitCommon(EmitterInstance& emitter, PtclInstance& ptcl) {
         const s32 numX = num % res.numTextureDivisionX();
         const s32 numY = num / res.numTextureDivisionX();
 
-        const f32 texVScale = res.textureUVScale().x;
-        const f32 texUScale = res.textureUVScale().y;
+        const f32 texUScale = res.textureUVScale().x;
+        const f32 texVScale = res.textureUVScale().y;
 
         ptcl.uvSubOffset.x = texUScale;
         ptcl.uvSubOffset.y = texVScale;
