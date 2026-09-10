@@ -108,11 +108,11 @@ void EmitterCalc::calcRotXYZ(Math::Matrix34f& matrix, PtclInstance& ptcl) {
     Math::sinCosIdx(&sinY, &cosY, static_cast<u32>(ptcl.rotation.y));
     Math::sinCosIdx(&sinZ, &cosZ, static_cast<u32>(ptcl.rotation.z));
 
-    matrix(0, 1) = std::fmaf(  cosX * cosZ,  sinY, sinX * sinZ);
-    matrix(0, 2) = std::fmaf(-(sinX * sinY), cosZ, cosX * sinZ);
+    matrix(0, 1) = std::fmaf(cosX * cosZ, sinY, sinX * sinZ);
+    matrix(0, 2) = std::fmaf(sinX * sinY, cosZ, -cosX * sinZ);
     matrix(0, 3) = cosY * cosZ;
 
-    matrix(1, 1) = -std::fmaf(sinX,        cosZ, sinY * (cosX * sinZ));
+    matrix(1, 1) =  std::fmaf(sinY, cosX * sinZ, -sinX * cosZ);
     matrix(1, 2) =  std::fmaf(sinX * sinY, sinZ, cosX * cosZ);
     matrix(1, 3) =  cosY * sinZ;
 
@@ -286,9 +286,6 @@ Math::Matrix34f* EmitterCalc::ptclCalcRotNoneInterpolate3Colors(Math::Matrix34f*
     buff(2, 0) = ptcl.color.b() * set.color.b();
 
     calcRotNone(buff, ptcl);
-
-    buff(0, 2) = 1.0f;
-    buff(0, 3) = 0.0f;
 
     return ++buffAddr;
 }
