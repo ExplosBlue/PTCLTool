@@ -284,7 +284,7 @@ void EmitterCalc::calcComplexParticle(EmitterInstance& emitter, PtclInstance& pt
         const s32 threshold = static_cast<s32>(emitTime >> 5) - static_cast<s32>(emitTime >> 31);
 
         if (count >= threshold) {
-            if (childEmitCount > 0) {
+            if (res.childEmitStep() <= childEmitCount) {
                 childEmitCount = 0;
 
                 for (s32 i = 0; i < res.childEmitRate(); ++i) {
@@ -333,17 +333,21 @@ void EmitterCalc::calcComplexParticle(EmitterInstance& emitter, PtclInstance& pt
                         child->color = res.childSecondaryColor();
                     }
 
-                    child->alphaAddSection1 = (res.childAlphaBaseFrame() != 0)
-                        ? (res.childAlpha() - res.childAlphaInit()) / static_cast<f32>(res.childAlphaBaseFrame())
-                        : 0.0f;
-                    child->alphaAddSection2 = (res.childAlphaTarget() - res.childAlpha())
-                        / static_cast<f32>(res.childLife() - res.childAlphaStartFrame());
+                    const f32 childAlpha = res.childFlags().isSet(ChildFlag::AlphaInherit)
+                        ? ptcl.alpha * ptcl.fluctuationAlpha
+                        : res.childAlpha();
 
-                    if (res.childFlags().isSet(ChildFlag::AlphaInherit)) {
-                        child->alpha = ptcl.alpha * ptcl.fluctuationAlpha;
+                    if (res.childAlphaBaseFrame() != 0) {
+                        child->alpha = res.childAlphaInit();
+                        child->alphaAddSection1
+                            = (childAlpha - res.childAlphaInit()) / static_cast<f32>(res.childAlphaBaseFrame());
                     } else {
-                        child->alpha = res.childAlpha();
+                        child->alpha = childAlpha;
+                        child->alphaAddSection1 = 0.0f;
                     }
+
+                    child->alphaAddSection2 = (res.childAlphaTarget() - childAlpha)
+                        / static_cast<f32>(res.childLife() - res.childAlphaStartFrame());
 
                     if (res.childFlags().isSet(ChildFlag::ScaleInherit)) {
                         const f32 factor = res.childScaleInheritRate() * ptcl.fluctuationScale;
@@ -353,9 +357,9 @@ void EmitterCalc::calcComplexParticle(EmitterInstance& emitter, PtclInstance& pt
                         child->scale = res.childScale();
                     }
 
-                    child->scaleAddSection1.x = (res.childScale().x * (res.childScaleTarget().x - 1.0f))
+                    child->scaleAddSection1.x = (child->scale.x * (res.childScaleTarget().x - 1.0f))
                         / static_cast<f32>(res.childLife() - res.childScaleStartFrame());
-                    child->scaleAddSection1.y = (res.childScale().y * (res.childScaleTarget().y - 1.0f))
+                    child->scaleAddSection1.y = (child->scale.y * (res.childScaleTarget().y - 1.0f))
                         / static_cast<f32>(res.childLife() - res.childScaleStartFrame());
 
                     child->uvOffset = {0.0f, 0.0f};
