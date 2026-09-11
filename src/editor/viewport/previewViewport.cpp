@@ -323,6 +323,51 @@ GLuint uploadTexture(const Ptcl::Texture& texture) {
     return id;
 }
 
+void setupRenderState(QOpenGLFunctions_2_0& gl, Ptcl::BlendFuncType blend, Ptcl::DepthFuncType depth) {
+    switch (blend) {
+    case Ptcl::BlendFuncType::AlphaBlend:
+        gl.glBlendEquation(GL_FUNC_ADD);
+        gl.glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+        break;
+    case Ptcl::BlendFuncType::Additive:
+        gl.glBlendEquation(GL_FUNC_ADD);
+        gl.glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE);
+        break;
+    case Ptcl::BlendFuncType::Subtractive:
+        gl.glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+        gl.glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE);
+        break;
+    case Ptcl::BlendFuncType::Opaque:
+        gl.glBlendEquation(GL_FUNC_ADD);
+        gl.glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
+        break;
+    default:
+        break;
+    }
+
+    switch (depth) {
+    case Ptcl::DepthFuncType::TestOnly:
+        gl.glEnable(GL_DEPTH_TEST);
+        gl.glDepthFunc(GL_LESS);
+        gl.glDepthMask(GL_FALSE);
+        gl.glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+        break;
+    case Ptcl::DepthFuncType::Disabled:
+        gl.glDisable(GL_DEPTH_TEST);
+        gl.glDepthMask(GL_FALSE);
+        gl.glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        break;
+    case Ptcl::DepthFuncType::TestAndWrite:
+        gl.glEnable(GL_DEPTH_TEST);
+        gl.glDepthFunc(GL_LESS);
+        gl.glDepthMask(GL_TRUE);
+        gl.glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        break;
+    default:
+        break;
+    }
+}
+
 using Mat4 = std::array<GLfloat, 16>;
 
 Mat4 multiplyMat4(const Mat4& a, const Mat4& b) {
@@ -843,46 +888,7 @@ void PreviewViewport::paintGL() {
         const std::array<GLint, 32> cfgData = buildCombinerCfg(batch.state.combinerFunction);
         mProgram->setUniformValueArray(uCfg, cfgData.data(), static_cast<int>(cfgData.size()));
 
-        switch (batch.state.blendFunction) {
-        case Ptcl::BlendFuncType::Additive:
-            glBlendEquation(GL_FUNC_ADD);
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE);
-            break;
-        case Ptcl::BlendFuncType::Subtractive:
-            glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE);
-            break;
-        case Ptcl::BlendFuncType::Transparence:
-            glBlendEquation(GL_FUNC_ADD);
-            glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
-            break;
-        default:
-            glBlendEquation(GL_FUNC_ADD);
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
-            break;
-        }
-
-        switch (batch.state.depthFunction) {
-        case Ptcl::DepthFuncType::TestOnly:
-            glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_LESS);
-            glDepthMask(GL_FALSE);
-            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
-            break;
-        case Ptcl::DepthFuncType::Disabled:
-            glDisable(GL_DEPTH_TEST);
-            glDepthMask(GL_FALSE);
-            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-            break;
-        case Ptcl::DepthFuncType::TestAndWrite:
-            glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_LESS);
-            glDepthMask(GL_TRUE);
-            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-            break;
-        default:
-            break;
-        }
+        setupRenderState(*this, batch.state.blendFunction, batch.state.depthFunction);
 
         const Ptcl::Texture* texture = nullptr;
         if (batch.state.textureHandle != nullptr && batch.state.textureHandle->isValid()) {

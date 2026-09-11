@@ -837,7 +837,7 @@ private:
     AlphaAnim mAlphaAnim{};
 
     // Combiner Properties
-    BlendFuncType mBlendFunc{BlendFuncType::Translucent};
+    BlendFuncType mBlendFunc{BlendFuncType::AlphaBlend};
     DepthFuncType mDepthFunc{DepthFuncType::TestOnly};
     ColorCombinerFuncType mCombinerFunc{ColorCombinerFuncType::CombinerConfig0};
 
@@ -983,7 +983,7 @@ private:
         s32 alphaBaseFrame{1};
 
         // Combiner Properties
-        BlendFuncType blendFunc{BlendFuncType::Translucent};
+        BlendFuncType blendFunc{BlendFuncType::AlphaBlend};
         DepthFuncType depthFunc{DepthFuncType::TestOnly};
         ColorCombinerFuncType combinerFunc{ColorCombinerFuncType::CombinerConfig0};
     } mChild;

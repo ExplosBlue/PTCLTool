@@ -109,10 +109,10 @@ enum class ColorCalcType : u8 {
 
 
 enum class BlendFuncType : u32 {
-    Translucent     = 0x0,
+    AlphaBlend      = 0x0,
     Additive        = 0x1,
     Subtractive     = 0x2,
-    Transparence    = 0x3,
+    Opaque          = 0x3,
 };
 
 

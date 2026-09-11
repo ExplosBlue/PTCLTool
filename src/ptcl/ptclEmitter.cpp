@@ -477,7 +477,7 @@ void Emitter::validate(PtclSanitizeReport& report) {
     mVolumeType    = report.sanitize<VolumeType>(mVolumeType, VolumeType::Rectangle, "volumeType");
     mColorCalcType = report.sanitize<ColorCalcType>(mColorCalcType, ColorCalcType::Interpolate, "colorCalcType");
     mRotType       = report.sanitize<RotType>(mRotType, RotType::RotXYZ, "rotType");
-    mBlendFunc     = report.sanitize<BlendFuncType>(mBlendFunc, BlendFuncType::Transparence, "blendFunc");
+    mBlendFunc     = report.sanitize<BlendFuncType>(mBlendFunc, BlendFuncType::Opaque, "blendFunc");
     mDepthFunc     = report.sanitize<DepthFuncType>(mDepthFunc, DepthFuncType::TestAndWrite, "depthFunc");
     mCombinerFunc  = report.sanitize<ColorCombinerFuncType>(mCombinerFunc, ColorCombinerFuncType::CombinerConfig27, "combinerFunc");
     mTextureWrapT  = report.sanitize<TextureWrap>(mTextureWrapT, TextureWrap::ClampToEdge, "textureWrapT");
@@ -522,7 +522,7 @@ void Emitter::validate(PtclSanitizeReport& report) {
         mChild.textureWrapT  = report.sanitize<TextureWrap>(mChild.textureWrapT, TextureWrap::ClampToEdge, "childTextureWrapT");
         mChild.textureWrapS  = report.sanitize<TextureWrap>(mChild.textureWrapS, TextureWrap::ClampToEdge, "childTextureWrapS");
         mChild.textureFilter = report.sanitize<TextureFilter>(mChild.textureFilter, TextureFilter::Linear, "childTextureFilter");
-        mChild.blendFunc     = report.sanitize<BlendFuncType>(mChild.blendFunc, BlendFuncType::Transparence, "childBlendFunc");
+        mChild.blendFunc     = report.sanitize<BlendFuncType>(mChild.blendFunc, BlendFuncType::Opaque, "childBlendFunc");
         mChild.depthFunc     = report.sanitize<DepthFuncType>(mChild.depthFunc, DepthFuncType::TestAndWrite, "childDepthFunc");
         mChild.combinerFunc  = report.sanitize<ColorCombinerFuncType>(mChild.combinerFunc, ColorCombinerFuncType::CombinerConfig27, "childCombinerFunc");
 

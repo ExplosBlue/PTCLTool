@@ -26,7 +26,7 @@ struct EmitterState {
     const Ptcl::TextureHandle* textureHandle{nullptr};
     BillboardType billboardType{BillboardType::Billboard};
     bool isEmitterBillboardMtx{false};
-    BlendFuncType blendFunction{BlendFuncType::Translucent};
+    BlendFuncType blendFunction{BlendFuncType::AlphaBlend};
     DepthFuncType depthFunction{DepthFuncType::TestOnly};
     ColorCombinerFuncType combinerFunction{ColorCombinerFuncType::CombinerConfig0};
     ColorCalcType colorCalcType{ColorCalcType::None};

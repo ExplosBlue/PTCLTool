@@ -13,10 +13,10 @@ namespace PtclTool {
 
 
 static const std::array blendFuncOptions{ // NOLINT(cert-err58-cpp)
-    EnumOption<Ptcl::BlendFuncType>{ Ptcl::BlendFuncType::Translucent,  "Translucent",  "Standard alpha blending (SrcAlpha, OneMinusSrcAlpha)." },
-    EnumOption<Ptcl::BlendFuncType>{ Ptcl::BlendFuncType::Additive,     "Additive",     "Additive blending (SrcAlpha, One). Creates glow and bright effects." },
-    EnumOption<Ptcl::BlendFuncType>{ Ptcl::BlendFuncType::Subtractive,  "Subtractive",  "Subtractive blending. Creates dark and shadow effects." },
-    EnumOption<Ptcl::BlendFuncType>{ Ptcl::BlendFuncType::Transparence, "Transparence", "Alternative transparency blending mode." },
+    EnumOption<Ptcl::BlendFuncType>{ Ptcl::BlendFuncType::AlphaBlend,  "Transparent", "Standard alpha blending (SrcAlpha, OneMinusSrcAlpha)." },
+    EnumOption<Ptcl::BlendFuncType>{ Ptcl::BlendFuncType::Additive,    "Additive",    "Additive blending (SrcAlpha, One). Creates glow and bright effects." },
+    EnumOption<Ptcl::BlendFuncType>{ Ptcl::BlendFuncType::Subtractive, "Subtractive", "Subtractive blending. Creates dark and shadow effects." },
+    EnumOption<Ptcl::BlendFuncType>{ Ptcl::BlendFuncType::Opaque,      "Opaque",      "No alpha blending mode." },
 };
 
 static const std::array depthFuncOptions{ // NOLINT(cert-err58-cpp)
