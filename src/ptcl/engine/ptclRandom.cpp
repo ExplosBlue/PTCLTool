@@ -119,6 +119,17 @@ void PtclRandom::SetSeed(u32 val) {
     mRnd = val;
 }
 
+PtclRandom::EmitterSeed PtclRandom::makeEmitterSeed(
+    const PtclSeed& seed, u32 generatedSeed) {
+    const bool isConstant = seed.mode() == PtclSeed::Mode::ConstantSeed;
+    const u32 value = isConstant ? seed.constantSeed() : generatedSeed;
+    return {
+        value,
+        static_cast<u16>(value),
+        isConstant ? u16{} : static_cast<u16>(value >> 16),
+    };
+}
+
 const Math::Vector3f& PtclRandom::getVec3() {
     return vec3Table()[(mVec3RndIdx++) & cNumVec3TblMask];
 }

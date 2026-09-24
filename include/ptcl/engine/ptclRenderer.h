@@ -1,8 +1,16 @@
 #pragma once
 
+#include <QOpenGLBuffer>
+#include <QOpenGLShaderProgram>
+#include <QOpenGLVertexArrayObject>
+
+#include <array>
+#include <memory>
+#include <unordered_map>
 #include <vector>
 
 #include "gfx/color.h"
+#include "ptcl/engine/combiner.h"
 #include "math/matrix.h"
 #include "math/vector.h"
 #include "ptcl/ptclEnum.h"
@@ -10,8 +18,11 @@
 
 
 namespace Ptcl {
+class Texture;
 class TextureHandle;
 } // namespace Ptcl
+
+class QOpenGLFunctions_2_0;
 
 
 namespace Ptcl::Engine {
@@ -102,11 +113,47 @@ struct EmitterDrawFrame {
 };
 
 
+struct RenderCamera {
+    Math::Matrix44f viewProjection{};
+    Math::Vector3f right{};
+    Math::Vector3f up{};
+    Math::Vector3f forward{};
+};
+
+
+struct TextureBinding {
+    const Ptcl::Texture* texture{nullptr};
+    u32 id{0};
+    bool hasTexture{false};
+    f32 texelWidth{0.0f};
+    f32 texelHeight{0.0f};
+};
+
+
 // ========================================================================== //
 
 
 class PtclRenderer {
 public:
+    void initialize(QOpenGLFunctions_2_0& gl);
+    std::size_t render(QOpenGLFunctions_2_0& gl,
+        const EmitterDrawFrame& frame, const RenderCamera& camera,
+        s32 viewportWidth, s32 viewportHeight);
+    void renderParticles(QOpenGLFunctions_2_0& gl,
+        const EmitterDrawFrame& frame, const RenderCamera& camera,
+        const Math::Matrix44f& viewProjection, std::size_t& drawCount);
+    void renderStripes(QOpenGLFunctions_2_0& gl,
+        const std::vector<EmitterDrawStripe>& stripes,
+        const RenderCamera& camera, const Math::Matrix44f& viewProjection);
+    void cleanup(QOpenGLFunctions_2_0& gl);
+
+    static std::array<s32, 32> buildCombinerCfg(ColorCombinerFuncType function);
+    static void setupRenderState(QOpenGLFunctions_2_0& gl,
+        BlendFuncType blendFunction, DepthFuncType depthFunction);
+
+    TextureBinding bindTexture(QOpenGLFunctions_2_0& gl, const EmitterState& state);
+    void cleanupTextures(QOpenGLFunctions_2_0& gl);
+
     void beginCalc();
     void setEmitterState(const EmitterState& state);
     void emitParticle(const ParticleState& particle);
@@ -117,6 +164,13 @@ public:
     const EmitterDrawFrame& frame() const { return mFrame; }
 
 private:
+    std::unique_ptr<QOpenGLShaderProgram> mParticleProgram;
+    std::unique_ptr<QOpenGLShaderProgram> mStripeProgram;
+    QOpenGLBuffer mParticleVbo{QOpenGLBuffer::VertexBuffer};
+    QOpenGLVertexArrayObject mParticleVao{};
+    QOpenGLBuffer mStripeVbo{QOpenGLBuffer::VertexBuffer};
+    QOpenGLVertexArrayObject mStripeVao{};
+    std::unordered_map<const Ptcl::Texture*, u32> mTextureCache;
     EmitterDrawFrame mFrame;
 };
 

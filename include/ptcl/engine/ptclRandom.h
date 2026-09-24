@@ -3,6 +3,7 @@
 #include <array>
 
 #include "math/vector.h"
+#include "ptcl/ptclSeed.h"
 #include "typedefs.h"
 
 
@@ -44,6 +45,14 @@ public:
     void setRndRaw(u32 val);
 
     static u32 getGlobalU32();
+
+    struct EmitterSeed {
+        u32 value{0};
+        u16 vec3Index{0};
+        u16 normalizedVec3Index{0};
+    };
+
+    static EmitterSeed makeEmitterSeed(const PtclSeed& seed, u32 generatedSeed);
 
 private:
     static const Vec3Tbl& vec3Table();

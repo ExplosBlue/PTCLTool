@@ -2,6 +2,7 @@
 
 #include "ptcl/engine/emitterCalc.h"
 #include "ptcl/engine/emitterInstance.h"
+#include "ptcl/ptclEmitterSet.h"
 #include "ptcl/engine/ptclRenderer.h"
 
 #include <algorithm>
@@ -123,12 +124,15 @@ void PtclSystem::reset() {
     mRenderer.beginCalc();
     mRenderer.endCalc();
     mEmitters.clear();
+    mOwnedEmitters.clear();
+    mSetInstance = {};
     mStripes.clear();
     mCurPtclIx = 0;
     mNumEmittedPtcl = 0;
     mCurStripeIx = 0;
     mAliveCount = 0;
     mAliveEmitterCount = 0;
+    mLastDrawCount = 0;
     for (auto& ptcl : mPtcls) {
         ptcl.res = nullptr;
         ptcl.stripe = nullptr;
@@ -137,6 +141,55 @@ void PtclSystem::reset() {
         stripe.ptcl = nullptr;
         stripe.res = nullptr;
     }
+}
+
+void PtclSystem::setEmitterSet(const EmitterSet& emitterSet) {
+    reset();
+
+    u32 setSeed = 0;
+    bool hasSetSeed = false;
+    for (const auto& resource : emitterSet.emitters()) {
+        const auto& seedConfig = resource->randomSeed();
+        u32 generatedSeed = 0;
+        if (seedConfig.mode() == PtclSeed::Mode::RandomPerSet) {
+            if (!hasSetSeed) {
+                setSeed = nextEmitterSeed();
+                hasSetSeed = true;
+            }
+            generatedSeed = setSeed;
+        } else if (seedConfig.mode() == PtclSeed::Mode::RandomPerEmitter) {
+            generatedSeed = nextEmitterSeed();
+        }
+
+        const auto emitterSeed = PtclRandom::makeEmitterSeed(seedConfig, generatedSeed);
+        auto instance = std::make_unique<EmitterInstance>(
+            *resource, mSetInstance, emitterSeed.value,
+            emitterSeed.vec3Index, emitterSeed.normalizedVec3Index);
+
+        mSetInstance.addEmitter(*instance);
+        addEmitter(*instance);
+        mOwnedEmitters.push_back(std::move(instance));
+    }
+}
+
+void PtclSystem::initializeRenderer(QOpenGLFunctions_2_0& gl) {
+    mRenderer.initialize(gl);
+}
+
+void PtclSystem::cleanupRenderer(QOpenGLFunctions_2_0& gl) {
+    mRenderer.cleanup(gl);
+}
+
+std::size_t PtclSystem::render(QOpenGLFunctions_2_0& gl,
+    const Math::Matrix44f& viewProjection,
+    const Math::Vector3f& right,
+    const Math::Vector3f& up,
+    const Math::Vector3f& forward,
+    s32 viewportWidth, s32 viewportHeight) {
+    const RenderCamera camera{viewProjection, right, up, forward};
+    mLastDrawCount = mRenderer.render(
+        gl, lastFrame(), camera, viewportWidth, viewportHeight);
+    return mLastDrawCount;
 }
 
 void PtclSystem::calc() {
