@@ -579,6 +579,7 @@ PreviewViewport::PreviewViewport(QWidget* parent) :
     setFormat(fmt);
 
     mSystem = std::make_unique<Ptcl::Engine::PtclSystem>(8);
+    mCamera.setProjectionType(ViewportCamera::ProjectionType::Orthographic);
 
     setMinimumSize(320, 240);
     mTimer.setTimerType(Qt::PreciseTimer);

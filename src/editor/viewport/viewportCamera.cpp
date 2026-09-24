@@ -29,6 +29,19 @@ static Math::Matrix44f makePerspective(f32 fovYRadians, f32 aspect, f32 nearZ, f
     }};
 }
 
+static Math::Matrix44f makeOrthographic(f32 aspect, f32 nearZ, f32 farZ) {
+    const f32 halfHeight = std::tan(cVerticalFov * 0.5f) * cCameraDistance;
+    const f32 halfWidth = halfHeight * aspect;
+    const f32 depthScale = -2.0f / (farZ - nearZ);
+    const f32 depthOffset = -(farZ + nearZ) / (farZ - nearZ);
+    return {{
+        {1.0f / halfWidth, 0.0f,              0.0f,       0.0f       },
+        {0.0f,             1.0f / halfHeight, 0.0f,       0.0f       },
+        {0.0f,             0.0f,              depthScale, depthOffset},
+        {0.0f,             0.0f,              0.0f,       1.0f       },
+    }};
+}
+
 
 // ========================================================================== //
 
@@ -69,8 +82,13 @@ Math::Matrix44f ViewportCamera::makeView() const {
 }
 
 Math::Matrix44f ViewportCamera::viewProjection(s32 viewportWidth, s32 viewportHeight) const {
-    const f32 aspect = (viewportHeight > 0) ? static_cast<f32>(viewportWidth) / static_cast<f32>(viewportHeight) : 1.0f;
-    auto projection = makePerspective(cVerticalFov, aspect, cNear, cFar);
+    const f32 aspect = (viewportHeight > 0)
+        ? static_cast<f32>(viewportWidth) / static_cast<f32>(viewportHeight)
+        : 1.0f;
+
+    auto projection = (mProjectionType == ProjectionType::Perspective)
+        ? makePerspective(cVerticalFov, aspect, cNear, cFar)
+        : makeOrthographic(aspect, cNear, cFar);
 
     projection(0, 0) *= mZoom;
     projection(1, 1) *= mZoom;
@@ -104,6 +122,14 @@ ViewportCamera::Basis ViewportCamera::basis() const {
         up,
         forward
     };
+}
+
+ViewportCamera::ProjectionType ViewportCamera::projectionType() const {
+    return mProjectionType;
+}
+
+void ViewportCamera::setProjectionType(ProjectionType type) {
+    mProjectionType = type;
 }
 
 void ViewportCamera::orbit(QPoint delta) {
