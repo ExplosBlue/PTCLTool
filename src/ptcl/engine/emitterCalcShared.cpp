@@ -93,8 +93,8 @@ void EmitterCalc::beginEmitterMatrices(EmitterInstance& emitter) {
     const auto& res = emitter.mResource;
     const auto& set = emitter.mSet;
 
-    Math::MatrixCalc::multiply(emitter.mEmitterRT, set.RT, res.transformRT());
-    Math::MatrixCalc::multiply(emitter.mEmitterSRT, set.SRT, res.transformSRT());
+    emitter.mEmitterRT = Math::MatrixCalc::multiply(set.RT, res.transformRT());
+    emitter.mEmitterSRT = Math::MatrixCalc::multiply(set.SRT, res.transformSRT());
 }
 
 EmitterState EmitterCalc::emitParentState(PtclRenderer& renderer, const EmitterInstance& emitter) {
@@ -108,8 +108,6 @@ EmitterState EmitterCalc::emitParentState(PtclRenderer& renderer, const EmitterI
         .blendFunction         = res.blendFunction(),
         .depthFunction         = res.depthFunction(),
         .combinerFunction      = res.combinerFunction(),
-        .colorCalcType         = res.colorCalcType(),
-        .isFogEnabled          = res.isFogEnabled(),
         .rotationBasis         = res.rotationBasis(),
         .color = {
             res.primaryColor().r() * set.color.r(),
@@ -143,8 +141,6 @@ void EmitterCalc::emitChildState(PtclRenderer& renderer, const EmitterInstance& 
         .blendFunction         = res.childBlendFunc(),
         .depthFunction         = res.childDepthFunc(),
         .combinerFunction      = res.childCombinerFunc(),
-        .colorCalcType         = ColorCalcType::None,
-        .isFogEnabled          = res.isFogEnabled(),
         .rotationBasis         = res.childRotationBasis(),
         .color = {
             res.childPrimaryColor().r() * set.color.r(),

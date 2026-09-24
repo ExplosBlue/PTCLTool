@@ -53,6 +53,10 @@ Vector3f multScalar(const Vector3f& a, f32 scalar) {
     };
 }
 
+f32 dot(const Vector3f& a, const Vector3f& b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
 Vector3f cross(const Vector3f& a, const Vector3f& b) {
     return {
         a.y * b.z - a.z * b.y,

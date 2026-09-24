@@ -71,13 +71,15 @@ private:
 };
 
 using Matrix34f = Matrix<f32, 3, 4>;
+using Matrix44f = Matrix<f32, 4, 4>;
 using Matrix33f = Matrix<f32, 3, 3>;
 
 
 namespace MatrixCalc {
 
 
-inline void multiply(Matrix34f& out, const Matrix34f& a, const Matrix34f& b) {
+inline Matrix34f multiply(const Matrix34f& a, const Matrix34f& b) {
+    Matrix34f result{};
     const f32 a11 = a(0, 0);
     const f32 a12 = a(0, 1);
     const f32 a13 = a(0, 2);
@@ -108,35 +110,55 @@ inline void multiply(Matrix34f& out, const Matrix34f& a, const Matrix34f& b) {
     const f32 b33 = b(2, 2);
     const f32 b34 = b(2, 3);
 
-    out(0, 0) = a11 * b11 + a12 * b21 + a13 * b31;
-    out(0, 1) = a11 * b12 + a12 * b22 + a13 * b32;
-    out(0, 2) = a11 * b13 + a12 * b23 + a13 * b33;
-    out(0, 3) = a11 * b14 + a12 * b24 + a13 * b34 + a14;
+    result(0, 0) = a11 * b11 + a12 * b21 + a13 * b31;
+    result(0, 1) = a11 * b12 + a12 * b22 + a13 * b32;
+    result(0, 2) = a11 * b13 + a12 * b23 + a13 * b33;
+    result(0, 3) = a11 * b14 + a12 * b24 + a13 * b34 + a14;
 
-    out(1, 0) = a21 * b11 + a22 * b21 + a23 * b31;
-    out(1, 1) = a21 * b12 + a22 * b22 + a23 * b32;
-    out(1, 2) = a21 * b13 + a22 * b23 + a23 * b33;
-    out(1, 3) = a21 * b14 + a22 * b24 + a23 * b34 + a24;
+    result(1, 0) = a21 * b11 + a22 * b21 + a23 * b31;
+    result(1, 1) = a21 * b12 + a22 * b22 + a23 * b32;
+    result(1, 2) = a21 * b13 + a22 * b23 + a23 * b33;
+    result(1, 3) = a21 * b14 + a22 * b24 + a23 * b34 + a24;
 
-    out(2, 0) = a31 * b11 + a32 * b21 + a33 * b31;
-    out(2, 1) = a31 * b12 + a32 * b22 + a33 * b32;
-    out(2, 2) = a31 * b13 + a32 * b23 + a33 * b33;
-    out(2, 3) = a31 * b14 + a32 * b24 + a33 * b34 + a34;
+    result(2, 0) = a31 * b11 + a32 * b21 + a33 * b31;
+    result(2, 1) = a31 * b12 + a32 * b22 + a33 * b32;
+    result(2, 2) = a31 * b13 + a32 * b23 + a33 * b33;
+    result(2, 3) = a31 * b14 + a32 * b24 + a33 * b34 + a34;
+    return result;
 }
 
-inline void multiply(Vector3f& out, const Matrix34f& m, const Vector3f& v) {
-    out.x = m(0, 0) * v.x + m(0, 1) * v.y + m(0, 2) * v.z + m(0, 3);
-    out.y = m(1, 0) * v.x + m(1, 1) * v.y + m(1, 2) * v.z + m(1, 3);
-    out.z = m(2, 0) * v.x + m(2, 1) * v.y + m(2, 2) * v.z + m(2, 3);
+inline Matrix44f multiply(const Matrix44f& a, const Matrix44f& b) {
+    Matrix44f result{};
+    for (std::size_t row = 0; row < 4; ++row) {
+        for (std::size_t col = 0; col < 4; ++col) {
+            f32 sum = 0.0f;
+            for (std::size_t k = 0; k < 4; ++k) {
+                sum += a(row, k) * b(k, col);
+            }
+            result(row, col) = sum;
+        }
+    }
+    return result;
 }
 
-inline void rotate(Vector3f& out, const Matrix34f& m, const Vector3f& v) {
-    out.x = m(0, 0) * v.x + m(1, 0) * v.y + m(2, 0) * v.z;
-    out.y = m(0, 1) * v.x + m(1, 1) * v.y + m(2, 1) * v.z;
-    out.z = m(0, 2) * v.x + m(1, 2) * v.y + m(2, 2) * v.z;
+inline Vector3f multiply(const Matrix34f& m, const Vector3f& v) {
+    return {
+        m(0, 0) * v.x + m(0, 1) * v.y + m(0, 2) * v.z + m(0, 3),
+        m(1, 0) * v.x + m(1, 1) * v.y + m(1, 2) * v.z + m(1, 3),
+        m(2, 0) * v.x + m(2, 1) * v.y + m(2, 2) * v.z + m(2, 3),
+    };
 }
 
-inline void invert(Matrix34f& out, const Matrix34f& a) {
+inline Vector3f rotate(const Matrix34f& m, const Vector3f& v) {
+    return {
+        m(0, 0) * v.x + m(1, 0) * v.y + m(2, 0) * v.z,
+        m(0, 1) * v.x + m(1, 1) * v.y + m(2, 1) * v.z,
+        m(0, 2) * v.x + m(1, 2) * v.y + m(2, 2) * v.z,
+    };
+}
+
+inline Matrix34f invert(const Matrix34f& a) {
+    Matrix34f result{};
     const f32 m00 = a(0, 0);
     const f32 m01 = a(0, 1);
     const f32 m02 = a(0, 2);
@@ -156,12 +178,11 @@ inline void invert(Matrix34f& out, const Matrix34f& a) {
     const f32 det = (-(v12 * m02) - (m00 * m11 * m22)) + v13 + v14;
 
     if (det == 0.0f) {
-        out = Matrix34f{
+        return Matrix34f{
             {1.0f, 0.0f, 0.0f, 0.0f},
             {0.0f, 1.0f, 0.0f, 0.0f},
             {0.0f, 0.0f, 1.0f, 0.0f},
         };
-        return;
     }
 
     const f32 invDet = 1.0f / det;
@@ -183,18 +204,19 @@ inline void invert(Matrix34f& out, const Matrix34f& a) {
     const f32 r21 = -(v22 * invDet);
     const f32 r22 = v23 * invDet;
 
-    out(0, 0) = r00;
-    out(0, 1) = r01;
-    out(0, 2) = r02;
-    out(0, 3) = -(r02 * m23) - (-(r01 * m13) - -(r00 * m03));
-    out(1, 0) = r10;
-    out(1, 1) = r11;
-    out(1, 2) = r12;
-    out(1, 3) = -(r12 * m23) - (-(r11 * m13) - -(r10 * m03));
-    out(2, 0) = r20;
-    out(2, 1) = r21;
-    out(2, 2) = r22;
-    out(2, 3) = -(r22 * m23) - (-(r21 * m13) - -(r20 * m03));
+    result(0, 0) = r00;
+    result(0, 1) = r01;
+    result(0, 2) = r02;
+    result(0, 3) = -(r02 * m23) - (-(r01 * m13) - -(r00 * m03));
+    result(1, 0) = r10;
+    result(1, 1) = r11;
+    result(1, 2) = r12;
+    result(1, 3) = -(r12 * m23) - (-(r11 * m13) - -(r10 * m03));
+    result(2, 0) = r20;
+    result(2, 1) = r21;
+    result(2, 2) = r22;
+    result(2, 3) = -(r22 * m23) - (-(r21 * m13) - -(r20 * m03));
+    return result;
 }
 
 

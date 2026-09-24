@@ -81,8 +81,7 @@ void EmitterCalc::calcFieldCollision(EmitterInstance& emitter, PtclInstance& ptc
     if (res.fieldCollisionIsWorld()) {
         const auto& matrixSRT = res.isFollow() ? emitter.mEmitterSRT : ptcl.emitterSRT;
 
-        Math::Vector3f worldPos;
-        Math::MatrixCalc::multiply(worldPos, matrixSRT, ptcl.position);
+        Math::Vector3f worldPos = Math::MatrixCalc::multiply(matrixSRT, ptcl.position);
 
         switch(res.fieldCollisionType()) {
         case Ptcl::FieldCollisionType::Die:
@@ -95,15 +94,13 @@ void EmitterCalc::calcFieldCollision(EmitterInstance& emitter, PtclInstance& ptc
             if (worldPos.y < coord) {
                 worldPos.y = coord + 0.0001f;
 
-                Math::Vector3f velocity;
-                Math::MatrixCalc::rotate(velocity, matrixSRT, ptcl.velocity);
+                Math::Vector3f velocity = Math::MatrixCalc::rotate(matrixSRT, ptcl.velocity);
                 velocity.y = -(velocity.y * coef);
 
-                Math::Matrix34f inverseSRT;
-                Math::MatrixCalc::invert(inverseSRT, matrixSRT);
+                const Math::Matrix34f inverseSRT = Math::MatrixCalc::invert(matrixSRT);
 
-                Math::MatrixCalc::multiply(ptcl.position, inverseSRT, worldPos);
-                Math::MatrixCalc::rotate(ptcl.velocity, inverseSRT, velocity);
+                ptcl.position = Math::MatrixCalc::multiply(inverseSRT, worldPos);
+                ptcl.velocity = Math::MatrixCalc::rotate(inverseSRT, velocity);
             }
             break;
         }
