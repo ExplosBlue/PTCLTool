@@ -500,6 +500,13 @@ void MainWindow::loadDocument(const QString& path) {
     mInspector.setDocument(mDocument.get());
     mTextureWidget.setDocument(mDocument.get());
     connect(mDocument.get(), &Ptcl::Document::importReportReady, this, &MainWindow::showSanitizeWarningDialog);
+    connect(mDocument.get(), &Ptcl::Document::emitterChanged, this,
+        [this](s32 setIndex, s32) {
+            if (mSelection.type() == Ptcl::Selection::Type::EmitterSet
+                && mSelection.emitterSetIndex() == setIndex) {
+                updatePreviewSet(setIndex);
+            }
+        });
 
     mPreviewViewport->setEnabled(true);
 
@@ -520,8 +527,7 @@ void MainWindow::updatePreviewSet(s32 setIndex) {
         return;
     }
 
-    const Ptcl::EmitterSet* set = mDocument->emitterSet(setIndex);
-    mPreviewViewport->setEmitterSet(set);
+    mPreviewViewport->setPreview(mDocument.get(), mSelection);
 }
 
 void MainWindow::dropImage(const QString& filePath) {

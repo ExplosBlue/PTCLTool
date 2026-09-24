@@ -1,5 +1,7 @@
 #include "ptcl/engine/emitterCalc.h"
 
+#include <algorithm>
+#include <cmath>
 #include <cstddef>
 
 #include "math/vector.h"
@@ -14,7 +16,85 @@ namespace Ptcl::Engine {
 
 namespace /* Anonymous */ {
 
-constexpr s32 cStripeNumHistoryMask = static_cast<s32>(PtclSystem::cStripeNumHistory) - 1;
+constexpr s32 cStripeNumHistoryCapacity = static_cast<s32>(PtclSystem::cStripeNumHistory);
+
+s32 wrapStripeIndex(s32 index, s32 size) {
+    if (size <= 0) {
+        return 0;
+    }
+    const s32 wrapped = index % size;
+    return (wrapped < 0) ? wrapped + size : wrapped;
+}
+
+StripeDraw makeStripeDraw(const Ptcl::Emitter& res, PtclStripe& stripe) {
+    StripeDraw draw;
+
+    stripe.uvScroll.x += res.stripeUVScrollSpeed().x;
+    if (stripe.uvScroll.x < -2.0f) {
+        stripe.uvScroll.x += 2.0f;
+    } else if (stripe.uvScroll.x > 2.0f) {
+        stripe.uvScroll.x -= 2.0f;
+    }
+    stripe.uvScroll.y += res.stripeUVScrollSpeed().y;
+    if (stripe.uvScroll.y < -2.0f) {
+        stripe.uvScroll.y += 2.0f;
+    } else if (stripe.uvScroll.y > 2.0f) {
+        stripe.uvScroll.y -= 2.0f;
+    }
+
+    const s32 historyStep = std::min(res.stripeHistoryStep(), stripe.numHistory);
+    if (historyStep < 3) {
+        return draw;
+    }
+
+    const s32 historySize = std::clamp(res.stripeNumHistory(), 1, cStripeNumHistoryCapacity);
+    const s32 sampleCount = historyStep - 1;
+    const f32 alphaStart = res.stripeStartAlpha();
+    const f32 alphaRange = res.stripeEndAlpha() - alphaStart;
+    const bool emitterCoord = res.stripeFlags().isSet(Ptcl::StripeFlag::EmitterCoord);
+
+    draw.points.reserve(static_cast<std::size_t>(sampleCount));
+    for (s32 i = 0; i < sampleCount; ++i) {
+        const f32 t = static_cast<f32>(i) / static_cast<f32>(sampleCount - 1);
+        const f32 sample = t * static_cast<f32>(stripe.numHistory - 2);
+        const s32 rounded = static_cast<s32>(std::floor(sample + 0.5f));
+        const f32 blend = std::max(0.0f, sample - static_cast<f32>(rounded));
+        const s32 newerIndex = wrapStripeIndex(stripe.histQEnd - 1 - rounded, historySize);
+        const s32 olderIndex = wrapStripeIndex(newerIndex - 1, historySize);
+        const PtclStripeHistory& newer = stripe.hist[newerIndex];
+        const PtclStripeHistory& older = stripe.hist[olderIndex];
+
+        Math::Vector3f position = Math::VectorCalc::add(newer.pos, Math::VectorCalc::multScalar(Math::VectorCalc::sub(older.pos, newer.pos), blend));
+        Math::Vector3f outer = newer.outer;
+        Math::Vector3f emitterY{newer.emitterSRT(0, 1), newer.emitterSRT(1, 1), newer.emitterSRT(2, 1)};
+
+        if (emitterCoord) {
+            position = Math::VectorCalc::multiply(stripe.emitterSRT, position);
+            if (res.stripeType() == StripeType::Billboard) {
+                outer = Math::VectorCalc::rotate(stripe.emitterSRT, outer);
+            }
+            emitterY = Math::VectorCalc::rotate(stripe.emitterSRT, emitterY);
+        } else if (res.stripeType() != StripeType::Billboard) {
+            outer = Math::VectorCalc::rotate(newer.emitterSRT, outer);
+        }
+
+        draw.points.push_back({
+            .position = position,
+            .outer = outer,
+            .emitterY = emitterY,
+            .scale = newer.scale,
+            .alpha = (alphaStart + alphaRange * t) * stripe.color.a(),
+            .t = t,
+            .uv = {
+                stripe.uvOffset.x + stripe.uvScroll.x,
+                stripe.uvOffset.y + stripe.uvScroll.y,
+            },
+            .uvScale = stripe.uvSubOffset,
+        });
+    }
+
+    return draw;
+}
 
 } // namespace /* Anonymous */
 
@@ -132,7 +212,7 @@ s32 EmitterCalc::calcComplexParent(EmitterInstance& emitter, PtclRenderer& rende
         return 0;
     }
 
-    emitParentState(renderer, emitter);
+    const EmitterState parentState = emitParentState(renderer, emitter);
 
     s32 aliveCount = 0;
 
@@ -160,6 +240,20 @@ s32 EmitterCalc::calcComplexParent(EmitterInstance& emitter, PtclRenderer& rende
             }
 
             calcComplexParticle(emitter, *cur);
+            if (cur->stripe != nullptr) {
+                StripeDraw stripe = makeStripeDraw(res, *cur->stripe);
+                if (!stripe.points.empty()) {
+                    EmitterState stripeState = parentState;
+                    stripeState.color = {
+                        res.color0()[0].r() * set.color.r(),
+                        res.color0()[0].g() * set.color.g(),
+                        res.color0()[0].b() * set.color.b(),
+                        1.0f,
+                    };
+                    stripeState.secondaryColor = parentState.color;
+                    renderer.emitStripe(stripeState, stripe);
+                }
+            }
         } else {
             PtclStripe* stripe = cur->stripe;
             if (stripe == nullptr) {
@@ -168,7 +262,8 @@ s32 EmitterCalc::calcComplexParent(EmitterInstance& emitter, PtclRenderer& rende
                 continue;
             }
             if (stripe->histQStart != stripe->histQEnd) {
-                stripe->histQStart = (stripe->histQStart + 1) & cStripeNumHistoryMask;
+                const s32 historySize = std::clamp(res.stripeNumHistory(), 1, cStripeNumHistoryCapacity);
+                stripe->histQStart = wrapStripeIndex(stripe->histQStart + 1, historySize);
                 --stripe->numHistory;
                 stripe->color = {
                     set.color.r(),
@@ -203,35 +298,39 @@ void EmitterCalc::calcComplexParticle(EmitterInstance& emitter, PtclInstance& pt
 
         PtclStripe* stripe = ptcl.stripe;
         if (stripe != nullptr) {
-            PtclStripeHistory& now = stripe->hist[stripe->histQEnd];
+            const s32 historySize = std::clamp(res.stripeNumHistory(), 1, cStripeNumHistoryCapacity);
+            PtclStripeHistory& now = stripe->hist[wrapStripeIndex(stripe->histQEnd, historySize)];
             if (res.stripeFlags().isSet(StripeFlag::EmitterCoord)) {
                 now.pos = ptcl.position;
-                stripe->emitterSRT = Math::Matrix34f{
+                now.emitterSRT = Math::Matrix34f{
                     {1.0f, 0.0f, 0.0f, 0.0f},
                     {0.0f, 1.0f, 0.0f, 0.0f},
                     {0.0f, 0.0f, 1.0f, 0.0f},
                 };
             } else {
                 now.pos = ptcl.positionDiff;
-                stripe->emitterSRT = emitter.mEmitterSRT;
+                now.emitterSRT = emitter.mEmitterSRT;
             }
+            stripe->emitterSRT = emitter.mEmitterSRT;
             now.scale = ptcl.scale.x * set.mParticleScaleForCalc.x;
 
             const s32 prevCount = stripe->numHistory;
             if (prevCount >= 2) {
-                const PtclStripeHistory& prev = stripe->hist[(stripe->histQEnd - 1) & cStripeNumHistoryMask];
+                const PtclStripeHistory& prev = stripe->hist[wrapStripeIndex(stripe->histQEnd - 1, historySize)];
                 Math::Vector3f dir = Math::VectorCalc::sub(now.pos, prev.pos);
                 Math::VectorCalc::normalize(dir);
                 dir = Math::VectorCalc::sub(dir, stripe->interpolateNextDir);
                 stripe->interpolateNextDir = Math::VectorCalc::add(
                     stripe->interpolateNextDir, Math::VectorCalc::multScalar(dir, res.stripeDirInterpolate()));
             } else if (prevCount >= 1) {
-                const PtclStripeHistory& prev = stripe->hist[(stripe->histQEnd - 1) & cStripeNumHistoryMask];
+                const PtclStripeHistory& prev = stripe->hist[wrapStripeIndex(stripe->histQEnd - 1, historySize)];
                 stripe->interpolateNextDir = Math::VectorCalc::sub(now.pos, prev.pos);
             }
             Math::VectorCalc::normalize(stripe->interpolateNextDir);
 
-            const f32 outScale = now.scale;
+            const f32 outScale = (prevCount > 0)
+                ? stripe->hist[wrapStripeIndex(stripe->histQEnd - 1, historySize)].scale
+                : now.scale;
             const Math::Matrix34f& stripeSRT = stripe->emitterSRT;
             switch (res.stripeType()) {
             case StripeType::EmitterUpDown: {
@@ -254,12 +353,12 @@ void EmitterCalc::calcComplexParticle(EmitterInstance& emitter, PtclInstance& pt
             }
             }
 
-            if (stripe->numHistory >= static_cast<s32>(PtclSystem::cStripeNumHistory)) {
-                stripe->histQStart = (stripe->histQStart + 1) & cStripeNumHistoryMask;
+            if (stripe->numHistory >= historySize) {
+                stripe->histQStart = wrapStripeIndex(stripe->histQStart + 1, historySize);
             } else {
                 ++stripe->numHistory;
             }
-            stripe->histQEnd = (stripe->histQEnd + 1) & cStripeNumHistoryMask;
+            stripe->histQEnd = wrapStripeIndex(stripe->histQEnd + 1, historySize);
 
             stripe->uvOffset = ptcl.uvOffset;
             stripe->uvSubOffset = ptcl.uvSubOffset;
@@ -459,6 +558,7 @@ s32 EmitterCalc::calcComplexChild(EmitterInstance& emitter, PtclRenderer& render
                 }
             }
             draw.followCount = followCount;
+            draw.isChild = true;
 
             sChildPtclCalcFunctions[static_cast<std::size_t>(res.childRotationType())](&draw.matrix, emitter, *cur);
 

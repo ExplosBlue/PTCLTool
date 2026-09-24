@@ -102,7 +102,8 @@ void EmitterCalc::scheduleEmission(EmitterInstance& emitter, s32 frame, bool can
     }
 
     emitter.mLoopInterval = 0;
-    emitter.mEmissionInterval = emitter.mRandom.getS32(res.lifeStepRandom()) + res.lifeStep();
+    emitter.mEmissionInterval = res.lifeStep()
+        - emitter.mRandom.getS32(res.lifeStepRandom());
 }
 
 void EmitterCalc::beginEmitterMatrices(EmitterInstance& emitter) {
@@ -113,11 +114,11 @@ void EmitterCalc::beginEmitterMatrices(EmitterInstance& emitter) {
     Math::MatrixCalc::multiply(emitter.mEmitterSRT, set.SRT, res.transformSRT());
 }
 
-void EmitterCalc::emitParentState(PtclRenderer& renderer, const EmitterInstance& emitter) {
+EmitterState EmitterCalc::emitParentState(PtclRenderer& renderer, const EmitterInstance& emitter) {
     const auto& res = emitter.mResource;
     const auto& set = emitter.mSet;
 
-    renderer.setEmitterState({
+    const EmitterState state{
         .textureHandle         = &res.textureHandle(),
         .billboardType         = res.billboardType(),
         .isEmitterBillboardMtx = res.isEmitterBillboardMtx(),
@@ -143,7 +144,9 @@ void EmitterCalc::emitParentState(PtclRenderer& renderer, const EmitterInstance&
         .textureWrapT     = res.textureWrapT(),
         .textureFilter    = res.textureFilter(),
         .emitterRT = emitter.mEmitterRT,
-    });
+    };
+    renderer.setEmitterState(state);
+    return state;
 }
 
 void EmitterCalc::emitChildState(PtclRenderer& renderer, const EmitterInstance& emitter) {

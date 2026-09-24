@@ -161,8 +161,33 @@ void PtclSystem::removeStripe(PtclStripe& stripe) {
     stripe.numHistory = 0;
 }
 
-void PtclSystem::calc(PtclRenderer& renderer) {
-    renderer.beginCalc();
+void PtclSystem::reset() {
+    mRenderer.beginCalc();
+    mRenderer.endCalc();
+    mEmittersFirst = nullptr;
+    mEmittersLast = nullptr;
+    mStripeFirst = nullptr;
+    mCurPtclIx = 0;
+    mNumEmittedPtcl = 0;
+    mCurStripeIx = 0;
+    mAliveCount = 0;
+    mAliveEmitterCount = 0;
+    for (auto& ptcl : mPtcls) {
+        ptcl.res = nullptr;
+        ptcl.prev = nullptr;
+        ptcl.next = nullptr;
+        ptcl.stripe = nullptr;
+    }
+    for (auto& stripe : mStripes) {
+        stripe.ptcl = nullptr;
+        stripe.res = nullptr;
+        stripe.prev = nullptr;
+        stripe.next = nullptr;
+    }
+}
+
+void PtclSystem::calc() {
+    mRenderer.beginCalc();
 
     mAliveCount = 0;
     mAliveEmitterCount = 0;
@@ -171,7 +196,7 @@ void PtclSystem::calc(PtclRenderer& renderer) {
     while (emitter != nullptr) {
         EmitterInstance* next = emitter->mNext;
         if (emitter->alive()) {
-            const s32 count = EmitterCalc::calc(*emitter, renderer);
+            const s32 count = EmitterCalc::calc(*emitter, mRenderer);
             const s64 total = static_cast<s64>(mAliveCount) + count;
             mAliveCount = static_cast<s32>(std::min<s64>(total, 0x7FFFFFFF));
             if (count != 0) {
@@ -181,7 +206,7 @@ void PtclSystem::calc(PtclRenderer& renderer) {
         emitter = next;
     }
 
-    renderer.endCalc();
+    mRenderer.endCalc();
 }
 
 

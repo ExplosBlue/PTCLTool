@@ -21,7 +21,9 @@
 
 
 namespace Ptcl {
+class Document;
 class EmitterSet;
+class Selection;
 class Texture;
 } // namespace Ptcl
 
@@ -32,24 +34,19 @@ namespace PtclTool {
 // ========================================================================== //
 
 
-class PreviewViewport final : public QOpenGLWidget, protected QOpenGLFunctions_2_0, public Ptcl::Engine::PtclRenderer {
+class PreviewViewport final : public QOpenGLWidget, protected QOpenGLFunctions_2_0 {
     Q_OBJECT
 public:
     explicit PreviewViewport(QWidget* parent = nullptr);
     ~PreviewViewport() final;
 
-    void setEmitterSet(const Ptcl::EmitterSet* emitterSet);
+    void setPreview(const Ptcl::Document* document, const Ptcl::Selection& selection);
     void clearPreview();
 
     std::size_t lastDrawCount() const { return mLastDrawCount; }
     std::size_t lastFrameParticleCount() const;
     s32 lastFrameAliveCount() const { return system() ? system()->lastFrameAliveCount() : 0; }
-    bool hasFrame() const { return !mFrame.batches.empty(); }
-
-    void beginCalc() override;
-    void setEmitterState(const Ptcl::Engine::EmitterState& state) override;
-    void emitParticle(const Ptcl::Engine::ParticleState& particle) override;
-    void endCalc() override;
+    bool hasFrame() const { return system() && !system()->lastFrame().batches.empty(); }
 
 public slots:
     void stepFrame();
@@ -65,7 +62,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) final;
 
 private:
-    void rebuild(const Ptcl::EmitterSet& emitterSet);
+    void createEmitterSet(const Ptcl::EmitterSet& emitterSet);
     void ensureGlResources();
     void cleanupGlResources();
 
@@ -83,13 +80,14 @@ private:
     QElapsedTimer mElapsedTimer{};
     qint64 mLastFrameNs{0};
 
-    Ptcl::Engine::EmitterDrawFrame mFrame{};
-
     QOpenGLShaderProgram* mProgram{nullptr};
     QOpenGLShaderProgram* mScreenProgram{nullptr};
     QOpenGLShaderProgram* mGridProgram{nullptr};
+    QOpenGLShaderProgram* mStripeProgram{nullptr};
     QOpenGLBuffer mQuadVbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLVertexArrayObject mQuadVao{};
+    QOpenGLBuffer mStripeVbo{QOpenGLBuffer::VertexBuffer};
+    QOpenGLVertexArrayObject mStripeVao{};
     QOpenGLBuffer mGridVbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLVertexArrayObject mGridVao{};
     GLsizei mGridVertexCount{0};
@@ -102,7 +100,7 @@ private:
     std::size_t mLastDrawCount{0};
 
     float mZoom{1.0f};
-    float mYaw{0.0f};
+    float mYaw{3.14159265358979323846f};
     float mPitch{0.0f};
     Math::Vector3f mTarget{};
     bool mOrbitDragging{false};

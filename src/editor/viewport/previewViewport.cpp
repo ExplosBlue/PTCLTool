@@ -1,6 +1,7 @@
 #include "editor/viewport/previewViewport.h"
 
 #include "editor/components/combinerPreviewWidget.h"
+#include "ptcl/ptclDocument.h"
 #include "ptcl/ptclEmitterSet.h"
 #include "ptcl/ptclTexture.h"
 
@@ -8,6 +9,7 @@
 #include <QWheelEvent>
 
 #include <array>
+#include <cstddef>
 
 
 namespace PtclTool {
@@ -24,16 +26,42 @@ uniform vec3 uAxisY;
 uniform mat4 uViewProj;
 uniform vec2 uUvOffset;
 uniform vec2 uUvScale;
+uniform vec2 uTexel;
+uniform vec4 uPrimaryColor;
 out vec2 vUv;
+out vec2 vLocalUv;
+out float vParticleAlpha;
 void main() {
-    vUv = uUvOffset + (aPos + 0.5) * uUvScale;
+    vLocalUv = vec2(aPos.x + 0.5, 0.5 - aPos.y);
+    vParticleAlpha = uPrimaryColor.a;
+    vec2 uvMin = uUvOffset + uTexel * 0.5;
+    vec2 uvMax = uUvOffset + uUvScale - uTexel * 0.5;
+    vUv = mix(uvMin, uvMax, vLocalUv);
     vec3 world = uCenter + aPos.x * uAxisX + aPos.y * uAxisY;
     gl_Position = uViewProj * vec4(world, 1.0);
 }
 )";
 
+constexpr const char* cStripeVertShader = R"(#version 330 core
+in vec3 aPosition;
+in vec2 aUv;
+in float aAlpha;
+uniform mat4 uViewProj;
+out vec2 vUv;
+out vec2 vLocalUv;
+out float vParticleAlpha;
+void main() {
+    vUv = vec2(aUv.x, 1.0 - aUv.y);
+    vLocalUv = vec2(0.5);
+    vParticleAlpha = aAlpha;
+    gl_Position = uViewProj * vec4(aPosition, 1.0);
+}
+)";
+
 constexpr const char* cFragShader = R"(#version 330 core
 in vec2 vUv;
+in vec2 vLocalUv;
+in float vParticleAlpha;
 uniform sampler2D uTex;
 uniform int uHasTex;
 uniform vec4 uConstantColor;
@@ -98,18 +126,19 @@ void main() {
     if (uHasTex == 1) {
         tex = texture(uTex, vUv);
     } else {
-        vec2 c = vUv - vec2(0.5);
+        vec2 c = vLocalUv - vec2(0.5);
         float m = step(length(c), 0.5);
         tex = vec4(vec3(1.0), m);
     }
+    vec4 primary = vec4(uPrimaryColor.rgb, vParticleAlpha);
     vec4 prev = vec4(0.0);
-    vec3 cOut = evalColorStage(0, uConstantColor, uPrimaryColor, tex, prev);
+    vec3 cOut = evalColorStage(0, uConstantColor, primary, tex, prev);
     prev = vec4(cOut, 0.0);
-    cOut = evalColorStage(8, uConstantColor, uPrimaryColor, tex, prev);
+    cOut = evalColorStage(8, uConstantColor, primary, tex, prev);
     prev = vec4(0.0, 0.0, 0.0, 0.0);
-    float aOut = evalAlphaStage(16, uConstantColor, uPrimaryColor, tex, prev);
+    float aOut = evalAlphaStage(16, uConstantColor, primary, tex, prev);
     prev = vec4(0.0, 0.0, 0.0, aOut);
-    aOut = evalAlphaStage(24, uConstantColor, uPrimaryColor, tex, prev);
+    aOut = evalAlphaStage(24, uConstantColor, primary, tex, prev);
     fragColor = vec4(cOut, aOut);
 }
 )";
@@ -123,17 +152,44 @@ uniform vec3 uAxisY;
 uniform mat4 uViewProj;
 uniform vec2 uUvOffset;
 uniform vec2 uUvScale;
+uniform vec2 uTexel;
+uniform vec4 uPrimaryColor;
 out vec2 vUv;
+out vec2 vLocalUv;
+out float vParticleAlpha;
 void main() {
-    vUv = uUvOffset + (aPos + 0.5) * uUvScale;
+    vLocalUv = vec2(aPos.x + 0.5, 0.5 - aPos.y);
+    vParticleAlpha = uPrimaryColor.a;
+    vec2 uvMin = uUvOffset + uTexel * 0.5;
+    vec2 uvMax = uUvOffset + uUvScale - uTexel * 0.5;
+    vUv = mix(uvMin, uvMax, vLocalUv);
     vec3 world = uCenter + aPos.x * uAxisX + aPos.y * uAxisY;
     gl_Position = uViewProj * vec4(world, 1.0);
+}
+)";
+
+constexpr const char* cStripeVertShaderEs = R"(#version 300 es
+precision highp float;
+in vec3 aPosition;
+in vec2 aUv;
+in float aAlpha;
+uniform mat4 uViewProj;
+out vec2 vUv;
+out vec2 vLocalUv;
+out float vParticleAlpha;
+void main() {
+    vUv = vec2(aUv.x, 1.0 - aUv.y);
+    vLocalUv = vec2(0.5);
+    vParticleAlpha = aAlpha;
+    gl_Position = uViewProj * vec4(aPosition, 1.0);
 }
 )";
 
 constexpr const char* cFragShaderEs = R"(#version 300 es
 precision highp float;
 in vec2 vUv;
+in vec2 vLocalUv;
+in float vParticleAlpha;
 uniform sampler2D uTex;
 uniform int uHasTex;
 uniform vec4 uConstantColor;
@@ -198,18 +254,19 @@ void main() {
     if (uHasTex == 1) {
         tex = texture(uTex, vUv);
     } else {
-        vec2 c = vUv - vec2(0.5);
+        vec2 c = vLocalUv - vec2(0.5);
         float m = step(length(c), 0.5);
         tex = vec4(vec3(1.0), m);
     }
+    vec4 primary = vec4(uPrimaryColor.rgb, vParticleAlpha);
     vec4 prev = vec4(0.0);
-    vec3 cOut = evalColorStage(0, uConstantColor, uPrimaryColor, tex, prev);
+    vec3 cOut = evalColorStage(0, uConstantColor, primary, tex, prev);
     prev = vec4(cOut, 0.0);
-    cOut = evalColorStage(8, uConstantColor, uPrimaryColor, tex, prev);
+    cOut = evalColorStage(8, uConstantColor, primary, tex, prev);
     prev = vec4(0.0, 0.0, 0.0, 0.0);
-    float aOut = evalAlphaStage(16, uConstantColor, uPrimaryColor, tex, prev);
+    float aOut = evalAlphaStage(16, uConstantColor, primary, tex, prev);
     prev = vec4(0.0, 0.0, 0.0, aOut);
-    aOut = evalAlphaStage(24, uConstantColor, uPrimaryColor, tex, prev);
+    aOut = evalAlphaStage(24, uConstantColor, primary, tex, prev);
     fragColor = vec4(cOut, aOut);
 }
 )";
@@ -370,6 +427,15 @@ void setupRenderState(QOpenGLFunctions_2_0& gl, Ptcl::BlendFuncType blend, Ptcl:
 
 using Mat4 = std::array<GLfloat, 16>;
 
+struct StripeGLVertex {
+    GLfloat x;
+    GLfloat y;
+    GLfloat z;
+    GLfloat u;
+    GLfloat v;
+    GLfloat alpha;
+};
+
 Mat4 multiplyMat4(const Mat4& a, const Mat4& b) {
     Mat4 out{};
     for (int col = 0; col < 4; ++col) {
@@ -384,15 +450,14 @@ Mat4 multiplyMat4(const Mat4& a, const Mat4& b) {
     return out;
 }
 
-Mat4 makeOrtho(float left, float right, float bottom, float top, float nearZ, float farZ) {
+Mat4 makePerspective(float fovYRadians, float aspect, float nearZ, float farZ) {
+    const float focal = 1.0f / std::tan(fovYRadians * 0.5f);
     Mat4 m{};
-    m[0] = 2.0f / (right - left);
-    m[5] = 2.0f / (top - bottom);
-    m[10] = -2.0f / (farZ - nearZ);
-    m[12] = -(right + left) / (right - left);
-    m[13] = -(top + bottom) / (top - bottom);
-    m[14] = -(farZ + nearZ) / (farZ - nearZ);
-    m[15] = 1.0f;
+    m[0] = focal / aspect;
+    m[5] = focal;
+    m[10] = (farZ + nearZ) / (nearZ - farZ);
+    m[11] = -1.0f;
+    m[14] = (2.0f * farZ * nearZ) / (nearZ - farZ);
     return m;
 }
 
@@ -438,11 +503,10 @@ Mat4 makeLookAt(float ex, float ey, float ez, float cx, float cy, float cz, floa
     return m;
 }
 
-constexpr float cCameraDistance = 10000.0f;
-constexpr float cNear = 10.0f;
-constexpr float cFar = 20000.0f;
-constexpr float cHalfWidth = 200.0f;
-constexpr float cHalfHeight = 120.0f;
+constexpr float cCameraDistance = 400.0f;
+constexpr float cVerticalFov = 0.7853981633974483f; // 45 degrees.
+constexpr float cNear = 1.0f;
+constexpr float cFar = 2000.0f;
 constexpr float cZoomMin = 0.1f;
 constexpr float cZoomMax = 10.0f;
 constexpr float cZoomStep = 0.1f;
@@ -476,44 +540,101 @@ CameraBasis makeCameraBasis(float yaw, float pitch, const Math::Vector3f& target
 void computeParticleAxes(const Ptcl::Engine::EmitterState& state,
     const Ptcl::Engine::ParticleState& particle, const CameraBasis& cam,
     Math::Vector3f& axisX, Math::Vector3f& axisY) {
-    const float hx = particle.scale.getX() * 0.5f;
-    const float hy = particle.scale.getY() * 0.5f;
+    const f32 width = particle.scale.getX();
+    const f32 height = particle.scale.getY();
     const auto& m = particle.matrix;
 
+    const auto& followBasis = particle.followCount == 3 ? particle.followBasis : state.emitterRT;
+    const auto localX = Math::Vector3f{m(0, 3), m(1, 3), m(2, 3)};
+    const auto localY = Math::Vector3f{m(0, 2), m(1, 2), m(2, 2)};
+    const auto localZ = Math::Vector3f{m(0, 1), m(1, 1), m(2, 1)};
+    const auto worldX = Math::VectorCalc::rotate(followBasis, localX);
+    const auto worldY = Math::VectorCalc::rotate(followBasis, localY);
+
     switch (state.billboardType) {
-    case Ptcl::BillboardType::BillboardY:
-        axisX = Math::VectorCalc::multScalar(cam.right, hx);
-        axisY = {0.0f, hy, 0.0f};
+    case Ptcl::BillboardType::BillboardY: {
+        const Math::Vector3f worldUp{0.0f, 1.0f, 0.0f};
+        axisX = Math::VectorCalc::add(
+            Math::VectorCalc::multScalar(cam.right, localX.getX()),
+            Math::VectorCalc::multScalar(cam.up, localX.getY()));
+        Math::VectorCalc::normalize(axisX);
+        axisX = Math::VectorCalc::multScalar(axisX, width);
+        axisY = Math::VectorCalc::multScalar(worldUp, height);
         break;
+    }
 
     case Ptcl::BillboardType::PolygonXY:
-        axisX = {m(0, 3) * hx, m(1, 3) * hx, m(2, 3) * hx};
-        axisY = {m(0, 2) * hy, m(1, 2) * hy, m(2, 2) * hy};
+        axisX = Math::VectorCalc::multScalar(worldX, width);
+        axisY = Math::VectorCalc::multScalar(worldY, height);
         break;
 
     case Ptcl::BillboardType::PolygonXZ:
-        axisX = {m(0, 3) * hx, m(1, 3) * hx, m(2, 3) * hx};
-        axisY = {m(0, 1) * hy, m(1, 1) * hy, m(2, 1) * hy};
+        axisX = Math::VectorCalc::multScalar(worldX, width);
+        axisY = Math::VectorCalc::multScalar(
+            Math::VectorCalc::rotate(followBasis, Math::Vector3f{m(0, 1), m(1, 1), m(2, 1)}), height);
         break;
 
     case Ptcl::BillboardType::VelLook:
     case Ptcl::BillboardType::VelLookPolygon: {
         Math::Vector3f dir = particle.followDirection;
         if (dir.length() <= 0.0001f) {
-            dir = particle.positionDiff;
-        }
-        if (dir.length() <= 0.0001f) {
             dir = cam.up;
         }
         Math::VectorCalc::normalize(dir);
 
-        axisY = Math::VectorCalc::multScalar(dir, hy);
-        Math::Vector3f right = Math::VectorCalc::cross(cam.front, dir);
-        if (right.length() <= 0.0001f) {
-            right = cam.right;
+
+        const f32 dirDotLocalY = dir.getX() * localY.getX()
+            + dir.getY() * localY.getY() + dir.getZ() * localY.getZ();
+        const f32 longitudinalSign = (!particle.isChild && dirDotLocalY < 0.0f)
+            ? -1.0f : 1.0f;
+        axisY = Math::VectorCalc::multScalar(dir, height * longitudinalSign);
+        Math::Vector3f baseRight;
+        if (state.billboardType == Ptcl::BillboardType::VelLookPolygon) {
+            const Math::Vector3f emitterRight =
+                Math::VectorCalc::rotate(followBasis, {1.0f, 0.0f, 0.0f});
+            baseRight = Math::VectorCalc::cross(dir, emitterRight);
+        } else {
+            baseRight = Math::VectorCalc::cross(dir, cam.front);
         }
-        Math::VectorCalc::normalize(right);
-        axisX = Math::VectorCalc::multScalar(right, hx);
+        if (baseRight.length() <= 0.0001f) {
+            baseRight = cam.right;
+        }
+        if (longitudinalSign < 0.0f) {
+            baseRight = Math::VectorCalc::multScalar(baseRight, -1.0f);
+        }
+        Math::VectorCalc::normalize(baseRight);
+
+        const f32 dirDotReferenceX = dir.getX();
+        const Math::Vector3f referenceRight{
+            1.0f - dir.getX() * dirDotReferenceX,
+            -dir.getY() * dirDotReferenceX,
+            -dir.getZ() * dirDotReferenceX,
+        };
+        const f32 dirDotLocalX = dir.getX() * localX.getX()
+            + dir.getY() * localX.getY() + dir.getZ() * localX.getZ();
+        const Math::Vector3f rotatedReferenceRight{
+            localX.getX() - dir.getX() * dirDotLocalX,
+            localX.getY() - dir.getY() * dirDotLocalX,
+            localX.getZ() - dir.getZ() * dirDotLocalX,
+        };
+        Math::Vector3f right = baseRight;
+        if (referenceRight.length() > 0.0001f && rotatedReferenceRight.length() > 0.0001f) {
+            const Math::Vector3f ref = Math::VectorCalc::multScalar(
+                referenceRight, 1.0f / referenceRight.length());
+            const Math::Vector3f rotated = Math::VectorCalc::multScalar(
+                rotatedReferenceRight, 1.0f / rotatedReferenceRight.length());
+            const f32 cosine = ref.getX() * rotated.getX()
+                + ref.getY() * rotated.getY() + ref.getZ() * rotated.getZ();
+            const Math::Vector3f sineVector = Math::VectorCalc::cross(ref, rotated);
+            const f32 sine = sineVector.getX() * dir.getX()
+                + sineVector.getY() * dir.getY() + sineVector.getZ() * dir.getZ();
+            const Math::Vector3f tangent = Math::VectorCalc::cross(dir, baseRight);
+            right = Math::VectorCalc::add(
+                Math::VectorCalc::multScalar(baseRight, cosine),
+                Math::VectorCalc::multScalar(tangent, sine));
+            Math::VectorCalc::normalize(right);
+        }
+        axisX = Math::VectorCalc::multScalar(right, width);
         break;
     }
 
@@ -521,18 +642,35 @@ void computeParticleAxes(const Ptcl::Engine::EmitterState& state,
     case Ptcl::BillboardType::ComplexStripe:
     case Ptcl::BillboardType::Primitive:
     default:
-        axisX = {m(0, 3) * hx, m(1, 3) * hx, m(2, 3) * hx};
-        axisY = {m(0, 2) * hy, m(1, 2) * hy, m(2, 2) * hy};
+        axisX = Math::VectorCalc::multScalar(worldX, width);
+        axisY = Math::VectorCalc::multScalar(worldY, height);
         break;
 
-    case Ptcl::BillboardType::Billboard:
-        axisX = Math::VectorCalc::multScalar(cam.right, hx);
-        axisY = Math::VectorCalc::multScalar(cam.up, hy);
+    case Ptcl::BillboardType::Billboard: {
+        if (state.isEmitterBillboardMtx) {
+            axisX = Math::VectorCalc::multScalar(worldX, width);
+            axisY = Math::VectorCalc::multScalar(worldY, height);
+            break;
+        }
+
+        const auto transformCameraAxis = [&](const Math::Vector3f& cameraAxis) {
+            return Math::VectorCalc::add(
+                Math::VectorCalc::add(
+                    Math::VectorCalc::multScalar(localX, cameraAxis.getX()),
+                    Math::VectorCalc::multScalar(localY, cameraAxis.getY())),
+                Math::VectorCalc::multScalar(localZ, cameraAxis.getZ()));
+        };
+        const Math::Vector3f cameraX = transformCameraAxis(cam.right);
+        const Math::Vector3f cameraY = transformCameraAxis(cam.up);
+        axisX = Math::VectorCalc::multScalar(cameraX, width);
+        axisY = Math::VectorCalc::multScalar(cameraY, height);
         break;
+    }
     }
 }
 
-Mat4 buildViewProj(float yaw, float pitch, const Math::Vector3f& target, float zoomFactor) {
+Mat4 buildViewProj(float yaw, float pitch, const Math::Vector3f& target,
+    float zoomFactor, int viewportWidth, int viewportHeight) {
     const float cyaw = std::cos(yaw);
     const float syaw = std::sin(yaw);
     const float cpitch = std::cos(pitch);
@@ -544,9 +682,10 @@ Mat4 buildViewProj(float yaw, float pitch, const Math::Vector3f& target, float z
 
     const Mat4 view = makeLookAt(ex, ey, ez, target.getX(), target.getY(), target.getZ(), 0.0f, 1.0f, 0.0f);
 
-    const float halfWidth = cHalfWidth / zoomFactor;
-    const float halfHeight = cHalfHeight / zoomFactor;
-    const Mat4 proj = makeOrtho(-halfWidth, halfWidth, -halfHeight, halfHeight, cNear, cFar);
+    const float aspect = (viewportHeight > 0)
+        ? static_cast<float>(viewportWidth) / static_cast<float>(viewportHeight) : 1.0f;
+    Mat4 proj = makePerspective(cVerticalFov, aspect, cNear, cFar);
+    proj[5] *= zoomFactor;
 
     return multiplyMat4(proj, view);
 }
@@ -564,6 +703,8 @@ PreviewViewport::PreviewViewport(QWidget* parent) :
     fmt.setDepthBufferSize(24);
     setFormat(fmt);
 
+    mSystem = std::make_unique<Ptcl::Engine::PtclSystem>(8);
+
     setMinimumSize(320, 240);
     mTimer.setTimerType(Qt::PreciseTimer);
     mTimer.setInterval(1);
@@ -575,13 +716,21 @@ PreviewViewport::~PreviewViewport() {
     disconnect(context(), nullptr, this, nullptr);
 }
 
-void PreviewViewport::setEmitterSet(const Ptcl::EmitterSet* emitterSet) {
-    mEmitterSet = emitterSet;
-    if (emitterSet == nullptr) {
+void PreviewViewport::setPreview(const Ptcl::Document* document, const Ptcl::Selection& selection) {
+    if (document == nullptr || selection.type() == Ptcl::Selection::Type::None) {
         clearPreview();
         return;
     }
-    rebuild(*emitterSet);
+
+    const s32 setIndex = selection.emitterSetIndex();
+    const Ptcl::EmitterSet* set = (setIndex >= 0) ? document->emitterSet(setIndex) : nullptr;
+    if (set == nullptr) {
+        clearPreview();
+        return;
+    }
+
+    mEmitterSet = set;
+    createEmitterSet(*set);
     mTimer.start();
     update();
 }
@@ -591,24 +740,39 @@ void PreviewViewport::clearPreview() {
     mEmitterSet = nullptr;
     mEmitters.clear();
     mSetInstance = {};
-    mSystem.reset();
-    mFrame.batches.clear();
+    mSystem->reset();
     mLastDrawCount = 0;
     update();
 }
 
-void PreviewViewport::rebuild(const Ptcl::EmitterSet& emitterSet) {
-    mTimer.stop();
+void PreviewViewport::createEmitterSet(const Ptcl::EmitterSet& emitterSet) {
     mEmitters.clear();
     mSetInstance = {};
-    mSystem = std::make_unique<Ptcl::Engine::PtclSystem>(8);
-    mFrame.batches.clear();
+    mSystem->reset();
 
-    u32 seed = 0x13579BDFu;
+    u32 setSeed = 0;
+    bool hasSetSeed = false;
     for (const auto& res : emitterSet.emitters()) {
+        const auto mode = res->randomSeed().mode();
+        u32 seed = 0;
+        if (mode == PtclSeed::Mode::ConstantSeed) {
+            seed = res->randomSeed().constantSeed();
+        } else if (mode == PtclSeed::Mode::RandomPerSet) {
+            if (!hasSetSeed) {
+                setSeed = mSystem->nextEmitterSeed();
+                hasSetSeed = true;
+            }
+            seed = setSeed;
+        } else {
+            seed = mSystem->nextEmitterSeed();
+        }
+
+        const u32 vec3Index = seed & 0xFFFFu;
+        const u32 normalizedVec3Index = (mode == PtclSeed::Mode::ConstantSeed)
+            ? 0u
+            : (seed >> 16) & 0xFFFFu;
         std::unique_ptr<Ptcl::Engine::EmitterInstance> instance =
-            std::make_unique<Ptcl::Engine::EmitterInstance>(*res, mSetInstance, seed, 3, 21, res->emitRate());
-        seed = seed * 1664525u + 1013904223u;
+            std::make_unique<Ptcl::Engine::EmitterInstance>(*res, mSetInstance, seed, vec3Index, normalizedVec3Index);
 
         mSetInstance.addEmitter(*instance);
         mSystem->addEmitter(*instance);
@@ -621,24 +785,6 @@ void PreviewViewport::rebuild(const Ptcl::EmitterSet& emitterSet) {
     mTimer.start();
 }
 
-void PreviewViewport::beginCalc() {
-    mFrame.batches.clear();
-}
-
-void PreviewViewport::setEmitterState(const Ptcl::Engine::EmitterState& state) {
-    mFrame.batches.push_back({state, {}});
-}
-
-void PreviewViewport::emitParticle(const Ptcl::Engine::ParticleState& particle) {
-    if (mFrame.batches.empty()) {
-        return;
-    }
-    mFrame.batches.back().particles.push_back(particle);
-}
-
-void PreviewViewport::endCalc() {
-}
-
 void PreviewViewport::stepFrame() {
     if (mSystem == nullptr) {
         return;
@@ -648,14 +794,14 @@ void PreviewViewport::stepFrame() {
         return;
     }
     mLastFrameNs = now;
-    mSetInstance.setMtx(mSetInstance.SRT);
-    mSystem->calc(*this);
+    mSystem->calc();
     update();
 }
 
 std::size_t PreviewViewport::lastFrameParticleCount() const {
+    const Ptcl::Engine::EmitterDrawFrame& frame = mSystem->lastFrame();
     std::size_t count = 0;
-    for (const auto& batch : mFrame.batches) {
+    for (const auto& batch : frame.batches) {
         count += batch.particles.size();
     }
     return count;
@@ -705,8 +851,15 @@ void PreviewViewport::cleanupGlResources() {
         delete mGridProgram;
         mGridProgram = nullptr;
     }
+    if (mStripeProgram) {
+        mStripeProgram->release();
+        delete mStripeProgram;
+        mStripeProgram = nullptr;
+    }
     mQuadVao.destroy();
     mQuadVbo.destroy();
+    mStripeVao.destroy();
+    mStripeVbo.destroy();
     mGridVao.destroy();
     mGridVbo.destroy();
     mAxisVao.destroy();
@@ -758,6 +911,32 @@ void PreviewViewport::ensureGlResources() {
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), nullptr);
     mQuadVbo.release();
     mQuadVao.release();
+
+    mStripeProgram = new QOpenGLShaderProgram(this);
+    if (!mStripeProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,
+            mIsEs ? cStripeVertShaderEs : cStripeVertShader) ||
+        !mStripeProgram->addShaderFromSourceCode(QOpenGLShader::Fragment,
+            mIsEs ? cFragShaderEs : cFragShader) ||
+        !mStripeProgram->link()) {
+        std::fprintf(stderr, "[viewport] stripe shader compile/link failed: %s\n",
+            mStripeProgram->log().toUtf8().constData());
+    }
+
+    mStripeVao.create();
+    mStripeVbo.create();
+    mStripeVao.bind();
+    mStripeVbo.bind();
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(StripeGLVertex),
+        reinterpret_cast<const void*>(offsetof(StripeGLVertex, x)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(StripeGLVertex),
+        reinterpret_cast<const void*>(offsetof(StripeGLVertex, u)));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(StripeGLVertex),
+        reinterpret_cast<const void*>(offsetof(StripeGLVertex, alpha)));
+    mStripeVbo.release();
+    mStripeVao.release();
 
     mGridProgram = new QOpenGLShaderProgram(this);
     if (!mGridProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,
@@ -832,7 +1011,7 @@ void PreviewViewport::paintGL() {
         return;
     }
 
-    const Mat4 viewProj = buildViewProj(mYaw, mPitch, mTarget, mZoom);
+    const Mat4 viewProj = buildViewProj(mYaw, mPitch, mTarget, mZoom, width(), height());
     const CameraBasis cameraBasis = makeCameraBasis(mYaw, mPitch, mTarget);
 
     glEnable(GL_BLEND);
@@ -876,13 +1055,14 @@ void PreviewViewport::paintGL() {
     const int uHasTex = mProgram->uniformLocation("uHasTex");
     const int uUvOffset = mProgram->uniformLocation("uUvOffset");
     const int uUvScale = mProgram->uniformLocation("uUvScale");
+    const int uTexel = mProgram->uniformLocation("uTexel");
 
     glUniformMatrix4fv(uViewProj, 1, GL_FALSE, viewProj.data());
 
     glActiveTexture(GL_TEXTURE0);
     mQuadVao.bind();
 
-    const auto& batches = mFrame.batches;
+    const auto& batches = mSystem->lastFrame().batches;
     std::size_t drawCount = 0;
     for (const auto& batch : batches) {
         const std::array<GLint, 32> cfgData = buildCombinerCfg(batch.state.combinerFunction);
@@ -895,6 +1075,18 @@ void PreviewViewport::paintGL() {
             texture = batch.state.textureHandle->get();
         }
         const bool hasTexture = (texture != nullptr && !texture->isPlaceholder());
+        if (hasTexture) {
+            const QImage source = texture->textureData();
+            if (!source.isNull()) {
+                mProgram->setUniformValue(uTexel,
+                    1.0f / static_cast<GLfloat>(source.width()),
+                    1.0f / static_cast<GLfloat>(source.height()));
+            } else {
+                mProgram->setUniformValue(uTexel, 0.0f, 0.0f);
+            }
+        } else {
+            mProgram->setUniformValue(uTexel, 0.0f, 0.0f);
+        }
 
         mProgram->setUniformValue(uHasTex, hasTexture ? 1 : 0);
         if (hasTexture) {
@@ -944,10 +1136,14 @@ void PreviewViewport::paintGL() {
             Math::Vector3f axisY;
             computeParticleAxes(batch.state, particle, cameraBasis, axisX, axisY);
 
+            const Math::Vector3f pivotOffset = Math::VectorCalc::add(
+                Math::VectorCalc::multScalar(axisX, batch.state.rotationBasis.getX()),
+                Math::VectorCalc::multScalar(axisY, batch.state.rotationBasis.getY()));
+            const Math::Vector3f center = Math::VectorCalc::add(pos, pivotOffset);
             mProgram->setUniformValue(uCenter,
-                static_cast<GLfloat>(pos.getX()),
-                static_cast<GLfloat>(pos.getY()),
-                static_cast<GLfloat>(pos.getZ()));
+                static_cast<GLfloat>(center.getX()),
+                static_cast<GLfloat>(center.getY()),
+                static_cast<GLfloat>(center.getZ()));
             mProgram->setUniformValue(uAxisX,
                 static_cast<GLfloat>(axisX.getX()),
                 static_cast<GLfloat>(axisX.getY()),
@@ -976,6 +1172,124 @@ void PreviewViewport::paintGL() {
 
     mQuadVao.release();
     mProgram->release();
+
+    if (mStripeProgram) {
+        mStripeProgram->bind();
+
+        const int suViewProj = mStripeProgram->uniformLocation("uViewProj");
+        const int suCfg = mStripeProgram->uniformLocation("uCfg");
+        const int suConstantColor = mStripeProgram->uniformLocation("uConstantColor");
+        const int suPrimaryColor = mStripeProgram->uniformLocation("uPrimaryColor");
+        const int suHasTex = mStripeProgram->uniformLocation("uHasTex");
+        const int suTex = mStripeProgram->uniformLocation("uTex");
+        glUniformMatrix4fv(suViewProj, 1, GL_FALSE, viewProj.data());
+        glActiveTexture(GL_TEXTURE0);
+        mStripeProgram->setUniformValue(suTex, 0);
+
+        for (const auto& stripeEntry : mSystem->lastFrame().stripes) {
+            const auto& state = stripeEntry.state;
+            const auto& points = stripeEntry.stripe.points;
+            if (points.size() < 2) {
+                continue;
+            }
+
+            const auto cfgData = buildCombinerCfg(state.combinerFunction);
+            mStripeProgram->setUniformValueArray(suCfg, cfgData.data(), static_cast<int>(cfgData.size()));
+            setupRenderState(*this, state.blendFunction, state.depthFunction);
+
+            const Ptcl::Texture* texture = nullptr;
+            if (state.textureHandle != nullptr && state.textureHandle->isValid()) {
+                texture = state.textureHandle->get();
+            }
+            const bool hasTexture = (texture != nullptr && !texture->isPlaceholder());
+            mStripeProgram->setUniformValue(suHasTex, hasTexture ? 1 : 0);
+            if (hasTexture) {
+                GLuint texId = 0;
+                const auto cacheIt = mTextureCache.find(texture);
+                if (cacheIt != mTextureCache.end()) {
+                    texId = cacheIt->second;
+                } else {
+                    texId = uploadTexture(*texture);
+                    if (texId != 0) {
+                        mTextureCache.emplace(texture, texId);
+                    }
+                }
+                if (texId != 0) {
+                    glBindTexture(GL_TEXTURE_2D, texId);
+                    const GLint wrapS = (state.textureWrapS == Ptcl::TextureWrap::Repeat) ? GL_REPEAT
+                        : (state.textureWrapS == Ptcl::TextureWrap::MirroredRepeat) ? GL_MIRRORED_REPEAT
+                        : GL_CLAMP_TO_EDGE;
+                    const GLint wrapT = (state.textureWrapT == Ptcl::TextureWrap::Repeat) ? GL_REPEAT
+                        : (state.textureWrapT == Ptcl::TextureWrap::MirroredRepeat) ? GL_MIRRORED_REPEAT
+                        : GL_CLAMP_TO_EDGE;
+                    const GLint filter = (state.textureFilter == Ptcl::TextureFilter::Nearest)
+                        ? GL_NEAREST : GL_LINEAR;
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+                } else {
+                    mStripeProgram->setUniformValue(suHasTex, 0);
+                }
+            }
+
+            Gfx::Color constant = state.secondaryColor;
+            if (!hasTexture && constant.r() <= 0.0f && constant.g() <= 0.0f && constant.b() <= 0.0f) {
+                constant = Gfx::Color{0.9f, 0.9f, 0.9f, 1.0f};
+            }
+            mStripeProgram->setUniformValue(suConstantColor,
+                static_cast<GLfloat>(constant.r()),
+                static_cast<GLfloat>(constant.g()),
+                static_cast<GLfloat>(constant.b()),
+                1.0f);
+            mStripeProgram->setUniformValue(suPrimaryColor,
+                static_cast<GLfloat>(state.color.r()),
+                static_cast<GLfloat>(state.color.g()),
+                static_cast<GLfloat>(state.color.b()),
+                1.0f);
+
+            std::vector<StripeGLVertex> vertices;
+            vertices.reserve(points.size() * 2);
+            for (const auto& point : points) {
+                Math::Vector3f edge0;
+                Math::Vector3f edge1;
+                if (state.billboardType == Ptcl::BillboardType::Stripe) {
+                    Math::Vector3f direction = point.outer;
+                    if (direction.length() <= 0.0001f) {
+                        direction = cameraBasis.up;
+                    }
+                    Math::VectorCalc::normalize(direction);
+                    edge0 = Math::VectorCalc::cross(direction, cameraBasis.front);
+                    if (edge0.length() <= 0.0001f) {
+                        edge0 = cameraBasis.right;
+                    }
+                    Math::VectorCalc::normalize(edge0);
+                    edge0 = Math::VectorCalc::multScalar(edge0, point.scale * 0.5f);
+                    edge1 = Math::VectorCalc::multScalar(edge0, -1.0f);
+                } else {
+                    edge0 = Math::VectorCalc::multScalar(point.outer, 0.5f);
+                    edge1 = Math::VectorCalc::multScalar(edge0, -1.0f);
+                }
+
+                const Math::Vector3f p0 = Math::VectorCalc::add(point.position, edge0);
+                const Math::Vector3f p1 = Math::VectorCalc::add(point.position, edge1);
+                const float u0 = point.uv.getX() + point.uvScale.getX();
+                const float u1 = point.uv.getX();
+                const float v = point.uv.getY() + point.t * point.uvScale.getY();
+                vertices.push_back({p0.getX(), p0.getY(), p0.getZ(), u0, v, point.alpha});
+                vertices.push_back({p1.getX(), p1.getY(), p1.getZ(), u1, v, point.alpha});
+            }
+
+            mStripeVbo.bind();
+            mStripeVbo.allocate(vertices.data(), static_cast<int>(vertices.size() * sizeof(StripeGLVertex)));
+            mStripeVbo.release();
+            mStripeVao.bind();
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, static_cast<GLsizei>(vertices.size()));
+            mStripeVao.release();
+        }
+
+        mStripeProgram->release();
+    }
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDepthMask(GL_TRUE);
@@ -1035,7 +1349,8 @@ void PreviewViewport::mouseMoveEvent(QMouseEvent* event) {
     }
     if (mPanDragging) {
         const QPoint delta = event->pos() - mLastMouse;
-        const float worldPerPixel = (2.0f * (cHalfHeight / mZoom)) / static_cast<float>(height());
+        const float visibleHalfHeight = std::tan(cVerticalFov * 0.5f) * cCameraDistance / mZoom;
+        const float worldPerPixel = (2.0f * visibleHalfHeight) / static_cast<float>(height());
 
         const float cyaw = std::cos(mYaw);
         const float syaw = std::sin(mYaw);

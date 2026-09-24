@@ -108,6 +108,7 @@ set(PROJECT_SOURCES
     src/ptcl/engine/emitterInstance.cpp
     src/ptcl/engine/emitterSetInstance.cpp
     src/ptcl/engine/ptclRandom.cpp
+    src/ptcl/engine/ptclRenderer.cpp
     src/ptcl/engine/ptclSystem.cpp
     src/ptcl/json/json.cpp
     src/ptcl/json/jsonCommon.cpp
@@ -206,6 +207,7 @@ set(PROJECT_HEADERS
     include/ptcl/engine/ptclInstance.h
     include/ptcl/engine/ptclRandom.h
     include/ptcl/engine/ptclRenderer.h
+    include/ptcl/engine/ptclSystem.h
     include/ptcl/engine/emitterCalcTables.h
     include/ptcl/json/json.h
     include/ptcl/json/jsonCommon.h

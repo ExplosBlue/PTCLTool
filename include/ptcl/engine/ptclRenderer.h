@@ -53,6 +53,7 @@ struct ParticleState {
     Math::Vector2f uvSubOffset{};
     Gfx::Color color{};
     u32 followCount{0};
+    bool isChild{false};
     Math::Vector3f followDirection{};
     Math::Matrix34f followBasis{};
 };
@@ -67,8 +68,29 @@ struct EmitterDrawBatch {
 };
 
 
+struct StripePoint {
+    Math::Vector3f position;
+    Math::Vector3f outer;
+    Math::Vector3f emitterY;
+    f32 scale{1.0f};
+    f32 alpha{1.0f};
+    f32 t{0.0f};
+    Math::Vector2f uv;
+    Math::Vector2f uvScale;
+};
+
+struct StripeDraw {
+    std::vector<StripePoint> points;
+};
+
+struct EmitterDrawStripe {
+    EmitterState state;
+    StripeDraw stripe;
+};
+
 struct EmitterDrawFrame {
     std::vector<EmitterDrawBatch> batches;
+    std::vector<EmitterDrawStripe> stripes;
 };
 
 
@@ -77,12 +99,17 @@ struct EmitterDrawFrame {
 
 class PtclRenderer {
 public:
-    virtual ~PtclRenderer() = default;
+    void beginCalc();
+    void setEmitterState(const EmitterState& state);
+    void emitParticle(const ParticleState& particle);
+    void emitStripe(const EmitterState& state, const StripeDraw& stripe);
+    void endCalc();
 
-    virtual void beginCalc() = 0;
-    virtual void setEmitterState(const EmitterState& state) = 0;
-    virtual void emitParticle(const ParticleState& particle) = 0;
-    virtual void endCalc() = 0;
+    EmitterDrawFrame& frame() { return mFrame; }
+    const EmitterDrawFrame& frame() const { return mFrame; }
+
+private:
+    EmitterDrawFrame mFrame;
 };
 
 

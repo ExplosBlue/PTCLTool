@@ -192,7 +192,7 @@ private:
     static bool stepFadeAlpha(EmitterInstance& emitter, bool& canEmit);
     static void scheduleEmission(EmitterInstance& emitter, s32 frame, bool canEmit);
     static void beginEmitterMatrices(EmitterInstance& emitter);
-    static void emitParentState(PtclRenderer& renderer, const EmitterInstance& emitter);
+    static EmitterState emitParentState(PtclRenderer& renderer, const EmitterInstance& emitter);
     static void emitChildState(PtclRenderer& renderer, const EmitterInstance& emitter);
     static void emitParticleState(PtclRenderer& renderer, const EmitterSetInstance& set,
         const EmitterInstance& emitter, ParticleState& draw, const PtclInstance& ptcl,

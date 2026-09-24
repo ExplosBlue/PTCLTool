@@ -3,6 +3,8 @@
 #include <vector>
 
 #include "ptcl/engine/ptclInstance.h"
+#include "ptcl/engine/ptclRandom.h"
+#include "ptcl/engine/ptclRenderer.h"
 #include "typedefs.h"
 
 
@@ -14,7 +16,7 @@ namespace Ptcl::Engine {
 
 class EmitterCalc;
 class EmitterInstance;
-class PtclRenderer;
+class EmitterSetInstance;
 
 class PtclSystem {
 public:
@@ -22,11 +24,19 @@ public:
 
 public:
     explicit PtclSystem(s32 ptclDataPow2);
+    ~PtclSystem() = default;
 
     PtclInstance* allocPtcl();
     void addEmitter(EmitterInstance& emitter);
     void killEmitter(EmitterInstance& emitter);
-    void calc(PtclRenderer& renderer);
+
+    void reset();
+
+    void calc();
+
+    u32 nextEmitterSeed() { return mRandom.getU32(); }
+
+    const EmitterDrawFrame& lastFrame() const { return mRenderer.frame(); }
 
     s32 lastFrameAliveCount() const { return mAliveCount; }
     s32 lastFrameEmitterCount() const { return mAliveEmitterCount; }
@@ -55,6 +65,9 @@ private:
 
     EmitterInstance* mEmittersFirst{nullptr};
     EmitterInstance* mEmittersLast{nullptr};
+
+    PtclRenderer mRenderer;
+    PtclRandom mRandom{PtclRandom::getGlobalU32(), 0, 0};
 };
 
 

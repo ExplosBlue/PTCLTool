@@ -23,7 +23,7 @@ struct EmitterController {
 class EmitterInstance {
 public:
     EmitterInstance(const Ptcl::Emitter& emitterRes, EmitterSetInstance& set, u32 randomSeed,
-        u32 vec3Idx, u32 normalizedVec3Idx, s32 emissionInterval
+        u32 vec3Idx, u32 normalizedVec3Idx
     );
 
     u32 random() const;

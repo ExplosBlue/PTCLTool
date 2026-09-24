@@ -54,8 +54,8 @@ void EmitterCalc::calcFieldSpin(EmitterInstance& emitter, PtclInstance& ptcl) {
         }
         break;
     case Ptcl::FieldSpinAxis::AxisY: {
-            const f32 z = ptcl.position.z;
             const f32 x = ptcl.position.x;
+            const f32 z = ptcl.position.z;
             ptcl.position.z = z * cos + x * sin;
             ptcl.position.x = x * cos - z * sin;
         }
