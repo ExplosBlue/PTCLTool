@@ -186,7 +186,7 @@ s32 EmitterCalc::calcComplex(EmitterInstance& emitter, PtclRenderer& renderer) {
 
     ++emitter.mTickCount;
 
-    if (!(res.emitEndFrame() > frame && canEmit) && emitter.mPtclHead == nullptr && emitter.mChildHead == nullptr) {
+    if (!(res.emitEndFrame() > frame && canEmit) && emitter.mParticles.empty() && emitter.mChildParticles.empty()) {
         mSys->killEmitter(emitter);
         return 0;
     }
@@ -208,7 +208,7 @@ s32 EmitterCalc::calcComplexParent(EmitterInstance& emitter, PtclRenderer& rende
     const auto& res = emitter.mResource;
     const auto& set = emitter.mSet;
 
-    if (emitter.mPtclHead == nullptr) {
+    if (emitter.mParticles.empty()) {
         return 0;
     }
 
@@ -216,12 +216,8 @@ s32 EmitterCalc::calcComplexParent(EmitterInstance& emitter, PtclRenderer& rende
 
     s32 aliveCount = 0;
 
-    PtclInstance* ptcl = emitter.mPtclHead;
-    while (ptcl != nullptr) {
-        PtclInstance* cur = ptcl;
-        ptcl = cur->next;
-
-
+    for (auto it = emitter.mParticles.begin(); it != emitter.mParticles.end();) {
+        PtclInstance* cur = *it++;
         ++aliveCount;
 
         if (cur->life > cur->tickCount) {
@@ -258,7 +254,7 @@ s32 EmitterCalc::calcComplexParent(EmitterInstance& emitter, PtclRenderer& rende
             PtclStripe* stripe = cur->stripe;
             if (stripe == nullptr) {
                 cur->res = nullptr;
-                unlinkPtcl(emitter.mPtclHead, cur);
+                emitter.mParticles.remove(cur);
                 continue;
             }
             if (stripe->histQStart != stripe->histQEnd) {
@@ -275,7 +271,7 @@ s32 EmitterCalc::calcComplexParent(EmitterInstance& emitter, PtclRenderer& rende
             } else {
                 mSys->removeStripe(*stripe);
                 cur->stripe = nullptr;
-                unlinkPtcl(emitter.mPtclHead, cur);
+                emitter.mParticles.remove(cur);
             }
         }
     }
@@ -396,8 +392,6 @@ void EmitterCalc::calcComplexParticle(EmitterInstance& emitter, PtclInstance& pt
                     child->stripe = nullptr;
                     child->tickCount = 0;
                     child->life = res.childLife();
-                    child->prev = nullptr;
-                    child->next = nullptr;
 
                     Math::Vector3f vel{0.0f, 0.0f, 0.0f};
                     if (res.childFlags().isSet(ChildFlag::VelInherit)) {
@@ -477,12 +471,7 @@ void EmitterCalc::calcComplexParticle(EmitterInstance& emitter, PtclInstance& pt
                     child->posDiff = child->position;
                     child->random = emitter.mRandom.getU32();
 
-                    child->prev = nullptr;
-                    child->next = emitter.mChildHead;
-                    if (emitter.mChildHead != nullptr) {
-                        emitter.mChildHead->prev = child;
-                    }
-                    emitter.mChildHead = child;
+                    emitter.mChildParticles.push_front(child);
                 }
             } else {
                 ++childEmitCount;
@@ -499,7 +488,7 @@ s32 EmitterCalc::calcComplexChild(EmitterInstance& emitter, PtclRenderer& render
     const auto& res = emitter.mResource;
     const auto& set = emitter.mSet;
 
-    if (emitter.mChildHead == nullptr) {
+    if (emitter.mChildParticles.empty()) {
         return 0;
     }
 
@@ -507,10 +496,8 @@ s32 EmitterCalc::calcComplexChild(EmitterInstance& emitter, PtclRenderer& render
 
     s32 aliveCount = 0;
 
-    PtclInstance* child = emitter.mChildHead;
-    while (child != nullptr) {
-        PtclInstance* cur = child;
-        child = cur->next;
+    for (auto it = emitter.mChildParticles.begin(); it != emitter.mChildParticles.end();) {
+        PtclInstance* cur = *it++;
 
         if (cur->life > cur->tickCount) {
             if (res.childFlags().isSet(ChildFlag::IsFollow)) {
@@ -567,7 +554,7 @@ s32 EmitterCalc::calcComplexChild(EmitterInstance& emitter, PtclRenderer& render
             ++cur->tickCount;
             ++aliveCount;
         } else {
-            unlinkPtcl(emitter.mChildHead, cur);
+            emitter.mChildParticles.remove(cur);
         }
     }
 

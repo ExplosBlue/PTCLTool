@@ -27,14 +27,13 @@ s32 EmitterCalc::calcSimple(EmitterInstance& emitter, PtclRenderer& renderer) {
     const s32 frame = emitter.mTickCount - set.mStartFrame;
     scheduleEmission(emitter, frame, canEmit);
 
-    if (!(res.emitEndFrame() > frame && canEmit) && emitter.mPtclHead == nullptr) {
+    if (!(res.emitEndFrame() > frame && canEmit) && emitter.mParticles.empty()) {
         mSys->killEmitter(emitter);
         return 0;
     }
 
-    PtclInstance* ptcl = emitter.mPtclHead;
     ++emitter.mTickCount;
-    if (ptcl == nullptr) {
+    if (emitter.mParticles.empty()) {
         return 0;
     }
 
@@ -43,19 +42,16 @@ s32 EmitterCalc::calcSimple(EmitterInstance& emitter, PtclRenderer& renderer) {
 
     s32 aliveCount = 0;
 
-    while (ptcl != nullptr) {
+    for (auto it = emitter.mParticles.begin(); it != emitter.mParticles.end();) {
+        PtclInstance* ptcl = *it++;
         if (ptcl->life > ptcl->tickCount) {
             ParticleState draw = sSimplePreCalcFunctions[static_cast<std::size_t>(res.followType())](emitter, *ptcl);
             sPtclCalcFunctions[ptclRotCombinerIndex(res)](&draw.matrix, emitter, *ptcl);
 
             emitParticleState(renderer, set, emitter, draw, *ptcl);
-
-            ptcl = ptcl->next;
             ++aliveCount;
         } else {
-            PtclInstance* next = ptcl->next;
-            unlinkPtcl(emitter.mPtclHead, ptcl);
-            ptcl = next;
+            emitter.mParticles.remove(ptcl);
         }
     }
 

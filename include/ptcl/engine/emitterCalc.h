@@ -24,7 +24,6 @@ class PtclSystem;
 class EmitterSetInstance;
 
 std::size_t ptclRotCombinerIndex(const Ptcl::Emitter& res);
-void unlinkPtcl(PtclInstance*& head, PtclInstance* ptcl);
 
 class EmitterCalc {
 public:

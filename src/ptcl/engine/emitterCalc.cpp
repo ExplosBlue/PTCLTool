@@ -159,17 +159,7 @@ void EmitterCalc::emitCommon(EmitterInstance& emitter, PtclInstance& ptcl) {
 }
 
 void EmitterCalc::addParticle(EmitterInstance& emitter, PtclInstance& ptcl) {
-    auto* head = emitter.mPtclHead;
-
-    if (head != nullptr) {
-        head->prev = &ptcl;
-        emitter.mPtclHead = &ptcl;
-        ptcl.next = head;
-    } else {
-        emitter.mPtclHead = &ptcl;
-        ptcl.next = nullptr;
-    }
-    ptcl.prev = nullptr;
+    emitter.mParticles.push_front(&ptcl);
 }
 
 PtclInstance* EmitterCalc::emitParticle(EmitterInstance& emitter) {

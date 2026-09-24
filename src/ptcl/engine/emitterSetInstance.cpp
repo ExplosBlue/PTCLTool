@@ -30,10 +30,14 @@ void EmitterSetInstance::emitParticle(const Math::Vector3f& pos) {
             continue;
         }
 
-        PtclInstance* savedHead = emitter->mPtclHead;
+        PtclInstance* savedHead = emitter->mParticles.front();
         EmitterCalc::emitParticle(*emitter);
 
-        for (PtclInstance* ptcl = emitter->mPtclHead; ptcl != savedHead; ptcl = ptcl->next) {
+        for (auto it = emitter->mParticles.begin(); it != emitter->mParticles.end(); ++it) {
+            PtclInstance* ptcl = *it;
+            if (ptcl == savedHead) {
+                break;
+            }
             ptcl->position.x += pos.x;
             ptcl->position.y += pos.y;
             ptcl->position.z += pos.z;

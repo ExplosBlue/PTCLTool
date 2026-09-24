@@ -1,5 +1,6 @@
 #pragma once
 
+#include <list>
 #include <vector>
 
 #include "ptcl/engine/ptclInstance.h"
@@ -56,15 +57,14 @@ private:
     s32 mAliveCount{0};
     s32 mAliveEmitterCount{0};
 
-    std::vector<PtclStripe> mStripes;
+    std::vector<PtclStripe> mStripePool;
     s32 mNumStripeData;
     s32 mNumStripeDataMask;
     s32 mCurStripeIx{0};
 
-    PtclStripe* mStripeFirst{nullptr};
+    std::list<PtclStripe*> mStripes;
 
-    EmitterInstance* mEmittersFirst{nullptr};
-    EmitterInstance* mEmittersLast{nullptr};
+    std::list<EmitterInstance*> mEmitters;
 
     PtclRenderer mRenderer;
     PtclRandom mRandom{PtclRandom::getGlobalU32(), 0, 0};

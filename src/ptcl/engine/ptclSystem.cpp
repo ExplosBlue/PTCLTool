@@ -21,19 +21,13 @@ PtclSystem::PtclSystem(s32 ptclDataPow2) {
 
     mNumStripeData = mNumPtclData;
     mNumStripeDataMask = mNumStripeData - 1;
-    mStripes.assign(static_cast<std::size_t>(mNumStripeData), PtclStripe{});
+    mStripePool.assign(static_cast<std::size_t>(mNumStripeData), PtclStripe{});
 
     EmitterCalc::mSys = this;
 }
 
 void PtclSystem::addEmitter(EmitterInstance& emitter) {
-    emitter.mPrev = mEmittersLast;
-    if (mEmittersLast == nullptr) {
-        mEmittersFirst = &emitter;
-    } else {
-        mEmittersLast->mNext = &emitter;
-    }
-    mEmittersLast = &emitter;
+    mEmitters.push_back(&emitter);
 }
 
 void PtclSystem::killEmitter(EmitterInstance& emitter) {
@@ -41,44 +35,23 @@ void PtclSystem::killEmitter(EmitterInstance& emitter) {
         return;
     }
 
-    EmitterInstance* prev = emitter.mPrev;
-    EmitterInstance* next = emitter.mNext;
+    mEmitters.remove(&emitter);
 
-    if (prev == nullptr) {
-        mEmittersFirst = next;
-    } else {
-        prev->mNext = next;
-    }
-
-    if (next == nullptr) {
-        mEmittersLast = prev;
-    } else {
-        next->mPrev = prev;
-    }
-
-    for (PtclInstance* ptcl = emitter.mPtclHead; ptcl != nullptr;) {
-        PtclInstance* nxt = ptcl->next;
+    for (PtclInstance* ptcl : emitter.mParticles) {
         if (ptcl->stripe != nullptr) {
             removeStripe(*ptcl->stripe);
         }
         ptcl->res = nullptr;
-        ptcl->prev = nullptr;
-        ptcl->next = nullptr;
-        ptcl = nxt;
     }
-    emitter.mPtclHead = nullptr;
+    emitter.mParticles.clear();
 
-    for (PtclInstance* child = emitter.mChildHead; child != nullptr;) {
-        PtclInstance* nxt = child->next;
+    for (PtclInstance* child : emitter.mChildParticles) {
         if (child->stripe != nullptr) {
             removeStripe(*child->stripe);
         }
         child->res = nullptr;
-        child->prev = nullptr;
-        child->next = nullptr;
-        child = nxt;
     }
-    emitter.mChildHead = nullptr;
+    emitter.mChildParticles.clear();
 
     emitter.mIsAlive = false;
 }
@@ -109,7 +82,7 @@ PtclStripe* PtclSystem::allocAndConnectStripe(EmitterInstance& emitter, PtclInst
     while (true) {
         mCurStripeIx = (mCurStripeIx + 1) & mNumStripeDataMask;
 
-        PtclStripe* stripe = &mStripes[mCurStripeIx];
+        PtclStripe* stripe = &mStripePool[mCurStripeIx];
         if (stripe->ptcl == nullptr) {
             break;
         }
@@ -120,7 +93,7 @@ PtclStripe* PtclSystem::allocAndConnectStripe(EmitterInstance& emitter, PtclInst
         }
     }
 
-    PtclStripe* stripe = &mStripes[mCurStripeIx];
+    PtclStripe* stripe = &mStripePool[mCurStripeIx];
     stripe->ptcl = &ptcl;
     stripe->histQStart = 0;
     stripe->histQEnd = 0;
@@ -131,42 +104,26 @@ PtclStripe* PtclSystem::allocAndConnectStripe(EmitterInstance& emitter, PtclInst
     stripe->uvSubOffset = {0.0f, 0.0f};
     stripe->uvScroll = {0.0f, 0.0f};
     stripe->interpolateNextDir = {0.0f, 0.0f, 0.0f};
-    stripe->prev = nullptr;
-    stripe->next = mStripeFirst;
-
-    if (mStripeFirst != nullptr) {
-        mStripeFirst->prev = stripe;
-    }
-    mStripeFirst = stripe;
+    mStripes.push_front(stripe);
 
     return stripe;
 }
 
 void PtclSystem::removeStripe(PtclStripe& stripe) {
-    if (stripe.prev != nullptr) {
-        stripe.prev->next = stripe.next;
-    } else {
-        mStripeFirst = stripe.next;
-    }
-    if (stripe.next != nullptr) {
-        stripe.next->prev = stripe.prev;
-    }
+    mStripes.remove(&stripe);
     if (stripe.ptcl != nullptr && stripe.ptcl->stripe == &stripe) {
         stripe.ptcl->stripe = nullptr;
     }
     stripe.ptcl = nullptr;
     stripe.res = nullptr;
-    stripe.prev = nullptr;
-    stripe.next = nullptr;
     stripe.numHistory = 0;
 }
 
 void PtclSystem::reset() {
     mRenderer.beginCalc();
     mRenderer.endCalc();
-    mEmittersFirst = nullptr;
-    mEmittersLast = nullptr;
-    mStripeFirst = nullptr;
+    mEmitters.clear();
+    mStripes.clear();
     mCurPtclIx = 0;
     mNumEmittedPtcl = 0;
     mCurStripeIx = 0;
@@ -174,15 +131,11 @@ void PtclSystem::reset() {
     mAliveEmitterCount = 0;
     for (auto& ptcl : mPtcls) {
         ptcl.res = nullptr;
-        ptcl.prev = nullptr;
-        ptcl.next = nullptr;
         ptcl.stripe = nullptr;
     }
-    for (auto& stripe : mStripes) {
+    for (auto& stripe : mStripePool) {
         stripe.ptcl = nullptr;
         stripe.res = nullptr;
-        stripe.prev = nullptr;
-        stripe.next = nullptr;
     }
 }
 
@@ -192,9 +145,8 @@ void PtclSystem::calc() {
     mAliveCount = 0;
     mAliveEmitterCount = 0;
 
-    EmitterInstance* emitter = mEmittersFirst;
-    while (emitter != nullptr) {
-        EmitterInstance* next = emitter->mNext;
+    for (auto it = mEmitters.begin(); it != mEmitters.end();) {
+        EmitterInstance* emitter = *it++;
         if (emitter->alive()) {
             const s32 count = EmitterCalc::calc(*emitter, mRenderer);
             const s64 total = static_cast<s64>(mAliveCount) + count;
@@ -203,7 +155,6 @@ void PtclSystem::calc() {
                 ++mAliveEmitterCount;
             }
         }
-        emitter = next;
     }
 
     mRenderer.endCalc();

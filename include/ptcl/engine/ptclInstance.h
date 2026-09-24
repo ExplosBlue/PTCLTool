@@ -44,8 +44,6 @@ struct PtclStripe {
     Math::Vector2f uvScroll;
     Math::Matrix34f emitterSRT;
     Math::Vector3f interpolateNextDir;
-    PtclStripe* prev{nullptr};
-    PtclStripe* next{nullptr};
 };
 
 
@@ -83,8 +81,6 @@ struct PtclInstance {
     f32 fluctuationAlpha{0.0f};
     f32 fluctuationScale{0.0f};
     Math::Vector3f posDiff;
-    PtclInstance* prev{nullptr};
-    PtclInstance* next{nullptr};
 
     PtclInstance() = default;
 };

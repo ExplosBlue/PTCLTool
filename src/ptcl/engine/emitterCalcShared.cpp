@@ -23,27 +23,6 @@ std::size_t ptclRotCombinerIndex(const Ptcl::Emitter& res) {
     return static_cast<std::size_t>(res.colorCalcType()) * 5 + static_cast<std::size_t>(res.rotationType());
 }
 
-void unlinkPtcl(PtclInstance*& head, PtclInstance* ptcl) {
-    ptcl->res = nullptr;
-    if (head == ptcl) {
-        head = ptcl->next;
-        if (head != nullptr) {
-            head->prev = nullptr;
-        }
-    } else {
-        if (ptcl->next != nullptr) {
-            ptcl->next->prev = ptcl->prev;
-        }
-        if (ptcl->prev != nullptr) {
-            ptcl->prev->next = ptcl->next;
-        }
-    }
-}
-
-
-// ========================================================================== //
-
-
 bool EmitterCalc::stepFadeAlpha(EmitterInstance& emitter, bool& canEmit) {
     const auto& res = emitter.mResource;
     const auto& set = emitter.mSet;
@@ -91,9 +70,13 @@ void EmitterCalc::scheduleEmission(EmitterInstance& emitter, s32 frame, bool can
         sEmitFunctions[static_cast<std::size_t>(res.volumeType())](emitter);
     } else {
         for (s32 point = 0; point < numPoint; ++point) {
-            auto* prevHead = emitter.mPtclHead;
+            auto* prevHead = emitter.mParticles.front();
             sEmitFunctions[static_cast<std::size_t>(res.volumeType())](emitter);
-            for (auto* ptcl = emitter.mPtclHead; ptcl != prevHead; ptcl = ptcl->next) {
+            for (auto it = emitter.mParticles.begin(); it != emitter.mParticles.end(); ++it) {
+                PtclInstance* ptcl = *it;
+                if (ptcl == prevHead) {
+                    break;
+                }
                 ptcl->position.x += set.mParticleEmissionPoints[point].x;
                 ptcl->position.y += set.mParticleEmissionPoints[point].y;
                 ptcl->position.z += set.mParticleEmissionPoints[point].z;

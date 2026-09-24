@@ -1,5 +1,7 @@
 #pragma once
 
+#include <list>
+
 #include "ptcl/engine/emitterSetInstance.h"
 #include "ptcl/engine/ptclInstance.h"
 #include "ptcl/engine/ptclRandom.h"
@@ -46,11 +48,9 @@ private:
     s32 mTickCount;
     f32 mFadeAlpha;
     bool mIsAlive{true};
-    PtclInstance* mPtclHead{nullptr};
+    std::list<PtclInstance*> mParticles;
     EmitterController mController;
-    EmitterInstance* mPrev{nullptr};
-    EmitterInstance* mNext{nullptr};
-    PtclInstance* mChildHead{nullptr};
+    std::list<PtclInstance*> mChildParticles;
 };
 
 
