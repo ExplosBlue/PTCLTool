@@ -47,6 +47,7 @@ private:
     Math::Vector3f eye() const;
     Math::Vector3f eye(const Basis& camera) const;
     Math::Matrix44f makeView() const;
+    Math::Matrix44f makeProjection(s32 viewportWidth, s32 viewportHeight) const;
 
 private:
     f32 mZoom{1.0f};

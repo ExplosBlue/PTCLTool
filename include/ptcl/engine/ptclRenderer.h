@@ -50,6 +50,7 @@ struct EmitterState {
     BlendFuncType blendFunction{BlendFuncType::AlphaBlend};
     DepthFuncType depthFunction{DepthFuncType::TestOnly};
     ColorCombinerFuncType combinerFunction{ColorCombinerFuncType::CombinerConfig0};
+    EmitterType emitterType{EmitterType::Simple};
     Math::Vector2f rotationBasis{};
     Gfx::Color color{};
     Gfx::Color secondaryColor{};
@@ -70,6 +71,7 @@ struct ParticleState {
     f32 alpha{0.0f};
     Math::Vector2f uvOffset{};
     Math::Vector2f uvSubOffset{};
+    f32 rotation{0.0f};
     Gfx::Color color{};
     ParticleFollowMode followMode{ParticleFollowMode::None};
     bool isChild{false};
@@ -107,11 +109,16 @@ struct EmitterDrawStripe {
     StripeDraw stripe;
 };
 
+struct CompactDrawBatch {
+    EmitterState state;
+    std::vector<ParticleState> particles;
+};
+
 struct EmitterDrawFrame {
     std::vector<EmitterDrawBatch> batches;
     std::vector<EmitterDrawStripe> stripes;
+    std::vector<CompactDrawBatch> compactBatches;
 };
-
 
 struct RenderCamera {
     Math::Matrix44f viewProjection{};
@@ -136,20 +143,14 @@ struct TextureBinding {
 class PtclRenderer {
 public:
     void initialize(QOpenGLFunctions_2_0& gl);
-    std::size_t render(QOpenGLFunctions_2_0& gl,
-        const EmitterDrawFrame& frame, const RenderCamera& camera,
-        s32 viewportWidth, s32 viewportHeight);
-    void renderParticles(QOpenGLFunctions_2_0& gl,
-        const EmitterDrawFrame& frame, const RenderCamera& camera,
-        const Math::Matrix44f& viewProjection, std::size_t& drawCount);
-    void renderStripes(QOpenGLFunctions_2_0& gl,
-        const std::vector<EmitterDrawStripe>& stripes,
-        const RenderCamera& camera, const Math::Matrix44f& viewProjection);
+    std::size_t render(QOpenGLFunctions_2_0& gl, const EmitterDrawFrame& frame, const RenderCamera& camera);
+    void renderParticles(QOpenGLFunctions_2_0& gl, const EmitterDrawFrame& frame, const RenderCamera& camera, std::size_t& drawCount);
+    void renderCompact(QOpenGLFunctions_2_0& gl, const std::vector<CompactDrawBatch>& batches, const RenderCamera& camera, std::size_t& drawCount);
+    void renderStripes(QOpenGLFunctions_2_0& gl, const std::vector<EmitterDrawStripe>& stripes, const RenderCamera& camera);
     void cleanup(QOpenGLFunctions_2_0& gl);
 
     static std::array<s32, 32> buildCombinerCfg(ColorCombinerFuncType function);
-    static void setupRenderState(QOpenGLFunctions_2_0& gl,
-        BlendFuncType blendFunction, DepthFuncType depthFunction);
+    static void setupRenderState(QOpenGLFunctions_2_0& gl, BlendFuncType blendFunction, DepthFuncType depthFunction);
 
     TextureBinding bindTexture(QOpenGLFunctions_2_0& gl, const EmitterState& state);
     void cleanupTextures(QOpenGLFunctions_2_0& gl);
@@ -158,18 +159,21 @@ public:
     void setEmitterState(const EmitterState& state);
     void emitParticle(const ParticleState& particle);
     void emitStripe(const EmitterState& state, const StripeDraw& stripe);
-    void endCalc();
+    void emitCompact(const CompactDrawBatch& batch);
 
     EmitterDrawFrame& frame() { return mFrame; }
     const EmitterDrawFrame& frame() const { return mFrame; }
 
 private:
     std::unique_ptr<QOpenGLShaderProgram> mParticleProgram;
+    std::unique_ptr<QOpenGLShaderProgram> mCompactProgram;
     std::unique_ptr<QOpenGLShaderProgram> mStripeProgram;
     QOpenGLBuffer mParticleVbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLVertexArrayObject mParticleVao{};
     QOpenGLBuffer mStripeVbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLVertexArrayObject mStripeVao{};
+    QOpenGLBuffer mCompactVbo{QOpenGLBuffer::VertexBuffer};
+    QOpenGLVertexArrayObject mCompactVao{};
     std::unordered_map<const Ptcl::Texture*, u32> mTextureCache;
     EmitterDrawFrame mFrame;
 };

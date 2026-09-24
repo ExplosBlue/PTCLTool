@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <stdexcept>
 
 
 namespace Ptcl::Engine {
@@ -15,16 +16,36 @@ namespace Ptcl::Engine {
 // ========================================================================== //
 
 
-PtclSystem::PtclSystem(s32 ptclDataPow2) {
-    mNumPtclData = 1 << ptclDataPow2;
-    mNumPtclDataMask = mNumPtclData - 1;
+PtclSystem::PtclSystem(PtclSystemConfig config) {
+    if (config.regularParticleCapacity <= 0 || config.compactParticleCapacity <= 0) {
+        throw std::invalid_argument("Invalid PtclSystem particle pool capacity");
+    }
+
+    mNumPtclData = config.regularParticleCapacity;
+    mNumCompactPtclData = config.compactParticleCapacity;
     mPtcls.assign(mNumPtclData, PtclInstance{});
+    mCompactPtcls.assign(mNumCompactPtclData, PtclInstance{});
 
     mNumStripeData = mNumPtclData;
     mNumStripeDataMask = mNumStripeData - 1;
     mStripePool.assign(static_cast<std::size_t>(mNumStripeData), PtclStripe{});
 
     EmitterCalc::mSys = this;
+}
+
+PtclInstance* PtclSystem::allocCompactPtcl() {
+    s32 idx = 0;
+
+    while (true) {
+        mCompactCurPtclIx = (mCompactCurPtclIx + 1) % mNumCompactPtclData;
+        if (mCompactPtcls[mCompactCurPtclIx].res == nullptr) {
+            return &mCompactPtcls[mCompactCurPtclIx];
+        }
+        if (mNumCompactPtclData <= ++idx) {
+            qDebug("PtclSystem: compact particle pool is full\n");
+            return nullptr;
+        }
+    }
 }
 
 void PtclSystem::addEmitter(EmitterInstance& emitter) {
@@ -61,7 +82,7 @@ PtclInstance* PtclSystem::allocPtcl() {
     s32 idx = 0;
 
     while (true) {
-        mCurPtclIx = (mCurPtclIx + 1) & mNumPtclDataMask;
+        mCurPtclIx = (mCurPtclIx + 1) % mNumPtclData;
 
         if (mPtcls[mCurPtclIx].res == nullptr) {
             break;
@@ -122,18 +143,22 @@ void PtclSystem::removeStripe(PtclStripe& stripe) {
 
 void PtclSystem::reset() {
     mRenderer.beginCalc();
-    mRenderer.endCalc();
     mEmitters.clear();
     mOwnedEmitters.clear();
     mSetInstance = {};
     mStripes.clear();
     mCurPtclIx = 0;
+    mCompactCurPtclIx = 0;
     mNumEmittedPtcl = 0;
     mCurStripeIx = 0;
     mAliveCount = 0;
     mAliveEmitterCount = 0;
     mLastDrawCount = 0;
     for (auto& ptcl : mPtcls) {
+        ptcl.res = nullptr;
+        ptcl.stripe = nullptr;
+    }
+    for (auto& ptcl : mCompactPtcls) {
         ptcl.res = nullptr;
         ptcl.stripe = nullptr;
     }
@@ -184,11 +209,9 @@ std::size_t PtclSystem::render(QOpenGLFunctions_2_0& gl,
     const Math::Matrix44f& viewProjection,
     const Math::Vector3f& right,
     const Math::Vector3f& up,
-    const Math::Vector3f& forward,
-    s32 viewportWidth, s32 viewportHeight) {
+    const Math::Vector3f& forward) {
     const RenderCamera camera{viewProjection, right, up, forward};
-    mLastDrawCount = mRenderer.render(
-        gl, lastFrame(), camera, viewportWidth, viewportHeight);
+    mLastDrawCount = mRenderer.render(gl, lastFrame(), camera);
     return mLastDrawCount;
 }
 
@@ -210,7 +233,6 @@ void PtclSystem::calc() {
         }
     }
 
-    mRenderer.endCalc();
 }
 
 

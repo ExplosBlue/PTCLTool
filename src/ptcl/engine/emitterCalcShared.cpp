@@ -97,17 +97,18 @@ void EmitterCalc::beginEmitterMatrices(EmitterInstance& emitter) {
     emitter.mEmitterSRT = Math::MatrixCalc::multiply(set.SRT, res.transformSRT());
 }
 
-EmitterState EmitterCalc::emitParentState(PtclRenderer& renderer, const EmitterInstance& emitter) {
+EmitterState EmitterCalc::makeParentState(const EmitterInstance& emitter) {
     const auto& res = emitter.mResource;
     const auto& set = emitter.mSet;
 
-    const EmitterState state{
+    return {
         .textureHandle         = &res.textureHandle(),
         .billboardType         = res.billboardType(),
         .isEmitterBillboardMtx = res.isEmitterBillboardMtx(),
         .blendFunction         = res.blendFunction(),
         .depthFunction         = res.depthFunction(),
         .combinerFunction      = res.combinerFunction(),
+        .emitterType           = res.type(),
         .rotationBasis         = res.rotationBasis(),
         .color = {
             res.primaryColor().r() * set.color.r(),
@@ -126,6 +127,10 @@ EmitterState EmitterCalc::emitParentState(PtclRenderer& renderer, const EmitterI
         .textureFilter    = res.textureFilter(),
         .emitterRT = emitter.mEmitterRT,
     };
+}
+
+EmitterState EmitterCalc::emitParentState(PtclRenderer& renderer, const EmitterInstance& emitter) {
+    const EmitterState state = makeParentState(emitter);
     renderer.setEmitterState(state);
     return state;
 }
@@ -141,6 +146,7 @@ void EmitterCalc::emitChildState(PtclRenderer& renderer, const EmitterInstance& 
         .blendFunction         = res.childBlendFunc(),
         .depthFunction         = res.childDepthFunc(),
         .combinerFunction      = res.childCombinerFunc(),
+        .emitterType           = res.type(),
         .rotationBasis         = res.childRotationBasis(),
         .color = {
             res.childPrimaryColor().r() * set.color.r(),
@@ -161,7 +167,7 @@ void EmitterCalc::emitChildState(PtclRenderer& renderer, const EmitterInstance& 
     });
 }
 
-void EmitterCalc::emitParticleState(PtclRenderer& renderer, const EmitterSetInstance& set,
+void EmitterCalc::populateParticleState(const EmitterSetInstance& set,
     const EmitterInstance& emitter, ParticleState& draw, const PtclInstance& ptcl, f32 fluctuationAlpha,
     f32 fluctuationScale) {
     draw.positionDiff = ptcl.positionDiff;
@@ -172,8 +178,14 @@ void EmitterCalc::emitParticleState(PtclRenderer& renderer, const EmitterSetInst
     draw.alpha = (ptcl.alpha * set.color.a()) * (fluctuationAlpha * emitter.mFadeAlpha);
     draw.uvOffset = ptcl.uvOffset;
     draw.uvSubOffset = ptcl.uvSubOffset;
+    draw.rotation = ptcl.rotation.z;
     draw.color = {draw.matrix(0, 0), draw.matrix(1, 0), draw.matrix(2, 0), 1.0f};
+}
 
+void EmitterCalc::emitParticleState(PtclRenderer& renderer, const EmitterSetInstance& set,
+    const EmitterInstance& emitter, ParticleState& draw, const PtclInstance& ptcl, f32 fluctuationAlpha,
+    f32 fluctuationScale) {
+    populateParticleState(set, emitter, draw, ptcl, fluctuationAlpha, fluctuationScale);
     renderer.emitParticle(draw);
 }
 

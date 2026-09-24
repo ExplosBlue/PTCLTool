@@ -16,6 +16,7 @@ EmitterInstance::EmitterInstance(const Ptcl::Emitter& emitterRes, EmitterSetInst
     mEmissionInterval{0},
     mLoopInterval{cInitLoopIntervalRaw},
     mTickCount{0},
+    mCompactRandomMode{randomSeed % 3},
     mFadeAlpha{1.0f} {
     constexpr u32 cLcgMultiplier = 1103515245;
     constexpr u32 cLcgIncrement = 12345;

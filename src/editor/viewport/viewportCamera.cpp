@@ -81,19 +81,22 @@ Math::Matrix44f ViewportCamera::makeView() const {
     return view;
 }
 
-Math::Matrix44f ViewportCamera::viewProjection(s32 viewportWidth, s32 viewportHeight) const {
+Math::Matrix44f ViewportCamera::makeProjection(s32 viewportWidth, s32 viewportHeight) const {
     const f32 aspect = (viewportHeight > 0)
         ? static_cast<f32>(viewportWidth) / static_cast<f32>(viewportHeight)
         : 1.0f;
 
-    auto projection = (mProjectionType == ProjectionType::Perspective)
+    auto result = (mProjectionType == ProjectionType::Perspective)
         ? makePerspective(cVerticalFov, aspect, cNear, cFar)
         : makeOrthographic(aspect, cNear, cFar);
 
-    projection(0, 0) *= mZoom;
-    projection(1, 1) *= mZoom;
+    result(0, 0) *= mZoom;
+    result(1, 1) *= mZoom;
+    return result;
+}
 
-    return Math::MatrixCalc::multiply(projection, makeView());
+Math::Matrix44f ViewportCamera::viewProjection(s32 viewportWidth, s32 viewportHeight) const {
+    return Math::MatrixCalc::multiply(makeProjection(viewportWidth, viewportHeight), makeView());
 }
 
 ViewportCamera::Basis ViewportCamera::basis() const {

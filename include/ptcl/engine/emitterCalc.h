@@ -33,6 +33,7 @@ public:
     static PtclInstance* emitParticle(EmitterInstance& emitter);
 
     static s32 calcSimple(EmitterInstance& emitter, PtclRenderer& renderer);
+    static s32 calcCompact(EmitterInstance& emitter, PtclRenderer& renderer);
     static s32 calcComplex(EmitterInstance& emitter, PtclRenderer& renderer);
 
     static s32 calc(EmitterInstance& emitter, PtclRenderer& renderer);
@@ -45,7 +46,7 @@ private:
     static inline std::array<CalcFunction, 3> sCalcFunctions = {
         &EmitterCalc::calcSimple,
         &EmitterCalc::calcComplex,
-        nullptr,
+        &EmitterCalc::calcCompact,
     };
 
     using EmitFunction = PtclInstance* (*)(EmitterInstance&);
@@ -191,11 +192,12 @@ private:
     static bool stepFadeAlpha(EmitterInstance& emitter, bool& canEmit);
     static void scheduleEmission(EmitterInstance& emitter, s32 frame, bool canEmit);
     static void beginEmitterMatrices(EmitterInstance& emitter);
+    static EmitterState makeParentState(const EmitterInstance& emitter);
     static EmitterState emitParentState(PtclRenderer& renderer, const EmitterInstance& emitter);
     static void emitChildState(PtclRenderer& renderer, const EmitterInstance& emitter);
-    static void emitParticleState(PtclRenderer& renderer, const EmitterSetInstance& set,
-        const EmitterInstance& emitter, ParticleState& draw, const PtclInstance& ptcl,
-        f32 fluctuationAlpha = 1.0f, f32 fluctuationScale = 1.0f);
+    static void populateParticleState(const EmitterSetInstance& set, const EmitterInstance& emitter, ParticleState& draw, const PtclInstance& ptcl, f32 fluctuationAlpha = 1.0f, f32 fluctuationScale = 1.0f);
+    static void emitParticleState(PtclRenderer& renderer, const EmitterSetInstance& set, const EmitterInstance& emitter, ParticleState& draw, const PtclInstance& ptcl, f32 fluctuationAlpha = 1.0f, f32 fluctuationScale = 1.0f);
+    static ParticleState ptclPreCalcCompact(EmitterInstance& emitter, PtclInstance& ptcl);
 
 private:
     static PtclSystem* mSys;

@@ -181,7 +181,9 @@ PtclInstance* EmitterCalc::emitPoint(EmitterInstance& emitter) {
 
     PtclInstance* lastPtcl = nullptr;
     for (s32 idx = 0; idx < emitRate; ++idx) {
-        auto* ptcl = EmitterCalc::mSys->allocPtcl();
+        auto* ptcl = (res.type() == EmitterType::Compact)
+            ? EmitterCalc::mSys->allocCompactPtcl()
+            : EmitterCalc::mSys->allocPtcl();
         if (!ptcl) { continue; }
 
         ptcl->res = &res;

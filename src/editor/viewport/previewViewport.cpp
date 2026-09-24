@@ -43,7 +43,10 @@ PreviewViewport::PreviewViewport(QWidget* parent) :
     fmt.setDepthBufferSize(24);
     setFormat(fmt);
 
-    mSystem = std::make_unique<Ptcl::Engine::PtclSystem>(8);
+    mSystem = std::make_unique<Ptcl::Engine::PtclSystem>(Ptcl::Engine::PtclSystemConfig{
+        .regularParticleCapacity = 256,
+        .compactParticleCapacity = 1024,
+    });
     mCamera.setProjectionType(ViewportCamera::ProjectionType::Orthographic);
 
     setMinimumSize(320, 240);
@@ -100,6 +103,9 @@ std::size_t PreviewViewport::lastFrameParticleCount() const {
     for (const auto& batch : frame.batches) {
         count += batch.particles.size();
     }
+    for (const auto& batch : frame.compactBatches) {
+        count += batch.particles.size();
+    }
     return count;
 }
 
@@ -108,8 +114,6 @@ void PreviewViewport::initializeGL() {
 
     connect(context(), &QOpenGLContext::aboutToBeDestroyed, this,
         &PreviewViewport::cleanupGlResources);
-
-    qInfo() << "[viewport] OpenGL context initialized";
 
     ensureGlResources();
 }
@@ -190,8 +194,8 @@ void PreviewViewport::paintGL() {
     glDepthMask(GL_FALSE);
 
     mSystem->render(
-        *this, viewProj, cameraBasis.right, cameraBasis.up, cameraBasis.forward,
-        width(), height());
+        *this, viewProj,
+        cameraBasis.right, cameraBasis.up, cameraBasis.forward);
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDepthMask(GL_TRUE);

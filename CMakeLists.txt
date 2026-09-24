@@ -102,6 +102,7 @@ set(PROJECT_SOURCES
     src/ptcl/engine/emitterCalc.cpp
     src/ptcl/engine/emitterCalcShared.cpp
     src/ptcl/engine/emitterCalcSimple.cpp
+    src/ptcl/engine/emitterCalcCompact.cpp
     src/ptcl/engine/emitterCalcComplex.cpp
     src/ptcl/engine/emitterField.cpp
     src/ptcl/engine/emitterFlux.cpp

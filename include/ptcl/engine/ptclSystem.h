@@ -29,15 +29,21 @@ class EmitterCalc;
 class EmitterInstance;
 class EmitterSetInstance;
 
+struct PtclSystemConfig {
+    s32 regularParticleCapacity{256};
+    s32 compactParticleCapacity{1024};
+};
+
 class PtclSystem {
 public:
     static constexpr std::size_t cStripeNumHistory = 128;
 
 public:
-    explicit PtclSystem(s32 ptclDataPow2);
+    explicit PtclSystem(PtclSystemConfig config = {});
     ~PtclSystem() = default;
 
     PtclInstance* allocPtcl();
+    PtclInstance* allocCompactPtcl();
     void addEmitter(EmitterInstance& emitter);
     void killEmitter(EmitterInstance& emitter);
 
@@ -50,8 +56,7 @@ public:
         const Math::Matrix44f& viewProjection,
         const Math::Vector3f& right,
         const Math::Vector3f& up,
-        const Math::Vector3f& forward,
-        s32 viewportWidth, s32 viewportHeight);
+        const Math::Vector3f& forward);
 
     void calc();
 
@@ -73,9 +78,12 @@ private:
 
     std::vector<PtclInstance> mPtcls;
     s32 mNumPtclData;
-    s32 mNumPtclDataMask;
     s32 mCurPtclIx{0};
     s32 mNumEmittedPtcl{0};
+
+    std::vector<PtclInstance> mCompactPtcls;
+    s32 mCompactCurPtclIx{0};
+    s32 mNumCompactPtclData;
 
     s32 mAliveCount{0};
     s32 mAliveEmitterCount{0};

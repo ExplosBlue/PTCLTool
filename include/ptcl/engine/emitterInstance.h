@@ -24,9 +24,7 @@ struct EmitterController {
 
 class EmitterInstance {
 public:
-    EmitterInstance(const Ptcl::Emitter& emitterRes, EmitterSetInstance& set, u32 randomSeed,
-        u32 vec3Idx, u32 normalizedVec3Idx
-    );
+    EmitterInstance(const Ptcl::Emitter& emitterRes, EmitterSetInstance& set, u32 randomSeed, u32 vec3Idx, u32 normalizedVec3Idx);
 
     u32 random() const;
     u32 vec3Idx() const;
@@ -46,6 +44,9 @@ private:
     s32 mEmissionInterval;
     s32 mLoopInterval;
     s32 mTickCount;
+    s32 mCompactStopFrame{-1};
+    s32 mCompactEmittedCount{0};
+    u32 mCompactRandomMode{0};
     f32 mFadeAlpha;
     bool mIsAlive{true};
     std::list<PtclInstance*> mParticles;
