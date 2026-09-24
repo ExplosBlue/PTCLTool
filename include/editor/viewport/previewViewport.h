@@ -4,6 +4,7 @@
 #include "ptcl/engine/emitterSetInstance.h"
 #include "ptcl/engine/ptclRenderer.h"
 #include "ptcl/engine/ptclSystem.h"
+#include "editor/viewport/viewportCamera.h"
 
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions_2_0>
@@ -99,10 +100,7 @@ private:
     bool mGlReady{false};
     std::size_t mLastDrawCount{0};
 
-    float mZoom{1.0f};
-    float mYaw{3.14159265358979323846f};
-    float mPitch{0.0f};
-    Math::Vector3f mTarget{};
+    ViewportCamera mCamera{};
     bool mOrbitDragging{false};
     bool mPanDragging{false};
     QPoint mLastMouse{};

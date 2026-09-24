@@ -425,8 +425,6 @@ void setupRenderState(QOpenGLFunctions_2_0& gl, Ptcl::BlendFuncType blend, Ptcl:
     }
 }
 
-using Mat4 = std::array<GLfloat, 16>;
-
 struct StripeGLVertex {
     GLfloat x;
     GLfloat y;
@@ -436,109 +434,8 @@ struct StripeGLVertex {
     GLfloat alpha;
 };
 
-Mat4 multiplyMat4(const Mat4& a, const Mat4& b) {
-    Mat4 out{};
-    for (int col = 0; col < 4; ++col) {
-        for (int row = 0; row < 4; ++row) {
-            GLfloat sum = 0.0f;
-            for (int k = 0; k < 4; ++k) {
-                sum += b[col * 4 + k] * a[k * 4 + row];
-            }
-            out[col * 4 + row] = sum;
-        }
-    }
-    return out;
-}
-
-Mat4 makePerspective(float fovYRadians, float aspect, float nearZ, float farZ) {
-    const float focal = 1.0f / std::tan(fovYRadians * 0.5f);
-    Mat4 m{};
-    m[0] = focal / aspect;
-    m[5] = focal;
-    m[10] = (farZ + nearZ) / (nearZ - farZ);
-    m[11] = -1.0f;
-    m[14] = (2.0f * farZ * nearZ) / (nearZ - farZ);
-    return m;
-}
-
-Mat4 makeLookAt(float ex, float ey, float ez, float cx, float cy, float cz, float upx, float upy, float upz) {
-    float fx = cx - ex;
-    float fy = cy - ey;
-    float fz = cz - ez;
-    float fl = std::sqrt(fx * fx + fy * fy + fz * fz);
-    if (fl > 0.0f) {
-        fx /= fl;
-        fy /= fl;
-        fz /= fl;
-    }
-
-    float sx = fy * upz - fz * upy;
-    float sy = fz * upx - fx * upz;
-    float sz = fx * upy - fy * upx;
-    float sl = std::sqrt(sx * sx + sy * sy + sz * sz);
-    if (sl > 0.0f) {
-        sx /= sl;
-        sy /= sl;
-        sz /= sl;
-    }
-
-    float ux = sy * fz - sz * fy;
-    float uy = sz * fx - sx * fz;
-    float uz = sx * fy - sy * fx;
-
-    Mat4 m{};
-    m[0] = sx;
-    m[1] = ux;
-    m[2] = -fx;
-    m[4] = sy;
-    m[5] = uy;
-    m[6] = -fy;
-    m[8] = sz;
-    m[9] = uz;
-    m[10] = -fz;
-    m[12] = -(sx * ex + sy * ey + sz * ez);
-    m[13] = -(ux * ex + uy * ey + uz * ez);
-    m[14] = fx * ex + fy * ey + fz * ez;
-    m[15] = 1.0f;
-    return m;
-}
-
-constexpr float cCameraDistance = 400.0f;
-constexpr float cVerticalFov = 0.7853981633974483f; // 45 degrees.
-constexpr float cNear = 1.0f;
-constexpr float cFar = 2000.0f;
-constexpr float cZoomMin = 0.1f;
-constexpr float cZoomMax = 10.0f;
-constexpr float cZoomStep = 0.1f;
-constexpr float cZoomExponent = 1.1f;
-
-struct CameraBasis {
-    Math::Vector3f right;
-    Math::Vector3f up;
-    Math::Vector3f front;
-};
-
-CameraBasis makeCameraBasis(float yaw, float pitch, const Math::Vector3f& target) {
-    const float cyaw = std::cos(yaw);
-    const float syaw = std::sin(yaw);
-    const float cpitch = std::cos(pitch);
-    const float spitch = std::sin(pitch);
-
-    const float ex = target.getX() + cCameraDistance * cpitch * syaw;
-    const float ey = target.getY() + cCameraDistance * spitch;
-    const float ez = target.getZ() + cCameraDistance * cpitch * cyaw;
-
-    const Mat4 view = makeLookAt(ex, ey, ez, target.getX(), target.getY(), target.getZ(), 0.0f, 1.0f, 0.0f);
-
-    CameraBasis basis;
-    basis.right = {view[0], view[4], view[8]};
-    basis.up = {view[1], view[5], view[9]};
-    basis.front = {-view[2], -view[6], -view[10]};
-    return basis;
-}
-
 void computeParticleAxes(const Ptcl::Engine::EmitterState& state,
-    const Ptcl::Engine::ParticleState& particle, const CameraBasis& cam,
+    const Ptcl::Engine::ParticleState& particle, const ViewportCamera::Basis& cam,
     Math::Vector3f& axisX, Math::Vector3f& axisY) {
     const f32 width = particle.scale.getX();
     const f32 height = particle.scale.getY();
@@ -594,7 +491,7 @@ void computeParticleAxes(const Ptcl::Engine::EmitterState& state,
                 Math::VectorCalc::rotate(followBasis, {1.0f, 0.0f, 0.0f});
             baseRight = Math::VectorCalc::cross(dir, emitterRight);
         } else {
-            baseRight = Math::VectorCalc::cross(dir, cam.front);
+            baseRight = Math::VectorCalc::cross(dir, cam.forward);
         }
         if (baseRight.length() <= 0.0001f) {
             baseRight = cam.right;
@@ -668,28 +565,6 @@ void computeParticleAxes(const Ptcl::Engine::EmitterState& state,
     }
     }
 }
-
-Mat4 buildViewProj(float yaw, float pitch, const Math::Vector3f& target,
-    float zoomFactor, int viewportWidth, int viewportHeight) {
-    const float cyaw = std::cos(yaw);
-    const float syaw = std::sin(yaw);
-    const float cpitch = std::cos(pitch);
-    const float spitch = std::sin(pitch);
-
-    const float ex = target.getX() + cCameraDistance * cpitch * syaw;
-    const float ey = target.getY() + cCameraDistance * spitch;
-    const float ez = target.getZ() + cCameraDistance * cpitch * cyaw;
-
-    const Mat4 view = makeLookAt(ex, ey, ez, target.getX(), target.getY(), target.getZ(), 0.0f, 1.0f, 0.0f);
-
-    const float aspect = (viewportHeight > 0)
-        ? static_cast<float>(viewportWidth) / static_cast<float>(viewportHeight) : 1.0f;
-    Mat4 proj = makePerspective(cVerticalFov, aspect, cNear, cFar);
-    proj[5] *= zoomFactor;
-
-    return multiplyMat4(proj, view);
-}
-
 
 } // namespace
 
@@ -1011,8 +886,8 @@ void PreviewViewport::paintGL() {
         return;
     }
 
-    const Mat4 viewProj = buildViewProj(mYaw, mPitch, mTarget, mZoom, width(), height());
-    const CameraBasis cameraBasis = makeCameraBasis(mYaw, mPitch, mTarget);
+    const auto viewProj = mCamera.viewProjection(width(), height());
+    const auto cameraBasis = mCamera.basis();
 
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
@@ -1024,7 +899,7 @@ void PreviewViewport::paintGL() {
         glDepthFunc(GL_LEQUAL);
 
         mGridProgram->bind();
-        glUniformMatrix4fv(gridVp, 1, GL_FALSE, viewProj.data());
+        glUniformMatrix4fv(gridVp, 1, GL_TRUE, viewProj.data());
 
         mGridProgram->setUniformValue(gridCol, 0.25f, 0.29f, 0.33f, 1.0f);
         mGridVao.bind();
@@ -1057,7 +932,7 @@ void PreviewViewport::paintGL() {
     const int uUvScale = mProgram->uniformLocation("uUvScale");
     const int uTexel = mProgram->uniformLocation("uTexel");
 
-    glUniformMatrix4fv(uViewProj, 1, GL_FALSE, viewProj.data());
+    glUniformMatrix4fv(uViewProj, 1, GL_TRUE, viewProj.data());
 
     glActiveTexture(GL_TEXTURE0);
     mQuadVao.bind();
@@ -1182,7 +1057,7 @@ void PreviewViewport::paintGL() {
         const int suPrimaryColor = mStripeProgram->uniformLocation("uPrimaryColor");
         const int suHasTex = mStripeProgram->uniformLocation("uHasTex");
         const int suTex = mStripeProgram->uniformLocation("uTex");
-        glUniformMatrix4fv(suViewProj, 1, GL_FALSE, viewProj.data());
+        glUniformMatrix4fv(suViewProj, 1, GL_TRUE, viewProj.data());
         glActiveTexture(GL_TEXTURE0);
         mStripeProgram->setUniformValue(suTex, 0);
 
@@ -1259,7 +1134,7 @@ void PreviewViewport::paintGL() {
                         direction = cameraBasis.up;
                     }
                     Math::VectorCalc::normalize(direction);
-                    edge0 = Math::VectorCalc::cross(direction, cameraBasis.front);
+                    edge0 = Math::VectorCalc::cross(direction, cameraBasis.forward);
                     if (edge0.length() <= 0.0001f) {
                         edge0 = cameraBasis.right;
                     }
@@ -1314,9 +1189,7 @@ void PreviewViewport::resizeGL(int, int) {
 
 void PreviewViewport::wheelEvent(QWheelEvent* event) {
     const bool zoomIn = event->angleDelta().y() > 0;
-    const float zoomChange = zoomIn ? cZoomStep : -cZoomStep;
-    mZoom += zoomChange * std::pow(mZoom, cZoomExponent);
-    mZoom = qBound(cZoomMin, mZoom, cZoomMax);
+    mCamera.zoom(zoomIn ? 0.1f : -0.1f);
     update();
     event->accept();
 }
@@ -1340,8 +1213,7 @@ void PreviewViewport::mousePressEvent(QMouseEvent* event) {
 void PreviewViewport::mouseMoveEvent(QMouseEvent* event) {
     if (mOrbitDragging) {
         const QPoint delta = event->pos() - mLastMouse;
-        mYaw -= delta.x() * 0.01f;
-        mPitch = qBound(-1.55f, mPitch + delta.y() * 0.01f, 1.55f);
+        mCamera.orbit(delta);
         mLastMouse = event->pos();
         update();
         event->accept();
@@ -1349,38 +1221,7 @@ void PreviewViewport::mouseMoveEvent(QMouseEvent* event) {
     }
     if (mPanDragging) {
         const QPoint delta = event->pos() - mLastMouse;
-        const float visibleHalfHeight = std::tan(cVerticalFov * 0.5f) * cCameraDistance / mZoom;
-        const float worldPerPixel = (2.0f * visibleHalfHeight) / static_cast<float>(height());
-
-        const float cyaw = std::cos(mYaw);
-        const float syaw = std::sin(mYaw);
-        const float cpitch = std::cos(mPitch);
-        const float spitch = std::sin(mPitch);
-
-        const float fwdX = -cpitch * syaw;
-        const float fwdY = -spitch;
-        const float fwdZ = -cpitch * cyaw;
-
-        float rx = fwdZ;
-        float ry = 0.0f;
-        float rz = -fwdX;
-        const float rl = std::sqrt(rx * rx + rz * rz);
-        if (rl > 0.0f) {
-            rx /= rl;
-            rz /= rl;
-        }
-
-        const float ux = ry * fwdZ - rz * fwdY;
-        const float uy = rz * fwdX - rx * fwdZ;
-        const float uz = rx * fwdY - ry * fwdX;
-
-        const float dx = static_cast<float>(-delta.x()) * worldPerPixel;
-        const float dy = static_cast<float>(delta.y()) * worldPerPixel;
-
-        mTarget.setX(mTarget.getX() + rx * dx + ux * dy);
-        mTarget.setY(mTarget.getY() + ry * dx + uy * dy);
-        mTarget.setZ(mTarget.getZ() + rz * dx + uz * dy);
-
+        mCamera.pan(delta, height());
         mLastMouse = event->pos();
         update();
         event->accept();

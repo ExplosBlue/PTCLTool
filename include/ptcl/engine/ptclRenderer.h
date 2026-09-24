@@ -39,8 +39,6 @@ struct EmitterState {
     BlendFuncType blendFunction{BlendFuncType::AlphaBlend};
     DepthFuncType depthFunction{DepthFuncType::TestOnly};
     ColorCombinerFuncType combinerFunction{ColorCombinerFuncType::CombinerConfig0};
-    ColorCalcType colorCalcType{ColorCalcType::None};
-    bool isFogEnabled{false};
     Math::Vector2f rotationBasis{};
     Gfx::Color color{};
     Gfx::Color secondaryColor{};
