@@ -148,7 +148,7 @@ ParticleState EmitterCalc::ptclPreCalcFollowAllSimple(EmitterInstance& emitter, 
 
     ParticleState state;
     if (res.isVelLook()) {
-        state.followCount = 1;
+        state.followMode = ParticleFollowMode::Direction;
         state.followDirection = Math::VectorCalc::rotate(emitter.mEmitterSRT, ptcl.velocity);
     }
 
@@ -182,10 +182,10 @@ ParticleState EmitterCalc::ptclPreCalcFollowNoneSimple(EmitterInstance& emitter,
 
     ParticleState state;
     if (res.isPolygon()) {
-        state.followCount = 3;
+        state.followMode = ParticleFollowMode::Basis;
         state.followBasis = ptcl.emitterRT;
     } else if (res.isVelLook()) {
-        state.followCount = 1;
+        state.followMode = ParticleFollowMode::Direction;
         state.followDirection = Math::VectorCalc::rotate(ptcl.emitterSRT, ptcl.velocity);
     }
 
@@ -228,10 +228,10 @@ ParticleState EmitterCalc::ptclPreCalcFollowPosOnlySimple(EmitterInstance& emitt
 
     ParticleState state;
     if (res.isPolygon()) {
-        state.followCount = 3;
+        state.followMode = ParticleFollowMode::Basis;
         state.followBasis = ptcl.emitterRT;
     } else if (res.isVelLook()) {
-        state.followCount = 1;
+        state.followMode = ParticleFollowMode::Direction;
         state.followDirection = Math::VectorCalc::rotate(ptcl.emitterSRT, ptcl.velocity);
     }
 
@@ -280,7 +280,7 @@ ParticleState EmitterCalc::ptclPreCalcFollowAllComplex(EmitterInstance& emitter,
 
     ParticleState state;
     if (res.isVelLook()) {
-        state.followCount = 1;
+        state.followMode = ParticleFollowMode::Direction;
         state.followDirection = Math::VectorCalc::rotate(emitter.mEmitterSRT, ptcl.posDiff);
     }
 
@@ -325,10 +325,10 @@ ParticleState EmitterCalc::ptclPreCalcFollowNoneComplex(EmitterInstance& emitter
 
     ParticleState state;
     if (res.isPolygon()) {
-        state.followCount = 3;
+        state.followMode = ParticleFollowMode::Basis;
         state.followBasis = ptcl.emitterRT;
     } else if (res.isVelLook()) {
-        state.followCount = 1;
+        state.followMode = ParticleFollowMode::Direction;
         state.followDirection = Math::VectorCalc::rotate(ptcl.emitterSRT, ptcl.posDiff);
     }
 
@@ -383,10 +383,10 @@ ParticleState EmitterCalc::ptclPreCalcFollowPosOnlyComplex(EmitterInstance& emit
 
     ParticleState state;
     if (res.isPolygon()) {
-        state.followCount = 3;
+        state.followMode = ParticleFollowMode::Basis;
         state.followBasis = ptcl.emitterRT;
     } else if (res.isVelLook()) {
-        state.followCount = 1;
+        state.followMode = ParticleFollowMode::Direction;
         state.followDirection = Math::VectorCalc::rotate(ptcl.emitterSRT, ptcl.posDiff);
     }
 

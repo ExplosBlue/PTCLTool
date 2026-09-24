@@ -544,7 +544,7 @@ void computeParticleAxes(const Ptcl::Engine::EmitterState& state,
     const f32 height = particle.scale.getY();
     const auto& m = particle.matrix;
 
-    const auto& followBasis = particle.followCount == 3 ? particle.followBasis : state.emitterRT;
+    const auto& followBasis = particle.followMode == Ptcl::Engine::ParticleFollowMode::Basis ? particle.followBasis : state.emitterRT;
     const auto localX = Math::Vector3f{m(0, 3), m(1, 3), m(2, 3)};
     const auto localY = Math::Vector3f{m(0, 2), m(1, 2), m(2, 2)};
     const auto localZ = Math::Vector3f{m(0, 1), m(1, 1), m(2, 1)};

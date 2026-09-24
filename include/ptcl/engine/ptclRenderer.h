@@ -22,6 +22,16 @@ class EmitterInstance;
 // ========================================================================== //
 
 
+enum class ParticleFollowMode : u8 {
+    None,
+    Direction,
+    Basis,
+};
+
+
+// ========================================================================== //
+
+
 struct EmitterState {
     const Ptcl::TextureHandle* textureHandle{nullptr};
     BillboardType billboardType{BillboardType::Billboard};
@@ -52,7 +62,7 @@ struct ParticleState {
     Math::Vector2f uvOffset{};
     Math::Vector2f uvSubOffset{};
     Gfx::Color color{};
-    u32 followCount{0};
+    ParticleFollowMode followMode{ParticleFollowMode::None};
     bool isChild{false};
     Math::Vector3f followDirection{};
     Math::Matrix34f followBasis{};

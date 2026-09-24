@@ -532,19 +532,19 @@ s32 EmitterCalc::calcComplexChild(EmitterInstance& emitter, PtclRenderer& render
             }
 
             ParticleState draw;
-            u32 followCount = 0;
+            ParticleFollowMode followMode = ParticleFollowMode::None;
             if (res.childFlags().isSet(ChildFlag::IsPolygon)) {
-                followCount = 3;
+                followMode = ParticleFollowMode::Basis;
                 draw.followBasis = cur->emitterRT;
             } else {
                 const u32 childBillboard = static_cast<u32>(res.childBillboardType());
                 if (childBillboard == 3 || childBillboard == 4) {
-                    followCount = 1;
+                    followMode = ParticleFollowMode::Direction;
                     const Math::Vector3f dir = Math::VectorCalc::rotate(cur->emitterSRT, Math::VectorCalc::sub(cur->position, prevPos));
                     draw.followDirection = dir;
                 }
             }
-            draw.followCount = followCount;
+            draw.followMode = followMode;
             draw.isChild = true;
 
             sChildPtclCalcFunctions[static_cast<std::size_t>(res.childRotationType())](&draw.matrix, emitter, *cur);
