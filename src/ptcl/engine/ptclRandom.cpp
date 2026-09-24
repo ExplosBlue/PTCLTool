@@ -59,13 +59,13 @@ struct Tables {
 
         MtRandom rnd(cTableSeed);
         for (u32 i = 0; i < PtclRandom::cNumVec3Tbl; ++i) {
-            vec3[i].setX(rnd.getF32() * cTableScale - cTableOffset);
-            vec3[i].setY(rnd.getF32() * cTableScale - cTableOffset);
-            vec3[i].setZ(rnd.getF32() * cTableScale - cTableOffset);
+            vec3[i].setX(cTableOffset - rnd.getF32() * cTableScale);
+            vec3[i].setY(cTableOffset - rnd.getF32() * cTableScale);
+            vec3[i].setZ(cTableOffset - rnd.getF32() * cTableScale);
 
-            normalizedVec3[i].setX(rnd.getF32() * cTableScale - cTableOffset);
-            normalizedVec3[i].setY(rnd.getF32() * cTableScale - cTableOffset);
-            normalizedVec3[i].setZ(rnd.getF32() * cTableScale - cTableOffset);
+            normalizedVec3[i].setX(cTableOffset - rnd.getF32() * cTableScale);
+            normalizedVec3[i].setY(cTableOffset - rnd.getF32() * cTableScale);
+            normalizedVec3[i].setZ(cTableOffset - rnd.getF32() * cTableScale);
             normalizedVec3[i].normalize();
         }
     }

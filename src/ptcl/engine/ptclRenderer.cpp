@@ -579,12 +579,7 @@ void computeParticleAxes(const Ptcl::Engine::EmitterState& state, const Ptcl::En
         }
         Math::VectorCalc::normalize(dir);
 
-
-        const f32 dirDotLocalY = dir.getX() * localY.getX()
-            + dir.getY() * localY.getY() + dir.getZ() * localY.getZ();
-        const f32 longitudinalSign = (!particle.isChild && dirDotLocalY < 0.0f)
-            ? -1.0f : 1.0f;
-        axisY = Math::VectorCalc::multScalar(dir, height * longitudinalSign);
+        axisY = Math::VectorCalc::multScalar(dir, height);
         Math::Vector3f baseRight;
         if (state.billboardType == Ptcl::BillboardType::VelLookPolygon) {
             const Math::Vector3f emitterRight =
@@ -595,9 +590,6 @@ void computeParticleAxes(const Ptcl::Engine::EmitterState& state, const Ptcl::En
         }
         if (baseRight.length() <= 0.0001f) {
             baseRight = cam.right;
-        }
-        if (longitudinalSign < 0.0f) {
-            baseRight = Math::VectorCalc::multScalar(baseRight, -1.0f);
         }
         Math::VectorCalc::normalize(baseRight);
 

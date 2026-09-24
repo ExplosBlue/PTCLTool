@@ -112,7 +112,7 @@ void EmitterCalc::calcRotXYZ(Math::Matrix34f& matrix, PtclInstance& ptcl) {
     matrix(0, 2) = std::fmaf(-(sinX * sinY), cosZ, cosX * sinZ);
     matrix(0, 3) = cosY * cosZ;
 
-    matrix(1, 1) = std::fmaf(sinZ * sinY, cosX, -cosZ * sinX);
+    matrix(1, 1) = std::fmaf(-(sinX), cosZ, -cosX * sinY * sinZ);
     matrix(1, 2) = std::fmaf(sinZ * sinY, sinX, cosZ * cosX);
     matrix(1, 3) = cosY * sinZ;
 
