@@ -94,6 +94,7 @@ set(PROJECT_SOURCES
     src/editor/texture/textureSelectDialog.cpp
     src/editor/viewport/previewViewport.cpp
     src/editor/viewport/viewportCamera.cpp
+    src/editor/viewport/viewportGrid.cpp
     src/math/quaternion.cpp
     src/math/sinCosIdx.cpp
     src/math/vector.cpp
@@ -197,6 +198,7 @@ set(PROJECT_HEADERS
     include/editor/texture/textureSelectDialog.h
     include/editor/viewport/previewViewport.h
     include/editor/viewport/viewportCamera.h
+    include/editor/viewport/viewportGrid.h
     include/gfx/color.h
     include/math/matrix.h
     include/math/quaternion.h

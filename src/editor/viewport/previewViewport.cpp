@@ -18,7 +18,7 @@ namespace PtclTool {
 namespace {
 
 
-constexpr const char* cVertShader = R"(#version 330 core
+constexpr const char* cVertShader = R"(#version 150 core
 in vec2 aPos;
 uniform vec3 uCenter;
 uniform vec3 uAxisX;
@@ -42,7 +42,7 @@ void main() {
 }
 )";
 
-constexpr const char* cStripeVertShader = R"(#version 330 core
+constexpr const char* cStripeVertShader = R"(#version 150 core
 in vec3 aPosition;
 in vec2 aUv;
 in float aAlpha;
@@ -58,7 +58,7 @@ void main() {
 }
 )";
 
-constexpr const char* cFragShader = R"(#version 330 core
+constexpr const char* cFragShader = R"(#version 150 core
 in vec2 vUv;
 in vec2 vLocalUv;
 in float vParticleAlpha;
@@ -143,199 +143,19 @@ void main() {
 }
 )";
 
-constexpr const char* cVertShaderEs = R"(#version 300 es
-precision highp float;
-in vec2 aPos;
-uniform vec3 uCenter;
-uniform vec3 uAxisX;
-uniform vec3 uAxisY;
-uniform mat4 uViewProj;
-uniform vec2 uUvOffset;
-uniform vec2 uUvScale;
-uniform vec2 uTexel;
-uniform vec4 uPrimaryColor;
-out vec2 vUv;
-out vec2 vLocalUv;
-out float vParticleAlpha;
-void main() {
-    vLocalUv = vec2(aPos.x + 0.5, 0.5 - aPos.y);
-    vParticleAlpha = uPrimaryColor.a;
-    vec2 uvMin = uUvOffset + uTexel * 0.5;
-    vec2 uvMax = uUvOffset + uUvScale - uTexel * 0.5;
-    vUv = mix(uvMin, uvMax, vLocalUv);
-    vec3 world = uCenter + aPos.x * uAxisX + aPos.y * uAxisY;
-    gl_Position = uViewProj * vec4(world, 1.0);
-}
-)";
-
-constexpr const char* cStripeVertShaderEs = R"(#version 300 es
-precision highp float;
-in vec3 aPosition;
-in vec2 aUv;
-in float aAlpha;
-uniform mat4 uViewProj;
-out vec2 vUv;
-out vec2 vLocalUv;
-out float vParticleAlpha;
-void main() {
-    vUv = vec2(aUv.x, 1.0 - aUv.y);
-    vLocalUv = vec2(0.5);
-    vParticleAlpha = aAlpha;
-    gl_Position = uViewProj * vec4(aPosition, 1.0);
-}
-)";
-
-constexpr const char* cFragShaderEs = R"(#version 300 es
-precision highp float;
-in vec2 vUv;
-in vec2 vLocalUv;
-in float vParticleAlpha;
-uniform sampler2D uTex;
-uniform int uHasTex;
-uniform vec4 uConstantColor;
-uniform vec4 uPrimaryColor;
-uniform int uCfg[32];
-out vec4 fragColor;
-
-vec4 stageSrc(int base, int idx, vec4 constant, vec4 primary, vec4 tex, vec4 prev) {
-    int inIdx = uCfg[base + 1 + idx];
-    if (inIdx == 0) return constant;
-    else if (inIdx == 1) return primary;
-    else if (inIdx == 2) return tex;
-    else return prev;
-}
-
-vec3 stageColor(int base, int idx, vec4 constant, vec4 primary, vec4 tex, vec4 prev) {
-    vec4 v = stageSrc(base, idx, constant, primary, tex, prev);
-    int op = uCfg[base + 4 + idx];
-    if (op == 1) return vec3(v.g);
-    else if (op == 2) return vec3(1.0) - v.rgb;
-    else return v.rgb;
-}
-
-float stageAlpha(int base, int idx, vec4 constant, vec4 primary, vec4 tex, vec4 prev) {
-    vec4 v = stageSrc(base, idx, constant, primary, tex, prev);
-    int op = uCfg[base + 4 + idx];
-    if (op == 1) return v.g;
-    else if (op == 2) return 1.0 - v.a;
-    else return v.a;
-}
-
-vec3 evalColorStage(int base, vec4 constant, vec4 primary, vec4 tex, vec4 prev) {
-    int fn = uCfg[base];
-    vec3 a = stageColor(base, 0, constant, primary, tex, prev);
-    vec3 b = stageColor(base, 1, constant, primary, tex, prev);
-    vec3 c = stageColor(base, 2, constant, primary, tex, prev);
-    vec3 outColor;
-    if (fn == 0) outColor = a;
-    else if (fn == 1) outColor = a * b;
-    else if (fn == 2) outColor = max(a - b, vec3(0.0));
-    else outColor = clamp(a * b + c, vec3(0.0), vec3(1.0));
-    if (uCfg[base + 7] == 1) outColor = min(outColor * 2.0, vec3(1.0));
-    return outColor;
-}
-
-float evalAlphaStage(int base, vec4 constant, vec4 primary, vec4 tex, vec4 prev) {
-    int fn = uCfg[base];
-    float a = stageAlpha(base, 0, constant, primary, tex, prev);
-    float b = stageAlpha(base, 1, constant, primary, tex, prev);
-    float c = stageAlpha(base, 2, constant, primary, tex, prev);
-    float outVal;
-    if (fn == 0) outVal = a;
-    else if (fn == 1) outVal = a * b;
-    else if (fn == 2) outVal = max(a - b, 0.0);
-    else outVal = clamp(a * b + c, 0.0, 1.0);
-    if (uCfg[base + 7] == 1) outVal = min(outVal * 2.0, 1.0);
-    return outVal;
-}
-
-void main() {
-    vec4 tex;
-    if (uHasTex == 1) {
-        tex = texture(uTex, vUv);
-    } else {
-        vec2 c = vLocalUv - vec2(0.5);
-        float m = step(length(c), 0.5);
-        tex = vec4(vec3(1.0), m);
-    }
-    vec4 primary = vec4(uPrimaryColor.rgb, vParticleAlpha);
-    vec4 prev = vec4(0.0);
-    vec3 cOut = evalColorStage(0, uConstantColor, primary, tex, prev);
-    prev = vec4(cOut, 0.0);
-    cOut = evalColorStage(8, uConstantColor, primary, tex, prev);
-    prev = vec4(0.0, 0.0, 0.0, 0.0);
-    float aOut = evalAlphaStage(16, uConstantColor, primary, tex, prev);
-    prev = vec4(0.0, 0.0, 0.0, aOut);
-    aOut = evalAlphaStage(24, uConstantColor, primary, tex, prev);
-    fragColor = vec4(cOut, aOut);
-}
-)";
-
-
-constexpr const char* cScreenVertShader = R"(#version 330 core
+constexpr const char* cScreenVertShader = R"(#version 150 core
 in vec2 aPos;
 void main() {
     gl_Position = vec4(aPos * 2.0, 0.0, 1.0);
 }
 )";
 
-constexpr const char* cScreenFragShader = R"(#version 330 core
+constexpr const char* cScreenFragShader = R"(#version 150 core
 out vec4 fragColor;
 void main() {
     fragColor = vec4(0.0, 0.0, 0.0, 1.0);
 }
 )";
-
-constexpr const char* cScreenVertShaderEs = R"(#version 300 es
-precision highp float;
-in vec2 aPos;
-void main() {
-    gl_Position = vec4(aPos * 2.0, 0.0, 1.0);
-}
-)";
-
-constexpr const char* cScreenFragShaderEs = R"(#version 300 es
-precision highp float;
-out vec4 fragColor;
-void main() {
-    fragColor = vec4(0.0, 0.0, 0.0, 1.0);
-}
-)";
-
-constexpr const char* cGridVertShader = R"(#version 330 core
-in vec3 aPos;
-uniform mat4 uViewProj;
-void main() {
-    gl_Position = uViewProj * vec4(aPos, 1.0);
-}
-)";
-
-constexpr const char* cGridFragShader = R"(#version 330 core
-uniform vec4 uColor;
-out vec4 fragColor;
-void main() {
-    fragColor = uColor;
-}
-)";
-
-constexpr const char* cGridVertShaderEs = R"(#version 300 es
-precision highp float;
-in vec3 aPos;
-uniform mat4 uViewProj;
-void main() {
-    gl_Position = uViewProj * vec4(aPos, 1.0);
-}
-)";
-
-constexpr const char* cGridFragShaderEs = R"(#version 300 es
-precision highp float;
-uniform vec4 uColor;
-out vec4 fragColor;
-void main() {
-    fragColor = uColor;
-}
-)";
-
 
 std::array<GLint, 32> buildCombinerCfg(Ptcl::ColorCombinerFuncType func) {
     std::array<GLint, 32> cfgData{};
@@ -688,15 +508,13 @@ std::size_t PreviewViewport::lastFrameParticleCount() const {
 
 void PreviewViewport::initializeGL() {
     initializeOpenGLFunctions();
-    mIsEs = QOpenGLContext::currentContext()->isOpenGLES();
 
     connect(context(), &QOpenGLContext::aboutToBeDestroyed, this,
         &PreviewViewport::cleanupGlResources);
 
-    std::fprintf(stderr, "[viewport] GL_VERSION=%s GLSL=%s es=%d\n",
+    std::fprintf(stderr, "[viewport] GL_VERSION=%s GLSL=%s\n",
         reinterpret_cast<const char*>(glGetString(GL_VERSION)),
-        reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)),
-        mIsEs ? 1 : 0);
+        reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
 
     ensureGlResources();
 }
@@ -722,11 +540,7 @@ void PreviewViewport::cleanupGlResources() {
         delete mScreenProgram;
         mScreenProgram = nullptr;
     }
-    if (mGridProgram) {
-        mGridProgram->release();
-        delete mGridProgram;
-        mGridProgram = nullptr;
-    }
+    mGrid.cleanup();
     if (mStripeProgram) {
         mStripeProgram->release();
         delete mStripeProgram;
@@ -736,12 +550,6 @@ void PreviewViewport::cleanupGlResources() {
     mQuadVbo.destroy();
     mStripeVao.destroy();
     mStripeVbo.destroy();
-    mGridVao.destroy();
-    mGridVbo.destroy();
-    mAxisVao.destroy();
-    mAxisVbo.destroy();
-    mGridVertexCount = 0;
-    mAxisVertexCount = 0;
     mGlReady = false;
 }
 
@@ -751,18 +559,16 @@ void PreviewViewport::ensureGlResources() {
     }
 
     mProgram = new QOpenGLShaderProgram(this);
-    if (!mProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, mIsEs ? cVertShaderEs : cVertShader) ||
-        !mProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, mIsEs ? cFragShaderEs : cFragShader) ||
+    if (!mProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, cVertShader) ||
+        !mProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, cFragShader) ||
         !mProgram->link()) {
         std::fprintf(stderr, "[viewport] shader compile/link failed: %s\n",
             mProgram->log().toUtf8().constData());
     }
 
     mScreenProgram = new QOpenGLShaderProgram(this);
-    if (!mScreenProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,
-            mIsEs ? cScreenVertShaderEs : cScreenVertShader) ||
-        !mScreenProgram->addShaderFromSourceCode(QOpenGLShader::Fragment,
-            mIsEs ? cScreenFragShaderEs : cScreenFragShader) ||
+    if (!mScreenProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, cScreenVertShader) ||
+        !mScreenProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, cScreenFragShader) ||
         !mScreenProgram->link()) {
         std::fprintf(stderr, "[viewport] screen shader compile/link failed: %s\n",
             mScreenProgram->log().toUtf8().constData());
@@ -789,10 +595,8 @@ void PreviewViewport::ensureGlResources() {
     mQuadVao.release();
 
     mStripeProgram = new QOpenGLShaderProgram(this);
-    if (!mStripeProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,
-            mIsEs ? cStripeVertShaderEs : cStripeVertShader) ||
-        !mStripeProgram->addShaderFromSourceCode(QOpenGLShader::Fragment,
-            mIsEs ? cFragShaderEs : cFragShader) ||
+    if (!mStripeProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, cStripeVertShader) ||
+        !mStripeProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, cFragShader) ||
         !mStripeProgram->link()) {
         std::fprintf(stderr, "[viewport] stripe shader compile/link failed: %s\n",
             mStripeProgram->log().toUtf8().constData());
@@ -814,66 +618,7 @@ void PreviewViewport::ensureGlResources() {
     mStripeVbo.release();
     mStripeVao.release();
 
-    mGridProgram = new QOpenGLShaderProgram(this);
-    if (!mGridProgram->addShaderFromSourceCode(QOpenGLShader::Vertex,
-            mIsEs ? cGridVertShaderEs : cGridVertShader) ||
-        !mGridProgram->addShaderFromSourceCode(QOpenGLShader::Fragment,
-            mIsEs ? cGridFragShaderEs : cGridFragShader) ||
-        !mGridProgram->link()) {
-        std::fprintf(stderr, "[viewport] grid shader compile/link failed: %s\n",
-            mGridProgram->log().toUtf8().constData());
-    }
-
-    const int extent = 256;
-    std::vector<GLfloat> grid;
-    grid.reserve((2 * extent + 1) * 2 * 2 * 3);
-    for (int i = -extent; i <= extent; ++i) {
-        if (i == 0) {
-            continue;
-        }
-        const float x = static_cast<GLfloat>(i);
-        grid.push_back(x);
-        grid.push_back(0.0f);
-        grid.push_back(static_cast<GLfloat>(-extent));
-        grid.push_back(x);
-        grid.push_back(0.0f);
-        grid.push_back(static_cast<GLfloat>(extent));
-        grid.push_back(static_cast<GLfloat>(-extent));
-        grid.push_back(0.0f);
-        grid.push_back(x);
-        grid.push_back(static_cast<GLfloat>(extent));
-        grid.push_back(0.0f);
-        grid.push_back(x);
-    }
-    mGridVertexCount = static_cast<GLsizei>(grid.size() / 3);
-
-    mGridVao.create();
-    mGridVbo.create();
-    mGridVao.bind();
-    mGridVbo.bind();
-    mGridVbo.allocate(grid.data(), static_cast<int>(grid.size() * sizeof(GLfloat)));
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
-    mGridVbo.release();
-    mGridVao.release();
-
-    const std::array<GLfloat, 12> axes = {
-        static_cast<GLfloat>(-extent), 0.0f, 0.0f,
-        static_cast<GLfloat>(extent), 0.0f, 0.0f,
-        0.0f, 0.0f, static_cast<GLfloat>(-extent),
-        0.0f, 0.0f, static_cast<GLfloat>(extent),
-    };
-    mAxisVertexCount = 4;
-
-    mAxisVao.create();
-    mAxisVbo.create();
-    mAxisVao.bind();
-    mAxisVbo.bind();
-    mAxisVbo.allocate(axes.data(), static_cast<int>(axes.size() * sizeof(GLfloat)));
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
-    mAxisVbo.release();
-    mAxisVao.release();
+    mGrid.initialize(*this);
 
     mGlReady = true;
 }
@@ -893,27 +638,7 @@ void PreviewViewport::paintGL() {
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
 
-    if (mGridProgram && mGridVertexCount > 0) {
-        const int gridVp = mGridProgram->uniformLocation("uViewProj");
-        const int gridCol = mGridProgram->uniformLocation("uColor");
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
-
-        mGridProgram->bind();
-        glUniformMatrix4fv(gridVp, 1, GL_TRUE, viewProj.data());
-
-        mGridProgram->setUniformValue(gridCol, 0.25f, 0.29f, 0.33f, 1.0f);
-        mGridVao.bind();
-        glDrawArrays(GL_LINES, 0, mGridVertexCount);
-        mGridVao.release();
-
-        mGridProgram->setUniformValue(gridCol, 0.62f, 0.64f, 0.67f, 1.0f);
-        mAxisVao.bind();
-        glDrawArrays(GL_LINES, 0, mAxisVertexCount);
-        mAxisVao.release();
-
-        mGridProgram->release();
-    }
+    mGrid.draw(*this, viewProj);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);

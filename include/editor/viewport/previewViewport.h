@@ -5,6 +5,7 @@
 #include "ptcl/engine/ptclRenderer.h"
 #include "ptcl/engine/ptclSystem.h"
 #include "editor/viewport/viewportCamera.h"
+#include "editor/viewport/viewportGrid.h"
 
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions_2_0>
@@ -83,20 +84,13 @@ private:
 
     QOpenGLShaderProgram* mProgram{nullptr};
     QOpenGLShaderProgram* mScreenProgram{nullptr};
-    QOpenGLShaderProgram* mGridProgram{nullptr};
     QOpenGLShaderProgram* mStripeProgram{nullptr};
     QOpenGLBuffer mQuadVbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLVertexArrayObject mQuadVao{};
     QOpenGLBuffer mStripeVbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLVertexArrayObject mStripeVao{};
-    QOpenGLBuffer mGridVbo{QOpenGLBuffer::VertexBuffer};
-    QOpenGLVertexArrayObject mGridVao{};
-    GLsizei mGridVertexCount{0};
-    QOpenGLBuffer mAxisVbo{QOpenGLBuffer::VertexBuffer};
-    QOpenGLVertexArrayObject mAxisVao{};
-    GLsizei mAxisVertexCount{0};
+    ViewportGrid mGrid{};
     std::unordered_map<const Ptcl::Texture*, GLuint> mTextureCache{};
-    bool mIsEs{false};
     bool mGlReady{false};
     std::size_t mLastDrawCount{0};
 
