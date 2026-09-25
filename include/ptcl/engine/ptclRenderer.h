@@ -51,6 +51,7 @@ struct EmitterState {
     DepthFuncType depthFunction{DepthFuncType::TestOnly};
     ColorCombinerFuncType combinerFunction{ColorCombinerFuncType::CombinerConfig0};
     EmitterType emitterType{EmitterType::Simple};
+    bool preChildDraw{false};
     Math::Vector2f rotationBasis{};
     Gfx::Color color{};
     Gfx::Color secondaryColor{};

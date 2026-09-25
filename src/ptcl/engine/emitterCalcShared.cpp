@@ -147,6 +147,7 @@ void EmitterCalc::emitChildState(PtclRenderer& renderer, const EmitterInstance& 
         .depthFunction         = res.childDepthFunc(),
         .combinerFunction      = res.childCombinerFunc(),
         .emitterType           = res.type(),
+        .preChildDraw          = res.childFlags().isSet(ChildFlag::PreChildDraw),
         .rotationBasis         = res.childRotationBasis(),
         .color = {
             res.childPrimaryColor().r() * set.color.r(),
