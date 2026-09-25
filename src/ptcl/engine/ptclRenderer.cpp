@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <cmath>
 
 
 namespace {
@@ -544,7 +545,6 @@ void computeParticleAxes(const Ptcl::Engine::EmitterState& state, const Ptcl::En
     const auto& followBasis = particle.followMode == Ptcl::Engine::ParticleFollowMode::Basis ? particle.followBasis : state.emitterRT;
     const auto localX = Math::Vector3f{m(0, 3), m(1, 3), m(2, 3)};
     const auto localY = Math::Vector3f{m(0, 2), m(1, 2), m(2, 2)};
-    const auto localZ = Math::Vector3f{m(0, 1), m(1, 1), m(2, 1)};
     const auto worldX = Math::VectorCalc::rotate(followBasis, localX);
     const auto worldY = Math::VectorCalc::rotate(followBasis, localY);
 
@@ -579,7 +579,8 @@ void computeParticleAxes(const Ptcl::Engine::EmitterState& state, const Ptcl::En
         }
         Math::VectorCalc::normalize(dir);
 
-        axisY = Math::VectorCalc::multScalar(dir, height);
+        const f32 axisSign = state.rotationBasis.getY() < 0.0f ? -1.0f : 1.0f;
+        axisY = Math::VectorCalc::multScalar(dir, axisSign * height);
         Math::Vector3f baseRight;
         if (state.billboardType == Ptcl::BillboardType::VelLookPolygon) {
             const Math::Vector3f emitterRight =
@@ -642,17 +643,24 @@ void computeParticleAxes(const Ptcl::Engine::EmitterState& state, const Ptcl::En
             break;
         }
 
-        const auto transformCameraAxis = [&](const Math::Vector3f& cameraAxis) {
-            return Math::VectorCalc::add(
-                Math::VectorCalc::add(
-                    Math::VectorCalc::multScalar(localX, cameraAxis.getX()),
-                    Math::VectorCalc::multScalar(localY, cameraAxis.getY())),
-                Math::VectorCalc::multScalar(localZ, cameraAxis.getZ()));
-        };
-        const Math::Vector3f cameraX = transformCameraAxis(cam.right);
-        const Math::Vector3f cameraY = transformCameraAxis(cam.up);
-        axisX = Math::VectorCalc::multScalar(cameraX, width);
-        axisY = Math::VectorCalc::multScalar(cameraY, height);
+        const f32 screenX = Math::VectorCalc::dot(localX, cam.right);
+        const f32 screenY = Math::VectorCalc::dot(localX, cam.up);
+        const f32 projectedLength = std::sqrt(screenX * screenX + screenY * screenY);
+        if (projectedLength > 0.0001f) {
+            const f32 cosine = screenX / projectedLength;
+            const f32 sine = screenY / projectedLength;
+            axisX = Math::VectorCalc::add(
+                Math::VectorCalc::multScalar(cam.right, cosine),
+                Math::VectorCalc::multScalar(cam.up, sine));
+            axisY = Math::VectorCalc::add(
+                Math::VectorCalc::multScalar(cam.right, -sine),
+                Math::VectorCalc::multScalar(cam.up, cosine));
+        } else {
+            axisX = cam.right;
+            axisY = cam.up;
+        }
+        axisX = Math::VectorCalc::multScalar(axisX, width);
+        axisY = Math::VectorCalc::multScalar(axisY, -height);
         break;
     }
     }
