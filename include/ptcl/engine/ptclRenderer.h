@@ -52,7 +52,6 @@ struct EmitterState {
     ColorCombinerFuncType combinerFunction{ColorCombinerFuncType::CombinerConfig0};
     EmitterType emitterType{EmitterType::Simple};
     Ptcl::RotType rotationType{Ptcl::RotType::None};
-    bool preChildDraw{false};
     Math::Vector2f rotationBasis{};
     Gfx::Color color{};
     Gfx::Color secondaryColor{};

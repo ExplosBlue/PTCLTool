@@ -193,9 +193,14 @@ s32 EmitterCalc::calcComplex(EmitterInstance& emitter, PtclRenderer& renderer) {
 
     beginEmitterMatrices(emitter);
 
-    s32 aliveCount = calcComplexParent(emitter, renderer);
-
-    aliveCount += calcComplexChild(emitter, renderer);
+    s32 aliveCount = 0;
+    if (res.childFlags().isSet(ChildFlag::PreChildDraw)) {
+        aliveCount = calcComplexChild(emitter, renderer);
+        aliveCount += calcComplexParent(emitter, renderer);
+    } else {
+        aliveCount = calcComplexParent(emitter, renderer);
+        aliveCount += calcComplexChild(emitter, renderer);
+    }
 
     return aliveCount;
 }

@@ -962,10 +962,6 @@ void PtclRenderer::beginCalc() {
 }
 
 void PtclRenderer::setEmitterState(const EmitterState& state) {
-    if (state.preChildDraw && !mFrame.batches.empty()) {
-        mFrame.batches.insert(mFrame.batches.end() - 1, EmitterDrawBatch{state, {}});
-        return;
-    }
     mFrame.batches.push_back({state, {}});
 }
 
