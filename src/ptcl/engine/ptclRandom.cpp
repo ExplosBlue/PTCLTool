@@ -63,9 +63,9 @@ struct Tables {
             vec3[i].setY(cTableOffset - rnd.getF32() * cTableScale);
             vec3[i].setZ(cTableOffset - rnd.getF32() * cTableScale);
 
-            normalizedVec3[i].setX(cTableOffset - rnd.getF32() * cTableScale);
-            normalizedVec3[i].setY(cTableOffset - rnd.getF32() * cTableScale);
-            normalizedVec3[i].setZ(cTableOffset - rnd.getF32() * cTableScale);
+            normalizedVec3[i].setX(rnd.getF32() * cTableScale - cTableOffset);
+            normalizedVec3[i].setY(rnd.getF32() * cTableScale - cTableOffset);
+            normalizedVec3[i].setZ(rnd.getF32() * cTableScale - cTableOffset);
             normalizedVec3[i].normalize();
         }
     }
@@ -126,7 +126,7 @@ PtclRandom::EmitterSeed PtclRandom::makeEmitterSeed(
     return {
         value,
         static_cast<u16>(value),
-        isConstant ? u16{} : static_cast<u16>(value >> 16),
+        static_cast<u16>(value >> 16),
     };
 }
 
