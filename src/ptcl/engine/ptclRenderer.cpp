@@ -643,8 +643,16 @@ void computeParticleAxes(const Ptcl::Engine::EmitterState& state, const Ptcl::En
             break;
         }
 
-        const f32 screenX = Math::VectorCalc::dot(localX, cam.right);
-        const f32 screenY = Math::VectorCalc::dot(localX, cam.up);
+        if (state.rotationType == Ptcl::RotType::RotY) {
+            axisX = Math::VectorCalc::multScalar(worldX, width);
+            axisY = Math::VectorCalc::multScalar(worldY, height);
+            break;
+        }
+
+        const f32 screenX = localX.getX();
+        const f32 screenY = state.rotationType == Ptcl::RotType::RotZ
+            ? -localX.getY()
+            : localX.getY();
         const f32 projectedLength = std::sqrt(screenX * screenX + screenY * screenY);
         if (projectedLength > 0.0001f) {
             const f32 cosine = screenX / projectedLength;
@@ -659,8 +667,8 @@ void computeParticleAxes(const Ptcl::Engine::EmitterState& state, const Ptcl::En
             axisX = cam.right;
             axisY = cam.up;
         }
-        axisX = Math::VectorCalc::multScalar(axisX, width);
-        axisY = Math::VectorCalc::multScalar(axisY, -height);
+        axisX = Math::VectorCalc::multScalar(axisX, -width);
+        axisY = Math::VectorCalc::multScalar(axisY, height);
         break;
     }
     }
