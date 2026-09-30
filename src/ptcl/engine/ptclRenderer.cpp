@@ -9,7 +9,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <cmath>
 
 
 namespace {
@@ -549,6 +548,45 @@ void computeParticleAxes(const Ptcl::Engine::EmitterState& state, const Ptcl::En
     const auto worldY = Math::VectorCalc::rotate(followBasis, localY);
 
     switch (state.billboardType) {
+    case Ptcl::BillboardType::Billboard: {
+        if (state.isEmitterBillboardMtx) {
+            axisX = Math::VectorCalc::multScalar(worldX, width);
+            axisY = Math::VectorCalc::multScalar(worldY, height);
+            break;
+        }
+
+        const Math::Vector3f frameX = Math::VectorCalc::multScalar(cam.right, -1.0f);
+        const Math::Vector3f frameY = cam.up;
+        const Math::Vector3f frameZ = cam.forward;
+        const auto toWorld = [&](const Math::Vector3f& local) {
+            return Math::VectorCalc::add(
+                Math::VectorCalc::add(
+                    Math::VectorCalc::multScalar(frameX, local.getX()),
+                    Math::VectorCalc::multScalar(frameY, local.getY())),
+                Math::VectorCalc::multScalar(frameZ, local.getZ()));
+        };
+
+
+        Math::Vector3f axisDir = toWorld(localX);
+        if (axisDir.length() <= 0.0001f) {
+            axisDir = frameX;
+        }
+        Math::VectorCalc::normalize(axisDir);
+
+        Math::Vector3f heightDir = Math::VectorCalc::cross(frameZ, axisDir);
+        if (heightDir.length() <= 0.0001f) {
+            heightDir = Math::VectorCalc::cross(frameY, axisDir);
+        }
+        if (heightDir.length() <= 0.0001f) {
+            heightDir = frameY;
+        }
+        Math::VectorCalc::normalize(heightDir);
+
+        axisX = Math::VectorCalc::multScalar(axisDir, width);
+        axisY = Math::VectorCalc::multScalar(heightDir, height);
+        break;
+    }
+
     case Ptcl::BillboardType::BillboardY: {
         const Math::Vector3f worldUp{0.0f, 1.0f, 0.0f};
         axisX = Math::VectorCalc::add(
@@ -635,42 +673,6 @@ void computeParticleAxes(const Ptcl::Engine::EmitterState& state, const Ptcl::En
         axisX = Math::VectorCalc::multScalar(worldX, width);
         axisY = Math::VectorCalc::multScalar(worldY, height);
         break;
-
-    case Ptcl::BillboardType::Billboard: {
-        if (state.isEmitterBillboardMtx) {
-            axisX = Math::VectorCalc::multScalar(worldX, width);
-            axisY = Math::VectorCalc::multScalar(worldY, height);
-            break;
-        }
-
-        if (state.rotationType == Ptcl::RotType::RotY) {
-            axisX = Math::VectorCalc::multScalar(worldX, width);
-            axisY = Math::VectorCalc::multScalar(worldY, height);
-            break;
-        }
-
-        const f32 screenX = localX.getX();
-        const f32 screenY = state.rotationType == Ptcl::RotType::RotZ
-            ? -localX.getY()
-            : localX.getY();
-        const f32 projectedLength = std::sqrt(screenX * screenX + screenY * screenY);
-        if (projectedLength > 0.0001f) {
-            const f32 cosine = screenX / projectedLength;
-            const f32 sine = screenY / projectedLength;
-            axisX = Math::VectorCalc::add(
-                Math::VectorCalc::multScalar(cam.right, cosine),
-                Math::VectorCalc::multScalar(cam.up, sine));
-            axisY = Math::VectorCalc::add(
-                Math::VectorCalc::multScalar(cam.right, -sine),
-                Math::VectorCalc::multScalar(cam.up, cosine));
-        } else {
-            axisX = cam.right;
-            axisY = cam.up;
-        }
-        axisX = Math::VectorCalc::multScalar(axisX, -width);
-        axisY = Math::VectorCalc::multScalar(axisY, height);
-        break;
-    }
     }
 }
 
