@@ -109,10 +109,10 @@ void EmitterCalc::calcRotXYZ(Math::Matrix34f& matrix, PtclInstance& ptcl) {
     Math::sinCosIdx(&sinZ, &cosZ, static_cast<u32>(ptcl.rotation.z));
 
     matrix(0, 1) = std::fmaf(cosZ * sinY, cosX, sinZ * sinX);
-    matrix(0, 2) = std::fmaf(-(sinX * sinY), cosZ, cosX * sinZ);
+    matrix(0, 2) = std::fmaf(sinX * sinY, cosZ, -cosX * sinZ);
     matrix(0, 3) = cosY * cosZ;
 
-    matrix(1, 1) = std::fmaf(-(sinX), cosZ, -cosX * sinY * sinZ);
+    matrix(1, 1) = std::fmaf(-(sinX), cosZ, cosX * sinY * sinZ);
     matrix(1, 2) = std::fmaf(sinZ * sinY, sinX, cosZ * cosX);
     matrix(1, 3) = cosY * sinZ;
 

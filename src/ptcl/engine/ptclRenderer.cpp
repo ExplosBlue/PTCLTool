@@ -567,23 +567,23 @@ void computeParticleAxes(const Ptcl::Engine::EmitterState& state, const Ptcl::En
         };
 
 
-        Math::Vector3f axisDir = toWorld(localX);
+        const Math::Vector3f upDir = toWorld(localY);
+
+        Math::Vector3f axisDir = Math::VectorCalc::cross(upDir, frameZ);
         if (axisDir.length() <= 0.0001f) {
-            axisDir = frameX;
+            axisDir = toWorld(localX);
+            if (axisDir.length() <= 0.0001f) {
+                axisDir = frameX;
+            }
         }
         Math::VectorCalc::normalize(axisDir);
 
-        Math::Vector3f heightDir = Math::VectorCalc::cross(frameZ, axisDir);
-        if (heightDir.length() <= 0.0001f) {
-            heightDir = Math::VectorCalc::cross(frameY, axisDir);
-        }
-        if (heightDir.length() <= 0.0001f) {
-            heightDir = frameY;
-        }
-        Math::VectorCalc::normalize(heightDir);
+        const Math::Vector3f rightDir = toWorld(localX);
+        const f32 facing = Math::VectorCalc::sub(
+            rightDir, Math::VectorCalc::multScalar(frameZ, Math::VectorCalc::dot(rightDir, frameZ))).length();
 
-        axisX = Math::VectorCalc::multScalar(axisDir, width);
-        axisY = Math::VectorCalc::multScalar(heightDir, height);
+        axisX = Math::VectorCalc::multScalar(axisDir, width * facing);
+        axisY = Math::VectorCalc::multScalar(upDir, height);
         break;
     }
 
