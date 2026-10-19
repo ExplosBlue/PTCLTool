@@ -118,49 +118,49 @@ static constexpr std::array<Config, 28> configurations = []() constexpr {
         // Config 7
         makeConfig(
             /* Stage 0 Color */ makeStage(T::Color, I::Constant, I::Texture,  I::Previous, F::Modulate),
-            /* Stage 0 Alpha */ makeStage(T::Alpha, I::Primary,  I::Texture,  I::Previous, F::Subtract, O::Src, O::OneMinusSrc, O::Src, S::Two),
+            /* Stage 0 Alpha */ makeStage(T::Alpha, I::Texture,  I::Primary,  I::Previous, F::Subtract, O::Src, O::OneMinusSrc, O::Src, S::Two),
             /* Stage 1 Color */ makeStage(T::Color, I::Previous, I::Previous, I::Previous, F::Replace),
             /* Stage 1 Alpha */ makeStage(T::Alpha, I::Previous, I::Previous, I::Previous, F::Replace)
             ),
         // Config 8
         makeConfig(
             /* Stage 0 Color */ makeStage(T::Color, I::Primary,  I::Texture,  I::Previous, F::Modulate),
-            /* Stage 0 Alpha */ makeStage(T::Alpha, I::Primary,  I::Texture,  I::Previous, F::Subtract, O::Src, O::OneMinusSrc, O::Src, S::Two),
+            /* Stage 0 Alpha */ makeStage(T::Alpha, I::Texture,  I::Primary,  I::Previous, F::Subtract, O::Src, O::OneMinusSrc, O::Src, S::Two),
             /* Stage 1 Color */ makeStage(T::Color, I::Previous, I::Previous, I::Previous, F::Replace),
             /* Stage 1 Alpha */ makeStage(T::Alpha, I::Previous, I::Previous, I::Previous, F::Replace)
             ),
         // Config 9
         makeConfig(
             /* Stage 0 Color */ makeStage(T::Color, I::Constant, I::Texture,  I::Previous, F::Modulate),
-            /* Stage 0 Alpha */ makeStage(T::Alpha, I::Primary,  I::Texture,  I::Previous, F::Subtract, O::Src, O::OneMinusSrc, O::Src, S::Two),
+            /* Stage 0 Alpha */ makeStage(T::Alpha, I::Texture,  I::Primary,  I::Previous, F::Subtract, O::Src, O::OneMinusSrc, O::Src, S::Two),
             /* Stage 1 Color */ makeStage(T::Color, I::Primary,  I::Texture,  I::Previous, F::MultAdd,  O::Src, O::OneMinusSrc, O::Src),
             /* Stage 1 Alpha */ makeStage(T::Alpha, I::Previous, I::Previous, I::Previous, F::Replace)
             ),
         // Config 10
         makeConfig(
             /* Stage 0 Color */ makeStage(T::Color, I::Constant, I::Texture,  I::Previous, F::Modulate, O::Src, O::OneMinusSrc, O::Src),
-            /* Stage 0 Alpha */ makeStage(T::Alpha, I::Primary,  I::Texture,  I::Previous, F::Subtract, O::Src, O::OneMinusSrc, O::Src, S::Two),
+            /* Stage 0 Alpha */ makeStage(T::Alpha, I::Texture,  I::Primary,  I::Previous, F::Subtract, O::Src, O::OneMinusSrc, O::Src, S::Two),
             /* Stage 1 Color */ makeStage(T::Color, I::Primary,  I::Texture,  I::Previous, F::MultAdd),
             /* Stage 1 Alpha */ makeStage(T::Alpha, I::Previous, I::Previous, I::Previous, F::Replace)
             ),
         // Config 11
         makeConfig(
             /* Stage 0 Color */ makeStage(T::Color, I::Constant, I::Previous, I::Previous, F::Replace),
-            /* Stage 0 Alpha */ makeStage(T::Alpha, I::Primary,  I::Texture,  I::Previous, F::Subtract, O::Src, O::OneMinusSrc, O::Src, S::Two),
+            /* Stage 0 Alpha */ makeStage(T::Alpha, I::Texture,  I::Primary,  I::Previous, F::Subtract, O::Src, O::OneMinusSrc, O::Src, S::Two),
             /* Stage 1 Color */ makeStage(T::Color, I::Previous, I::Previous, I::Previous, F::Replace),
             /* Stage 1 Alpha */ makeStage(T::Alpha, I::Previous, I::Previous, I::Previous, F::Replace)
             ),
         // Config 12
         makeConfig(
             /* Stage 0 Color */ makeStage(T::Color, I::Primary,  I::Previous, I::Previous, F::Replace),
-            /* Stage 0 Alpha */ makeStage(T::Alpha, I::Primary,  I::Texture,  I::Previous, F::Subtract, O::Src, O::OneMinusSrc, O::Src, S::Two),
+            /* Stage 0 Alpha */ makeStage(T::Alpha, I::Texture,  I::Primary,  I::Previous, F::Subtract, O::Src, O::OneMinusSrc, O::Src, S::Two),
             /* Stage 1 Color */ makeStage(T::Color, I::Previous, I::Previous, I::Previous, F::Replace),
             /* Stage 1 Alpha */ makeStage(T::Alpha, I::Previous, I::Previous, I::Previous, F::Replace)
             ),
         // Config 13
         makeConfig(
             /* Stage 0 Color */ makeStage(T::Color, I::Constant, I::Texture,  I::Primary,  F::MultAdd),
-            /* Stage 0 Alpha */ makeStage(T::Alpha, I::Primary,  I::Texture,  I::Previous, F::Subtract, O::Src, O::OneMinusSrc, O::Src, S::Two),
+            /* Stage 0 Alpha */ makeStage(T::Alpha, I::Texture,  I::Primary,  I::Previous, F::Subtract, O::Src, O::OneMinusSrc, O::Src, S::Two),
             /* Stage 1 Color */ makeStage(T::Color, I::Previous, I::Previous, I::Previous, F::Replace),
             /* Stage 1 Alpha */ makeStage(T::Alpha, I::Previous, I::Previous, I::Previous, F::Replace)
             ),
