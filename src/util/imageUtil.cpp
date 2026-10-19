@@ -369,9 +369,9 @@ QImage getTextureRaster(const std::vector<u8>& textureData, s32 width, s32 heigh
                     output[outIdx + 3] = 0xFF;
                     break;
                 case Ptcl::TextureFormat::A8:
-                    output[outIdx + 0] = 0xFF;
-                    output[outIdx + 1] = 0xFF;
-                    output[outIdx + 2] = 0xFF;
+                    output[outIdx + 0] = 0x00;
+                    output[outIdx + 1] = 0x00;
+                    output[outIdx + 2] = 0x00;
                     output[outIdx + 3] = textureData[srcIdx];
                     break;
                 case Ptcl::TextureFormat::LA44:
@@ -386,16 +386,16 @@ QImage getTextureRaster(const std::vector<u8>& textureData, s32 width, s32 heigh
                     output[outIdx + 1] = static_cast<u8>(luminance << 4 | luminance);
                     output[outIdx + 2] = static_cast<u8>(luminance << 4 | luminance);
                     output[outIdx + 3] = 0xFF;
-                    }
                     break;
+                }
                 case Ptcl::TextureFormat::A4: {
                     u32 alpha = (textureData[srcIdx >> 1] >> ((srcIdx & 1) << 2)) & 0xF;
-                    output[outIdx + 0] = 0xFF;
-                    output[outIdx + 1] = 0xFF;
-                    output[outIdx + 2] = 0xFF;
+                    output[outIdx + 0] = 0x00;
+                    output[outIdx + 1] = 0x00;
+                    output[outIdx + 2] = 0x00;
                     output[outIdx + 3] = static_cast<u8>(alpha << 4 | alpha);
-                    }
                     break;
+                }
                 default:
                     break;
                 }
