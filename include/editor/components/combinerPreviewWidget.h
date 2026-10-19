@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gfx/color.h"
-#include "ptcl/engine/combiner.h"
+#include "ptcl/renderer/combiner.h"
 
 #include "ptcl/ptclTexture.h"
 
@@ -13,7 +13,7 @@
 
 namespace PtclTool {
 
-namespace Combiner = Ptcl::Engine::Combiner;
+namespace Combiner = Ptcl::Render::Combiner;
 
 
 // ========================================================================== //

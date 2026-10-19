@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "gfx/color.h"
-#include "ptcl/engine/combiner.h"
+#include "ptcl/renderer/combiner.h"
 #include "math/matrix.h"
 #include "math/vector.h"
 #include "ptcl/ptclEnum.h"

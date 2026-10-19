@@ -402,18 +402,18 @@ std::array<s32, 32> PtclRenderer::buildCombinerCfg(
     ColorCombinerFuncType function) {
     std::array<s32, 32> config{};
     const auto index = static_cast<std::size_t>(function);
-    if (index >= Combiner::configurations.size()) {
+    if (index >= Ptcl::Render::Combiner::configurations.size()) {
         return config;
     }
 
-    const Combiner::Config& combiner = Combiner::configurations[index];
-    const std::array<const Combiner::Stage*, 4> stages = {
+    const Ptcl::Render::Combiner::Config& combiner = Ptcl::Render::Combiner::configurations[index];
+    const std::array<const Ptcl::Render::Combiner::Stage*, 4> stages = {
         &combiner.colorStage[0], &combiner.colorStage[1],
         &combiner.alphaStage[0], &combiner.alphaStage[1],
     };
 
     for (s32 stageIndex = 0; stageIndex < 4; ++stageIndex) {
-        const Combiner::Stage& stage = *stages[stageIndex];
+        const Ptcl::Render::Combiner::Stage& stage = *stages[stageIndex];
         const s32 base = stageIndex * 8;
         config[base + 0] = static_cast<s32>(stage.func);
         config[base + 1] = static_cast<s32>(stage.inputs[0]);
