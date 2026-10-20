@@ -217,6 +217,7 @@ set(PROJECT_HEADERS
     include/ptcl/engine/ptclRenderer.h
     include/ptcl/engine/ptclSystem.h
     include/ptcl/renderer/combiner.h
+    include/ptcl/renderer/drawFrame.h
     include/ptcl/engine/emitterCalcTables.h
     include/ptcl/json/json.h
     include/ptcl/json/jsonCommon.h
