@@ -99,6 +99,7 @@ set(PROJECT_SOURCES
     src/math/sinCosIdx.cpp
     src/math/vector.cpp
     src/gfx/color.cpp
+    src/gfx/glGeometry.cpp
     src/ptcl/engine/emitterCalc.cpp
     src/ptcl/engine/emitterCalcShared.cpp
     src/ptcl/engine/emitterCalcSimple.cpp
@@ -200,7 +201,9 @@ set(PROJECT_HEADERS
     include/editor/viewport/previewViewport.h
     include/editor/viewport/viewportCamera.h
     include/editor/viewport/viewportGrid.h
+    include/gfx/camera.h
     include/gfx/color.h
+    include/gfx/glGeometry.h
     include/math/matrix.h
     include/math/quaternion.h
     include/math/sinCosIdx.h
