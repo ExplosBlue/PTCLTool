@@ -175,7 +175,7 @@ void PreviewViewport::ensureGlResources() {
 void PreviewViewport::paintGL() {
     const QSize viewportSize = size() * devicePixelRatioF();
     glViewport(0, 0, viewportSize.width(), viewportSize.height());
-    glClearColor(0.09f, 0.09f, 0.11f, 1.0f);
+    glClearColor(0.094f, 0.094f, 0.388f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (!mGlReady) {
