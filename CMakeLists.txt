@@ -114,6 +114,7 @@ set(PROJECT_SOURCES
     src/ptcl/engine/ptclRandom.cpp
     src/ptcl/engine/ptclRenderer.cpp
     src/ptcl/engine/ptclSystem.cpp
+    src/ptcl/renderer/drawGeometry.cpp
     src/ptcl/renderer/renderState.cpp
     src/ptcl/renderer/textureCache.cpp
     src/ptcl/json/json.cpp
@@ -220,6 +221,7 @@ set(PROJECT_HEADERS
     include/ptcl/engine/ptclSystem.h
     include/ptcl/renderer/combiner.h
     include/ptcl/renderer/drawFrame.h
+    include/ptcl/renderer/drawGeometry.h
     include/ptcl/renderer/renderState.h
     include/ptcl/renderer/textureCache.h
     include/ptcl/engine/emitterCalcTables.h
