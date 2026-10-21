@@ -118,6 +118,7 @@ set(PROJECT_SOURCES
     src/ptcl/renderer/renderState.cpp
     src/ptcl/renderer/shaders.cpp
     src/ptcl/renderer/textureCache.cpp
+    src/ptcl/renderer/renderer.cpp
     src/ptcl/json/json.cpp
     src/ptcl/json/jsonCommon.cpp
     src/ptcl/json/jsonEmitter.cpp
@@ -226,6 +227,7 @@ set(PROJECT_HEADERS
     include/ptcl/renderer/renderState.h
     include/ptcl/renderer/shaders.h
     include/ptcl/renderer/textureCache.h
+    include/ptcl/renderer/renderer.h
     include/ptcl/engine/emitterCalcTables.h
     include/ptcl/json/json.h
     include/ptcl/json/jsonCommon.h
