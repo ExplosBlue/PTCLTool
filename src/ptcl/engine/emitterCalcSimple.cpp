@@ -3,7 +3,7 @@
 #include "ptcl/engine/emitterInstance.h"
 #include "ptcl/engine/emitterSetInstance.h"
 #include "ptcl/engine/ptclInstance.h"
-#include "ptcl/engine/ptclRenderer.h"
+#include "ptcl/engine/renderContract.h"
 #include "ptcl/engine/ptclSystem.h"
 
 #include <cstddef>
@@ -15,7 +15,7 @@ namespace Ptcl::Engine {
 // ========================================================================== //
 
 
-s32 EmitterCalc::calcSimple(EmitterInstance& emitter, PtclRenderer& renderer) {
+s32 EmitterCalc::calcSimple(EmitterInstance& emitter, DrawFrame& frame) {
     const auto& res = emitter.mResource;
     const auto& set = emitter.mSet;
 
@@ -24,10 +24,10 @@ s32 EmitterCalc::calcSimple(EmitterInstance& emitter, PtclRenderer& renderer) {
         return 0;
     }
 
-    const s32 frame = emitter.mTickCount - set.mStartFrame;
-    scheduleEmission(emitter, frame, canEmit);
+    const s32 simFrame = emitter.mTickCount - set.mStartFrame;
+    scheduleEmission(emitter, simFrame, canEmit);
 
-    if (!(res.emitEndFrame() > frame && canEmit) && emitter.mParticles.empty()) {
+    if (!(res.emitEndFrame() > simFrame && canEmit) && emitter.mParticles.empty()) {
         mSys->killEmitter(emitter);
         return 0;
     }
@@ -38,7 +38,7 @@ s32 EmitterCalc::calcSimple(EmitterInstance& emitter, PtclRenderer& renderer) {
     }
 
     beginEmitterMatrices(emitter);
-    emitParentState(renderer, emitter);
+    ParticleDrawBatch& batch = beginParentBatch(frame, emitter);
 
     s32 aliveCount = 0;
 
@@ -48,7 +48,7 @@ s32 EmitterCalc::calcSimple(EmitterInstance& emitter, PtclRenderer& renderer) {
             ParticleState draw = sSimplePreCalcFunctions[static_cast<std::size_t>(res.followType())](emitter, *ptcl);
             sPtclCalcFunctions[ptclRotCombinerIndex(res)](&draw.matrix, emitter, *ptcl);
 
-            emitParticleState(renderer, set, emitter, draw, *ptcl);
+            appendParticleState(batch, set, emitter, draw, *ptcl);
             ++aliveCount;
         } else {
             emitter.mParticles.remove(ptcl);

@@ -3,6 +3,7 @@
 #include "editor/viewport/viewportCamera.h"
 #include "editor/viewport/viewportGrid.h"
 #include "ptcl/engine/ptclSystem.h"
+#include "ptcl/renderer/renderer.h"
 
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions_2_0>
@@ -40,11 +41,6 @@ public:
     void setPreview(const Ptcl::Document* document, const Ptcl::Selection& selection);
     void clearPreview();
 
-    std::size_t lastDrawCount() const { return mSystem ? mSystem->lastDrawCount() : 0; }
-    std::size_t lastFrameParticleCount() const;
-    s32 lastFrameAliveCount() const { return mSystem ? mSystem->lastFrameAliveCount() : 0; }
-    bool hasFrame() const { return mSystem && !mSystem->lastFrame().batches.empty(); }
-
 public slots:
     void stepFrame();
 
@@ -61,10 +57,12 @@ protected:
 private:
     void ensureGlResources();
     void cleanupGlResources();
+    void drawOpaqueOverlay();
 
     QTimer mTimer{};
 
     std::unique_ptr<Ptcl::Engine::PtclSystem> mSystem{};
+    Ptcl::Render::Renderer mRenderer{};
     static constexpr qint64 cFrameIntervalNs = 1000000000LL / 60;
 
     QElapsedTimer mElapsedTimer{};

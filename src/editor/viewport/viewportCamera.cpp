@@ -46,60 +46,7 @@ static Math::Matrix44f makeOrthographic(f32 aspect, f32 nearZ, f32 farZ) {
 // ========================================================================== //
 
 
-ViewportCamera::ViewportCamera() = default;
-
-Math::Vector3f ViewportCamera::eye() const {
-    return eye(basis());
-}
-
-Math::Vector3f ViewportCamera::eye(const Basis& camera) const {
-    return Math::VectorCalc::add(mTarget, Math::VectorCalc::multScalar(camera.forward, -cCameraDistance));
-}
-
-Math::Matrix44f ViewportCamera::makeView() const {
-    const auto camera = basis();
-    const auto cameraEye = eye(camera);
-
-    Math::Matrix44f view{};
-    view(0, 0) = camera.right.getX();
-    view(0, 1) = camera.right.getY();
-    view(0, 2) = camera.right.getZ();
-    view(0, 3) = -Math::VectorCalc::dot(camera.right, cameraEye);
-
-    view(1, 0) = camera.up.getX();
-    view(1, 1) = camera.up.getY();
-    view(1, 2) = camera.up.getZ();
-    view(1, 3) = -Math::VectorCalc::dot(camera.up, cameraEye);
-
-    view(2, 0) = -camera.forward.getX();
-    view(2, 1) = -camera.forward.getY();
-    view(2, 2) = -camera.forward.getZ();
-    view(2, 3) = Math::VectorCalc::dot(camera.forward, cameraEye);
-
-    view(3, 3) = 1.0f;
-
-    return view;
-}
-
-Math::Matrix44f ViewportCamera::makeProjection(s32 viewportWidth, s32 viewportHeight) const {
-    const f32 aspect = (viewportHeight > 0)
-        ? static_cast<f32>(viewportWidth) / static_cast<f32>(viewportHeight)
-        : 1.0f;
-
-    auto result = (mProjectionType == ProjectionType::Perspective)
-        ? makePerspective(cVerticalFov, aspect, cNear, cFar)
-        : makeOrthographic(aspect, cNear, cFar);
-
-    result(0, 0) *= mZoom;
-    result(1, 1) *= mZoom;
-    return result;
-}
-
-Math::Matrix44f ViewportCamera::viewProjection(s32 viewportWidth, s32 viewportHeight) const {
-    return Math::MatrixCalc::multiply(makeProjection(viewportWidth, viewportHeight), makeView());
-}
-
-ViewportCamera::Basis ViewportCamera::basis() const {
+Gfx::ViewBasis ViewportCamera::computeBasis() const {
     const f32 cosYaw = std::cos(mYaw);
     const f32 sinYaw = std::sin(mYaw);
 
@@ -118,59 +65,128 @@ ViewportCamera::Basis ViewportCamera::basis() const {
         -sinYaw
     };
 
-    const auto up = Math::VectorCalc::cross(right, forward);
-
     return {
         right,
-        up,
+        Math::VectorCalc::cross(right, forward),
         forward
     };
 }
 
-ViewportCamera::ProjectionType ViewportCamera::projectionType() const {
-    return mProjectionType;
+Math::Vector3f ViewportCamera::eye(const Gfx::ViewBasis& basis) const {
+    return Math::VectorCalc::add(
+        mTarget,
+        Math::VectorCalc::multScalar(basis.forward, -cCameraDistance)
+    );
+}
+
+Math::Matrix44f ViewportCamera::makeView(const Gfx::ViewBasis& basis) const {
+    const Math::Vector3f cameraEye = eye(basis);
+
+    Math::Matrix44f view{};
+    view(0, 0) = basis.right.getX();
+    view(0, 1) = basis.right.getY();
+    view(0, 2) = basis.right.getZ();
+    view(0, 3) = -Math::VectorCalc::dot(basis.right, cameraEye);
+
+    view(1, 0) = basis.up.getX();
+    view(1, 1) = basis.up.getY();
+    view(1, 2) = basis.up.getZ();
+    view(1, 3) = -Math::VectorCalc::dot(basis.up, cameraEye);
+
+    view(2, 0) = -basis.forward.getX();
+    view(2, 1) = -basis.forward.getY();
+    view(2, 2) = -basis.forward.getZ();
+    view(2, 3) = Math::VectorCalc::dot(basis.forward, cameraEye);
+
+    view(3, 3) = 1.0f;
+
+    return view;
+}
+
+Math::Matrix44f ViewportCamera::makeProjection() const {
+    const f32 aspect = (mViewportHeight > 0)
+        ? static_cast<f32>(mViewportWidth) / static_cast<f32>(mViewportHeight)
+        : 1.0f;
+
+    auto result = (mProjectionType == ProjectionType::Perspective)
+        ? makePerspective(cVerticalFov, aspect, cNear, cFar)
+        : makeOrthographic(aspect, cNear, cFar);
+
+    result(0, 0) *= mZoom;
+    result(1, 1) *= mZoom;
+    return result;
+}
+
+void ViewportCamera::ensureCacheUpToDate() const {
+    if (!mCacheDirty) {
+        return;
+    }
+
+    mCachedBasis = computeBasis();
+    mCachedViewProjection = Math::MatrixCalc::multiply(makeProjection(), makeView(mCachedBasis));
+    mCacheDirty = false;
+}
+
+const Math::Matrix44f& ViewportCamera::viewProjection() const {
+    ensureCacheUpToDate();
+    return mCachedViewProjection;
+}
+
+const Gfx::ViewBasis& ViewportCamera::viewBasis() const {
+    ensureCacheUpToDate();
+    return mCachedBasis;
+}
+
+void ViewportCamera::setViewportSize(s32 width, s32 height) {
+    if (mViewportWidth == width && mViewportHeight == height) {
+        return;
+    }
+
+    mViewportWidth = width;
+    mViewportHeight = height;
+    invalidate();
 }
 
 void ViewportCamera::setProjectionType(ProjectionType type) {
+    if (mProjectionType == type) {
+        return;
+    }
+
     mProjectionType = type;
+    invalidate();
 }
 
 void ViewportCamera::orbit(QPoint delta) {
     mYaw -= static_cast<f32>(delta.x()) * 0.01f;
     mPitch = qBound(-1.55f, mPitch + static_cast<f32>(delta.y()) * 0.01f, 1.55f);
+    invalidate();
 }
 
-void ViewportCamera::pan(QPoint delta, s32 viewportHeight) {
-    if (viewportHeight <= 0) {
+void ViewportCamera::pan(QPoint delta) {
+    if (mViewportHeight <= 0) {
         return;
     }
 
     const f32 visibleHalfHeight = std::tan(cVerticalFov * 0.5f) * cCameraDistance / mZoom;
-    const f32 worldPerPixel = (2.0f * visibleHalfHeight) / static_cast<f32>(viewportHeight);
+    const f32 worldPerPixel = (2.0f * visibleHalfHeight) / static_cast<f32>(mViewportHeight);
 
-    const auto camera = basis();
+    const Gfx::ViewBasis basis = computeBasis();
     const f32 deltaX = -static_cast<f32>(delta.x()) * worldPerPixel;
     const f32 deltaY =  static_cast<f32>(delta.y()) * worldPerPixel;
 
     const Math::Vector3f panDelta = Math::VectorCalc::add(
-        Math::VectorCalc::multScalar(camera.right, deltaX),
-        Math::VectorCalc::multScalar(camera.up, deltaY)
+        Math::VectorCalc::multScalar(basis.right, deltaX),
+        Math::VectorCalc::multScalar(basis.up, deltaY)
     );
 
     mTarget = Math::VectorCalc::add(mTarget, panDelta);
+    invalidate();
 }
 
 void ViewportCamera::zoom(f32 delta) {
     mZoom += delta * std::pow(mZoom, cZoomExponent);
     mZoom = qBound(cZoomMin, mZoom, cZoomMax);
-}
-
-f32 ViewportCamera::zoomFactor() const {
-    return mZoom;
-}
-
-const Math::Vector3f& ViewportCamera::target() const {
-    return mTarget;
+    invalidate();
 }
 
 

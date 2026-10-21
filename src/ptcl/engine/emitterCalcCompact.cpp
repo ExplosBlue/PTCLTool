@@ -2,17 +2,23 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
-
-#include <QDebug>
+#include <limits>
+#include <utility>
 
 #include "ptcl/engine/emitterInstance.h"
 #include "ptcl/engine/emitterSetInstance.h"
-#include "ptcl/engine/ptclRenderer.h"
+#include "ptcl/engine/renderContract.h"
 #include "ptcl/engine/ptclSystem.h"
 
 
 namespace Ptcl::Engine {
+
+
+namespace {
+
+constexpr s32 cInfiniteFrame = std::numeric_limits<s32>::max();
+
+} // namespace
 
 
 // ========================================================================== //
@@ -29,7 +35,7 @@ ParticleState EmitterCalc::ptclPreCalcCompact(EmitterInstance& emitter, PtclInst
     return state;
 }
 
-s32 EmitterCalc::calcCompact(EmitterInstance& emitter, PtclRenderer& renderer) {
+s32 EmitterCalc::calcCompact(EmitterInstance& emitter, DrawFrame& frame) {
     const auto& res = emitter.mResource;
 
     bool canEmit = true;
@@ -43,9 +49,9 @@ s32 EmitterCalc::calcCompact(EmitterInstance& emitter, PtclRenderer& renderer) {
         && emitter.mCompactStopFrame < 0) {
         emitter.mCompactStopFrame = currentTime;
     }
-    const s32 frame = currentTime - emitter.mSet.mStartFrame;
+    const s32 simFrame = currentTime - emitter.mSet.mStartFrame;
 
-    if (frame < 0) {
+    if (simFrame < 0) {
         return 0;
     }
 
@@ -53,9 +59,11 @@ s32 EmitterCalc::calcCompact(EmitterInstance& emitter, PtclRenderer& renderer) {
 
     const s32 rate = std::max<s32>(0, res.emitRate());
     const s32 step = std::max<s32>(1, res.lifeStep() + 1);
-    const s32 stopFrame = (emitter.mCompactStopFrame < 0) ? 0x7fffffff : emitter.mCompactStopFrame;
-    const s32 emissionEnd = (res.emitEndFrame() == 0x7fffffff) ? stopFrame : std::min(res.emitEndFrame(), stopFrame);
-    const s32 emissionFrame = std::min(frame, emissionEnd - emitter.mSet.mStartFrame);
+    const s32 stopFrame = (emitter.mCompactStopFrame < 0) ? cInfiniteFrame : emitter.mCompactStopFrame;
+    const s32 emissionEnd = (res.emitEndFrame() == cInfiniteFrame)
+        ? stopFrame
+        : std::min(res.emitEndFrame(), stopFrame);
+    const s32 emissionFrame = std::min(simFrame, emissionEnd - emitter.mSet.mStartFrame);
 
     if (canEmit && rate > 0 && emissionFrame >= 0) {
         const s32 emissionIndex = emissionFrame + 1;
@@ -80,12 +88,12 @@ s32 EmitterCalc::calcCompact(EmitterInstance& emitter, PtclRenderer& renderer) {
         emitter.mCompactEmittedCount = std::max(emitter.mCompactEmittedCount, targetCount);
     }
 
-    if (res.emitEndFrame() != 0x7fffffff && frame > res.emitEndFrame() && emitter.mParticles.empty()) {
+    if (res.emitEndFrame() != cInfiniteFrame && simFrame > res.emitEndFrame() && emitter.mParticles.empty()) {
         mSys->killEmitter(emitter);
         return 0;
     }
 
-    CompactDrawBatch batch;
+    ParticleDrawBatch batch;
     batch.state = makeParentState(emitter);
     batch.particles.reserve(emitter.mParticles.size());
 
@@ -136,9 +144,10 @@ s32 EmitterCalc::calcCompact(EmitterInstance& emitter, PtclRenderer& renderer) {
                 particleColor = color[2];
             }
         }
-        draw.matrix(0, 0) = particleColor.r() * emitter.mSet.color.r();
-        draw.matrix(1, 0) = particleColor.g() * emitter.mSet.color.g();
-        draw.matrix(2, 0) = particleColor.b() * emitter.mSet.color.b();
+
+        draw.matrix(0, 0) = particleColor.r();
+        draw.matrix(1, 0) = particleColor.g();
+        draw.matrix(2, 0) = particleColor.b();
         calcRotZ(draw.matrix, *ptcl);
         populateParticleState(emitter.mSet, emitter, draw, *ptcl);
 
@@ -147,7 +156,7 @@ s32 EmitterCalc::calcCompact(EmitterInstance& emitter, PtclRenderer& renderer) {
     }
 
     if (!batch.particles.empty()) {
-        renderer.emitCompact(batch);
+        frame.compactBatches.push_back(std::move(batch));
     }
 
     return aliveCount;

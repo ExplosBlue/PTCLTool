@@ -1,7 +1,6 @@
 #include "ptcl/engine/emitterCalc.h"
 #include "ptcl/engine/emitterInstance.h"
 #include "math/vector.h"
-#include "ptcl/engine/ptclRenderer.h"
 
 
 namespace Ptcl::Engine {

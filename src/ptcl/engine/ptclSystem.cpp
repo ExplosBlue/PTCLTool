@@ -3,11 +3,11 @@
 #include "ptcl/engine/emitterCalc.h"
 #include "ptcl/engine/emitterInstance.h"
 #include "ptcl/ptclEmitterSet.h"
-#include "ptcl/engine/ptclRenderer.h"
 
-#include <algorithm>
-#include <cstdio>
+#include <QDebug>
+
 #include <stdexcept>
+#include <utility>
 
 
 namespace Ptcl::Engine {
@@ -31,6 +31,12 @@ PtclSystem::PtclSystem(PtclSystemConfig config) {
     mStripePool.assign(static_cast<std::size_t>(mNumStripeData), PtclStripe{});
 
     EmitterCalc::mSys = this;
+}
+
+PtclSystem::~PtclSystem() {
+    if (EmitterCalc::mSys == this) {
+        EmitterCalc::mSys = nullptr;
+    }
 }
 
 PtclInstance* PtclSystem::allocCompactPtcl() {
@@ -94,7 +100,6 @@ PtclInstance* PtclSystem::allocPtcl() {
         }
     }
 
-    ++mNumEmittedPtcl;
     return &mPtcls[mCurPtclIx];
 }
 
@@ -126,13 +131,12 @@ PtclStripe* PtclSystem::allocAndConnectStripe(EmitterInstance& emitter, PtclInst
     stripe->uvSubOffset = {0.0f, 0.0f};
     stripe->uvScroll = {0.0f, 0.0f};
     stripe->interpolateNextDir = {0.0f, 0.0f, 0.0f};
-    mStripes.push_front(stripe);
+    stripe->hist[0].outer = {0.0f, 0.0f, 0.0f};
 
     return stripe;
 }
 
 void PtclSystem::removeStripe(PtclStripe& stripe) {
-    mStripes.remove(&stripe);
     if (stripe.ptcl != nullptr && stripe.ptcl->stripe == &stripe) {
         stripe.ptcl->stripe = nullptr;
     }
@@ -142,18 +146,13 @@ void PtclSystem::removeStripe(PtclStripe& stripe) {
 }
 
 void PtclSystem::reset() {
-    mRenderer.beginCalc();
+    mFrame.clear();
     mEmitters.clear();
     mOwnedEmitters.clear();
     mSetInstance = {};
-    mStripes.clear();
     mCurPtclIx = 0;
     mCompactCurPtclIx = 0;
-    mNumEmittedPtcl = 0;
     mCurStripeIx = 0;
-    mAliveCount = 0;
-    mAliveEmitterCount = 0;
-    mLastDrawCount = 0;
     for (auto& ptcl : mPtcls) {
         ptcl.res = nullptr;
         ptcl.stripe = nullptr;
@@ -197,42 +196,15 @@ void PtclSystem::setEmitterSet(const EmitterSet& emitterSet) {
     }
 }
 
-void PtclSystem::initializeRenderer(QOpenGLFunctions_2_0& gl) {
-    mRenderer.initialize(gl);
-}
-
-void PtclSystem::cleanupRenderer(QOpenGLFunctions_2_0& gl) {
-    mRenderer.cleanup(gl);
-}
-
-std::size_t PtclSystem::render(QOpenGLFunctions_2_0& gl,
-    const Math::Matrix44f& viewProjection,
-    const Math::Vector3f& right,
-    const Math::Vector3f& up,
-    const Math::Vector3f& forward) {
-    const RenderCamera camera{viewProjection, right, up, forward};
-    mLastDrawCount = mRenderer.render(gl, lastFrame(), camera);
-    return mLastDrawCount;
-}
-
 void PtclSystem::calc() {
-    mRenderer.beginCalc();
-
-    mAliveCount = 0;
-    mAliveEmitterCount = 0;
+    mFrame.clear();
 
     for (auto it = mEmitters.begin(); it != mEmitters.end();) {
         EmitterInstance* emitter = *it++;
         if (emitter->alive()) {
-            const s32 count = EmitterCalc::calc(*emitter, mRenderer);
-            const s64 total = static_cast<s64>(mAliveCount) + count;
-            mAliveCount = static_cast<s32>(std::min<s64>(total, 0x7FFFFFFF));
-            if (count != 0) {
-                ++mAliveEmitterCount;
-            }
+            EmitterCalc::calc(*emitter, mFrame);
         }
     }
-
 }
 
 

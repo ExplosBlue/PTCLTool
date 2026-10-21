@@ -1,13 +1,12 @@
 #include "editor/viewport/previewViewport.h"
 
+#include "gfx/glGeometry.h"
 #include "ptcl/ptclDocument.h"
 
 #include <QDebug>
+#include <QOpenGLContext>
 #include <QSurfaceFormat>
 #include <QWheelEvent>
-
-#include <array>
-#include <cstddef>
 
 
 namespace PtclTool {
@@ -57,6 +56,11 @@ PreviewViewport::PreviewViewport(QWidget* parent) :
 
 PreviewViewport::~PreviewViewport() {
     mTimer.stop();
+    if (QOpenGLContext* glContext = context(); glContext != nullptr && glContext->isValid()) {
+        makeCurrent();
+        cleanupGlResources();
+        doneCurrent();
+    }
     disconnect(context(), nullptr, this, nullptr);
 }
 
@@ -97,16 +101,20 @@ void PreviewViewport::stepFrame() {
     update();
 }
 
-std::size_t PreviewViewport::lastFrameParticleCount() const {
-    const Ptcl::Engine::EmitterDrawFrame& frame = mSystem->lastFrame();
-    std::size_t count = 0;
-    for (const auto& batch : frame.batches) {
-        count += batch.particles.size();
+void PreviewViewport::drawOpaqueOverlay() {
+    if (!mScreenProgram) {
+        return;
     }
-    for (const auto& batch : frame.compactBatches) {
-        count += batch.particles.size();
-    }
-    return count;
+
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+    mScreenProgram->bind();
+    mQuadVao.bind();
+
+    glDrawArrays(GL_TRIANGLES, 0, Gfx::unitQuadVertexCount);
+
+    mQuadVao.release();
+    mScreenProgram->release();
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 }
 
 void PreviewViewport::initializeGL() {
@@ -122,7 +130,7 @@ void PreviewViewport::cleanupGlResources() {
     if (!mGlReady) {
         return;
     }
-    mSystem->cleanupRenderer(*this);
+    mRenderer.cleanup(*this);
     if (mScreenProgram) {
         mScreenProgram->release();
         delete mScreenProgram;
@@ -139,34 +147,18 @@ void PreviewViewport::ensureGlResources() {
         return;
     }
 
-    mSystem->initializeRenderer(*this);
+    mRenderer.initialize(*this);
     mScreenProgram = new QOpenGLShaderProgram(this);
+    mScreenProgram->bindAttributeLocation("aPos", 0);
     if (!mScreenProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, cScreenVertShader) ||
         !mScreenProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, cScreenFragShader) ||
         !mScreenProgram->link()) {
         qWarning() << "[viewport] screen shader compile/link failed:" << mScreenProgram->log();
+        delete mScreenProgram;
+        mScreenProgram = nullptr;
     }
 
-    static const std::array<GLfloat, 12> cQuad = {
-        -0.5f, -0.5f,
-         0.5f, -0.5f,
-         0.5f,  0.5f,
-        -0.5f, -0.5f,
-         0.5f,  0.5f,
-        -0.5f,  0.5f,
-    };
-
-    mQuadVao.create();
-    mQuadVbo.create();
-
-    mQuadVao.bind();
-    mQuadVbo.bind();
-    mQuadVbo.allocate(cQuad.data(), static_cast<int>(sizeof(cQuad)));
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), nullptr);
-    mQuadVbo.release();
-    mQuadVao.release();
-
+    Gfx::createUnitQuad(*this, mQuadVbo, mQuadVao);
     mGrid.initialize(*this);
 
     mGlReady = true;
@@ -182,8 +174,7 @@ void PreviewViewport::paintGL() {
         return;
     }
 
-    const auto viewProj = mCamera.viewProjection(width(), height());
-    const auto cameraBasis = mCamera.basis();
+    const Math::Matrix44f& viewProj = mCamera.viewProjection();
 
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
@@ -194,9 +185,7 @@ void PreviewViewport::paintGL() {
     glDepthFunc(GL_LESS);
     glDepthMask(GL_FALSE);
 
-    mSystem->render(
-        *this, viewProj,
-        cameraBasis.right, cameraBasis.up, cameraBasis.forward);
+    mRenderer.render(*this, mSystem->lastFrame(), mCamera);
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDepthMask(GL_TRUE);
@@ -204,18 +193,11 @@ void PreviewViewport::paintGL() {
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
 
-    if (mScreenProgram) {
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
-        mScreenProgram->bind();
-        mQuadVao.bind();
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        mQuadVao.release();
-        mScreenProgram->release();
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    }
+    drawOpaqueOverlay();
 }
 
-void PreviewViewport::resizeGL(int, int) {
+void PreviewViewport::resizeGL(int w, int h) {
+    mCamera.setViewportSize(w, h);
     update();
 }
 
@@ -253,7 +235,7 @@ void PreviewViewport::mouseMoveEvent(QMouseEvent* event) {
     }
     if (mPanDragging) {
         const QPoint delta = event->pos() - mLastMouse;
-        mCamera.pan(delta, height());
+        mCamera.pan(delta);
         mLastMouse = event->pos();
         update();
         event->accept();

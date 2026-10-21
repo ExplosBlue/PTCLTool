@@ -3,12 +3,14 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <utility>
+#include <vector>
 
 #include "math/vector.h"
 #include "ptcl/engine/emitterInstance.h"
 #include "ptcl/engine/emitterSetInstance.h"
 #include "ptcl/engine/ptclInstance.h"
-#include "ptcl/engine/ptclRenderer.h"
+#include "ptcl/engine/renderContract.h"
 #include "ptcl/engine/ptclSystem.h"
 
 
@@ -26,8 +28,12 @@ s32 wrapStripeIndex(s32 index, s32 size) {
     return (wrapped < 0) ? wrapped + size : wrapped;
 }
 
-StripeDraw makeStripeDraw(const Ptcl::Emitter& res, PtclStripe& stripe) {
-    StripeDraw draw;
+s32 stripeHistorySize(const Ptcl::Emitter& res) {
+    return std::clamp(res.stripeNumHistory(), 1, cStripeNumHistoryCapacity);
+}
+
+std::vector<StripePoint> makeStripePoints(const Ptcl::Emitter& res, PtclStripe& stripe) {
+    std::vector<StripePoint> points;
 
     stripe.uvScroll.x += res.stripeUVScrollSpeed().x;
     if (stripe.uvScroll.x < -2.0f) {
@@ -44,16 +50,17 @@ StripeDraw makeStripeDraw(const Ptcl::Emitter& res, PtclStripe& stripe) {
 
     const s32 historyStep = std::min(res.stripeHistoryStep(), stripe.numHistory);
     if (historyStep < 3) {
-        return draw;
+        return points;
     }
 
-    const s32 historySize = std::clamp(res.stripeNumHistory(), 1, cStripeNumHistoryCapacity);
+    const s32 historySize = stripeHistorySize(res);
     const s32 sampleCount = historyStep - 1;
     const f32 alphaStart = res.stripeStartAlpha();
     const f32 alphaRange = res.stripeEndAlpha() - alphaStart;
     const bool emitterCoord = res.stripeFlags().isSet(Ptcl::StripeFlag::EmitterCoord);
+    const bool billboard = res.stripeType() == StripeType::Billboard;
 
-    draw.points.reserve(static_cast<std::size_t>(sampleCount));
+    points.reserve(static_cast<std::size_t>(sampleCount));
     for (s32 i = 0; i < sampleCount; ++i) {
         const f32 t = static_cast<f32>(i) / static_cast<f32>(sampleCount - 1);
         const f32 sample = t * static_cast<f32>(stripe.numHistory - 2);
@@ -64,27 +71,24 @@ StripeDraw makeStripeDraw(const Ptcl::Emitter& res, PtclStripe& stripe) {
         const PtclStripeHistory& newer = stripe.hist[newerIndex];
         const PtclStripeHistory& older = stripe.hist[olderIndex];
 
-        Math::Vector3f position = Math::VectorCalc::add(newer.pos, Math::VectorCalc::multScalar(Math::VectorCalc::sub(older.pos, newer.pos), blend));
+        Math::Vector3f position = Math::VectorCalc::add(
+            newer.pos,
+            Math::VectorCalc::multScalar(Math::VectorCalc::sub(older.pos, newer.pos), blend)
+        );
         Math::Vector3f outer = newer.outer;
-        Math::Vector3f emitterY{newer.emitterSRT(0, 1), newer.emitterSRT(1, 1), newer.emitterSRT(2, 1)};
 
         if (emitterCoord) {
             position = Math::VectorCalc::multiply(stripe.emitterSRT, position);
-            if (res.stripeType() == StripeType::Billboard) {
-                outer = Math::VectorCalc::rotate(stripe.emitterSRT, outer);
-            }
-            emitterY = Math::VectorCalc::rotate(stripe.emitterSRT, emitterY);
-        } else if (res.stripeType() != StripeType::Billboard) {
-            outer = Math::VectorCalc::rotate(newer.emitterSRT, outer);
+            outer = Math::VectorCalc::rotate(stripe.emitterSRT, outer);
         }
 
-        draw.points.push_back({
-            .position = position,
-            .outer = outer,
-            .emitterY = emitterY,
-            .scale = newer.scale,
-            .alpha = (alphaStart + alphaRange * t) * stripe.color.a(),
-            .t = t,
+        points.push_back({
+            .position  = position,
+            .outer     = outer,
+            .scale     = newer.scale,
+            .billboard = billboard,
+            .alpha     = (alphaStart + alphaRange * t) * stripe.color.a(),
+            .t         = t,
             .uv = {
                 stripe.uvOffset.x + stripe.uvScroll.x,
                 stripe.uvOffset.y + stripe.uvScroll.y,
@@ -93,7 +97,7 @@ StripeDraw makeStripeDraw(const Ptcl::Emitter& res, PtclStripe& stripe) {
         });
     }
 
-    return draw;
+    return points;
 }
 
 } // namespace /* Anonymous */
@@ -172,7 +176,7 @@ Math::Matrix34f* EmitterCalc::childPtclCalcRotXYZ(Math::Matrix34f* buffAddr, Emi
 // ========================================================================== //
 
 
-s32 EmitterCalc::calcComplex(EmitterInstance& emitter, PtclRenderer& renderer) {
+s32 EmitterCalc::calcComplex(EmitterInstance& emitter, DrawFrame& frame) {
     const auto& res = emitter.mResource;
     const auto& set = emitter.mSet;
 
@@ -181,12 +185,12 @@ s32 EmitterCalc::calcComplex(EmitterInstance& emitter, PtclRenderer& renderer) {
         return 0;
     }
 
-    const s32 frame = emitter.mTickCount - set.mStartFrame;
-    scheduleEmission(emitter, frame, canEmit);
+    const s32 simFrame = emitter.mTickCount - set.mStartFrame;
+    scheduleEmission(emitter, simFrame, canEmit);
 
     ++emitter.mTickCount;
 
-    if (!(res.emitEndFrame() > frame && canEmit) && emitter.mParticles.empty() && emitter.mChildParticles.empty()) {
+    if (!(res.emitEndFrame() > simFrame && canEmit) && emitter.mParticles.empty() && emitter.mChildParticles.empty()) {
         mSys->killEmitter(emitter);
         return 0;
     }
@@ -195,11 +199,11 @@ s32 EmitterCalc::calcComplex(EmitterInstance& emitter, PtclRenderer& renderer) {
 
     s32 aliveCount = 0;
     if (res.childFlags().isSet(ChildFlag::PreChildDraw)) {
-        aliveCount = calcComplexChild(emitter, renderer);
-        aliveCount += calcComplexParent(emitter, renderer);
+        aliveCount = calcComplexChild(emitter, frame);
+        aliveCount += calcComplexParent(emitter, frame);
     } else {
-        aliveCount = calcComplexParent(emitter, renderer);
-        aliveCount += calcComplexChild(emitter, renderer);
+        aliveCount = calcComplexParent(emitter, frame);
+        aliveCount += calcComplexChild(emitter, frame);
     }
 
     return aliveCount;
@@ -209,7 +213,7 @@ s32 EmitterCalc::calcComplex(EmitterInstance& emitter, PtclRenderer& renderer) {
 // ========================================================================== //
 
 
-s32 EmitterCalc::calcComplexParent(EmitterInstance& emitter, PtclRenderer& renderer) {
+s32 EmitterCalc::calcComplexParent(EmitterInstance& emitter, DrawFrame& frame) {
     const auto& res = emitter.mResource;
     const auto& set = emitter.mSet;
 
@@ -217,7 +221,7 @@ s32 EmitterCalc::calcComplexParent(EmitterInstance& emitter, PtclRenderer& rende
         return 0;
     }
 
-    const EmitterState parentState = emitParentState(renderer, emitter);
+    ParticleDrawBatch& parentBatch = beginParentBatch(frame, emitter);
 
     s32 aliveCount = 0;
 
@@ -234,25 +238,24 @@ s32 EmitterCalc::calcComplexParent(EmitterInstance& emitter, PtclRenderer& rende
             ParticleState draw = sComplexPreCalcFunctions[static_cast<std::size_t>(res.followType())](emitter, *cur);
             sPtclCalcFunctions[ptclRotCombinerIndex(res)](&draw.matrix, emitter, *cur);
 
-            const bool isStripeBillboard = static_cast<u32>(res.billboardType()) == static_cast<u32>(BillboardType::Stripe);
+            const bool isStripeBillboard = res.billboardType() == BillboardType::Stripe;
             if (res.childFlags().isSet(ChildFlag::Unk80) && !isStripeBillboard) {
-                emitParticleState(renderer, set, emitter, draw, *cur, cur->fluctuationAlpha,
-                    cur->fluctuationScale);
+                appendParticleState(parentBatch, set, emitter, draw, *cur, cur->fluctuationAlpha, cur->fluctuationScale);
             }
 
             calcComplexParticle(emitter, *cur);
             if (cur->stripe != nullptr) {
-                StripeDraw stripe = makeStripeDraw(res, *cur->stripe);
-                if (!stripe.points.empty()) {
-                    EmitterState stripeState = parentState;
+                std::vector<StripePoint> points = makeStripePoints(res, *cur->stripe);
+                if (!points.empty()) {
+                    EmitterState stripeState = parentBatch.state;
                     stripeState.color = {
                         res.color0()[0].r() * set.color.r(),
                         res.color0()[0].g() * set.color.g(),
                         res.color0()[0].b() * set.color.b(),
                         1.0f,
                     };
-                    stripeState.secondaryColor = parentState.color;
-                    renderer.emitStripe(stripeState, stripe);
+                    stripeState.secondaryColor = parentBatch.state.color;
+                    frame.stripes.push_back({stripeState, std::move(points)});
                 }
             }
         } else {
@@ -263,14 +266,14 @@ s32 EmitterCalc::calcComplexParent(EmitterInstance& emitter, PtclRenderer& rende
                 continue;
             }
             if (stripe->histQStart != stripe->histQEnd) {
-                const s32 historySize = std::clamp(res.stripeNumHistory(), 1, cStripeNumHistoryCapacity);
+                const s32 historySize = stripeHistorySize(res);
                 stripe->histQStart = wrapStripeIndex(stripe->histQStart + 1, historySize);
                 --stripe->numHistory;
                 stripe->color = {
                     set.color.r(),
                     set.color.g(),
                     set.color.b(),
-                    (cur->alpha * set.color.a()) * emitter.mFadeAlpha,
+                    cur->alpha * set.color.a(),
                 };
                 stripe->emitterSRT = emitter.mEmitterSRT;
             } else {
@@ -292,14 +295,14 @@ void EmitterCalc::calcComplexParticle(EmitterInstance& emitter, PtclInstance& pt
     const auto& res = emitter.mResource;
     const auto& set = emitter.mSet;
 
-    if (static_cast<u32>(res.billboardType()) == static_cast<u32>(BillboardType::Stripe)) {
+    if (res.billboardType() == BillboardType::Stripe) {
         if (ptcl.tickCount == 1) {
             ptcl.stripe = mSys->allocAndConnectStripe(emitter, ptcl);
         }
 
         PtclStripe* stripe = ptcl.stripe;
         if (stripe != nullptr) {
-            const s32 historySize = std::clamp(res.stripeNumHistory(), 1, cStripeNumHistoryCapacity);
+            const s32 historySize = stripeHistorySize(res);
             PtclStripeHistory& now = stripe->hist[wrapStripeIndex(stripe->histQEnd, historySize)];
             if (res.stripeFlags().isSet(StripeFlag::EmitterCoord)) {
                 now.pos = ptcl.position;
@@ -316,42 +319,46 @@ void EmitterCalc::calcComplexParticle(EmitterInstance& emitter, PtclInstance& pt
             now.scale = ptcl.scale.x * set.mParticleScaleForCalc.x;
 
             const s32 prevCount = stripe->numHistory;
-            if (prevCount >= 2) {
+            if (prevCount > 0) {
                 const PtclStripeHistory& prev = stripe->hist[wrapStripeIndex(stripe->histQEnd - 1, historySize)];
-                Math::Vector3f dir = Math::VectorCalc::sub(now.pos, prev.pos);
-                Math::VectorCalc::normalize(dir);
-                dir = Math::VectorCalc::sub(dir, stripe->interpolateNextDir);
-                stripe->interpolateNextDir = Math::VectorCalc::add(
-                    stripe->interpolateNextDir, Math::VectorCalc::multScalar(dir, res.stripeDirInterpolate()));
-            } else if (prevCount >= 1) {
-                const PtclStripeHistory& prev = stripe->hist[wrapStripeIndex(stripe->histQEnd - 1, historySize)];
-                stripe->interpolateNextDir = Math::VectorCalc::sub(now.pos, prev.pos);
-            }
-            Math::VectorCalc::normalize(stripe->interpolateNextDir);
 
-            const f32 outScale = (prevCount > 0)
-                ? stripe->hist[wrapStripeIndex(stripe->histQEnd - 1, historySize)].scale
-                : now.scale;
-            const Math::Matrix34f& stripeSRT = stripe->emitterSRT;
-            switch (res.stripeType()) {
-            case StripeType::EmitterUpDown: {
-                now.outer = Math::VectorCalc::multScalar(
-                    Math::Vector3f{stripeSRT(0, 1), stripeSRT(1, 1), stripeSRT(2, 1)}, outScale);
-                break;
-            }
-            case StripeType::EmitterMatrix: {
-                Math::Vector3f outer = Math::VectorCalc::cross(
-                    Math::Vector3f{stripeSRT(0, 1), stripeSRT(1, 1), stripeSRT(2, 1)},
-                    stripe->interpolateNextDir);
-                Math::VectorCalc::normalize(outer);
-                now.outer = Math::VectorCalc::multScalar(outer, outScale);
-                break;
-            }
-            case StripeType::Billboard:
-            default: {
-                now.outer = stripe->interpolateNextDir;
-                break;
-            }
+                if (prevCount >= 2) {
+                    Math::Vector3f dir = Math::VectorCalc::sub(now.pos, prev.pos);
+                    Math::VectorCalc::normalize(dir);
+                    dir = Math::VectorCalc::sub(dir, stripe->interpolateNextDir);
+                    stripe->interpolateNextDir = Math::VectorCalc::add(
+                        stripe->interpolateNextDir,
+                        Math::VectorCalc::multScalar(dir, res.stripeDirInterpolate())
+                    );
+                } else {
+                    stripe->interpolateNextDir = Math::VectorCalc::sub(now.pos, prev.pos);
+                }
+                Math::VectorCalc::normalize(stripe->interpolateNextDir);
+
+                const Math::Matrix34f& historySRT = now.emitterSRT;
+                switch (res.stripeType()) {
+                case StripeType::EmitterUpDown: {
+                    now.outer = Math::VectorCalc::multScalar(
+                        Math::Vector3f{historySRT(0, 1), historySRT(1, 1), historySRT(2, 1)},
+                        prev.scale
+                    );
+                    break;
+                }
+                case StripeType::EmitterMatrix: {
+                    Math::Vector3f outer = Math::VectorCalc::cross(
+                        Math::Vector3f{historySRT(0, 1), historySRT(1, 1), historySRT(2, 1)},
+                        stripe->interpolateNextDir
+                    );
+                    Math::VectorCalc::normalize(outer);
+                    now.outer = Math::VectorCalc::multScalar(outer, prev.scale);
+                    break;
+                }
+                case StripeType::Billboard:
+                default: {
+                    now.outer = stripe->interpolateNextDir;
+                    break;
+                }
+                }
             }
 
             if (stripe->numHistory >= historySize) {
@@ -489,7 +496,7 @@ void EmitterCalc::calcComplexParticle(EmitterInstance& emitter, PtclInstance& pt
 // ========================================================================== //
 
 
-s32 EmitterCalc::calcComplexChild(EmitterInstance& emitter, PtclRenderer& renderer) {
+s32 EmitterCalc::calcComplexChild(EmitterInstance& emitter, DrawFrame& frame) {
     const auto& res = emitter.mResource;
     const auto& set = emitter.mSet;
 
@@ -497,7 +504,7 @@ s32 EmitterCalc::calcComplexChild(EmitterInstance& emitter, PtclRenderer& render
         return 0;
     }
 
-    emitChildState(renderer, emitter);
+    ParticleDrawBatch& childBatch = beginChildBatch(frame, emitter);
 
     s32 aliveCount = 0;
 
@@ -537,24 +544,23 @@ s32 EmitterCalc::calcComplexChild(EmitterInstance& emitter, PtclRenderer& render
             }
 
             ParticleState draw;
-            ParticleFollowMode followMode = ParticleFollowMode::None;
             if (res.childFlags().isSet(ChildFlag::IsPolygon)) {
-                followMode = ParticleFollowMode::Basis;
+                draw.followMode = ParticleFollowMode::Basis;
                 draw.followBasis = cur->emitterRT;
             } else {
-                const u32 childBillboard = static_cast<u32>(res.childBillboardType());
-                if (childBillboard == 3 || childBillboard == 4) {
-                    followMode = ParticleFollowMode::Direction;
-                    const Math::Vector3f dir = Math::VectorCalc::rotate(cur->emitterSRT, Math::VectorCalc::sub(cur->position, prevPos));
+                const BillboardType childBillboard = res.childBillboardType();
+                if (childBillboard == BillboardType::VelLook || childBillboard == BillboardType::VelLookPolygon) {
+                    draw.followMode = ParticleFollowMode::Direction;
+                    const Math::Vector3f dir = Math::VectorCalc::rotate(
+                        cur->emitterSRT, Math::VectorCalc::sub(cur->position, prevPos)
+                    );
                     draw.followDirection = dir;
                 }
             }
-            draw.followMode = followMode;
-            draw.isChild = true;
 
             sChildPtclCalcFunctions[static_cast<std::size_t>(res.childRotationType())](&draw.matrix, emitter, *cur);
 
-            emitParticleState(renderer, set, emitter, draw, *cur);
+            appendParticleState(childBatch, set, emitter, draw, *cur);
 
             ++cur->tickCount;
             ++aliveCount;

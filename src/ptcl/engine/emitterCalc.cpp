@@ -817,7 +817,7 @@ PtclInstance* EmitterCalc::emitRectangle(EmitterInstance& emitter) {
 // ========================================================================== //
 
 
-s32 EmitterCalc::calc(EmitterInstance& emitter, PtclRenderer& renderer) {
+s32 EmitterCalc::calc(EmitterInstance& emitter, DrawFrame& frame) {
     const std::size_t typeIdx = static_cast<std::size_t>(emitter.mResource.type());
 
     if (typeIdx >= sCalcFunctions.size() || sCalcFunctions[typeIdx] == nullptr) {
@@ -825,7 +825,7 @@ s32 EmitterCalc::calc(EmitterInstance& emitter, PtclRenderer& renderer) {
         return 0;
     }
 
-    return sCalcFunctions[typeIdx](emitter, renderer);
+    return sCalcFunctions[typeIdx](emitter, frame);
 }
 
 

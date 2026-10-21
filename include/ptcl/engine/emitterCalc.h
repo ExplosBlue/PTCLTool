@@ -4,7 +4,7 @@
 #include <cstddef>
 
 #include "math/matrix.h"
-#include "ptcl/engine/ptclRenderer.h"
+#include "ptcl/engine/renderContract.h"
 
 
 namespace Ptcl {
@@ -32,16 +32,16 @@ public:
 
     static PtclInstance* emitParticle(EmitterInstance& emitter);
 
-    static s32 calcSimple(EmitterInstance& emitter, PtclRenderer& renderer);
-    static s32 calcCompact(EmitterInstance& emitter, PtclRenderer& renderer);
-    static s32 calcComplex(EmitterInstance& emitter, PtclRenderer& renderer);
+    static s32 calcSimple(EmitterInstance& emitter, DrawFrame& frame);
+    static s32 calcCompact(EmitterInstance& emitter, DrawFrame& frame);
+    static s32 calcComplex(EmitterInstance& emitter, DrawFrame& frame);
 
-    static s32 calc(EmitterInstance& emitter, PtclRenderer& renderer);
+    static s32 calc(EmitterInstance& emitter, DrawFrame& frame);
 
 private:
     friend class PtclSystem;
 
-    using CalcFunction = s32 (*)(EmitterInstance& emitter, PtclRenderer& renderer);
+    using CalcFunction = s32 (*)(EmitterInstance& emitter, DrawFrame& frame);
 
     static inline std::array<CalcFunction, 3> sCalcFunctions = {
         &EmitterCalc::calcSimple,
@@ -186,17 +186,17 @@ private:
     };
 
     static void calcComplexParticle(EmitterInstance& emitter, PtclInstance& ptcl);
-    static s32 calcComplexParent(EmitterInstance& emitter, PtclRenderer& renderer);
-    static s32 calcComplexChild(EmitterInstance& emitter, PtclRenderer& renderer);
+    static s32 calcComplexParent(EmitterInstance& emitter, DrawFrame& frame);
+    static s32 calcComplexChild(EmitterInstance& emitter, DrawFrame& frame);
 
     static bool stepFadeAlpha(EmitterInstance& emitter, bool& canEmit);
     static void scheduleEmission(EmitterInstance& emitter, s32 frame, bool canEmit);
     static void beginEmitterMatrices(EmitterInstance& emitter);
     static EmitterState makeParentState(const EmitterInstance& emitter);
-    static EmitterState emitParentState(PtclRenderer& renderer, const EmitterInstance& emitter);
-    static void emitChildState(PtclRenderer& renderer, const EmitterInstance& emitter);
+    static ParticleDrawBatch& beginParentBatch(DrawFrame& frame, const EmitterInstance& emitter);
+    static ParticleDrawBatch& beginChildBatch(DrawFrame& frame, const EmitterInstance& emitter);
     static void populateParticleState(const EmitterSetInstance& set, const EmitterInstance& emitter, ParticleState& draw, const PtclInstance& ptcl, f32 fluctuationAlpha = 1.0f, f32 fluctuationScale = 1.0f);
-    static void emitParticleState(PtclRenderer& renderer, const EmitterSetInstance& set, const EmitterInstance& emitter, ParticleState& draw, const PtclInstance& ptcl, f32 fluctuationAlpha = 1.0f, f32 fluctuationScale = 1.0f);
+    static void appendParticleState(ParticleDrawBatch& batch, const EmitterSetInstance& set, const EmitterInstance& emitter, ParticleState& draw, const PtclInstance& ptcl, f32 fluctuationAlpha = 1.0f, f32 fluctuationScale = 1.0f);
     static ParticleState ptclPreCalcCompact(EmitterInstance& emitter, PtclInstance& ptcl);
 
 private:
