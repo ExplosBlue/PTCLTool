@@ -178,37 +178,36 @@ void ViewportCamera::setProjectionType(ProjectionType type) {
     invalidate();
 }
 
-void ViewportCamera::setViewDirection(ViewDirection direction) {
+ViewportCamera::Orientation ViewportCamera::orientationFor(ViewDirection direction) {
     constexpr f32 halfPi = std::numbers::pi_v<f32> * 0.5f;
+    constexpr f32 pi = std::numbers::pi_v<f32>;
 
     switch (direction) {
     case ViewDirection::Front:
-        mYaw = std::numbers::pi_v<f32>;
-        mPitch = 0.0f;
-        break;
+        return {pi, 0.0f};
     case ViewDirection::Back:
-        mYaw = 0.0f;
-        mPitch = 0.0f;
-        break;
+        return {0.0f, 0.0f};
     case ViewDirection::Left:
-        mYaw = -halfPi;
-        mPitch = 0.0f;
-        break;
+        return {-halfPi, 0.0f};
     case ViewDirection::Right:
-        mYaw = halfPi;
-        mPitch = 0.0f;
-        break;
+        return {halfPi, 0.0f};
     case ViewDirection::Top:
-        mYaw = std::numbers::pi_v<f32>;
-        mPitch = cPitchLimit;
-        break;
+        return {pi, cPitchLimit};
     case ViewDirection::Bottom:
-        mYaw = std::numbers::pi_v<f32>;
-        mPitch = -cPitchLimit;
-        break;
+        return {pi, -cPitchLimit};
     }
 
+    return {};
+}
+
+void ViewportCamera::setOrientation(const Orientation& orientation) {
+    mYaw = orientation.yaw;
+    mPitch = std::clamp(orientation.pitch, -cPitchLimit, cPitchLimit);
     invalidate();
+}
+
+void ViewportCamera::setViewDirection(ViewDirection direction) {
+    setOrientation(orientationFor(direction));
 }
 
 void ViewportCamera::reset() {

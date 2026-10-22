@@ -243,31 +243,35 @@ void ViewportGrid::draw(QOpenGLFunctions_2_0& gl, const ViewportCamera& camera, 
     }
 
     const Gfx::ViewBasis& basis = camera.viewBasis();
-    Math::Vector3f horizontalForward{basis.forward.x, 0.0f, basis.forward.z};
-    Math::VectorCalc::normalize(horizontalForward);
 
-    const bool axisAligned = std::abs(horizontalForward.x) > 0.999f || std::abs(horizontalForward.z) > 0.999f;
     const bool verticalViewPlane =
         (camera.projectionType() == ViewportCamera::ProjectionType::Orthographic) &&
-        (std::abs(basis.forward.y) < 1.0e-4f) &&
-        axisAligned;
+        (std::abs(basis.forward.y) < 1.0e-4f);
 
     Math::Vector3f planeNormal;
     Math::Vector3f planeU;
     Math::Vector3f planeV;
     const GLfloat* axisColorU = nullptr;
     const GLfloat* axisColorV = nullptr;
+    std::array<GLfloat, 3> blendedAxisColor{};
 
     if (verticalViewPlane) {
-        planeNormal = horizontalForward;
+        planeNormal = {basis.forward.x, 0.0f, basis.forward.z};
+        Math::VectorCalc::normalize(planeNormal);
         planeU = Math::VectorCalc::cross(cWorldUp, planeNormal);
         Math::VectorCalc::normalize(planeU);
         planeV = cWorldUp;
 
         axisColorU = cAxisYColor.data();
-        axisColorV = (std::abs(planeU.x) > std::abs(planeU.z))
-            ? cAxisXColor.data()
-            : cAxisZColor.data();
+
+        const f32 axisXWeight = std::abs(planeU.x);
+        const f32 axisZWeight = std::abs(planeU.z);
+        const f32 axisWeightSum = axisXWeight + axisZWeight;
+        for (std::size_t i = 0; i < blendedAxisColor.size(); ++i) {
+            blendedAxisColor[i] =
+                (cAxisXColor[i] * axisXWeight + cAxisZColor[i] * axisZWeight) / axisWeightSum;
+        }
+        axisColorV = blendedAxisColor.data();
     } else {
         planeNormal = cWorldUp;
         planeU = {1.0f, 0.0f, 0.0f};

@@ -515,26 +515,29 @@ void MainWindow::loadDocument(const QString& path) {
     mInspector.setDocument(mDocument.get());
     mTextureWidget.setDocument(mDocument.get());
     connect(mDocument.get(), &Ptcl::Document::importReportReady, this, &MainWindow::showSanitizeWarningDialog);
-    connect(mDocument.get(), &Ptcl::Document::emitterChanged, this,
-        [this](s32 setIndex, s32) {
-            if (mSelection.emitterSetIndex() == setIndex) {
-                mPreviewViewport->scheduleRefresh();
-            }
-        });
+    connect(mDocument.get(), &Ptcl::Document::emitterChanged, this, [this](s32 setIndex, s32) {
+        if (mSelection.emitterSetIndex() == setIndex) {
+            mPreviewViewport->scheduleRefresh();
+        }
+    });
 
-    connect(mDocument.get(), &Ptcl::Document::emitterAdded, this,
-        [this](s32 setIndex, s32) {
-            if (mSelection.emitterSetIndex() == setIndex) {
-                mPreviewViewport->scheduleRefresh();
-            }
-        });
+    connect(mDocument.get(), &Ptcl::Document::emitterSetChanged, this, [this](s32 setIndex) {
+        if (mSelection.emitterSetIndex() == setIndex) {
+            mPreviewViewport->update();
+        }
+    });
 
-    connect(mDocument.get(), &Ptcl::Document::emitterRemoved, this,
-        [this](s32 setIndex, s32) {
-            if (mSelection.emitterSetIndex() == setIndex) {
-                mPreviewViewport->scheduleRefresh();
-            }
-        });
+    connect(mDocument.get(), &Ptcl::Document::emitterAdded, this, [this](s32 setIndex, s32) {
+        if (mSelection.emitterSetIndex() == setIndex) {
+            mPreviewViewport->scheduleRefresh();
+        }
+    });
+
+    connect(mDocument.get(), &Ptcl::Document::emitterRemoved, this, [this](s32 setIndex, s32) {
+        if (mSelection.emitterSetIndex() == setIndex) {
+            mPreviewViewport->scheduleRefresh();
+        }
+    });
 
     mPreviewViewport->setEnabled(true);
     mViewportToolbar->setEnabled(true);

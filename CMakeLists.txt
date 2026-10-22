@@ -94,6 +94,7 @@ set(PROJECT_SOURCES
     src/editor/texture/textureSelectDialog.cpp
     src/editor/viewport/previewViewport.cpp
     src/editor/viewport/viewportCamera.cpp
+    src/editor/viewport/viewportGizmo.cpp
     src/editor/viewport/viewportGrid.cpp
     src/editor/viewport/viewportStatsBar.cpp
     src/editor/viewport/viewportToolbar.cpp
@@ -206,6 +207,7 @@ set(PROJECT_HEADERS
     include/editor/texture/textureSelectDialog.h
     include/editor/viewport/previewViewport.h
     include/editor/viewport/viewportCamera.h
+    include/editor/viewport/viewportGizmo.h
     include/editor/viewport/viewportGrid.h
     include/editor/viewport/viewportStatsBar.h
     include/editor/viewport/viewportToolbar.h

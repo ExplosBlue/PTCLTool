@@ -31,6 +31,11 @@ public:
         Bottom,
     };
 
+    struct Orientation {
+        f32 yaw{0.0f};
+        f32 pitch{0.0f};
+    };
+
     const Math::Matrix44f& viewProjection() const override;
     const Gfx::ViewBasis& viewBasis() const override;
 
@@ -41,6 +46,10 @@ public:
     void setViewportSize(s32 width, s32 height);
     void setProjectionType(ProjectionType type);
     ProjectionType projectionType() const { return mProjectionType; }
+
+    Orientation orientation() const { return {mYaw, mPitch}; }
+    void setOrientation(const Orientation& orientation);
+    static Orientation orientationFor(ViewDirection direction);
 
     void setViewDirection(ViewDirection direction);
     void reset();

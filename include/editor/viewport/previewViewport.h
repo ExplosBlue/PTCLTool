@@ -1,8 +1,10 @@
 #pragma once
 
 #include "editor/viewport/viewportCamera.h"
+#include "editor/viewport/viewportGizmo.h"
 #include "editor/viewport/viewportGrid.h"
 #include "ptcl/engine/ptclSystem.h"
+#include "ptcl/ptclDocument.h"
 #include "ptcl/renderer/renderer.h"
 
 #include <QOpenGLBuffer>
@@ -11,12 +13,16 @@
 #include <QOpenGLVertexArrayObject>
 #include <QElapsedTimer>
 #include <QOpenGLWidget>
+#include <QString>
 #include <QTimer>
 
 #include <memory>
 
 
 // ========================================================================== //
+
+
+class QPainter;
 
 
 namespace Ptcl {
@@ -91,11 +97,23 @@ protected:
     void mousePressEvent(QMouseEvent* event) final;
     void mouseMoveEvent(QMouseEvent* event) final;
     void mouseReleaseEvent(QMouseEvent* event) final;
+    void leaveEvent(QEvent* event) final;
 
 private:
     void ensureGlResources();
     void cleanupGlResources();
     void drawOpaqueOverlay();
+
+    void drawViewportOverlay(QPainter& painter);
+    void drawViewContext(QPainter& painter);
+    QString viewLabel() const;
+    QString contextLabel() const;
+    void updateGizmoHover(s32 axis);
+
+    void startViewTransition(ViewportCamera::ViewDirection direction);
+    void onViewTransitionTick();
+    void cancelViewTransition();
+    void leaveTemporaryAxisProjection();
 
     void onTick();
     void simulateFrame();
@@ -109,6 +127,11 @@ private:
     QTimer mTimer{};
     QTimer mRefreshTimer{};
     QTimer mStatsTimer{};
+    QTimer mViewTransitionTimer{};
+    QElapsedTimer mViewTransitionElapsed{};
+    ViewportCamera::Orientation mViewTransitionStart{};
+    ViewportCamera::Orientation mViewTransitionTarget{};
+    bool mViewTransitionActive{false};
 
     std::unique_ptr<Ptcl::Engine::PtclSystem> mSystem{};
     Ptcl::Render::Renderer mRenderer{};
@@ -127,6 +150,8 @@ private:
 
     const Ptcl::Document* mDocument{nullptr};
     s32 mSetIndex{-1};
+    s32 mEmitterIndex{-1};
+    Ptcl::Selection::Type mSelectionType{Ptcl::Selection::Type::None};
 
     qint64 mLastPaintNs{0};
     qint64 mFpsWindowNs{0};
@@ -141,6 +166,11 @@ private:
     bool mGlReady{false};
 
     ViewportCamera mCamera{};
+    bool mTemporaryAxisOrthographic{false};
+    ViewportCamera::ProjectionType mProjectionBeforeAxisView{
+        ViewportCamera::ProjectionType::Perspective
+    };
+    ViewportGizmo mGizmo{};
     bool mOrbitDragging{false};
     bool mPanDragging{false};
     QPoint mLastMouse{};
