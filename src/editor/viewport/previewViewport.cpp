@@ -513,13 +513,11 @@ void PreviewViewport::paintGL() {
         return;
     }
 
-    const Math::Matrix44f& viewProj = mCamera.viewProjection();
-
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
 
     if (mGridVisible) {
-        mGrid.draw(*this, viewProj);
+        mGrid.draw(*this, mCamera, static_cast<float>(devicePixelRatioF()));
     }
 
     glEnable(GL_DEPTH_TEST);

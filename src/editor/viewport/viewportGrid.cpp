@@ -1,11 +1,13 @@
 #include "editor/viewport/viewportGrid.h"
 
+#include "editor/viewport/viewportCamera.h"
+#include "gfx/glGeometry.h"
+
 #include <QDebug>
 
+#include <algorithm>
 #include <array>
-#include <cstddef>
-#include <memory>
-#include <vector>
+#include <cmath>
 
 
 namespace PtclTool {
@@ -15,55 +17,154 @@ namespace PtclTool {
 
 
 static constexpr const char* cGridVertShader = R"(#version 150 core
-in vec3 aPos;
-uniform mat4 uViewProj;
+in vec2 aPos;
+out vec2 vNdc;
 void main() {
-    gl_Position = uViewProj * vec4(aPos, 1.0);
+    vNdc = aPos * 2.0;
+    gl_Position = vec4(vNdc, 0.0, 1.0);
 }
 )";
 
 static constexpr const char* cGridFragShader = R"(#version 150 core
-uniform vec4 uColor;
+#extension GL_OES_standard_derivatives : enable
+in vec2 vNdc;
 out vec4 fragColor;
+
+uniform mat4 uInverseViewProjection;
+uniform vec3 uCameraPosition;
+uniform vec3 uViewForward;
+uniform vec3 uPlaneNormal;
+uniform vec3 uPlanePoint;
+uniform vec3 uPlaneU;
+uniform vec3 uPlaneV;
+uniform vec3 uAxisColorU;
+uniform vec3 uAxisColorV;
+uniform int uPerspective;
+uniform float uFadeStart;
+uniform float uFadeEnd;
+uniform float uPixelRatio;
+
+const vec3 cMinorColor = vec3(0.42, 0.47, 0.55);
+const vec3 cMajorColor = vec3(0.62, 0.67, 0.76);
+const float cGridMinPixels = 32.0;
+const float cGridStrength = 0.85;
+const float cGridFineAlpha = 0.35;
+const float cGridMiddleAlpha = 0.75;
+const float cGridEpsilon = 1.0e-7;
+
+float lineMask(float coordinate, float spacing, float worldPerPixel, float widthPixels) {
+    float cells = coordinate / spacing;
+    float distanceToLine = abs(fract(cells - 0.5) - 0.5) * spacing;
+    return 1.0 - smoothstep(0.0, max(worldPerPixel, cGridEpsilon) * widthPixels, distanceToLine);
+}
+
+float axisMask(float coordinate, float worldPerPixel, float widthPixels) {
+    float distancePixels = abs(coordinate) / max(worldPerPixel, cGridEpsilon);
+    return 1.0 - smoothstep(widthPixels, widthPixels + uPixelRatio, distancePixels);
+}
+
 void main() {
-    fragColor = uColor;
+    vec4 nearHomogeneous = uInverseViewProjection * vec4(vNdc, -1.0, 1.0);
+    vec4 farHomogeneous = uInverseViewProjection * vec4(vNdc, 1.0, 1.0);
+    if (abs(nearHomogeneous.w) < cGridEpsilon || abs(farHomogeneous.w) < cGridEpsilon) {
+        discard;
+    }
+
+    vec3 nearPoint = nearHomogeneous.xyz / nearHomogeneous.w;
+    vec3 farPoint = farHomogeneous.xyz / farHomogeneous.w;
+    vec3 ray = farPoint - nearPoint;
+
+    float denominator = dot(uPlaneNormal, ray);
+    if (abs(denominator) < cGridEpsilon) {
+        discard;
+    }
+
+    float t = dot(uPlaneNormal, uPlanePoint - nearPoint) / denominator;
+    vec3 worldPosition = nearPoint + ray * t;
+
+    vec3 cameraDelta = worldPosition - uCameraPosition;
+    float cameraDistanceSq = dot(cameraDelta, cameraDelta);
+    float maxDistanceSq = uFadeEnd * uFadeEnd;
+
+    if (uPerspective == 1) {
+        if (dot(uViewForward, cameraDelta) <= 0.0
+            || !(cameraDistanceSq >= 1.0)
+            || !(cameraDistanceSq <= maxDistanceSq)) {
+            discard;
+        }
+    }
+    vec2 grid = vec2(
+        dot(worldPosition - uPlanePoint, uPlaneU),
+        dot(worldPosition - uPlanePoint, uPlaneV)
+    );
+    vec2 worldPerPixel = fwidth(grid);
+
+    float lod = log2(max(max(worldPerPixel.x, worldPerPixel.y), cGridEpsilon)
+        * cGridMinPixels * uPixelRatio) * 0.30102999566;
+    float level = floor(lod);
+    float fraction = lod - level;
+
+    float spacingFine = pow(10.0, level);
+    float spacingMiddle = spacingFine * 10.0;
+    float spacingCoarse = spacingMiddle * 10.0;
+
+    float fineLine = max(
+        lineMask(grid.x, spacingFine, worldPerPixel.x, 0.8 * uPixelRatio),
+        lineMask(grid.y, spacingFine, worldPerPixel.y, 0.8 * uPixelRatio)
+    );
+    float middleLine = max(
+        lineMask(grid.x, spacingMiddle, worldPerPixel.x, 0.9 * uPixelRatio),
+        lineMask(grid.y, spacingMiddle, worldPerPixel.y, 0.9 * uPixelRatio)
+    );
+    float coarseLine = max(
+        lineMask(grid.x, spacingCoarse, worldPerPixel.x, 1.1 * uPixelRatio),
+        lineMask(grid.y, spacingCoarse, worldPerPixel.y, 1.1 * uPixelRatio)
+    );
+
+    float fineAlpha = fineLine * cGridFineAlpha * (1.0 - fraction);
+    float middleAlpha = middleLine * mix(cGridMiddleAlpha, cGridFineAlpha, fraction);
+    float coarseAlpha = coarseLine * cGridMiddleAlpha * fraction;
+    float gridAlpha = max(max(fineAlpha, middleAlpha), coarseAlpha);
+    vec3 gridColor = mix(cMinorColor, cMajorColor,
+        smoothstep(cGridFineAlpha, cGridMiddleAlpha, gridAlpha));
+
+    float fade = 1.0;
+    if (uPerspective != 0) {
+        fade = 1.0 - smoothstep(uFadeStart, uFadeEnd, distance(worldPosition, uCameraPosition));
+    }
+
+    float alpha = gridAlpha * cGridStrength * fade;
+    vec3 color = gridColor;
+
+    float axisU = axisMask(grid.x, worldPerPixel.x, uPixelRatio);
+    float axisV = axisMask(grid.y, worldPerPixel.y, uPixelRatio);
+
+    if (axisU > 0.0) {
+        color = mix(color, uAxisColorU, axisU);
+        alpha = max(alpha, axisU * fade);
+    }
+
+    if (axisV > 0.0) {
+        color = mix(color, uAxisColorV, axisV);
+        alpha = max(alpha, axisV * fade);
+    }
+
+    if (!(alpha > 0.001)) {
+        discard;
+    }
+
+    fragColor = vec4(color, alpha);
 }
 )";
 
-static constexpr s32 cGridCellSize = 10;
-static constexpr s32 cGridExtent = 250;
+static constexpr f32 cGridFadeStart = 1000.0f;
+static constexpr f32 cGridFadeEnd = 1900.0f;
 
-static constexpr std::array<GLfloat, 12> cAxes = {
-    -static_cast<GLfloat>(cGridExtent), 0.0f, 0.0f,
-     static_cast<GLfloat>(cGridExtent), 0.0f, 0.0f,
-    0.0f, 0.0f, -static_cast<GLfloat>(cGridExtent),
-    0.0f, 0.0f,  static_cast<GLfloat>(cGridExtent),
-};
+static constexpr std::array<GLfloat, 3> cAxisXColor = {0.95f, 0.24f, 0.28f};
+static constexpr std::array<GLfloat, 3> cAxisYColor = {0.42f, 0.82f, 0.30f};
+static constexpr std::array<GLfloat, 3> cAxisZColor = {0.25f, 0.50f, 0.98f};
 
-static constexpr std::array<GLfloat, 4> cGridColor = {
-    0.25f, 0.29f, 0.33f, 1.0f,
-};
-
-static constexpr std::array<GLfloat, 4> cAxisColor = {
-    0.62f, 0.64f, 0.67f, 1.0f,
-};
-
-
-static void createLineBuffer(QOpenGLFunctions_2_0& gl,
-    QOpenGLBuffer& buffer, QOpenGLVertexArrayObject& vertexArray,
-    const GLfloat* vertices, std::size_t vertexCount) {
-    vertexArray.create();
-    buffer.create();
-
-    vertexArray.bind();
-    buffer.bind();
-    buffer.allocate(vertices, static_cast<s32>(vertexCount * sizeof(GLfloat)));
-    gl.glEnableVertexAttribArray(0);
-    gl.glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
-
-    buffer.release();
-    vertexArray.release();
-}
+static const Math::Vector3f cWorldUp{0.0f, 1.0f, 0.0f};
 
 
 void ViewportGrid::initialize(QOpenGLFunctions_2_0& gl) {
@@ -72,6 +173,7 @@ void ViewportGrid::initialize(QOpenGLFunctions_2_0& gl) {
     }
 
     auto program = std::make_unique<QOpenGLShaderProgram>();
+    program->bindAttributeLocation("aPos", 0);
     if (!program->addShaderFromSourceCode(QOpenGLShader::Vertex, cGridVertShader)) {
         qWarning() << "[viewport] Failed to compile grid vertex shader:" << program->log();
         return;
@@ -85,78 +187,145 @@ void ViewportGrid::initialize(QOpenGLFunctions_2_0& gl) {
         return;
     }
 
-    const auto viewProjectionLocation = program->uniformLocation("uViewProj");
-    const auto colorLocation = program->uniformLocation("uColor");
-    if (viewProjectionLocation < 0 || colorLocation < 0) {
+    const auto inverseViewProjectionLocation = program->uniformLocation("uInverseViewProjection");
+    const auto cameraPositionLocation        = program->uniformLocation("uCameraPosition");
+    const auto viewForwardLocation           = program->uniformLocation("uViewForward");
+    const auto planeNormalLocation           = program->uniformLocation("uPlaneNormal");
+    const auto planePointLocation            = program->uniformLocation("uPlanePoint");
+    const auto planeULocation                = program->uniformLocation("uPlaneU");
+    const auto planeVLocation                = program->uniformLocation("uPlaneV");
+    const auto axisColorULocation            = program->uniformLocation("uAxisColorU");
+    const auto axisColorVLocation            = program->uniformLocation("uAxisColorV");
+    const auto perspectiveLocation           = program->uniformLocation("uPerspective");
+    const auto fadeStartLocation             = program->uniformLocation("uFadeStart");
+    const auto fadeEndLocation               = program->uniformLocation("uFadeEnd");
+    const auto pixelRatioLocation            = program->uniformLocation("uPixelRatio");
+
+    if (inverseViewProjectionLocation < 0 ||
+        cameraPositionLocation < 0 ||
+        viewForwardLocation < 0 ||
+        planeNormalLocation < 0 ||
+        planePointLocation < 0 ||
+        planeULocation < 0 ||
+        planeVLocation < 0 ||
+        axisColorULocation < 0 ||
+        axisColorVLocation < 0 ||
+        perspectiveLocation < 0 ||
+        fadeStartLocation < 0 ||
+        fadeEndLocation < 0 ||
+        pixelRatioLocation < 0) {
         qWarning() << "[viewport] Grid shader uniforms were not found.";
         return;
     }
 
-    std::vector<GLfloat> grid;
-    const auto lineCount = static_cast<std::size_t>(cGridExtent) * 2
-        / static_cast<std::size_t>(cGridCellSize) + 1;
-    grid.reserve(lineCount * 2 * 2 * 3);
+    Gfx::createUnitQuad(gl, mQuadVbo, mQuadVao);
 
-    const auto extent = static_cast<GLfloat>(cGridExtent);
-    for (s32 i = -cGridExtent; i <= cGridExtent; i += cGridCellSize) {
-        const auto coordinate = static_cast<GLfloat>(i);
-
-        // Line parallel to the Z axis.
-        grid.insert(grid.end(), {
-            coordinate, 0.0f, -extent,
-            coordinate, 0.0f,  extent,
-        });
-
-        // Line parallel to the X axis.
-        grid.insert(grid.end(), {
-            -extent, 0.0f, coordinate,
-             extent, 0.0f, coordinate,
-        });
-    }
-    mGridVertexCount = static_cast<GLsizei>(grid.size() / 3);
-    createLineBuffer(gl, mGridVbo, mGridVao, grid.data(), grid.size());
-
-    mAxisVertexCount = static_cast<GLsizei>(cAxes.size() / 3);
-    createLineBuffer(gl, mAxisVbo, mAxisVao, cAxes.data(), cAxes.size());
-
-    mViewProjectionLocation = viewProjectionLocation;
-    mColorLocation = colorLocation;
+    mInverseViewProjectionLocation = inverseViewProjectionLocation;
+    mCameraPositionLocation = cameraPositionLocation;
+    mViewForwardLocation = viewForwardLocation;
+    mPlaneNormalLocation = planeNormalLocation;
+    mPlanePointLocation = planePointLocation;
+    mPlaneULocation = planeULocation;
+    mPlaneVLocation = planeVLocation;
+    mAxisColorULocation = axisColorULocation;
+    mAxisColorVLocation = axisColorVLocation;
+    mPerspectiveLocation = perspectiveLocation;
+    mFadeStartLocation = fadeStartLocation;
+    mFadeEndLocation = fadeEndLocation;
+    mPixelRatioLocation = pixelRatioLocation;
     mProgram = std::move(program);
     mInitialized = true;
 }
 
-void ViewportGrid::draw(QOpenGLFunctions_2_0& gl,
-    const Math::Matrix44f& viewProjection) {
+void ViewportGrid::draw(QOpenGLFunctions_2_0& gl, const ViewportCamera& camera, float pixelRatio) {
     if (!mInitialized || mProgram == nullptr) {
         return;
+    }
+
+    const Gfx::ViewBasis& basis = camera.viewBasis();
+    Math::Vector3f horizontalForward{basis.forward.x, 0.0f, basis.forward.z};
+    Math::VectorCalc::normalize(horizontalForward);
+
+    const bool axisAligned = std::abs(horizontalForward.x) > 0.999f || std::abs(horizontalForward.z) > 0.999f;
+    const bool verticalViewPlane =
+        (camera.projectionType() == ViewportCamera::ProjectionType::Orthographic) &&
+        (std::abs(basis.forward.y) < 1.0e-4f) &&
+        axisAligned;
+
+    Math::Vector3f planeNormal;
+    Math::Vector3f planeU;
+    Math::Vector3f planeV;
+    const GLfloat* axisColorU = nullptr;
+    const GLfloat* axisColorV = nullptr;
+
+    if (verticalViewPlane) {
+        planeNormal = horizontalForward;
+        planeU = Math::VectorCalc::cross(cWorldUp, planeNormal);
+        Math::VectorCalc::normalize(planeU);
+        planeV = cWorldUp;
+
+        axisColorU = cAxisYColor.data();
+        axisColorV = (std::abs(planeU.x) > std::abs(planeU.z))
+            ? cAxisXColor.data()
+            : cAxisZColor.data();
+    } else {
+        planeNormal = cWorldUp;
+        planeU = {1.0f, 0.0f, 0.0f};
+        planeV = {0.0f, 0.0f, 1.0f};
+
+        axisColorU = cAxisZColor.data();
+        axisColorV = cAxisXColor.data();
     }
 
     GLint previousProgram = 0;
     GLint previousDepthFunction = GL_LESS;
     const GLboolean depthTestEnabled = gl.glIsEnabled(GL_DEPTH_TEST);
+    const GLboolean cullFaceEnabled = gl.glIsEnabled(GL_CULL_FACE);
+    GLboolean depthWriteEnabled = GL_TRUE;
     gl.glGetIntegerv(GL_CURRENT_PROGRAM, &previousProgram);
     if (depthTestEnabled) {
         gl.glGetIntegerv(GL_DEPTH_FUNC, &previousDepthFunction);
     }
+    gl.glGetBooleanv(GL_DEPTH_WRITEMASK, &depthWriteEnabled);
 
     mProgram->bind();
-    gl.glUniformMatrix4fv(mViewProjectionLocation, 1, GL_TRUE, viewProjection.data());
+    gl.glUniformMatrix4fv(mInverseViewProjectionLocation, 1, GL_TRUE, camera.inverseViewProjection().data());
 
-    gl.glEnable(GL_DEPTH_TEST);
-    gl.glDepthFunc(GL_LEQUAL);
 
-    gl.glUniform4fv(mColorLocation, 1, cGridColor.data());
-    mGridVao.bind();
-    gl.glDrawArrays(GL_LINES, 0, mGridVertexCount);
-    mGridVao.release();
+    const Math::Vector3f cameraPosition = camera.position();
+    const f32 viewDistance = camera.viewDistance();
+    const f32 fadeStart = std::max(cGridFadeStart, viewDistance * 2.5f);
+    const f32 fadeEnd = std::max(cGridFadeEnd, viewDistance * 4.75f);
 
-    gl.glUniform4fv(mColorLocation, 1, cAxisColor.data());
-    mAxisVao.bind();
-    gl.glDrawArrays(GL_LINES, 0, mAxisVertexCount);
-    mAxisVao.release();
+    gl.glUniform3f(mCameraPositionLocation, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+    gl.glUniform3f(mViewForwardLocation, basis.forward.x, basis.forward.y, basis.forward.z);
+    gl.glUniform3f(mPlaneNormalLocation, planeNormal.x, planeNormal.y, planeNormal.z);
+    gl.glUniform3f(mPlanePointLocation, 0.0f, 0.0f, 0.0f);
+    gl.glUniform3f(mPlaneULocation, planeU.x, planeU.y, planeU.z);
+    gl.glUniform3f(mPlaneVLocation, planeV.x, planeV.y, planeV.z);
+    gl.glUniform3fv(mAxisColorULocation, 1, axisColorU);
+    gl.glUniform3fv(mAxisColorVLocation, 1, axisColorV);
+    gl.glUniform1i(mPerspectiveLocation, camera.projectionType() == ViewportCamera::ProjectionType::Perspective ? 1 : 0);
+    gl.glUniform1f(mFadeStartLocation, fadeStart);
+    gl.glUniform1f(mFadeEndLocation, fadeEnd);
+    gl.glUniform1f(mPixelRatioLocation, std::max(pixelRatio, 1.0f));
 
+    gl.glDisable(GL_DEPTH_TEST);
+    gl.glDepthMask(GL_FALSE);
+    gl.glDisable(GL_CULL_FACE);
+
+    mQuadVao.bind();
+    gl.glDrawArrays(GL_TRIANGLES, 0, Gfx::unitQuadVertexCount);
+    mQuadVao.release();
     mProgram->release();
+
     gl.glUseProgram(static_cast<GLuint>(previousProgram));
+    gl.glDepthMask(depthWriteEnabled);
+    if (cullFaceEnabled) {
+        gl.glEnable(GL_CULL_FACE);
+    } else {
+        gl.glDisable(GL_CULL_FACE);
+    }
     if (depthTestEnabled) {
         gl.glEnable(GL_DEPTH_TEST);
         gl.glDepthFunc(static_cast<GLenum>(previousDepthFunction));
@@ -168,15 +337,22 @@ void ViewportGrid::draw(QOpenGLFunctions_2_0& gl,
 void ViewportGrid::cleanup() {
     mProgram.reset();
 
-    mGridVao.destroy();
-    mGridVbo.destroy();
-    mAxisVao.destroy();
-    mAxisVbo.destroy();
+    mQuadVao.destroy();
+    mQuadVbo.destroy();
 
-    mGridVertexCount = 0;
-    mAxisVertexCount = 0;
-    mViewProjectionLocation = -1;
-    mColorLocation = -1;
+    mInverseViewProjectionLocation = -1;
+    mCameraPositionLocation = -1;
+    mViewForwardLocation = -1;
+    mPlaneNormalLocation = -1;
+    mPlanePointLocation = -1;
+    mPlaneULocation = -1;
+    mPlaneVLocation = -1;
+    mAxisColorULocation = -1;
+    mAxisColorVLocation = -1;
+    mPerspectiveLocation = -1;
+    mFadeStartLocation = -1;
+    mFadeEndLocation = -1;
+    mPixelRatioLocation = -1;
     mInitialized = false;
 }
 

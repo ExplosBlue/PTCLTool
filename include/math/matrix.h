@@ -157,6 +157,69 @@ inline Vector3f rotate(const Matrix34f& m, const Vector3f& v) {
     };
 }
 
+inline Matrix44f invert(const Matrix44f& a) {
+    const f32 m00 = a(0, 0);
+    const f32 m01 = a(0, 1);
+    const f32 m02 = a(0, 2);
+    const f32 m03 = a(0, 3);
+    const f32 m10 = a(1, 0);
+    const f32 m11 = a(1, 1);
+    const f32 m12 = a(1, 2);
+    const f32 m13 = a(1, 3);
+    const f32 m20 = a(2, 0);
+    const f32 m21 = a(2, 1);
+    const f32 m22 = a(2, 2);
+    const f32 m23 = a(2, 3);
+    const f32 m30 = a(3, 0);
+    const f32 m31 = a(3, 1);
+    const f32 m32 = a(3, 2);
+    const f32 m33 = a(3, 3);
+
+    const f32 b00 = m00 * m11 - m01 * m10;
+    const f32 b01 = m00 * m12 - m02 * m10;
+    const f32 b02 = m00 * m13 - m03 * m10;
+    const f32 b03 = m01 * m12 - m02 * m11;
+    const f32 b04 = m01 * m13 - m03 * m11;
+    const f32 b05 = m02 * m13 - m03 * m12;
+    const f32 b06 = m20 * m31 - m21 * m30;
+    const f32 b07 = m20 * m32 - m22 * m30;
+    const f32 b08 = m20 * m33 - m23 * m30;
+    const f32 b09 = m21 * m32 - m22 * m31;
+    const f32 b10 = m21 * m33 - m23 * m31;
+    const f32 b11 = m22 * m33 - m23 * m32;
+
+    const f32 det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+    if (det == 0.0f) {
+        return Matrix44f{
+            {1.0f, 0.0f, 0.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f, 0.0f},
+            {0.0f, 0.0f, 1.0f, 0.0f},
+            {0.0f, 0.0f, 0.0f, 1.0f},
+        };
+    }
+
+    const f32 invDet = 1.0f / det;
+    Matrix44f result{};
+
+    result(0, 0) = (m11 * b11 - m12 * b10 + m13 * b09) * invDet;
+    result(0, 1) = (-m01 * b11 + m02 * b10 - m03 * b09) * invDet;
+    result(0, 2) = (m31 * b05 - m32 * b04 + m33 * b03) * invDet;
+    result(0, 3) = (-m21 * b05 + m22 * b04 - m23 * b03) * invDet;
+    result(1, 0) = (-m10 * b11 + m12 * b08 - m13 * b07) * invDet;
+    result(1, 1) = (m00 * b11 - m02 * b08 + m03 * b07) * invDet;
+    result(1, 2) = (-m30 * b05 + m32 * b02 - m33 * b01) * invDet;
+    result(1, 3) = (m20 * b05 - m22 * b02 + m23 * b01) * invDet;
+    result(2, 0) = (m10 * b10 - m11 * b08 + m13 * b06) * invDet;
+    result(2, 1) = (-m00 * b10 + m01 * b08 - m03 * b06) * invDet;
+    result(2, 2) = (m30 * b04 - m31 * b02 + m33 * b00) * invDet;
+    result(2, 3) = (-m20 * b04 + m21 * b02 - m23 * b00) * invDet;
+    result(3, 0) = (-m10 * b09 + m11 * b07 - m12 * b06) * invDet;
+    result(3, 1) = (m00 * b09 - m01 * b07 + m02 * b06) * invDet;
+    result(3, 2) = (-m30 * b03 + m31 * b01 - m32 * b00) * invDet;
+    result(3, 3) = (m20 * b03 - m21 * b01 + m22 * b00) * invDet;
+    return result;
+}
+
 inline Matrix34f invert(const Matrix34f& a) {
     Matrix34f result{};
     const f32 m00 = a(0, 0);

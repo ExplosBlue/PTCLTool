@@ -7,10 +7,11 @@
 
 #include <memory>
 
-#include "math/matrix.h"
-
 
 namespace PtclTool {
+
+
+class ViewportCamera;
 
 
 // ========================================================================== //
@@ -19,22 +20,29 @@ namespace PtclTool {
 class ViewportGrid {
 public:
     void initialize(QOpenGLFunctions_2_0& gl);
-    void draw(QOpenGLFunctions_2_0& gl, const Math::Matrix44f& viewProjection);
+    void draw(QOpenGLFunctions_2_0& gl, const ViewportCamera& camera, float pixelRatio);
     void cleanup();
 
 private:
     std::unique_ptr<QOpenGLShaderProgram> mProgram;
 
-    QOpenGLBuffer mGridVbo{QOpenGLBuffer::VertexBuffer};
-    QOpenGLVertexArrayObject mGridVao{};
-    GLsizei mGridVertexCount{0};
+    QOpenGLBuffer mQuadVbo{QOpenGLBuffer::VertexBuffer};
+    QOpenGLVertexArrayObject mQuadVao{};
 
-    QOpenGLBuffer mAxisVbo{QOpenGLBuffer::VertexBuffer};
-    QOpenGLVertexArrayObject mAxisVao{};
-    GLsizei mAxisVertexCount{0};
+    GLint mInverseViewProjectionLocation{-1};
+    GLint mCameraPositionLocation{-1};
+    GLint mViewForwardLocation{-1};
+    GLint mPlaneNormalLocation{-1};
+    GLint mPlanePointLocation{-1};
+    GLint mPlaneULocation{-1};
+    GLint mPlaneVLocation{-1};
+    GLint mAxisColorULocation{-1};
+    GLint mAxisColorVLocation{-1};
+    GLint mPerspectiveLocation{-1};
+    GLint mFadeStartLocation{-1};
+    GLint mFadeEndLocation{-1};
+    GLint mPixelRatioLocation{-1};
 
-    GLint mViewProjectionLocation{-1};
-    GLint mColorLocation{-1};
     bool mInitialized{false};
 };
 

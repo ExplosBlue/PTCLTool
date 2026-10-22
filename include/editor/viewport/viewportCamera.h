@@ -34,6 +34,10 @@ public:
     const Math::Matrix44f& viewProjection() const override;
     const Gfx::ViewBasis& viewBasis() const override;
 
+    const Math::Matrix44f& inverseViewProjection() const;
+    Math::Vector3f position() const;
+    f32 viewDistance() const;
+
     void setViewportSize(s32 width, s32 height);
     void setProjectionType(ProjectionType type);
     ProjectionType projectionType() const { return mProjectionType; }
@@ -65,6 +69,7 @@ private:
 
     mutable Gfx::ViewBasis mCachedBasis{};
     mutable Math::Matrix44f mCachedViewProjection{};
+    mutable Math::Matrix44f mCachedInverseViewProjection{};
     mutable bool mCacheDirty{true};
 };
 

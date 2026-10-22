@@ -77,7 +77,7 @@ Gfx::ViewBasis ViewportCamera::computeBasis() const {
 Math::Vector3f ViewportCamera::eye(const Gfx::ViewBasis& basis) const {
     return Math::VectorCalc::add(
         mTarget,
-        Math::VectorCalc::multScalar(basis.forward, -cCameraDistance)
+        Math::VectorCalc::multScalar(basis.forward, -viewDistance())
     );
 }
 
@@ -110,10 +110,13 @@ Math::Matrix44f ViewportCamera::makeProjection() const {
         ? static_cast<f32>(mViewportWidth) / static_cast<f32>(mViewportHeight)
         : 1.0f;
 
-    auto result = (mProjectionType == ProjectionType::Perspective)
-        ? makePerspective(cVerticalFov, aspect, cNear, cFar)
-        : makeOrthographic(aspect, cNear, cFar);
+    if (mProjectionType == ProjectionType::Perspective) {
+        const f32 distance = viewDistance();
+        const f32 farZ = std::max(cFar, distance + cFar);
+        return makePerspective(cVerticalFov, aspect, cNear, farZ);
+    }
 
+    auto result = makeOrthographic(aspect, cNear, cFar);
     result(0, 0) *= mZoom;
     result(1, 1) *= mZoom;
     return result;
@@ -126,6 +129,7 @@ void ViewportCamera::ensureCacheUpToDate() const {
 
     mCachedBasis = computeBasis();
     mCachedViewProjection = Math::MatrixCalc::multiply(makeProjection(), makeView(mCachedBasis));
+    mCachedInverseViewProjection = Math::MatrixCalc::invert(mCachedViewProjection);
     mCacheDirty = false;
 }
 
@@ -137,6 +141,22 @@ const Math::Matrix44f& ViewportCamera::viewProjection() const {
 const Gfx::ViewBasis& ViewportCamera::viewBasis() const {
     ensureCacheUpToDate();
     return mCachedBasis;
+}
+
+const Math::Matrix44f& ViewportCamera::inverseViewProjection() const {
+    ensureCacheUpToDate();
+    return mCachedInverseViewProjection;
+}
+
+Math::Vector3f ViewportCamera::position() const {
+    ensureCacheUpToDate();
+    return eye(mCachedBasis);
+}
+
+f32 ViewportCamera::viewDistance() const {
+    return (mProjectionType == ProjectionType::Perspective)
+        ? cCameraDistance / mZoom
+        : cCameraDistance;
 }
 
 void ViewportCamera::setViewportSize(s32 width, s32 height) {
