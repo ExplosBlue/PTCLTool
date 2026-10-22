@@ -38,21 +38,11 @@ namespace PtclTool {
 // ========================================================================== //
 
 
-struct ViewportStats {
-    bool active{false};
-    f32 fps{0.0f};
-    s32 particles{0};
-    s32 particleCapacity{0};
-    f32 simulationMs{0.0f};
-};
-
-
-// ========================================================================== //
-
-
 class PreviewViewport final : public QOpenGLWidget, protected QOpenGLFunctions_2_0 {
     Q_OBJECT
 public:
+    static constexpr s32 cFramesPerSecond = 60;
+
     explicit PreviewViewport(QWidget* parent = nullptr);
     ~PreviewViewport() final;
 
@@ -72,6 +62,10 @@ public slots:
     void togglePlayback();
     void restart();
     void step();
+    void stepBackward();
+    void seekToFrame(s32 frame);
+    void beginScrub();
+    void endScrub();
     void setPlaybackSpeed(f32 speed);
     void setLooping(bool looping);
     void setProjection(ViewportCamera::ProjectionType type);
@@ -83,7 +77,7 @@ public slots:
 signals:
     void playbackStateChanged(bool playing);
     void frameChanged(s32 frame);
-    void statsChanged(const ViewportStats& stats);
+    void previewRangeChanged(s32 endFrame, bool infinite);
     void projectionChanged(bool orthographic);
     void gridVisibleChanged(bool visible);
     void loopingChanged(bool looping);
@@ -117,16 +111,26 @@ private:
 
     void onTick();
     void simulateFrame();
+    void advanceFrame();
+    void startPlaybackTimer();
+    void restorePlaybackState(bool wasPlaying);
     void refreshPreview();
+    bool beginRun();
     bool reloadCurrentSet();
-    void updateStats();
+    bool reloadPreview(bool newRun);
+    void updateRangeFromPendingRefresh();
+    void updatePreviewRangeFromSet();
+    void applyPreviewRange(s32 endFrame, bool infinite);
+    void noteFiniteEnd(s32 lastVisibleFrame);
+    void finishAtEnd(s32 lastVisibleFrame);
+    void trackVisibleFrame();
     void resetFpsWindow();
 
     const Ptcl::EmitterSet* currentEmitterSet() const;
 
+private:
     QTimer mTimer{};
     QTimer mRefreshTimer{};
-    QTimer mStatsTimer{};
     QTimer mViewTransitionTimer{};
     QElapsedTimer mViewTransitionElapsed{};
     ViewportCamera::Orientation mViewTransitionStart{};
@@ -135,7 +139,7 @@ private:
 
     std::unique_ptr<Ptcl::Engine::PtclSystem> mSystem{};
     Ptcl::Render::Renderer mRenderer{};
-    static constexpr qint64 cFrameIntervalNs = 1000000000LL / 60;
+    static constexpr qint64 cFrameIntervalNs = 1'000'000'000LL / cFramesPerSecond;
 
     QElapsedTimer mElapsedTimer{};
     QElapsedTimer mSimulationTimer{};
@@ -147,6 +151,11 @@ private:
     bool mLooping{true};
     f32 mPlaybackSpeed{1.0f};
     bool mHasEmitters{false};
+
+    u32 mRunSeed{0};
+    s32 mLastVisibleFrame{-1};
+    s32 mPreviewRangeFrames{0};
+    bool mPreviewRangeInfinite{false};
 
     const Ptcl::Document* mDocument{nullptr};
     s32 mSetIndex{-1};

@@ -1,7 +1,7 @@
 #include "editor/mainWindow.h"
 #include "editor/texture/textureImportDialog.h"
-#include "editor/viewport/viewportStatsBar.h"
-#include "editor/viewport/viewportToolbar.h"
+#include "editor/viewport/previewViewport.h"
+#include "editor/viewport/viewportPanel.h"
 #include "util/dialogUtil.h"
 #include "util/fileUtil.h"
 #include "util/settingsUtil.h"
@@ -17,6 +17,7 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QMimeData>
+#include <QMenuBar>
 #include <QMessageBox>
 #include <QStatusBar>
 
@@ -45,20 +46,11 @@ void MainWindow::setupUi() {
     mLeftSplitter->setStretchFactor(1, 0);
 
     // Middle Column: Viewport above Textures
-    mPreviewViewport = std::make_unique<PreviewViewport>();
-    mViewportToolbar = new ViewportToolbar(mPreviewViewport.get(), this);
-    auto* viewportStatsBar = new ViewportStatsBar(mPreviewViewport.get(), this);
-
-    auto* previewContainer = new QWidget(this);
-    auto* previewLayout = new QVBoxLayout(previewContainer);
-    previewLayout->setContentsMargins(0, 0, 0, 0);
-    previewLayout->setSpacing(0);
-    previewLayout->addWidget(mViewportToolbar);
-    previewLayout->addWidget(mPreviewViewport.get(), 1);
-    previewLayout->addWidget(viewportStatsBar);
+    mViewportPanel = std::make_unique<ViewportPanel>();
+    mPreviewViewport = mViewportPanel->viewport();
 
     mPreviewSplitter = new PanelSplitter(Qt::Vertical, this);
-    mPreviewSplitter->addWidget(previewContainer);
+    mPreviewSplitter->addWidget(mViewportPanel.get());
     mPreviewSplitter->addWidget(&mTexturePanel);
     mPreviewSplitter->setStretchFactor(0, 1);
     mPreviewSplitter->setStretchFactor(1, 0);
@@ -98,8 +90,7 @@ void MainWindow::setupUi() {
     mTexturePanel.setContentEnabled(false);
 
     // Preview Viewport
-    mPreviewViewport->setEnabled(false);
-    mViewportToolbar->setEnabled(false);
+    mViewportPanel->setEnabled(false);
     connect(&mSelection, &Ptcl::Selection::selectionChanged, this, &MainWindow::updatePreviewSet);
 
     setupMenus();
@@ -132,8 +123,6 @@ MainWindow::~MainWindow() {
     if (mDocument) {
         mDocument->undoStack()->disconnect(this);
     }
-
-    mPreviewViewport.release();
 }
 
 void MainWindow::setupMenus() {
@@ -477,8 +466,7 @@ void MainWindow::loadDocument(const QString& path) {
     mEmitterList.setDocument(nullptr);
     mInspector.setDocument(nullptr);
     mTextureWidget.setDocument(nullptr);
-    mPreviewViewport->setEnabled(false);
-    mViewportToolbar->setEnabled(false);
+    mViewportPanel->setEnabled(false);
     mPreviewViewport->clearPreview();
 
     mSaveAsAction.setEnabled(false);
@@ -539,8 +527,7 @@ void MainWindow::loadDocument(const QString& path) {
         }
     });
 
-    mPreviewViewport->setEnabled(true);
-    mViewportToolbar->setEnabled(true);
+    mViewportPanel->setEnabled(true);
 
     if (mDocument->emitterSetCount() != 0) {
         mSelection.set(0, 0, Ptcl::Selection::Type::EmitterSet);

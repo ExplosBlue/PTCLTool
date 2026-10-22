@@ -45,8 +45,10 @@ public:
     void calc();
 
     u32 nextEmitterSeed() { return mRandom.getU32(); }
+    void setRandomSeed(u32 seed) { mRandom.SetSeed(seed); }
     s32 frameIndex() const { return mFrameIndex; }
     bool isActive() const { return !mEmitters.empty(); }
+    bool hasVisibleDraw() const;
     s32 liveParticleCount() const;
     s32 particleCapacity() const { return mNumPtclData + mNumCompactPtclData; }
 

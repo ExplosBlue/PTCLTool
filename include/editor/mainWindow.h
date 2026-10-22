@@ -6,18 +6,12 @@
 #include "editor/inspector/inspectorPanel.h"
 #include "editor/emitterList/emitterList.h"
 #include "editor/texture/textureListWidget.h"
-#include "editor/viewport/previewViewport.h"
 
-#include <QGroupBox>
-#include <QHBoxLayout>
+#include <QAction>
 #include <QLabel>
 #include <QMainWindow>
 #include <QMenu>
-#include <QMenuBar>
-#include <QScrollArea>
-#include <QSplitter>
 #include <QUndoView>
-#include <QVBoxLayout>
 
 #include <memory>
 #include <vector>
@@ -29,7 +23,8 @@ namespace PtclTool {
 // ========================================================================== //
 
 
-class ViewportToolbar;
+class PreviewViewport;
+class ViewportPanel;
 
 
 // ========================================================================== //
@@ -115,8 +110,8 @@ private:
     PtclTool::EmitterList mEmitterList{};
     PtclTool::InspectorPanel mInspector{};
     PtclTool::TextureListWidget mTextureWidget{};
-    std::unique_ptr<PtclTool::PreviewViewport> mPreviewViewport{};
-    PtclTool::ViewportToolbar* mViewportToolbar{nullptr};
+    std::unique_ptr<PtclTool::ViewportPanel> mViewportPanel{};
+    PtclTool::PreviewViewport* mPreviewViewport{nullptr};
 
     QLabel* mStatusLabel{nullptr};
 };

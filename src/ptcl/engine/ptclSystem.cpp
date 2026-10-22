@@ -210,6 +210,10 @@ void PtclSystem::calc() {
     ++mFrameIndex;
 }
 
+bool PtclSystem::hasVisibleDraw() const {
+    return !mFrame.stripes.empty() || liveParticleCount() > 0;
+}
+
 s32 PtclSystem::liveParticleCount() const {
     s32 count = 0;
 

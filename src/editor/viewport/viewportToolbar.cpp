@@ -3,11 +3,9 @@
 #include "editor/viewport/previewViewport.h"
 
 #include <QAction>
-#include <QComboBox>
 #include <QMenu>
 #include <QSignalBlocker>
 #include <QSize>
-#include <QStyle>
 #include <QToolButton>
 
 
@@ -31,43 +29,6 @@ ViewportToolbar::ViewportToolbar(PreviewViewport* viewport, QWidget* parent) :
 }
 
 void ViewportToolbar::buildActions() {
-    mPlayPauseAction = addAction(style()->standardIcon(QStyle::SP_MediaPlay), "Play");
-    mPlayPauseAction->setToolTip("Play (Space)");
-    connect(mPlayPauseAction, &QAction::triggered, mViewport, &PreviewViewport::togglePlayback);
-
-    QAction* restartAction = addAction(style()->standardIcon(QStyle::SP_BrowserReload), "Restart");
-    restartAction->setToolTip("Restart (Shift+Left)");
-    connect(restartAction, &QAction::triggered, mViewport, &PreviewViewport::restart);
-
-    QAction* stepAction = addAction(style()->standardIcon(QStyle::SP_MediaSeekForward), "Step");
-    stepAction->setToolTip("Step one frame (Right)");
-    connect(stepAction, &QAction::triggered, mViewport, &PreviewViewport::step);
-
-    addSeparator();
-
-    mLoopButton = new QToolButton(this);
-    mLoopButton->setText("Loop");
-    mLoopButton->setCheckable(true);
-    mLoopButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
-    mLoopButton->setToolTip("Restart when the effect finishes");
-    connect(mLoopButton, &QToolButton::toggled, mViewport, &PreviewViewport::setLooping);
-    addWidget(mLoopButton);
-
-    mSpeedCombo = new QComboBox(this);
-    mSpeedCombo->setMinimumWidth(72);
-    mSpeedCombo->addItem("0.25x", 0.25f);
-    mSpeedCombo->addItem("0.5x", 0.5f);
-    mSpeedCombo->addItem("1x", 1.0f);
-    mSpeedCombo->addItem("2x", 2.0f);
-    mSpeedCombo->addItem("4x", 4.0f);
-    mSpeedCombo->setCurrentIndex(2);
-    connect(mSpeedCombo, &QComboBox::currentIndexChanged, this, [this](s32 index) {
-        mViewport->setPlaybackSpeed(mSpeedCombo->itemData(index).toFloat());
-    });
-    addWidget(mSpeedCombo);
-
-    addSeparator();
-
     auto* viewButton = new QToolButton(this);
     viewButton->setText("View");
     viewButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
@@ -112,13 +73,6 @@ void ViewportToolbar::buildActions() {
 }
 
 void ViewportToolbar::connectSignals() {
-    connect(mViewport, &PreviewViewport::playbackStateChanged, this, [this](bool playing) {
-        mPlayPauseAction->setIcon(style()->standardIcon(
-            playing ? QStyle::SP_MediaPause : QStyle::SP_MediaPlay
-        ));
-        mPlayPauseAction->setToolTip(playing ? "Pause (Space)" : "Play (Space)");
-    });
-
     connect(mViewport, &PreviewViewport::projectionChanged, this, [this](bool orthographic) {
         mProjectionButton->setText(orthographic ? "Orthographic" : "Perspective");
     });
@@ -127,31 +81,13 @@ void ViewportToolbar::connectSignals() {
         const QSignalBlocker blocker(mGridAction);
         mGridAction->setChecked(visible);
     });
-
-    connect(mViewport, &PreviewViewport::loopingChanged, this, [this](bool looping) {
-        const QSignalBlocker blocker(mLoopButton);
-        mLoopButton->setChecked(looping);
-    });
 }
 
 void ViewportToolbar::syncFromViewport() {
-    const bool playing = mViewport->isPlaying();
-    mPlayPauseAction->setIcon(style()->standardIcon(
-        playing ? QStyle::SP_MediaPause : QStyle::SP_MediaPlay
-    ));
-    mPlayPauseAction->setToolTip(playing ? "Pause (Space)" : "Play (Space)");
-
-    mLoopButton->setChecked(mViewport->isLooping());
     mGridAction->setChecked(mViewport->isGridVisible());
     mProjectionButton->setText(
         mViewport->projection() == ViewportCamera::ProjectionType::Orthographic ? "Orthographic" : "Perspective"
     );
-
-    const QSignalBlocker blocker(mSpeedCombo);
-    const s32 speedIndex = mSpeedCombo->findData(mViewport->playbackSpeed());
-    if (speedIndex >= 0) {
-        mSpeedCombo->setCurrentIndex(speedIndex);
-    }
 }
 
 

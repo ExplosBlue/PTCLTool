@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <numbers>
 
 
@@ -46,6 +47,56 @@ void main() {
 
 constexpr qint64 cViewTransitionDurationNs = 240'000'000LL;
 constexpr s32 cViewTransitionIntervalMs = 16;
+
+
+constexpr s32 cInfiniteFrame = std::numeric_limits<s32>::max();
+constexpr s32 cInfinitePreviewFrames = 10 * PreviewViewport::cFramesPerSecond;
+constexpr s32 cMaxFinitePreviewFrames = 60 * PreviewViewport::cFramesPerSecond;
+constexpr s64 cPreviewRangePadding = 2;
+
+struct PreviewRange {
+    s32 endFrame{0};
+    bool infinite{false};
+};
+
+PreviewRange estimatePreviewRange(const Ptcl::EmitterSet& set) {
+    if (set.emitterCount() == 0) {
+        return {};
+    }
+
+    s64 maxFrames = 1;
+    for (const auto& emitter : set.emitters()) {
+        if (emitter == nullptr) {
+            continue;
+        }
+
+        const s32 emitEnd = emitter->emitEndFrame();
+        const s32 life = emitter->ptclLife();
+
+        if (emitEnd >= cInfiniteFrame || life >= cInfiniteFrame) {
+            return { cInfinitePreviewFrames, true };
+        }
+
+        s64 frames = std::max<s64>(1, emitEnd) + std::max<s64>(0, life);
+
+        if (emitter->isChildEnabled()) {
+            const s32 childLife = emitter->childLife();
+            if (childLife >= cInfiniteFrame) {
+                return { cInfinitePreviewFrames, true };
+            }
+            frames += std::max<s64>(0, childLife);
+        }
+
+        frames += cPreviewRangePadding;
+        maxFrames = std::max(maxFrames, frames);
+    }
+
+    if (maxFrames > cMaxFinitePreviewFrames) {
+        return { cInfinitePreviewFrames, true };
+    }
+
+    return { static_cast<s32>(maxFrames), false };
+}
 
 
 } // namespace
@@ -92,10 +143,6 @@ PreviewViewport::PreviewViewport(QWidget* parent) :
     mViewTransitionTimer.setInterval(cViewTransitionIntervalMs);
     connect(&mViewTransitionTimer, &QTimer::timeout, this, &PreviewViewport::onViewTransitionTick);
 
-    mStatsTimer.setInterval(250);
-    connect(&mStatsTimer, &QTimer::timeout, this, &PreviewViewport::updateStats);
-    mStatsTimer.start();
-
     const auto addShortcut = [this](const QKeySequence& key, auto slot) {
         auto* shortcut = new QShortcut(key, this);
         shortcut->setContext(Qt::WidgetWithChildrenShortcut);
@@ -108,6 +155,7 @@ PreviewViewport::PreviewViewport(QWidget* parent) :
 
     addShortcut(QKeySequence(Qt::Key_Space), &PreviewViewport::togglePlayback);
     addShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Left), &PreviewViewport::restart);
+    addShortcut(QKeySequence(Qt::Key_Left), &PreviewViewport::stepBackward);
     addShortcut(QKeySequence(Qt::Key_Right), &PreviewViewport::step);
 
     addShortcut(numpad(Qt::Key_1), [this] {
@@ -143,7 +191,6 @@ PreviewViewport::PreviewViewport(QWidget* parent) :
 PreviewViewport::~PreviewViewport() {
     mTimer.stop();
     mRefreshTimer.stop();
-    mStatsTimer.stop();
     mViewTransitionTimer.stop();
     if (QOpenGLContext* glContext = context(); glContext != nullptr && glContext->isValid()) {
         makeCurrent();
@@ -181,28 +228,22 @@ void PreviewViewport::setPreview(const Ptcl::Document* document, const Ptcl::Sel
     }
 
     mRefreshTimer.stop();
+    updatePreviewRangeFromSet();
 
-    if (!reloadCurrentSet()) {
+    if (!reloadPreview(true)) {
         clearPreview();
         return;
     }
 
-    simulateFrame();
-
-    if (!hadPreview || wasPlaying) {
-        if (!mIsPlaying) {
+    if (!hadPreview) {
+        if (mHasEmitters && mSystem->isActive()) {
             play();
-        } else {
-            mLastTickNs = mElapsedTimer.nsecsElapsed();
-            mSimulationAccumulatorNs = 0;
-            mTimer.start();
         }
     } else {
-        mTimer.stop();
+        restorePlaybackState(wasPlaying);
     }
 
     update();
-    updateStats();
 }
 
 void PreviewViewport::clearPreview() {
@@ -216,6 +257,8 @@ void PreviewViewport::clearPreview() {
     mEmitterIndex = -1;
     mSelectionType = Ptcl::Selection::Type::None;
     mHasEmitters = false;
+    mRunSeed = 0;
+    mLastVisibleFrame = -1;
     mSimulationAccumulatorNs = 0;
     mLastTickNs = 0;
     mSimulationMs = 0.0f;
@@ -223,30 +266,28 @@ void PreviewViewport::clearPreview() {
     resetFpsWindow();
 
     mSystem->reset();
+    applyPreviewRange(0, false);
 
     emit playbackStateChanged(false);
     emit frameChanged(0);
-    updateStats();
     update();
 }
 
 void PreviewViewport::refreshPreview() {
-    if (!reloadCurrentSet()) {
-        clearPreview();
+    if (mDocument == nullptr) {
         return;
     }
 
     const bool wasPlaying = mIsPlaying;
-    simulateFrame();
+    mRefreshTimer.stop();
+    updatePreviewRangeFromSet();
 
-    if (wasPlaying) {
-        mLastTickNs = mElapsedTimer.nsecsElapsed();
-        mSimulationAccumulatorNs = 0;
-        mTimer.start();
-    } else {
-        mTimer.stop();
+    if (!reloadPreview(false)) {
+        clearPreview();
+        return;
     }
 
+    restorePlaybackState(wasPlaying);
     update();
 }
 
@@ -257,15 +298,30 @@ void PreviewViewport::scheduleRefresh() {
 }
 
 void PreviewViewport::play() {
-    if (mIsPlaying || mDocument == nullptr) {
+    if (mIsPlaying || mDocument == nullptr || !mHasEmitters) {
         return;
     }
 
+    const bool atRangeEnd = mPreviewRangeFrames > 0
+        && mSystem->frameIndex() >= mPreviewRangeFrames;
+    const bool inactive = !mSystem->isActive();
+
+    if (atRangeEnd || inactive) {
+        updateRangeFromPendingRefresh();
+
+        if (!reloadPreview(true)) {
+            clearPreview();
+            return;
+        }
+
+        if (!mSystem->isActive()) {
+            return;
+        }
+    }
+
     mIsPlaying = true;
-    mLastTickNs = mElapsedTimer.nsecsElapsed();
-    mSimulationAccumulatorNs = 0;
     resetFpsWindow();
-    mTimer.start();
+    startPlaybackTimer();
 
     emit playbackStateChanged(true);
 }
@@ -291,8 +347,20 @@ void PreviewViewport::togglePlayback() {
 }
 
 void PreviewViewport::restart() {
-    mRefreshTimer.stop();
-    refreshPreview();
+    if (mDocument == nullptr) {
+        return;
+    }
+
+    updateRangeFromPendingRefresh();
+
+    const bool wasPlaying = mIsPlaying;
+
+    if (!reloadPreview(true)) {
+        clearPreview();
+        return;
+    }
+
+    restorePlaybackState(wasPlaying);
 }
 
 void PreviewViewport::step() {
@@ -304,7 +372,100 @@ void PreviewViewport::step() {
         pause();
     }
 
+    if (!mLooping
+        && mPreviewRangeFrames > 0
+        && mSystem->frameIndex() >= mPreviewRangeFrames) {
+        return;
+    }
+
     simulateFrame();
+}
+
+void PreviewViewport::stepBackward() {
+    if (mDocument == nullptr) {
+        return;
+    }
+
+    if (mIsPlaying) {
+        pause();
+    }
+
+    const s32 frame = mSystem->frameIndex();
+    if (frame <= 0) {
+        return;
+    }
+
+    seekToFrame(frame - 1);
+}
+
+void PreviewViewport::seekToFrame(s32 frame) {
+    if (mDocument == nullptr || mPreviewRangeFrames <= 0) {
+        return;
+    }
+
+    if (mIsPlaying) {
+        pause();
+    }
+
+    frame = std::clamp(frame, 0, mPreviewRangeFrames);
+
+    const s32 currentFrame = mSystem->frameIndex();
+    const bool active = mSystem->isActive();
+    if (frame == currentFrame && active) {
+        return;
+    }
+
+    if (frame < currentFrame || !active) {
+        if (!reloadCurrentSet()) {
+            clearPreview();
+            return;
+        }
+    }
+
+    const s32 fromFrame = mSystem->frameIndex();
+    if (frame > fromFrame) {
+        mSimulationTimer.restart();
+        for (s32 i = fromFrame; i < frame && mSystem->isActive(); ++i) {
+            mSystem->calc();
+            trackVisibleFrame();
+        }
+
+        const s32 simulatedFrames = mSystem->frameIndex() - fromFrame;
+        if (simulatedFrames > 0) {
+            const f32 elapsedMs = static_cast<f32>(mSimulationTimer.nsecsElapsed())  / 1'000'000.0f;
+            mSimulationMs = elapsedMs / static_cast<f32>(simulatedFrames);
+        }
+    }
+
+    if (mHasEmitters && !mSystem->isActive()) {
+        const s32 lastVisibleFrame = std::max<s32>(0, mLastVisibleFrame);
+        noteFiniteEnd(lastVisibleFrame);
+        seekToFrame(lastVisibleFrame);
+        return;
+    }
+
+    mSimulationAccumulatorNs = 0;
+    mLastTickNs = mElapsedTimer.nsecsElapsed();
+
+    emit frameChanged(mSystem->frameIndex());
+    update();
+}
+
+void PreviewViewport::beginScrub() {
+    if (mDocument == nullptr) {
+        return;
+    }
+
+    pause();
+
+    if (mRefreshTimer.isActive()) {
+        refreshPreview();
+    }
+}
+
+void PreviewViewport::endScrub() {
+    mLastTickNs = mElapsedTimer.nsecsElapsed();
+    mSimulationAccumulatorNs = 0;
 }
 
 void PreviewViewport::setPlaybackSpeed(f32 speed) {
@@ -472,9 +633,11 @@ void PreviewViewport::onTick() {
 
     s32 steps = 0;
     constexpr s32 cMaxSteps = 8;
-    while (mSimulationAccumulatorNs >= frameInterval && steps < cMaxSteps) {
-        simulateFrame();
+    while (mIsPlaying
+        && mSimulationAccumulatorNs >= frameInterval
+        && steps < cMaxSteps) {
         mSimulationAccumulatorNs -= frameInterval;
+        simulateFrame();
         ++steps;
     }
 
@@ -483,28 +646,98 @@ void PreviewViewport::onTick() {
     }
 }
 
+void PreviewViewport::advanceFrame() {
+    mSimulationTimer.restart();
+    mSystem->calc();
+    mSimulationMs = static_cast<f32>(mSimulationTimer.nsecsElapsed()) / 1'000'000.0f;
+    trackVisibleFrame();
+}
+
 void PreviewViewport::simulateFrame() {
     if (mDocument == nullptr) {
         return;
     }
 
-    mSimulationTimer.restart();
-    mSystem->calc();
-    mSimulationMs = static_cast<f32>(mSimulationTimer.nsecsElapsed()) / 1'000'000.0f;
-
-    if (mLooping && mHasEmitters && !mSystem->isActive()) {
-        if (!reloadCurrentSet()) {
-            clearPreview();
+    if (mPreviewRangeInfinite && (mPreviewRangeFrames > 0) && (mSystem->frameIndex() >= mPreviewRangeFrames)) {
+        if (!mLooping) {
+            pause();
             return;
         }
 
-        mSimulationTimer.restart();
-        mSystem->calc();
-        mSimulationMs = static_cast<f32>(mSimulationTimer.nsecsElapsed()) / 1'000'000.0f;
+        if (!beginRun()) {
+            clearPreview();
+            return;
+        }
+    }
+
+    advanceFrame();
+
+    if (mHasEmitters && !mSystem->isActive()) {
+        const s32 lastVisibleFrame = std::max<s32>(0, mLastVisibleFrame);
+        noteFiniteEnd(lastVisibleFrame);
+
+        if (mLooping) {
+            if (!beginRun()) {
+                clearPreview();
+                return;
+            }
+
+            advanceFrame();
+        } else {
+            finishAtEnd(lastVisibleFrame);
+            return;
+        }
     }
 
     emit frameChanged(mSystem->frameIndex());
     update();
+}
+
+void PreviewViewport::startPlaybackTimer() {
+    mLastTickNs = mElapsedTimer.nsecsElapsed();
+    mSimulationAccumulatorNs = 0;
+    mTimer.start();
+}
+
+void PreviewViewport::restorePlaybackState(bool wasPlaying) {
+    if (wasPlaying && mIsPlaying) {
+        startPlaybackTimer();
+    } else {
+        mTimer.stop();
+    }
+}
+
+bool PreviewViewport::reloadPreview(bool newRun) {
+    const bool loaded = newRun ? beginRun() : reloadCurrentSet();
+    if (!loaded) {
+        return false;
+    }
+
+    simulateFrame();
+
+    if (!mHasEmitters && mIsPlaying) {
+        pause();
+    }
+
+    return true;
+}
+
+void PreviewViewport::updateRangeFromPendingRefresh() {
+    if (!mRefreshTimer.isActive()) {
+        return;
+    }
+
+    mRefreshTimer.stop();
+    updatePreviewRangeFromSet();
+}
+
+bool PreviewViewport::beginRun() {
+    if (mDocument == nullptr) {
+        return false;
+    }
+
+    mRunSeed = mSystem->nextEmitterSeed();
+    return reloadCurrentSet();
 }
 
 bool PreviewViewport::reloadCurrentSet() {
@@ -514,8 +747,10 @@ bool PreviewViewport::reloadCurrentSet() {
         return false;
     }
 
+    mSystem->setRandomSeed(mRunSeed);
     mSystem->setEmitterSet(*set);
     mHasEmitters = set->emitterCount() > 0;
+    mLastVisibleFrame = -1;
     mSimulationAccumulatorNs = 0;
     mLastTickNs = mElapsedTimer.nsecsElapsed();
     mSimulationMs = 0.0f;
@@ -523,15 +758,48 @@ bool PreviewViewport::reloadCurrentSet() {
     return true;
 }
 
-void PreviewViewport::updateStats() {
-    ViewportStats stats{};
-    stats.active = (mDocument != nullptr);
-    stats.fps = mFps;
-    stats.particles = mSystem->liveParticleCount();
-    stats.particleCapacity = mSystem->particleCapacity();
-    stats.simulationMs = mSimulationMs;
+void PreviewViewport::updatePreviewRangeFromSet() {
+    const Ptcl::EmitterSet* set = currentEmitterSet();
+    if (set == nullptr) {
+        applyPreviewRange(0, false);
+        return;
+    }
 
-    emit statsChanged(stats);
+    const PreviewRange range = estimatePreviewRange(*set);
+    applyPreviewRange(range.endFrame, range.infinite);
+}
+
+void PreviewViewport::applyPreviewRange(s32 endFrame, bool infinite) {
+    endFrame = std::max<s32>(0, endFrame);
+    if (mPreviewRangeFrames == endFrame && mPreviewRangeInfinite == infinite) {
+        return;
+    }
+
+    mPreviewRangeFrames = endFrame;
+    mPreviewRangeInfinite = infinite;
+    emit previewRangeChanged(endFrame, infinite);
+}
+
+void PreviewViewport::trackVisibleFrame() {
+    if (mSystem->hasVisibleDraw()) {
+        mLastVisibleFrame = mSystem->frameIndex();
+    }
+}
+
+void PreviewViewport::noteFiniteEnd(s32 lastVisibleFrame) {
+    applyPreviewRange(std::max<s32>(1, lastVisibleFrame), false);
+}
+
+void PreviewViewport::finishAtEnd(s32 lastVisibleFrame) {
+    pause();
+
+    if (lastVisibleFrame >= 0 && lastVisibleFrame < mSystem->frameIndex()) {
+        seekToFrame(lastVisibleFrame);
+        return;
+    }
+
+    emit frameChanged(mSystem->frameIndex());
+    update();
 }
 
 void PreviewViewport::resetFpsWindow() {
@@ -672,6 +940,16 @@ void PreviewViewport::drawViewContext(QPainter& painter) {
         const s32 availableWidth = std::max(0, gizmoLeft - cLeft - 12);
         const QString elidedContext = metrics.elidedText(context, Qt::ElideRight, availableWidth);
         drawShadowedText(elidedContext, cLeft, baseline, QColor(205, 205, 210, 220));
+        baseline += metrics.height() + 1;
+    }
+
+    if (mDocument != nullptr) {
+        const QString statsText = QStringLiteral("%1/%2 particles  ·  %3 fps  ·  %4 ms")
+            .arg(mSystem->liveParticleCount())
+            .arg(mSystem->particleCapacity())
+            .arg(mFps, 0, 'f', 0)
+            .arg(mSimulationMs, 0, 'f', 1);
+        drawShadowedText(statsText, cLeft, baseline, QColor(180, 198, 208, 210));
     }
 }
 

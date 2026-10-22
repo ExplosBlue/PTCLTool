@@ -62,7 +62,7 @@ ViewportStatsBar::ViewportStatsBar(PreviewViewport* viewport, QWidget* parent) :
     mSimulationLabel = createStatLabel(this, "— ms", "Simulation time per frame");
 
     setStatWidth(mPlaybackLabel, "No preview");
-    setStatWidth(mFrameLabel, "Frame 9999999");
+    setStatWidth(mFrameLabel, "Frame 9999 / 9999 ∞");
     setStatWidth(mFpsLabel, "9999 fps");
     setStatWidth(mParticlesLabel, "9999/9999 particles");
     setStatWidth(mSimulationLabel, "9999.9 ms");
@@ -81,30 +81,63 @@ ViewportStatsBar::ViewportStatsBar(PreviewViewport* viewport, QWidget* parent) :
 
     connect(mViewport, &PreviewViewport::statsChanged, this, &ViewportStatsBar::updateStats);
     connect(mViewport, &PreviewViewport::frameChanged, this, [this](s32 frame) {
-        mFrameLabel->setText(QStringLiteral("Frame %1").arg(frame));
+        mCurrentFrame = frame;
+        updateFrameLabel();
     });
+    connect(mViewport, &PreviewViewport::previewRangeChanged, this, [this](s32 endFrame, bool infinite) {
+            mTotalFrames = endFrame;
+            mInfiniteRange = infinite;
+            mHasPreview = (endFrame > 0);
+            if (!mHasPreview) {
+                mPlaybackLabel->setText("No preview");
+            }
+            updateFrameLabel();
+        }
+    );
     connect(mViewport, &PreviewViewport::playbackStateChanged, this, &ViewportStatsBar::updatePlaybackState);
 }
 
 void ViewportStatsBar::updateStats(const ViewportStats& stats) {
-    mHasPreview = stats.active;
-
     if (!stats.active) {
+        mHasPreview = false;
+        mCurrentFrame = 0;
+        mTotalFrames = 0;
+        mInfiniteRange = false;
         mPlaybackLabel->setText("No preview");
-        mFrameLabel->setText("Frame —");
+        updateFrameLabel();
         mFpsLabel->setText("— fps");
         mParticlesLabel->setText("— particles");
         mSimulationLabel->setText("— ms");
         return;
     }
 
+    mHasPreview = mTotalFrames > 0;
     updatePlaybackState(mViewport->isPlaying());
+    updateFrameLabel();
 
     mFpsLabel->setText(QStringLiteral("%1 fps").arg(stats.fps, 0, 'f', 0));
     mParticlesLabel->setText(QStringLiteral("%1/%2 particles")
         .arg(stats.particles)
         .arg(stats.particleCapacity));
     mSimulationLabel->setText(QStringLiteral("%1 ms").arg(stats.simulationMs, 0, 'f', 1));
+}
+
+void ViewportStatsBar::updateFrameLabel() {
+    if (!mHasPreview) {
+        mFrameLabel->setText("Frame —");
+        return;
+    }
+
+    if (mTotalFrames > 0) {
+        mFrameLabel->setText(QStringLiteral("Frame %1 / %2%3")
+            .arg(mCurrentFrame)
+            .arg(mTotalFrames)
+            .arg(mInfiniteRange ? QStringLiteral(" ∞") : QString())
+        );
+        return;
+    }
+
+    mFrameLabel->setText(QStringLiteral("Frame %1").arg(mCurrentFrame));
 }
 
 void ViewportStatsBar::updatePlaybackState(bool playing) {

@@ -7,7 +7,6 @@
 
 
 class QAction;
-class QComboBox;
 class QToolButton;
 
 
@@ -32,13 +31,8 @@ private:
 
     PreviewViewport* mViewport{nullptr};
 
-    QAction* mPlayPauseAction{nullptr};
-
-    QToolButton* mLoopButton{nullptr};
     QToolButton* mProjectionButton{nullptr};
-
     QAction* mGridAction{nullptr};
-    QComboBox* mSpeedCombo{nullptr};
 };
 
 
