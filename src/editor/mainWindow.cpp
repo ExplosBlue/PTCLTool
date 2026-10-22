@@ -1,5 +1,7 @@
 #include "editor/mainWindow.h"
 #include "editor/texture/textureImportDialog.h"
+#include "editor/viewport/viewportStatsBar.h"
+#include "editor/viewport/viewportToolbar.h"
 #include "util/dialogUtil.h"
 #include "util/fileUtil.h"
 #include "util/settingsUtil.h"
@@ -44,8 +46,19 @@ void MainWindow::setupUi() {
 
     // Middle Column: Viewport above Textures
     mPreviewViewport = std::make_unique<PreviewViewport>();
+    mViewportToolbar = new ViewportToolbar(mPreviewViewport.get(), this);
+    auto* viewportStatsBar = new ViewportStatsBar(mPreviewViewport.get(), this);
+
+    auto* previewContainer = new QWidget(this);
+    auto* previewLayout = new QVBoxLayout(previewContainer);
+    previewLayout->setContentsMargins(0, 0, 0, 0);
+    previewLayout->setSpacing(0);
+    previewLayout->addWidget(mViewportToolbar);
+    previewLayout->addWidget(mPreviewViewport.get(), 1);
+    previewLayout->addWidget(viewportStatsBar);
+
     mPreviewSplitter = new PanelSplitter(Qt::Vertical, this);
-    mPreviewSplitter->addWidget(mPreviewViewport.get());
+    mPreviewSplitter->addWidget(previewContainer);
     mPreviewSplitter->addWidget(&mTexturePanel);
     mPreviewSplitter->setStretchFactor(0, 1);
     mPreviewSplitter->setStretchFactor(1, 0);
@@ -86,6 +99,7 @@ void MainWindow::setupUi() {
 
     // Preview Viewport
     mPreviewViewport->setEnabled(false);
+    mViewportToolbar->setEnabled(false);
     connect(&mSelection, &Ptcl::Selection::selectionChanged, this, &MainWindow::updatePreviewSet);
 
     setupMenus();
@@ -464,6 +478,7 @@ void MainWindow::loadDocument(const QString& path) {
     mInspector.setDocument(nullptr);
     mTextureWidget.setDocument(nullptr);
     mPreviewViewport->setEnabled(false);
+    mViewportToolbar->setEnabled(false);
     mPreviewViewport->clearPreview();
 
     mSaveAsAction.setEnabled(false);
@@ -502,13 +517,27 @@ void MainWindow::loadDocument(const QString& path) {
     connect(mDocument.get(), &Ptcl::Document::importReportReady, this, &MainWindow::showSanitizeWarningDialog);
     connect(mDocument.get(), &Ptcl::Document::emitterChanged, this,
         [this](s32 setIndex, s32) {
-            if (mSelection.type() == Ptcl::Selection::Type::EmitterSet
-                && mSelection.emitterSetIndex() == setIndex) {
-                updatePreviewSet(setIndex);
+            if (mSelection.emitterSetIndex() == setIndex) {
+                mPreviewViewport->scheduleRefresh();
+            }
+        });
+
+    connect(mDocument.get(), &Ptcl::Document::emitterAdded, this,
+        [this](s32 setIndex, s32) {
+            if (mSelection.emitterSetIndex() == setIndex) {
+                mPreviewViewport->scheduleRefresh();
+            }
+        });
+
+    connect(mDocument.get(), &Ptcl::Document::emitterRemoved, this,
+        [this](s32 setIndex, s32) {
+            if (mSelection.emitterSetIndex() == setIndex) {
+                mPreviewViewport->scheduleRefresh();
             }
         });
 
     mPreviewViewport->setEnabled(true);
+    mViewportToolbar->setEnabled(true);
 
     if (mDocument->emitterSetCount() != 0) {
         mSelection.set(0, 0, Ptcl::Selection::Type::EmitterSet);

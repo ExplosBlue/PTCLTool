@@ -95,6 +95,8 @@ set(PROJECT_SOURCES
     src/editor/viewport/previewViewport.cpp
     src/editor/viewport/viewportCamera.cpp
     src/editor/viewport/viewportGrid.cpp
+    src/editor/viewport/viewportStatsBar.cpp
+    src/editor/viewport/viewportToolbar.cpp
     src/math/quaternion.cpp
     src/math/sinCosIdx.cpp
     src/math/vector.cpp
@@ -205,6 +207,8 @@ set(PROJECT_HEADERS
     include/editor/viewport/previewViewport.h
     include/editor/viewport/viewportCamera.h
     include/editor/viewport/viewportGrid.h
+    include/editor/viewport/viewportStatsBar.h
+    include/editor/viewport/viewportToolbar.h
     include/gfx/camera.h
     include/gfx/color.h
     include/gfx/glGeometry.h

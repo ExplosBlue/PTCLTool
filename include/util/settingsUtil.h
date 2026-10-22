@@ -46,6 +46,18 @@ void setWindowState(const QByteArray& state);
 QList<QByteArray> splitterStates();
 void setSplitterStates(const QList<QByteArray>& states);
 
+bool viewportOrthographic();
+void setViewportOrthographic(bool orthographic);
+
+bool viewportGridVisible();
+void setViewportGridVisible(bool visible);
+
+f32 viewportPlaybackSpeed();
+void setViewportPlaybackSpeed(f32 speed);
+
+bool viewportLooping();
+void setViewportLooping(bool looping);
+
 
 // ========================================================================== //
 

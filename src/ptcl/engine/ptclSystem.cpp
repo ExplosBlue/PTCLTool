@@ -153,6 +153,7 @@ void PtclSystem::reset() {
     mCurPtclIx = 0;
     mCompactCurPtclIx = 0;
     mCurStripeIx = 0;
+    mFrameIndex = 0;
     for (auto& ptcl : mPtcls) {
         ptcl.res = nullptr;
         ptcl.stripe = nullptr;
@@ -205,6 +206,22 @@ void PtclSystem::calc() {
             EmitterCalc::calc(*emitter, mFrame);
         }
     }
+
+    ++mFrameIndex;
+}
+
+s32 PtclSystem::liveParticleCount() const {
+    s32 count = 0;
+
+    for (const auto& batch : mFrame.batches) {
+        count += static_cast<s32>(batch.particles.size());
+    }
+
+    for (const auto& batch : mFrame.compactBatches) {
+        count += static_cast<s32>(batch.particles.size());
+    }
+
+    return count;
 }
 
 

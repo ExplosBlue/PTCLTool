@@ -118,6 +118,38 @@ void setSplitterStates(const QList<QByteArray>& states) {
     settings().setValue("splitterStates", values);
 }
 
+bool viewportOrthographic() {
+    return settings().value("viewport/orthographic", true).toBool();
+}
+
+void setViewportOrthographic(bool orthographic) {
+    settings().setValue("viewport/orthographic", orthographic);
+}
+
+bool viewportGridVisible() {
+    return settings().value("viewport/gridVisible", true).toBool();
+}
+
+void setViewportGridVisible(bool visible) {
+    settings().setValue("viewport/gridVisible", visible);
+}
+
+f32 viewportPlaybackSpeed() {
+    return settings().value("viewport/playbackSpeed", 1.0f).toFloat();
+}
+
+void setViewportPlaybackSpeed(f32 speed) {
+    settings().setValue("viewport/playbackSpeed", speed);
+}
+
+bool viewportLooping() {
+    return settings().value("viewport/looping", true).toBool();
+}
+
+void setViewportLooping(bool looping) {
+    settings().setValue("viewport/looping", looping);
+}
+
 
 // ========================================================================== //
 

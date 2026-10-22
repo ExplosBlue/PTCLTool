@@ -29,6 +29,12 @@ namespace PtclTool {
 // ========================================================================== //
 
 
+class ViewportToolbar;
+
+
+// ========================================================================== //
+
+
 class MainWindow final : public QMainWindow {
     Q_OBJECT
 public:
@@ -110,6 +116,7 @@ private:
     PtclTool::InspectorPanel mInspector{};
     PtclTool::TextureListWidget mTextureWidget{};
     std::unique_ptr<PtclTool::PreviewViewport> mPreviewViewport{};
+    PtclTool::ViewportToolbar* mViewportToolbar{nullptr};
 
     QLabel* mStatusLabel{nullptr};
 };

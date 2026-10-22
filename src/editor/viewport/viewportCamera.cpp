@@ -1,5 +1,6 @@
 #include "editor/viewport/viewportCamera.h"
 
+#include <algorithm>
 #include <cmath>
 
 
@@ -16,6 +17,7 @@ static constexpr f32 cFar = 2000.0f;
 static constexpr f32 cZoomMin = 0.1f;
 static constexpr f32 cZoomMax = 10.0f;
 static constexpr f32 cZoomExponent = 1.1f;
+static constexpr f32 cPitchLimit = std::numbers::pi_v<f32> * 0.5f - 0.001f;
 
 static Math::Matrix44f makePerspective(f32 fovYRadians, f32 aspect, f32 nearZ, f32 farZ) {
     const f32 focal = 1.0f / std::tan(fovYRadians * 0.5f);
@@ -156,9 +158,57 @@ void ViewportCamera::setProjectionType(ProjectionType type) {
     invalidate();
 }
 
-void ViewportCamera::orbit(QPoint delta) {
+void ViewportCamera::setViewDirection(ViewDirection direction) {
+    constexpr f32 halfPi = std::numbers::pi_v<f32> * 0.5f;
+
+    switch (direction) {
+    case ViewDirection::Front:
+        mYaw = std::numbers::pi_v<f32>;
+        mPitch = 0.0f;
+        break;
+    case ViewDirection::Back:
+        mYaw = 0.0f;
+        mPitch = 0.0f;
+        break;
+    case ViewDirection::Left:
+        mYaw = -halfPi;
+        mPitch = 0.0f;
+        break;
+    case ViewDirection::Right:
+        mYaw = halfPi;
+        mPitch = 0.0f;
+        break;
+    case ViewDirection::Top:
+        mYaw = std::numbers::pi_v<f32>;
+        mPitch = cPitchLimit;
+        break;
+    case ViewDirection::Bottom:
+        mYaw = std::numbers::pi_v<f32>;
+        mPitch = -cPitchLimit;
+        break;
+    }
+
+    invalidate();
+}
+
+void ViewportCamera::reset() {
+    mZoom = 1.0f;
+    mYaw = std::numbers::pi_v<f32>;
+    mPitch = 0.0f;
+    mTarget = {};
+    invalidate();
+}
+
+void ViewportCamera::orbit(QPoint delta, bool snap) {
     mYaw -= static_cast<f32>(delta.x()) * 0.01f;
-    mPitch = qBound(-1.55f, mPitch + static_cast<f32>(delta.y()) * 0.01f, 1.55f);
+    mPitch = qBound(-cPitchLimit, mPitch + static_cast<f32>(delta.y()) * 0.01f, cPitchLimit);
+
+    if (snap) {
+        constexpr f32 snapStep = std::numbers::pi_v<f32> * 0.25f;
+        mYaw = std::round(mYaw / snapStep) * snapStep;
+        mPitch = std::clamp(std::round(mPitch / snapStep) * snapStep, -cPitchLimit, cPitchLimit);
+    }
+
     invalidate();
 }
 

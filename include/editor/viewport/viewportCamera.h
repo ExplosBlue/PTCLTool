@@ -22,13 +22,26 @@ public:
         Orthographic,
     };
 
+    enum class ViewDirection {
+        Front,
+        Back,
+        Left,
+        Right,
+        Top,
+        Bottom,
+    };
+
     const Math::Matrix44f& viewProjection() const override;
     const Gfx::ViewBasis& viewBasis() const override;
 
     void setViewportSize(s32 width, s32 height);
     void setProjectionType(ProjectionType type);
+    ProjectionType projectionType() const { return mProjectionType; }
 
-    void orbit(QPoint delta);
+    void setViewDirection(ViewDirection direction);
+    void reset();
+
+    void orbit(QPoint delta, bool snap);
     void pan(QPoint delta);
     void zoom(f32 delta);
 

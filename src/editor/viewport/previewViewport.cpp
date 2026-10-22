@@ -2,11 +2,17 @@
 
 #include "gfx/glGeometry.h"
 #include "ptcl/ptclDocument.h"
+#include "util/settingsUtil.h"
 
 #include <QDebug>
+#include <QKeySequence>
+#include <QMouseEvent>
 #include <QOpenGLContext>
+#include <QShortcut>
 #include <QSurfaceFormat>
 #include <QWheelEvent>
+
+#include <algorithm>
 
 
 namespace PtclTool {
@@ -46,16 +52,79 @@ PreviewViewport::PreviewViewport(QWidget* parent) :
         .regularParticleCapacity = 256,
         .compactParticleCapacity = 1024,
     });
-    mCamera.setProjectionType(ViewportCamera::ProjectionType::Orthographic);
+    mCamera.setProjectionType(SettingsUtil::viewportOrthographic()
+        ? ViewportCamera::ProjectionType::Orthographic
+        : ViewportCamera::ProjectionType::Perspective
+    );
+    mGridVisible = SettingsUtil::viewportGridVisible();
+    mPlaybackSpeed = std::clamp(SettingsUtil::viewportPlaybackSpeed(), 0.1f, 4.0f);
+    mLooping = SettingsUtil::viewportLooping();
 
     setMinimumSize(320, 240);
+    setFocusPolicy(Qt::StrongFocus);
+
+    mElapsedTimer.start();
+
     mTimer.setTimerType(Qt::PreciseTimer);
     mTimer.setInterval(1);
-    connect(&mTimer, &QTimer::timeout, this, &PreviewViewport::stepFrame);
+    connect(&mTimer, &QTimer::timeout, this, &PreviewViewport::onTick);
+
+    mRefreshTimer.setSingleShot(true);
+    mRefreshTimer.setInterval(120);
+    connect(&mRefreshTimer, &QTimer::timeout, this, &PreviewViewport::refreshPreview);
+
+    mStatsTimer.setInterval(250);
+    connect(&mStatsTimer, &QTimer::timeout, this, &PreviewViewport::updateStats);
+    mStatsTimer.start();
+
+    const auto addShortcut = [this](const QKeySequence& key, auto slot) {
+        auto* shortcut = new QShortcut(key, this);
+        shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+        connect(shortcut, &QShortcut::activated, this, slot);
+    };
+
+    const auto numpad = [](Qt::Key key, Qt::KeyboardModifiers modifiers = Qt::NoModifier) {
+        return QKeySequence(QKeyCombination(modifiers | Qt::KeypadModifier, key));
+    };
+
+    addShortcut(QKeySequence(Qt::Key_Space), &PreviewViewport::togglePlayback);
+    addShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Left), &PreviewViewport::restart);
+    addShortcut(QKeySequence(Qt::Key_Right), &PreviewViewport::step);
+
+    addShortcut(numpad(Qt::Key_1), [this] {
+        setViewDirection(ViewportCamera::ViewDirection::Front);
+    });
+
+    addShortcut(numpad(Qt::Key_1, Qt::ControlModifier), [this] {
+        setViewDirection(ViewportCamera::ViewDirection::Back);
+    });
+
+    addShortcut(numpad(Qt::Key_3), [this] {
+        setViewDirection(ViewportCamera::ViewDirection::Right);
+    });
+
+    addShortcut(numpad(Qt::Key_3, Qt::ControlModifier), [this] {
+        setViewDirection(ViewportCamera::ViewDirection::Left);
+    });
+
+    addShortcut(numpad(Qt::Key_7), [this] {
+        setViewDirection(ViewportCamera::ViewDirection::Top);
+    });
+
+    addShortcut(numpad(Qt::Key_7, Qt::ControlModifier), [this] {
+        setViewDirection(ViewportCamera::ViewDirection::Bottom);
+    });
+
+    addShortcut(numpad(Qt::Key_5), &PreviewViewport::toggleProjection);
+    addShortcut(QKeySequence(Qt::SHIFT | Qt::ALT | Qt::Key_Z), [this] {
+        setGridVisible(!mGridVisible);
+    });
 }
 
 PreviewViewport::~PreviewViewport() {
     mTimer.stop();
+    mRefreshTimer.stop();
+    mStatsTimer.stop();
     if (QOpenGLContext* glContext = context(); glContext != nullptr && glContext->isValid()) {
         makeCurrent();
         cleanupGlResources();
@@ -77,28 +146,298 @@ void PreviewViewport::setPreview(const Ptcl::Document* document, const Ptcl::Sel
         return;
     }
 
-    mSystem->setEmitterSet(*set);
-    mElapsedTimer.restart();
-    mLastFrameNs = -cFrameIntervalNs;
-    stepFrame();
-    mTimer.start();
+    const bool sameSet = (document == mDocument && setIndex == mSetIndex);
+    const bool hadPreview = (mDocument != nullptr);
+    const bool wasPlaying = mIsPlaying;
+
+    mDocument = document;
+    mSetIndex = setIndex;
+
+    if (sameSet) {
+        update();
+        return;
+    }
+
+    mRefreshTimer.stop();
+
+    if (!reloadCurrentSet()) {
+        clearPreview();
+        return;
+    }
+
+    simulateFrame();
+
+    if (!hadPreview || wasPlaying) {
+        if (!mIsPlaying) {
+            play();
+        } else {
+            mLastTickNs = mElapsedTimer.nsecsElapsed();
+            mSimulationAccumulatorNs = 0;
+            mTimer.start();
+        }
+    } else {
+        mTimer.stop();
+    }
+
     update();
+    updateStats();
 }
 
 void PreviewViewport::clearPreview() {
     mTimer.stop();
+    mRefreshTimer.stop();
+    mIsPlaying = false;
+    mDocument = nullptr;
+    mSetIndex = -1;
+    mHasEmitters = false;
+    mSimulationAccumulatorNs = 0;
+    mLastTickNs = 0;
+    mSimulationMs = 0.0f;
+    mFps = 0.0f;
+    resetFpsWindow();
+
     mSystem->reset();
+
+    emit playbackStateChanged(false);
+    emit frameChanged(0);
+    updateStats();
     update();
 }
 
-void PreviewViewport::stepFrame() {
-    const qint64 now = mElapsedTimer.nsecsElapsed();
-    if (now - mLastFrameNs < cFrameIntervalNs) {
+void PreviewViewport::refreshPreview() {
+    if (!reloadCurrentSet()) {
+        clearPreview();
         return;
     }
-    mLastFrameNs = now;
-    mSystem->calc();
+
+    const bool wasPlaying = mIsPlaying;
+    simulateFrame();
+
+    if (wasPlaying) {
+        mLastTickNs = mElapsedTimer.nsecsElapsed();
+        mSimulationAccumulatorNs = 0;
+        mTimer.start();
+    } else {
+        mTimer.stop();
+    }
+
     update();
+}
+
+void PreviewViewport::scheduleRefresh() {
+    if (mDocument != nullptr) {
+        mRefreshTimer.start();
+    }
+}
+
+void PreviewViewport::play() {
+    if (mIsPlaying || mDocument == nullptr) {
+        return;
+    }
+
+    mIsPlaying = true;
+    mLastTickNs = mElapsedTimer.nsecsElapsed();
+    mSimulationAccumulatorNs = 0;
+    resetFpsWindow();
+    mTimer.start();
+
+    emit playbackStateChanged(true);
+}
+
+void PreviewViewport::pause() {
+    if (!mIsPlaying) {
+        return;
+    }
+
+    mIsPlaying = false;
+    mTimer.stop();
+    resetFpsWindow();
+
+    emit playbackStateChanged(false);
+}
+
+void PreviewViewport::togglePlayback() {
+    if (mIsPlaying) {
+        pause();
+    } else {
+        play();
+    }
+}
+
+void PreviewViewport::restart() {
+    mRefreshTimer.stop();
+    refreshPreview();
+}
+
+void PreviewViewport::step() {
+    if (mDocument == nullptr) {
+        return;
+    }
+
+    if (mIsPlaying) {
+        pause();
+    }
+
+    simulateFrame();
+}
+
+void PreviewViewport::setPlaybackSpeed(f32 speed) {
+    mPlaybackSpeed = std::clamp(speed, 0.1f, 4.0f);
+    SettingsUtil::setViewportPlaybackSpeed(mPlaybackSpeed);
+    mSimulationAccumulatorNs = 0;
+    mLastTickNs = mElapsedTimer.nsecsElapsed();
+}
+
+void PreviewViewport::setLooping(bool looping) {
+    if (mLooping == looping) {
+        return;
+    }
+
+    mLooping = looping;
+    SettingsUtil::setViewportLooping(looping);
+    emit loopingChanged(looping);
+}
+
+void PreviewViewport::setProjection(ViewportCamera::ProjectionType type) {
+    if (mCamera.projectionType() == type) {
+        return;
+    }
+
+    mCamera.setProjectionType(type);
+    SettingsUtil::setViewportOrthographic(type == ViewportCamera::ProjectionType::Orthographic);
+
+    emit projectionChanged(type == ViewportCamera::ProjectionType::Orthographic);
+    update();
+}
+
+void PreviewViewport::toggleProjection() {
+    const auto type = mCamera.projectionType();
+    setProjection(type == ViewportCamera::ProjectionType::Orthographic
+        ? ViewportCamera::ProjectionType::Perspective
+        : ViewportCamera::ProjectionType::Orthographic);
+}
+
+void PreviewViewport::setViewDirection(ViewportCamera::ViewDirection direction) {
+    mCamera.setViewDirection(direction);
+    update();
+}
+
+void PreviewViewport::resetCamera() {
+    mCamera.reset();
+    update();
+}
+
+void PreviewViewport::setGridVisible(bool visible) {
+    if (mGridVisible == visible) {
+        return;
+    }
+
+    mGridVisible = visible;
+    SettingsUtil::setViewportGridVisible(visible);
+    emit gridVisibleChanged(visible);
+    update();
+}
+
+void PreviewViewport::onTick() {
+    if (!mIsPlaying) {
+        return;
+    }
+
+    const qint64 now = mElapsedTimer.nsecsElapsed();
+    qint64 delta = now - mLastTickNs;
+    mLastTickNs = now;
+
+    if (delta < 0) {
+        delta = 0;
+    }
+
+    constexpr qint64 cMaxDeltaNs = cFrameIntervalNs * 5;
+    delta = std::min(delta, cMaxDeltaNs);
+
+    const f32 speed = std::max(mPlaybackSpeed, 0.1f);
+    const qint64 frameInterval = std::max<qint64>(
+        1,
+        static_cast<qint64>(static_cast<f64>(cFrameIntervalNs) / speed)
+    );
+
+    mSimulationAccumulatorNs += delta;
+
+    s32 steps = 0;
+    constexpr s32 cMaxSteps = 8;
+    while (mSimulationAccumulatorNs >= frameInterval && steps < cMaxSteps) {
+        simulateFrame();
+        mSimulationAccumulatorNs -= frameInterval;
+        ++steps;
+    }
+
+    if (steps == cMaxSteps) {
+        mSimulationAccumulatorNs = 0;
+    }
+}
+
+void PreviewViewport::simulateFrame() {
+    if (mDocument == nullptr) {
+        return;
+    }
+
+    mSimulationTimer.restart();
+    mSystem->calc();
+    mSimulationMs = static_cast<f32>(mSimulationTimer.nsecsElapsed()) / 1'000'000.0f;
+
+    if (mLooping && mHasEmitters && !mSystem->isActive()) {
+        if (!reloadCurrentSet()) {
+            clearPreview();
+            return;
+        }
+
+        mSimulationTimer.restart();
+        mSystem->calc();
+        mSimulationMs = static_cast<f32>(mSimulationTimer.nsecsElapsed()) / 1'000'000.0f;
+    }
+
+    emit frameChanged(mSystem->frameIndex());
+    update();
+}
+
+bool PreviewViewport::reloadCurrentSet() {
+    const Ptcl::EmitterSet* set = currentEmitterSet();
+    if (set == nullptr) {
+        mHasEmitters = false;
+        return false;
+    }
+
+    mSystem->setEmitterSet(*set);
+    mHasEmitters = set->emitterCount() > 0;
+    mSimulationAccumulatorNs = 0;
+    mLastTickNs = mElapsedTimer.nsecsElapsed();
+    mSimulationMs = 0.0f;
+
+    return true;
+}
+
+void PreviewViewport::updateStats() {
+    ViewportStats stats{};
+    stats.active = (mDocument != nullptr);
+    stats.fps = mFps;
+    stats.particles = mSystem->liveParticleCount();
+    stats.particleCapacity = mSystem->particleCapacity();
+    stats.simulationMs = mSimulationMs;
+
+    emit statsChanged(stats);
+}
+
+void PreviewViewport::resetFpsWindow() {
+    mLastPaintNs = 0;
+    mFpsWindowNs = 0;
+    mFpsFrameCount = 0;
+}
+
+const Ptcl::EmitterSet* PreviewViewport::currentEmitterSet() const {
+    if (mDocument == nullptr || mSetIndex < 0) {
+        return nullptr;
+    }
+
+    return mDocument->emitterSet(mSetIndex);
 }
 
 void PreviewViewport::drawOpaqueOverlay() {
@@ -179,7 +518,9 @@ void PreviewViewport::paintGL() {
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
 
-    mGrid.draw(*this, viewProj);
+    if (mGridVisible) {
+        mGrid.draw(*this, viewProj);
+    }
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -194,6 +535,19 @@ void PreviewViewport::paintGL() {
     glDisable(GL_BLEND);
 
     drawOpaqueOverlay();
+
+    const qint64 now = mElapsedTimer.nsecsElapsed();
+    if (mLastPaintNs > 0) {
+        mFpsWindowNs += now - mLastPaintNs;
+        ++mFpsFrameCount;
+
+        if (mFpsWindowNs >= 500'000'000LL) {
+            mFps = static_cast<f32>(mFpsFrameCount) / (static_cast<f32>(mFpsWindowNs) / 1'000'000'000.0f);
+            mFpsWindowNs = 0;
+            mFpsFrameCount = 0;
+        }
+    }
+    mLastPaintNs = now;
 }
 
 void PreviewViewport::resizeGL(int w, int h) {
@@ -209,6 +563,8 @@ void PreviewViewport::wheelEvent(QWheelEvent* event) {
 }
 
 void PreviewViewport::mousePressEvent(QMouseEvent* event) {
+    setFocus(Qt::MouseFocusReason);
+
     if (event->button() == Qt::LeftButton) {
         mOrbitDragging = true;
         mLastMouse = event->pos();
@@ -227,7 +583,7 @@ void PreviewViewport::mousePressEvent(QMouseEvent* event) {
 void PreviewViewport::mouseMoveEvent(QMouseEvent* event) {
     if (mOrbitDragging) {
         const QPoint delta = event->pos() - mLastMouse;
-        mCamera.orbit(delta);
+        mCamera.orbit(delta, event->modifiers().testFlag(Qt::ShiftModifier));
         mLastMouse = event->pos();
         update();
         event->accept();

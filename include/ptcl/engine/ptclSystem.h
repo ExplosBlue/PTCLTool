@@ -45,6 +45,10 @@ public:
     void calc();
 
     u32 nextEmitterSeed() { return mRandom.getU32(); }
+    s32 frameIndex() const { return mFrameIndex; }
+    bool isActive() const { return !mEmitters.empty(); }
+    s32 liveParticleCount() const;
+    s32 particleCapacity() const { return mNumPtclData + mNumCompactPtclData; }
 
     const DrawFrame& lastFrame() const { return mFrame; }
 
@@ -71,6 +75,7 @@ private:
 
     DrawFrame mFrame;
     PtclRandom mRandom{PtclRandom::getGlobalU32(), 0, 0};
+    s32 mFrameIndex{0};
 };
 
 

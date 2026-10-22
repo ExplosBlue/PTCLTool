@@ -32,6 +32,18 @@ namespace PtclTool {
 // ========================================================================== //
 
 
+struct ViewportStats {
+    bool active{false};
+    f32 fps{0.0f};
+    s32 particles{0};
+    s32 particleCapacity{0};
+    f32 simulationMs{0.0f};
+};
+
+
+// ========================================================================== //
+
+
 class PreviewViewport final : public QOpenGLWidget, protected QOpenGLFunctions_2_0 {
     Q_OBJECT
 public:
@@ -40,9 +52,35 @@ public:
 
     void setPreview(const Ptcl::Document* document, const Ptcl::Selection& selection);
     void clearPreview();
+    void scheduleRefresh();
+
+    bool isPlaying() const { return mIsPlaying; }
+    bool isLooping() const { return mLooping; }
+    f32 playbackSpeed() const { return mPlaybackSpeed; }
+    ViewportCamera::ProjectionType projection() const { return mCamera.projectionType(); }
+    bool isGridVisible() const { return mGridVisible; }
 
 public slots:
-    void stepFrame();
+    void play();
+    void pause();
+    void togglePlayback();
+    void restart();
+    void step();
+    void setPlaybackSpeed(f32 speed);
+    void setLooping(bool looping);
+    void setProjection(ViewportCamera::ProjectionType type);
+    void toggleProjection();
+    void setViewDirection(ViewportCamera::ViewDirection direction);
+    void resetCamera();
+    void setGridVisible(bool visible);
+
+signals:
+    void playbackStateChanged(bool playing);
+    void frameChanged(s32 frame);
+    void statsChanged(const ViewportStats& stats);
+    void projectionChanged(bool orthographic);
+    void gridVisibleChanged(bool visible);
+    void loopingChanged(bool looping);
 
 protected:
     void initializeGL() final;
@@ -59,19 +97,47 @@ private:
     void cleanupGlResources();
     void drawOpaqueOverlay();
 
+    void onTick();
+    void simulateFrame();
+    void refreshPreview();
+    bool reloadCurrentSet();
+    void updateStats();
+    void resetFpsWindow();
+
+    const Ptcl::EmitterSet* currentEmitterSet() const;
+
     QTimer mTimer{};
+    QTimer mRefreshTimer{};
+    QTimer mStatsTimer{};
 
     std::unique_ptr<Ptcl::Engine::PtclSystem> mSystem{};
     Ptcl::Render::Renderer mRenderer{};
     static constexpr qint64 cFrameIntervalNs = 1000000000LL / 60;
 
     QElapsedTimer mElapsedTimer{};
-    qint64 mLastFrameNs{0};
+    QElapsedTimer mSimulationTimer{};
+    qint64 mLastTickNs{0};
+    qint64 mSimulationAccumulatorNs{0};
+    f32 mSimulationMs{0.0f};
+
+    bool mIsPlaying{false};
+    bool mLooping{true};
+    f32 mPlaybackSpeed{1.0f};
+    bool mHasEmitters{false};
+
+    const Ptcl::Document* mDocument{nullptr};
+    s32 mSetIndex{-1};
+
+    qint64 mLastPaintNs{0};
+    qint64 mFpsWindowNs{0};
+    s32 mFpsFrameCount{0};
+    f32 mFps{0.0f};
 
     QOpenGLShaderProgram* mScreenProgram{nullptr};
     QOpenGLBuffer mQuadVbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLVertexArrayObject mQuadVao{};
     ViewportGrid mGrid{};
+    bool mGridVisible{true};
     bool mGlReady{false};
 
     ViewportCamera mCamera{};
