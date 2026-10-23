@@ -10,6 +10,7 @@
 #include <QEvent>
 #include <QFont>
 #include <QFontMetrics>
+#include <QKeyEvent>
 #include <QKeySequence>
 #include <QMouseEvent>
 #include <QOpenGLContext>
@@ -153,40 +154,7 @@ PreviewViewport::PreviewViewport(QWidget* parent) :
         connect(shortcut, &QShortcut::activated, this, slot);
     };
 
-    const auto numpad = [](Qt::Key key, Qt::KeyboardModifiers modifiers = Qt::NoModifier) {
-        return QKeySequence(QKeyCombination(modifiers | Qt::KeypadModifier, key));
-    };
-
     addShortcut(QKeySequence(Qt::Key_Space), &PreviewViewport::togglePlayback);
-    addShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Left), &PreviewViewport::restart);
-    addShortcut(QKeySequence(Qt::Key_Left), &PreviewViewport::stepBackward);
-    addShortcut(QKeySequence(Qt::Key_Right), &PreviewViewport::step);
-
-    addShortcut(numpad(Qt::Key_1), [this] {
-        setViewDirection(ViewportCamera::ViewDirection::Front);
-    });
-
-    addShortcut(numpad(Qt::Key_1, Qt::ControlModifier), [this] {
-        setViewDirection(ViewportCamera::ViewDirection::Back);
-    });
-
-    addShortcut(numpad(Qt::Key_3), [this] {
-        setViewDirection(ViewportCamera::ViewDirection::Right);
-    });
-
-    addShortcut(numpad(Qt::Key_3, Qt::ControlModifier), [this] {
-        setViewDirection(ViewportCamera::ViewDirection::Left);
-    });
-
-    addShortcut(numpad(Qt::Key_7), [this] {
-        setViewDirection(ViewportCamera::ViewDirection::Top);
-    });
-
-    addShortcut(numpad(Qt::Key_7, Qt::ControlModifier), [this] {
-        setViewDirection(ViewportCamera::ViewDirection::Bottom);
-    });
-
-    addShortcut(numpad(Qt::Key_5), &PreviewViewport::toggleProjection);
     addShortcut(QKeySequence(Qt::SHIFT | Qt::ALT | Qt::Key_Z), [this] {
         setGridVisible(!mGridVisible);
     });
@@ -525,6 +493,11 @@ void PreviewViewport::startViewTransition(ViewportCamera::ViewDirection directio
 
     mViewTransitionStart = start;
     mViewTransitionTarget = target;
+
+    mViewTransitionStartRoll = mCamera.roll();
+    mViewTransitionTargetRoll = mViewTransitionStartRoll
+        + std::remainder(-mViewTransitionStartRoll, twoPi);
+
     mViewTransitionElapsed.restart();
     mViewTransitionActive = true;
     mViewTransitionTimer.start();
@@ -561,6 +534,11 @@ void PreviewViewport::onViewTransitionTick() {
             + (mViewTransitionTarget.pitch - mViewTransitionStart.pitch) * eased
     });
 
+    mCamera.setRoll(
+        mViewTransitionStartRoll
+            + (mViewTransitionTargetRoll - mViewTransitionStartRoll) * eased
+    );
+
     update();
 
     if (progress >= 1.0f) {
@@ -596,7 +574,49 @@ void PreviewViewport::setViewDirection(ViewportCamera::ViewDirection direction) 
 
 void PreviewViewport::resetCamera() {
     cancelViewTransition();
+    leaveTemporaryAxisProjection();
     mCamera.reset();
+    update();
+}
+
+void PreviewViewport::rotateView(f32 yawDelta, f32 pitchDelta) {
+    cancelViewTransition();
+    leaveTemporaryAxisProjection();
+
+    const ViewportCamera::Orientation orientation = mCamera.orientation();
+    mCamera.setOrientation({
+        orientation.yaw + yawDelta,
+        orientation.pitch + pitchDelta
+    });
+    update();
+}
+
+void PreviewViewport::panView(QPoint delta) {
+    cancelViewTransition();
+    mCamera.pan(delta);
+    update();
+}
+
+void PreviewViewport::zoomView(f32 delta) {
+    mCamera.zoom(delta);
+    update();
+}
+
+void PreviewViewport::rollView(f32 delta) {
+    cancelViewTransition();
+    mCamera.roll(delta);
+    update();
+}
+
+void PreviewViewport::flipView() {
+    cancelViewTransition();
+
+    const ViewportCamera::Orientation orientation = mCamera.orientation();
+    mCamera.setOrientation({
+        orientation.yaw + std::numbers::pi_v<f32>,
+        -orientation.pitch
+    });
+    updateGizmoHover(-1);
     update();
 }
 
@@ -1100,6 +1120,180 @@ void PreviewViewport::paintGL() {
 void PreviewViewport::resizeGL(int w, int h) {
     mCamera.setViewportSize(w, h);
     update();
+}
+
+void PreviewViewport::keyPressEvent(QKeyEvent* event) {
+    const Qt::KeyboardModifiers modifiers = event->modifiers();
+    const bool keypad = modifiers.testFlag(Qt::KeypadModifier);
+
+    if (keypad) {
+        const bool ctrl = modifiers.testFlag(Qt::ControlModifier);
+        const bool shift = modifiers.testFlag(Qt::ShiftModifier);
+        constexpr f32 angleStep = std::numbers::pi_v<f32> / 12.0f;
+
+        // Ctrl + numpad 2/4/6/8 pans the view.
+        if (ctrl && !shift) {
+            const s32 panStep = std::max<s32>(1, height() / 10);
+            switch (event->key()) {
+            case Qt::Key_2:
+            case Qt::Key_Down:
+                panView(QPoint(0, panStep));
+                event->accept();
+                return;
+            case Qt::Key_8:
+            case Qt::Key_Up:
+                panView(QPoint(0, -panStep));
+                event->accept();
+                return;
+            case Qt::Key_4:
+            case Qt::Key_Left:
+                panView(QPoint(-panStep, 0));
+                event->accept();
+                return;
+            case Qt::Key_6:
+            case Qt::Key_Right:
+                panView(QPoint(panStep, 0));
+                event->accept();
+                return;
+            default:
+                break;
+            }
+        }
+
+        // Shift + numpad 4/6 rolls the view.
+        if (shift && !ctrl) {
+            switch (event->key()) {
+            case Qt::Key_4:
+            case Qt::Key_Left:
+                rollView(-angleStep);
+                event->accept();
+                return;
+            case Qt::Key_6:
+            case Qt::Key_Right:
+                rollView(angleStep);
+                event->accept();
+                return;
+            default:
+                break;
+            }
+        }
+
+        // Axis views and single-shot toggles.
+        if (!event->isAutoRepeat() && !shift) {
+            switch (event->key()) {
+            case Qt::Key_1:
+            case Qt::Key_End: // numpad 1 with NumLock off
+                setViewDirection(ctrl
+                    ? ViewportCamera::ViewDirection::Back
+                    : ViewportCamera::ViewDirection::Front
+                );
+                event->accept();
+                return;
+            case Qt::Key_3:
+            case Qt::Key_PageDown: // numpad 3 with NumLock off
+                setViewDirection(ctrl
+                    ? ViewportCamera::ViewDirection::Left
+                    : ViewportCamera::ViewDirection::Right
+                );
+                event->accept();
+                return;
+            case Qt::Key_7:
+            case Qt::Key_Home: // numpad 7 with NumLock off
+                setViewDirection(ctrl
+                    ? ViewportCamera::ViewDirection::Bottom
+                    : ViewportCamera::ViewDirection::Top
+                );
+                event->accept();
+                return;
+            case Qt::Key_5:
+            case Qt::Key_Clear: // numpad 5 with NumLock off
+                if (!ctrl) {
+                    toggleProjection();
+                    event->accept();
+                    return;
+                }
+                break;
+            case Qt::Key_9:
+            case Qt::Key_PageUp: // numpad 9 with NumLock off
+                if (!ctrl) {
+                    flipView();
+                    event->accept();
+                    return;
+                }
+                break;
+            case Qt::Key_Delete:
+            case Qt::Key_Period: // numpad .(frame view)
+                if (!ctrl) {
+                    resetCamera();
+                    event->accept();
+                    return;
+                }
+                break;
+            default:
+                break;
+            }
+        }
+
+        // Numpad 2/4/6/8 rotate in 15 degree steps; + and - zoom.
+        if (!ctrl && !shift) {
+            switch (event->key()) {
+            case Qt::Key_2:
+            case Qt::Key_Down: // numpad 2 with NumLock off
+                rotateView(0.0f, -angleStep);
+                event->accept();
+                return;
+            case Qt::Key_8:
+            case Qt::Key_Up: // numpad 8 with NumLock off
+                rotateView(0.0f, angleStep);
+                event->accept();
+                return;
+            case Qt::Key_4:
+            case Qt::Key_Left: // numpad 4 with NumLock off
+                rotateView(angleStep, 0.0f);
+                event->accept();
+                return;
+            case Qt::Key_6:
+            case Qt::Key_Right: // numpad 6 with NumLock off
+                rotateView(-angleStep, 0.0f);
+                event->accept();
+                return;
+            case Qt::Key_Plus:
+                zoomView(0.1f);
+                event->accept();
+                return;
+            case Qt::Key_Minus:
+                zoomView(-0.1f);
+                event->accept();
+                return;
+            default:
+                break;
+            }
+        }
+    } else {
+        const bool plain =
+            !modifiers.testFlag(Qt::ControlModifier) &&
+            !modifiers.testFlag(Qt::AltModifier) &&
+            !modifiers.testFlag(Qt::MetaModifier);
+
+        if (plain && event->key() == Qt::Key_Left) {
+            if (modifiers.testFlag(Qt::ShiftModifier)) {
+                restart();
+            } else {
+                stepBackward();
+            }
+            event->accept();
+            return;
+        }
+
+        if (plain && event->key() == Qt::Key_Right
+            && !modifiers.testFlag(Qt::ShiftModifier)) {
+            step();
+            event->accept();
+            return;
+        }
+    }
+
+    QOpenGLWidget::keyPressEvent(event);
 }
 
 void PreviewViewport::wheelEvent(QWheelEvent* event) {

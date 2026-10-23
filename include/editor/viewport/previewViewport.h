@@ -23,6 +23,7 @@
 // ========================================================================== //
 
 
+class QKeyEvent;
 class QPainter;
 
 
@@ -91,6 +92,7 @@ protected:
     void paintGL() final;
     void resizeGL(int w, int h) final;
 
+    void keyPressEvent(QKeyEvent* event) final;
     void wheelEvent(QWheelEvent* event) final;
     void mousePressEvent(QMouseEvent* event) final;
     void mouseMoveEvent(QMouseEvent* event) final;
@@ -112,6 +114,12 @@ private:
     void onViewTransitionTick();
     void cancelViewTransition();
     void leaveTemporaryAxisProjection();
+
+    void rotateView(f32 yawDelta, f32 pitchDelta);
+    void panView(QPoint delta);
+    void zoomView(f32 delta);
+    void rollView(f32 delta);
+    void flipView();
 
     void onTick();
     void simulateFrame();
@@ -139,6 +147,8 @@ private:
     QElapsedTimer mViewTransitionElapsed{};
     ViewportCamera::Orientation mViewTransitionStart{};
     ViewportCamera::Orientation mViewTransitionTarget{};
+    f32 mViewTransitionStartRoll{0.0f};
+    f32 mViewTransitionTargetRoll{0.0f};
     bool mViewTransitionActive{false};
 
     std::unique_ptr<Ptcl::Engine::PtclSystem> mSystem{};

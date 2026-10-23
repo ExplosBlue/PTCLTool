@@ -51,6 +51,10 @@ public:
     void setOrientation(const Orientation& orientation);
     static Orientation orientationFor(ViewDirection direction);
 
+    f32 roll() const { return mRoll; }
+    void setRoll(f32 roll);
+    void roll(f32 delta);
+
     void setViewDirection(ViewDirection direction);
     void reset();
 
@@ -74,6 +78,7 @@ private:
     ProjectionType mProjectionType{ProjectionType::Perspective};
     f32 mYaw{cDefaultYaw};
     f32 mPitch{cDefaultPitch};
+    f32 mRoll{0.0f};
     Math::Vector3f mTarget{};
 
     s32 mViewportWidth{1};

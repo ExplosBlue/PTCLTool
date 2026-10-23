@@ -62,15 +62,29 @@ Gfx::ViewBasis ViewportCamera::computeBasis() const {
         -cosPitch * cosYaw
     };
 
-    const Math::Vector3f right{
+    const Math::Vector3f baseRight{
         cosYaw,
         0.0f,
         -sinYaw
     };
 
+    const Math::Vector3f baseUp = Math::VectorCalc::cross(baseRight, forward);
+    if (mRoll == 0.0f) {
+        return { baseRight, baseUp, forward };
+    }
+
+    const f32 cosRoll = std::cos(mRoll);
+    const f32 sinRoll = std::sin(mRoll);
+
     return {
-        right,
-        Math::VectorCalc::cross(right, forward),
+        Math::VectorCalc::add(
+            Math::VectorCalc::multScalar(baseRight, cosRoll),
+            Math::VectorCalc::multScalar(baseUp, sinRoll)
+        ),
+        Math::VectorCalc::add(
+            Math::VectorCalc::multScalar(baseUp, cosRoll),
+            Math::VectorCalc::multScalar(baseRight, -sinRoll)
+        ),
         forward
     };
 }
@@ -208,13 +222,25 @@ void ViewportCamera::setOrientation(const Orientation& orientation) {
 }
 
 void ViewportCamera::setViewDirection(ViewDirection direction) {
+    setRoll(0.0f);
     setOrientation(orientationFor(direction));
+}
+
+void ViewportCamera::setRoll(f32 roll) {
+    mRoll = roll;
+    invalidate();
+}
+
+void ViewportCamera::roll(f32 delta) {
+    constexpr f32 twoPi = std::numbers::pi_v<f32> * 2.0f;
+    setRoll(std::remainder(mRoll + delta, twoPi));
 }
 
 void ViewportCamera::reset() {
     mZoom = 1.0f;
     mYaw = cDefaultYaw;
     mPitch = cDefaultPitch;
+    mRoll = 0.0f;
     mTarget = {};
     invalidate();
 }
