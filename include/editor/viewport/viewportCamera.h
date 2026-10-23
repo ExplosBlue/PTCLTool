@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QPoint>
+#include <numbers>
 
 #include "gfx/camera.h"
 #include "math/matrix.h"
@@ -66,10 +67,13 @@ private:
     void ensureCacheUpToDate() const;
     void invalidate() const { mCacheDirty = true; }
 
+    static constexpr f32 cDefaultYaw = std::numbers::pi_v<f32> * 0.25f;
+    static constexpr f32 cDefaultPitch = std::numbers::pi_v<f32> / 6.0f;
+
     f32 mZoom{1.0f};
     ProjectionType mProjectionType{ProjectionType::Perspective};
-    f32 mYaw{0.0f};
-    f32 mPitch{0.0f};
+    f32 mYaw{cDefaultYaw};
+    f32 mPitch{cDefaultPitch};
     Math::Vector3f mTarget{};
 
     s32 mViewportWidth{1};

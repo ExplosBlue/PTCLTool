@@ -213,8 +213,8 @@ void ViewportCamera::setViewDirection(ViewDirection direction) {
 
 void ViewportCamera::reset() {
     mZoom = 1.0f;
-    mYaw = 0.0f;
-    mPitch = 0.0f;
+    mYaw = cDefaultYaw;
+    mPitch = cDefaultPitch;
     mTarget = {};
     invalidate();
 }
