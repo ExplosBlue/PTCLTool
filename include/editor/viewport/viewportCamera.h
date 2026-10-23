@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QPoint>
-#include <numbers>
 
 #include "gfx/camera.h"
 #include "math/matrix.h"
@@ -69,7 +68,7 @@ private:
 
     f32 mZoom{1.0f};
     ProjectionType mProjectionType{ProjectionType::Perspective};
-    f32 mYaw{std::numbers::pi_v<f32>};
+    f32 mYaw{0.0f};
     f32 mPitch{0.0f};
     Math::Vector3f mTarget{};
 

@@ -833,9 +833,9 @@ QString PreviewViewport::viewLabel() const {
         view = QStringLiteral("Top");
     } else if (forward.getY() > 1.0f - cAxisEpsilon) {
         view = QStringLiteral("Bottom");
-    } else if (forward.getZ() > 1.0f - cAxisEpsilon) {
-        view = QStringLiteral("Front");
     } else if (forward.getZ() < -1.0f + cAxisEpsilon) {
+        view = QStringLiteral("Front");
+    } else if (forward.getZ() > 1.0f - cAxisEpsilon) {
         view = QStringLiteral("Back");
     }
 

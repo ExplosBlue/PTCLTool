@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numbers>
 
 
 namespace PtclTool {
@@ -184,9 +185,9 @@ ViewportCamera::Orientation ViewportCamera::orientationFor(ViewDirection directi
 
     switch (direction) {
     case ViewDirection::Front:
-        return {pi, 0.0f};
-    case ViewDirection::Back:
         return {0.0f, 0.0f};
+    case ViewDirection::Back:
+        return {pi, 0.0f};
     case ViewDirection::Left:
         return {-halfPi, 0.0f};
     case ViewDirection::Right:
@@ -212,7 +213,7 @@ void ViewportCamera::setViewDirection(ViewDirection direction) {
 
 void ViewportCamera::reset() {
     mZoom = 1.0f;
-    mYaw = std::numbers::pi_v<f32>;
+    mYaw = 0.0f;
     mPitch = 0.0f;
     mTarget = {};
     invalidate();

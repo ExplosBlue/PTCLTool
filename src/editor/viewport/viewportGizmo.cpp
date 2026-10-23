@@ -50,7 +50,7 @@ const std::array<GizmoAxisInfo, 6>& gizmoAxes() {
         {
             {0.0f, 0.0f, 1.0f},
             QColor::fromRgbF(0.25f, 0.50f, 0.98f),
-            "Z", "Back", ViewportCamera::ViewDirection::Back, "Ctrl+Numpad 1", false
+            "Z", "Front", ViewportCamera::ViewDirection::Front, "Numpad 1", true
         },
         {
             {-1.0f, 0.0f, 0.0f},
@@ -65,7 +65,7 @@ const std::array<GizmoAxisInfo, 6>& gizmoAxes() {
         {
             {0.0f, 0.0f, -1.0f},
             QColor::fromRgbF(0.25f, 0.50f, 0.98f),
-            "-Z", "Front", ViewportCamera::ViewDirection::Front, "Numpad 1", true
+            "-Z", "Back", ViewportCamera::ViewDirection::Back, "Ctrl+Numpad 1", false
         },
     }};
     return axes;
