@@ -35,6 +35,7 @@ private:
     struct VolumeField {
         QWidget* widget{};
         std::function<QString(Ptcl::VolumeType)> label{};
+        std::function<QString(Ptcl::VolumeType)> toolTip{};
         std::function<bool(Ptcl::VolumeType)> isVisible{};
     };
 
