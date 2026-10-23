@@ -251,10 +251,11 @@ void PreviewViewport::refreshPreview() {
     }
 
     const bool wasPlaying = mIsPlaying;
+    const s32 currentFrame = mSystem->frameIndex();
     mRefreshTimer.stop();
     updatePreviewRangeFromSet();
 
-    if (!reloadPreview(false)) {
+    if (!reloadPreview(false, currentFrame)) {
         clearPreview();
         return;
     }
@@ -394,20 +395,7 @@ void PreviewViewport::seekToFrame(s32 frame) {
         }
     }
 
-    const s32 fromFrame = mSystem->frameIndex();
-    if (frame > fromFrame) {
-        mSimulationTimer.restart();
-        for (s32 i = fromFrame; i < frame && mSystem->isActive(); ++i) {
-            mSystem->calc();
-            trackVisibleFrame();
-        }
-
-        const s32 simulatedFrames = mSystem->frameIndex() - fromFrame;
-        if (simulatedFrames > 0) {
-            const f32 elapsedMs = static_cast<f32>(mSimulationTimer.nsecsElapsed())  / 1'000'000.0f;
-            mSimulationMs = elapsedMs / static_cast<f32>(simulatedFrames);
-        }
-    }
+    advanceToFrame(frame);
 
     if (mHasEmitters && !mSystem->isActive()) {
         const s32 lastVisibleFrame = std::max<s32>(0, mLastVisibleFrame);
@@ -677,6 +665,25 @@ void PreviewViewport::advanceFrame() {
     trackVisibleFrame();
 }
 
+void PreviewViewport::advanceToFrame(s32 frame) {
+    const s32 fromFrame = mSystem->frameIndex();
+    if (frame <= fromFrame) {
+        return;
+    }
+
+    mSimulationTimer.restart();
+    while (mSystem->frameIndex() < frame && mSystem->isActive()) {
+        mSystem->calc();
+        trackVisibleFrame();
+    }
+
+    const s32 simulatedFrames = mSystem->frameIndex() - fromFrame;
+    if (simulatedFrames > 0) {
+        const f32 elapsedMs = static_cast<f32>(mSimulationTimer.nsecsElapsed()) / 1'000'000.0f;
+        mSimulationMs = elapsedMs / static_cast<f32>(simulatedFrames);
+    }
+}
+
 void PreviewViewport::simulateFrame() {
     if (mDocument == nullptr) {
         return;
@@ -731,13 +738,33 @@ void PreviewViewport::restorePlaybackState(bool wasPlaying) {
     }
 }
 
-bool PreviewViewport::reloadPreview(bool newRun) {
+bool PreviewViewport::reloadPreview(bool newRun, s32 targetFrame) {
     const bool loaded = newRun ? beginRun() : reloadCurrentSet();
     if (!loaded) {
         return false;
     }
 
-    simulateFrame();
+    if (targetFrame > 0) {
+        targetFrame = std::clamp(
+            targetFrame,
+            1,
+            std::max<s32>(1, mPreviewRangeFrames)
+        );
+        advanceToFrame(targetFrame);
+
+        if (mHasEmitters && !mSystem->isActive()) {
+            const s32 lastVisibleFrame = std::max<s32>(0, mLastVisibleFrame);
+            noteFiniteEnd(lastVisibleFrame);
+            finishAtEnd(lastVisibleFrame);
+        } else {
+            mSimulationAccumulatorNs = 0;
+            mLastTickNs = mElapsedTimer.nsecsElapsed();
+            emit frameChanged(mSystem->frameIndex());
+            update();
+        }
+    } else {
+        simulateFrame();
+    }
 
     if (!mHasEmitters && mIsPlaying) {
         pause();

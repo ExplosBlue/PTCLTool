@@ -124,12 +124,13 @@ private:
     void onTick();
     void simulateFrame();
     void advanceFrame();
+    void advanceToFrame(s32 frame);
     void startPlaybackTimer();
     void restorePlaybackState(bool wasPlaying);
     void refreshPreview();
     bool beginRun();
     bool reloadCurrentSet();
-    bool reloadPreview(bool newRun);
+    bool reloadPreview(bool newRun, s32 targetFrame = 0);
     void updateRangeFromPendingRefresh();
     void updatePreviewRangeFromSet();
     void applyPreviewRange(s32 endFrame, bool infinite);
