@@ -3,6 +3,10 @@
 #include <QFileInfo>
 #include <QStandardPaths>
 
+#include <algorithm>
+#include <bit>
+#include <cmath>
+
 
 namespace SettingsUtil {
 
@@ -30,6 +34,31 @@ QString pathKey(PathType type) {
 QSettings& settings() {
     static QSettings sSettings;
     return sSettings;
+}
+
+f32 sanitizeGridCellSize(f32 size) {
+    if (!std::isfinite(size)) {
+        return cViewportGridCellSizeDefault;
+    }
+    return std::clamp(size, cViewportGridCellSizeMin, cViewportGridCellSizeMax);
+}
+
+s32 sanitizeRegularParticleCapacity(s32 capacity) {
+    capacity = std::clamp(
+        capacity,
+        cRegularParticleCapacityMin,
+        cRegularParticleCapacityMax
+    );
+    return static_cast<s32>(std::bit_ceil(static_cast<u32>(capacity)));
+}
+
+s32 sanitizeCompactParticleCapacity(s32 capacity) {
+    capacity = std::clamp(
+        capacity,
+        cCompactParticleCapacityMin,
+        cCompactParticleCapacityMax
+    );
+    return static_cast<s32>(std::bit_ceil(static_cast<u32>(capacity)));
 }
 
 } // namespace Anonymous
@@ -127,11 +156,64 @@ void setViewportOrthographic(bool orthographic) {
 }
 
 bool viewportGridVisible() {
-    return settings().value("viewport/gridVisible", true).toBool();
+    return settings().value("viewport/gridVisible", cViewportGridVisibleDefault).toBool();
 }
 
 void setViewportGridVisible(bool visible) {
     settings().setValue("viewport/gridVisible", visible);
+}
+
+f32 viewportGridCellSize() {
+    const f32 size = settings().value("viewport/gridCellSize", cViewportGridCellSizeDefault).toFloat();
+    return sanitizeGridCellSize(size);
+}
+
+void setViewportGridCellSize(f32 size) {
+    settings().setValue("viewport/gridCellSize", sanitizeGridCellSize(size));
+}
+
+QColor defaultViewportBackgroundColor() {
+    return QColor::fromRgbF(0.094f, 0.094f, 0.388f);
+}
+
+QColor viewportBackgroundColor() {
+    const QColor color = settings().value("viewport/backgroundColor", defaultViewportBackgroundColor()).value<QColor>();
+
+    if (!color.isValid()) {
+        return defaultViewportBackgroundColor();
+    }
+
+    QColor opaqueColor = color.toRgb();
+    opaqueColor.setAlpha(255);
+    return opaqueColor;
+}
+
+void setViewportBackgroundColor(const QColor& color) {
+    if (!color.isValid()) {
+        return;
+    }
+
+    QColor opaqueColor = color.toRgb();
+    opaqueColor.setAlpha(255);
+    settings().setValue("viewport/backgroundColor", opaqueColor);
+}
+
+s32 regularParticleCapacity() {
+    const s32 capacity = settings().value("viewport/regularParticleCapacity", cRegularParticleCapacityDefault).toInt();
+    return sanitizeRegularParticleCapacity(capacity);
+}
+
+void setRegularParticleCapacity(s32 capacity) {
+    settings().setValue("viewport/regularParticleCapacity", sanitizeRegularParticleCapacity(capacity));
+}
+
+s32 compactParticleCapacity() {
+    const s32 capacity = settings().value("viewport/compactParticleCapacity", cCompactParticleCapacityDefault).toInt();
+    return sanitizeCompactParticleCapacity(capacity);
+}
+
+void setCompactParticleCapacity(s32 capacity) {
+    settings().setValue("viewport/compactParticleCapacity", sanitizeCompactParticleCapacity(capacity));
 }
 
 f32 viewportPlaybackSpeed() {

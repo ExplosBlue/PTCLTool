@@ -20,7 +20,7 @@ class ViewportCamera;
 class ViewportGrid {
 public:
     void initialize(QOpenGLFunctions_2_0& gl);
-    void draw(QOpenGLFunctions_2_0& gl, const ViewportCamera& camera, float pixelRatio);
+    void draw(QOpenGLFunctions_2_0& gl, const ViewportCamera& camera, float pixelRatio, float gridCellSize);
     void cleanup();
 
 private:
@@ -42,6 +42,7 @@ private:
     GLint mFadeStartLocation{-1};
     GLint mFadeEndLocation{-1};
     GLint mPixelRatioLocation{-1};
+    GLint mGridCellSizeLocation{-1};
 
     bool mInitialized{false};
 };

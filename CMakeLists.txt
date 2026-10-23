@@ -35,6 +35,7 @@ endif()
 set(PROJECT_SOURCES
     src/main.cpp
     src/editor/mainWindow.cpp
+    src/editor/preferencesDialog.cpp
     src/editor/components/animGraph.cpp
     src/editor/components/clickableLabel.cpp
     src/editor/components/colorChannelSlider.cpp
@@ -146,6 +147,7 @@ set(PROJECT_SOURCES
 set(PROJECT_HEADERS
     include/typedefs.h
     include/editor/mainWindow.h
+    include/editor/preferencesDialog.h
     include/editor/components/animGraph.h
     include/editor/components/clickableLabel.h
     include/editor/components/colorChannelSlider.h

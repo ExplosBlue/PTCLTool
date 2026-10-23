@@ -8,11 +8,12 @@
 #include "ptcl/ptclDocument.h"
 #include "ptcl/renderer/renderer.h"
 
+#include <QColor>
+#include <QElapsedTimer>
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions_2_0>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
-#include <QElapsedTimer>
 #include <QOpenGLWidget>
 #include <QString>
 #include <QTimer>
@@ -78,6 +79,7 @@ public slots:
     void setViewDirection(ViewportCamera::ViewDirection direction);
     void resetCamera();
     void setGridVisible(bool visible);
+    void applyPreferences();
 
 signals:
     void playbackStateChanged(bool playing);
@@ -138,6 +140,7 @@ private:
     void finishAtEnd(s32 lastVisibleFrame);
     void trackVisibleFrame();
     void resetFpsWindow();
+    void recreateParticleSystem();
 
     const Ptcl::EmitterSet* currentEmitterSet() const;
 
@@ -153,6 +156,8 @@ private:
     bool mViewTransitionActive{false};
 
     std::unique_ptr<Ptcl::Engine::PtclSystem> mSystem{};
+    s32 mRegularParticleCapacity{256};
+    s32 mCompactParticleCapacity{1024};
     Ptcl::Render::Renderer mRenderer{};
     static constexpr qint64 cFrameIntervalNs = 1'000'000'000LL / cFramesPerSecond;
 
@@ -187,6 +192,8 @@ private:
     QOpenGLVertexArrayObject mQuadVao{};
     ViewportGrid mGrid{};
     ViewportDebugOverlay mDebugOverlay{};
+    QColor mViewportBackgroundColor{};
+    f32 mGridCellSize{1.0f};
     bool mGridVisible{true};
     bool mGlReady{false};
 

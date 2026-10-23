@@ -43,6 +43,7 @@ uniform int uPerspective;
 uniform float uFadeStart;
 uniform float uFadeEnd;
 uniform float uPixelRatio;
+uniform float uGridCellSize;
 
 const vec3 cMinorColor = vec3(0.42, 0.47, 0.55);
 const vec3 cMajorColor = vec3(0.62, 0.67, 0.76);
@@ -99,12 +100,14 @@ void main() {
     );
     vec2 worldPerPixel = fwidth(grid);
 
+    float cellSize = max(uGridCellSize, cGridEpsilon);
     float lod = log2(max(max(worldPerPixel.x, worldPerPixel.y), cGridEpsilon)
-        * cGridMinPixels * uPixelRatio) * 0.30102999566;
-    float level = floor(lod);
-    float fraction = lod - level;
+        * cGridMinPixels * uPixelRatio / cellSize) / log2(10.0);
 
-    float spacingFine = pow(10.0, level);
+    float level = max(0.0, floor(lod));
+    float fraction = clamp(lod - level, 0.0, 1.0);
+
+    float spacingFine = cellSize * pow(10.0, level);
     float spacingMiddle = spacingFine * 10.0;
     float spacingCoarse = spacingMiddle * 10.0;
 
@@ -200,6 +203,7 @@ void ViewportGrid::initialize(QOpenGLFunctions_2_0& gl) {
     const auto fadeStartLocation             = program->uniformLocation("uFadeStart");
     const auto fadeEndLocation               = program->uniformLocation("uFadeEnd");
     const auto pixelRatioLocation            = program->uniformLocation("uPixelRatio");
+    const auto gridCellSizeLocation          = program->uniformLocation("uGridCellSize");
 
     if (inverseViewProjectionLocation < 0 ||
         cameraPositionLocation < 0 ||
@@ -213,7 +217,8 @@ void ViewportGrid::initialize(QOpenGLFunctions_2_0& gl) {
         perspectiveLocation < 0 ||
         fadeStartLocation < 0 ||
         fadeEndLocation < 0 ||
-        pixelRatioLocation < 0) {
+        pixelRatioLocation < 0 ||
+        gridCellSizeLocation < 0) {
         qWarning() << "[viewport] Grid shader uniforms were not found.";
         return;
     }
@@ -233,11 +238,12 @@ void ViewportGrid::initialize(QOpenGLFunctions_2_0& gl) {
     mFadeStartLocation = fadeStartLocation;
     mFadeEndLocation = fadeEndLocation;
     mPixelRatioLocation = pixelRatioLocation;
+    mGridCellSizeLocation = gridCellSizeLocation;
     mProgram = std::move(program);
     mInitialized = true;
 }
 
-void ViewportGrid::draw(QOpenGLFunctions_2_0& gl, const ViewportCamera& camera, float pixelRatio) {
+void ViewportGrid::draw(QOpenGLFunctions_2_0& gl, const ViewportCamera& camera, float pixelRatio, float gridCellSize) {
     if (!mInitialized || mProgram == nullptr) {
         return;
     }
@@ -313,6 +319,7 @@ void ViewportGrid::draw(QOpenGLFunctions_2_0& gl, const ViewportCamera& camera, 
     gl.glUniform1f(mFadeStartLocation, fadeStart);
     gl.glUniform1f(mFadeEndLocation, fadeEnd);
     gl.glUniform1f(mPixelRatioLocation, std::max(pixelRatio, 1.0f));
+    gl.glUniform1f(mGridCellSizeLocation, std::max(gridCellSize, 0.0001f));
 
     gl.glDisable(GL_DEPTH_TEST);
     gl.glDepthMask(GL_FALSE);
@@ -357,6 +364,7 @@ void ViewportGrid::cleanup() {
     mFadeStartLocation = -1;
     mFadeEndLocation = -1;
     mPixelRatioLocation = -1;
+    mGridCellSizeLocation = -1;
     mInitialized = false;
 }
 

@@ -114,14 +114,20 @@ PreviewViewport::PreviewViewport(QWidget* parent) :
     fmt.setSamples(4);
     setFormat(fmt);
 
+    mRegularParticleCapacity = SettingsUtil::regularParticleCapacity();
+    mCompactParticleCapacity = SettingsUtil::compactParticleCapacity();
     mSystem = std::make_unique<Ptcl::Engine::PtclSystem>(Ptcl::Engine::PtclSystemConfig{
-        .regularParticleCapacity = 256,
-        .compactParticleCapacity = 1024,
+        .regularParticleCapacity = mRegularParticleCapacity,
+        .compactParticleCapacity = mCompactParticleCapacity,
     });
+
     mCamera.setProjectionType(SettingsUtil::viewportOrthographic()
         ? ViewportCamera::ProjectionType::Orthographic
         : ViewportCamera::ProjectionType::Perspective
     );
+
+    mViewportBackgroundColor = SettingsUtil::viewportBackgroundColor();
+    mGridCellSize = SettingsUtil::viewportGridCellSize();
     mGridVisible = SettingsUtil::viewportGridVisible();
     mPlaybackSpeed = std::clamp(SettingsUtil::viewportPlaybackSpeed(), 0.1f, 4.0f);
     mLooping = SettingsUtil::viewportLooping();
@@ -619,6 +625,75 @@ void PreviewViewport::setGridVisible(bool visible) {
     update();
 }
 
+void PreviewViewport::applyPreferences() {
+    const QColor backgroundColor = SettingsUtil::viewportBackgroundColor();
+    const f32 gridCellSize = SettingsUtil::viewportGridCellSize();
+    const bool gridVisible = SettingsUtil::viewportGridVisible();
+    const s32 regularParticleCapacity = SettingsUtil::regularParticleCapacity();
+    const s32 compactParticleCapacity = SettingsUtil::compactParticleCapacity();
+
+    bool needsUpdate = false;
+
+    if (mViewportBackgroundColor != backgroundColor) {
+        mViewportBackgroundColor = backgroundColor;
+        needsUpdate = true;
+    }
+
+    if (std::abs(mGridCellSize - gridCellSize) > 1.0e-5f) {
+        mGridCellSize = gridCellSize;
+        needsUpdate = true;
+    }
+
+    if (mGridVisible != gridVisible) {
+        mGridVisible = gridVisible;
+        emit gridVisibleChanged(gridVisible);
+        needsUpdate = true;
+    }
+
+    if (mRegularParticleCapacity != regularParticleCapacity || mCompactParticleCapacity != compactParticleCapacity) {
+        mRegularParticleCapacity = regularParticleCapacity;
+        mCompactParticleCapacity = compactParticleCapacity;
+        recreateParticleSystem();
+        needsUpdate = true;
+    }
+
+    if (needsUpdate) {
+        update();
+    }
+}
+
+void PreviewViewport::recreateParticleSystem() {
+    const bool wasPlaying = mIsPlaying;
+    mTimer.stop();
+    updateRangeFromPendingRefresh();
+    mRefreshTimer.stop();
+
+    mSystem = std::make_unique<Ptcl::Engine::PtclSystem>(Ptcl::Engine::PtclSystemConfig{
+        .regularParticleCapacity = mRegularParticleCapacity,
+        .compactParticleCapacity = mCompactParticleCapacity,
+    });
+
+    mSimulationAccumulatorNs = 0;
+    mLastTickNs = mElapsedTimer.nsecsElapsed();
+    resetFpsWindow();
+
+    if (mDocument == nullptr) {
+        mHasEmitters = false;
+        mLastVisibleFrame = -1;
+        mRunSeed = 0;
+        mSimulationMs = 0.0f;
+        emit frameChanged(0);
+        return;
+    }
+
+    if (!reloadPreview(true)) {
+        clearPreview();
+        return;
+    }
+
+    restorePlaybackState(wasPlaying);
+}
+
 void PreviewViewport::onTick() {
     if (!mIsPlaying) {
         return;
@@ -1101,7 +1176,12 @@ void PreviewViewport::paintGL() {
 
     const QSize viewportSize = size() * devicePixelRatioF();
     glViewport(0, 0, viewportSize.width(), viewportSize.height());
-    glClearColor(0.094f, 0.094f, 0.388f, 1.0f);
+    glClearColor(
+        mViewportBackgroundColor.redF(),
+        mViewportBackgroundColor.greenF(),
+        mViewportBackgroundColor.blueF(),
+        1.0f
+    );
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (mGlReady) {
@@ -1109,7 +1189,12 @@ void PreviewViewport::paintGL() {
         glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
 
         if (mGridVisible) {
-            mGrid.draw(*this, mCamera, static_cast<float>(devicePixelRatioF()));
+            mGrid.draw(
+                *this,
+                mCamera,
+                static_cast<float>(devicePixelRatioF()),
+                mGridCellSize
+            );
         }
 
         glEnable(GL_DEPTH_TEST);

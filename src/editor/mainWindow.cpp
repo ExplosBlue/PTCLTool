@@ -1,4 +1,5 @@
 #include "editor/mainWindow.h"
+#include "editor/preferencesDialog.h"
 #include "editor/texture/textureImportDialog.h"
 #include "editor/viewport/previewViewport.h"
 #include "editor/viewport/viewportPanel.h"
@@ -15,6 +16,7 @@
 #include <QFileInfo>
 #include <QFontMetrics>
 #include <QFormLayout>
+#include <QKeySequence>
 #include <QLabel>
 #include <QMimeData>
 #include <QMenuBar>
@@ -148,6 +150,11 @@ void MainWindow::setupMenus() {
     mExportAction.setEnabled(false);
     connect(&mExportAction, &QAction::triggered, this, &MainWindow::exportProject);
 
+    // Preferences
+    mPreferencesAction.setText("Preferences");
+    mPreferencesAction.setShortcut(QKeySequence::Preferences);
+    connect(&mPreferencesAction, &QAction::triggered, this, &MainWindow::showPreferences);
+
     // Undo
     mUndoAction = new QAction("Undo", this);
     mUndoAction->setShortcut(QKeySequence::Undo);
@@ -179,6 +186,8 @@ void MainWindow::setupMenus() {
     mFileMenu.addAction(&mExportAction);
     mFileMenu.addSeparator();
     mFileMenu.addMenu(&mRecentFilesMenu);
+    mFileMenu.addSeparator();
+    mFileMenu.addAction(&mPreferencesAction);
 
     // Edit Menu
     mEditMenu.setTitle("Edit");
@@ -220,6 +229,7 @@ void MainWindow::applyIcons() {
     IconUtil::setIcon(&mSaveAction, "save", this, iconSize);
     IconUtil::setIcon(&mSaveAsAction, "save_as", this, iconSize);
     IconUtil::setIcon(&mExportAction, "export", this, iconSize);
+    IconUtil::setIcon(&mPreferencesAction, "general", this, iconSize);
     IconUtil::setIcon(&mRecentFilesMenu, "recent", this, iconSize);
 }
 
@@ -403,6 +413,12 @@ void MainWindow::exportProject() {
     mDocument->exportProject(dir);
 
     statusBar()->showMessage("Project Exported", 2000);
+}
+
+void MainWindow::showPreferences() {
+    PreferencesDialog dialog(this);
+    connect(&dialog, &PreferencesDialog::settingsApplied, mPreviewViewport, &PreviewViewport::applyPreferences);
+    dialog.exec();
 }
 
 void MainWindow::openRecentFile() {

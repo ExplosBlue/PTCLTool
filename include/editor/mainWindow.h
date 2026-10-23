@@ -50,6 +50,8 @@ private slots:
 
     void openRecentFile();
 
+    void showPreferences();
+
 private:
     void updateRecentFileList();
     void loadDocument(const QString& path);
@@ -84,6 +86,7 @@ private:
     QAction mSaveAction{};
     QAction mSaveAsAction{};
     QAction mExportAction{};
+    QAction mPreferencesAction{};
     std::vector<QAction*> mRecentFileActions{};
 
     QAction* mUndoAction{nullptr};

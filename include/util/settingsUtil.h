@@ -2,10 +2,29 @@
 
 #include "typedefs.h"
 
+#include <QColor>
 #include <QSettings>
 
 
 namespace SettingsUtil {
+
+
+// ========================================================================== //
+
+
+inline constexpr f32 cViewportGridCellSizeMin = 0.01f;
+inline constexpr f32 cViewportGridCellSizeMax = 10000.0f;
+inline constexpr f32 cViewportGridCellSizeDefault = 1.0f;
+
+inline constexpr bool cViewportGridVisibleDefault = true;
+
+inline constexpr s32 cRegularParticleCapacityMin = 64;
+inline constexpr s32 cRegularParticleCapacityMax = 8192;
+inline constexpr s32 cRegularParticleCapacityDefault = 256;
+
+inline constexpr s32 cCompactParticleCapacityMin = 128;
+inline constexpr s32 cCompactParticleCapacityMax = 65536;
+inline constexpr s32 cCompactParticleCapacityDefault = 1024;
 
 
 // ========================================================================== //
@@ -51,6 +70,19 @@ void setViewportOrthographic(bool orthographic);
 
 bool viewportGridVisible();
 void setViewportGridVisible(bool visible);
+
+f32 viewportGridCellSize();
+void setViewportGridCellSize(f32 size);
+
+QColor defaultViewportBackgroundColor();
+QColor viewportBackgroundColor();
+void setViewportBackgroundColor(const QColor& color);
+
+s32 regularParticleCapacity();
+void setRegularParticleCapacity(s32 capacity);
+
+s32 compactParticleCapacity();
+void setCompactParticleCapacity(s32 capacity);
 
 f32 viewportPlaybackSpeed();
 void setViewportPlaybackSpeed(f32 speed);
