@@ -17,6 +17,7 @@ namespace PtclTool {
 
 
 class PreviewViewport;
+class ViewportDebugOverlay;
 
 
 class ViewportToolbar final : public QToolBar {
@@ -30,9 +31,12 @@ private:
     void syncFromViewport();
 
     PreviewViewport* mViewport{nullptr};
+    ViewportDebugOverlay* mDebugOverlay{nullptr};
 
     QToolButton* mProjectionButton{nullptr};
     QAction* mGridAction{nullptr};
+    QAction* mEmissionShapesAction{nullptr};
+    QAction* mDebugSelectedOnlyAction{nullptr};
 };
 
 

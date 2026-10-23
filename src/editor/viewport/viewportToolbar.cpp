@@ -1,6 +1,7 @@
 #include "editor/viewport/viewportToolbar.h"
 
 #include "editor/viewport/previewViewport.h"
+#include "editor/viewport/viewportDebugOverlay.h"
 
 #include <QAction>
 #include <QMenu>
@@ -17,7 +18,8 @@ namespace PtclTool {
 
 ViewportToolbar::ViewportToolbar(PreviewViewport* viewport, QWidget* parent) :
     QToolBar{parent},
-    mViewport{viewport} {
+    mViewport{viewport},
+    mDebugOverlay{&viewport->debugOverlay()} {
     setMovable(false);
     setFloatable(false);
     setIconSize(QSize(18, 18));
@@ -70,6 +72,28 @@ void ViewportToolbar::buildActions() {
     mProjectionButton->setToolTip("Toggle orthographic/perspective (Numpad 5)");
     connect(mProjectionButton, &QToolButton::clicked, mViewport, &PreviewViewport::toggleProjection);
     addWidget(mProjectionButton);
+
+    auto* debugButton = new QToolButton(this);
+    debugButton->setText("Debug");
+    debugButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    debugButton->setPopupMode(QToolButton::InstantPopup);
+    debugButton->setToolTip("Viewport debug overlays");
+
+    auto* debugMenu = new QMenu(debugButton);
+    debugMenu->setToolTipsVisible(true);
+
+    mEmissionShapesAction = debugMenu->addAction("Emission Shapes");
+    mEmissionShapesAction->setCheckable(true);
+    mEmissionShapesAction->setToolTip("Render emission shapes as wireframes.");
+    connect(mEmissionShapesAction, &QAction::toggled, mDebugOverlay, &ViewportDebugOverlay::setEmissionShapesVisible);
+
+    mDebugSelectedOnlyAction = debugMenu->addAction("Selected Only");
+    mDebugSelectedOnlyAction->setCheckable(true);
+    mDebugSelectedOnlyAction->setToolTip("Render emission shapes for the current selection only.");
+    connect(mDebugSelectedOnlyAction, &QAction::toggled, mDebugOverlay, &ViewportDebugOverlay::setDebugSelectedOnly);
+
+    debugButton->setMenu(debugMenu);
+    addWidget(debugButton);
 }
 
 void ViewportToolbar::connectSignals() {
@@ -81,10 +105,22 @@ void ViewportToolbar::connectSignals() {
         const QSignalBlocker blocker(mGridAction);
         mGridAction->setChecked(visible);
     });
+
+    connect(mDebugOverlay, &ViewportDebugOverlay::emissionShapesVisibleChanged, this, [this](bool visible) {
+        const QSignalBlocker blocker(mEmissionShapesAction);
+        mEmissionShapesAction->setChecked(visible);
+    });
+
+    connect(mDebugOverlay, &ViewportDebugOverlay::debugSelectedOnlyChanged, this, [this](bool selectedOnly) {
+        const QSignalBlocker blocker(mDebugSelectedOnlyAction);
+        mDebugSelectedOnlyAction->setChecked(selectedOnly);
+    });
 }
 
 void ViewportToolbar::syncFromViewport() {
     mGridAction->setChecked(mViewport->isGridVisible());
+    mEmissionShapesAction->setChecked(mDebugOverlay->isEmissionShapesVisible());
+    mDebugSelectedOnlyAction->setChecked(mDebugOverlay->isDebugSelectedOnly());
     mProjectionButton->setText(
         mViewport->projection() == ViewportCamera::ProjectionType::Orthographic ? "Orthographic" : "Perspective"
     );

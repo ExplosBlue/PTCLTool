@@ -139,6 +139,10 @@ PreviewViewport::PreviewViewport(QWidget* parent) :
     mRefreshTimer.setInterval(120);
     connect(&mRefreshTimer, &QTimer::timeout, this, &PreviewViewport::refreshPreview);
 
+    connect(&mDebugOverlay, &ViewportDebugOverlay::changed, this, [this] {
+        update();
+    });
+
     mViewTransitionTimer.setTimerType(Qt::PreciseTimer);
     mViewTransitionTimer.setInterval(cViewTransitionIntervalMs);
     connect(&mViewTransitionTimer, &QTimer::timeout, this, &PreviewViewport::onViewTransitionTick);
@@ -961,6 +965,19 @@ void PreviewViewport::drawViewportOverlay(QPainter& painter) {
     painter.save();
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setRenderHint(QPainter::TextAntialiasing, true);
+
+    const bool hasSelectedEmitter = mEmitterIndex >= 0
+        && mSelectionType != Ptcl::Selection::Type::EmitterSet
+        && mSelectionType != Ptcl::Selection::Type::None;
+
+    mDebugOverlay.draw(painter, ViewportDebugOverlay::Context{
+        currentEmitterSet(),
+        &mCamera.viewProjection(),
+        size(),
+        hasSelectedEmitter ? mEmitterIndex : -1,
+        mSelectionType != Ptcl::Selection::Type::None,
+    });
+
     drawViewContext(painter);
     mGizmo.draw(painter, mCamera, size());
     painter.restore();

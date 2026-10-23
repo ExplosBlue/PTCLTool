@@ -1,6 +1,7 @@
 #pragma once
 
 #include "editor/viewport/viewportCamera.h"
+#include "editor/viewport/viewportDebugOverlay.h"
 #include "editor/viewport/viewportGizmo.h"
 #include "editor/viewport/viewportGrid.h"
 #include "ptcl/engine/ptclSystem.h"
@@ -45,6 +46,9 @@ public:
 
     explicit PreviewViewport(QWidget* parent = nullptr);
     ~PreviewViewport() final;
+
+    ViewportDebugOverlay& debugOverlay() { return mDebugOverlay; }
+    const ViewportDebugOverlay& debugOverlay() const { return mDebugOverlay; }
 
     void setPreview(const Ptcl::Document* document, const Ptcl::Selection& selection);
     void clearPreview();
@@ -171,6 +175,7 @@ private:
     QOpenGLBuffer mQuadVbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLVertexArrayObject mQuadVao{};
     ViewportGrid mGrid{};
+    ViewportDebugOverlay mDebugOverlay{};
     bool mGridVisible{true};
     bool mGlReady{false};
 
