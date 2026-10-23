@@ -162,6 +162,10 @@ void EmitterCalc::addParticle(EmitterInstance& emitter, PtclInstance& ptcl) {
     emitter.mParticles.push_front(&ptcl);
 }
 
+u32 EmitterCalc::randomArcOffset(EmitterInstance& emitter, u32 sweep) {
+    return (sweep > 0) ? (emitter.mRandom.getU32() % sweep) : 0;
+}
+
 PtclInstance* EmitterCalc::emitParticle(EmitterInstance& emitter) {
     const auto type = static_cast<std::size_t>(emitter.mResource.volumeType());
     return sEmitFunctions[type](emitter);
@@ -229,8 +233,7 @@ PtclInstance* EmitterCalc::emitCircle(EmitterInstance& emitter) {
         ptcl->stripe = nullptr;
 
         f32 sinV, cosV;
-        const u32 randOffset = emitter.mRandom.getU32();
-        Math::sinCosIdx(&sinV, &cosV, (randOffset % arcStart) + arcWidth);
+        Math::sinCosIdx(&sinV, &cosV, randomArcOffset(emitter, arcStart) + arcWidth);
 
         ptcl->position.x = sinV * scaleX;
         ptcl->position.y = 0.0f;
@@ -321,7 +324,7 @@ PtclInstance* EmitterCalc::emitFillCircle(EmitterInstance& emitter) {
         ptcl->res = &res;
         ptcl->stripe = nullptr;
 
-        const u32 rotation = (emitter.mRandom.getU32() % arcStart) + arcWidth;
+        const u32 rotation = randomArcOffset(emitter, arcStart) + arcWidth;
         const f32 radius = emitter.mRandom.getF32();
 
         f32 sinV, cosV;
@@ -369,7 +372,7 @@ PtclInstance* EmitterCalc::emitSphere(EmitterInstance& emitter) {
         ptcl->res = &res;
         ptcl->stripe = nullptr;
 
-        const u32 angleAIdx = (emitter.mRandom.getU32() % arcStart) + arcWidth;
+        const u32 angleAIdx = randomArcOffset(emitter, arcStart) + arcWidth;
         const u32 angleBIdx = emitter.mRandom.getAngle();
 
         f32 sinA, cosA, sinB, cosB;
@@ -460,7 +463,7 @@ PtclInstance* EmitterCalc::emitFillSphere(EmitterInstance& emitter) {
         ptcl->res = &res;
         ptcl->stripe = nullptr;
 
-        const u32 angleAIdx = (emitter.mRandom.getU32() % arcStart) + arcWidth;
+        const u32 angleAIdx = randomArcOffset(emitter, arcStart) + arcWidth;
         const u32 angleBIdx = emitter.mRandom.getAngle();
         const f32 rad = emitter.mRandom.getF32();
 
@@ -511,7 +514,7 @@ PtclInstance* EmitterCalc::emitCylinder(EmitterInstance& emitter) {
         ptcl->stripe = nullptr;
 
         f32 sinV, cosV;
-        Math::sinCosIdx(&sinV, &cosV, (emitter.mRandom.getU32() % arcStart) + arcWidth);
+        Math::sinCosIdx(&sinV, &cosV, randomArcOffset(emitter, arcStart) + arcWidth);
         const auto randVec3 = emitter.mRandom.getVec3();
 
         ptcl->position.x = sinV       * scaleX;
@@ -557,7 +560,7 @@ PtclInstance* EmitterCalc::emitFillCylinder(EmitterInstance& emitter) {
         ptcl->stripe = nullptr;
 
         f32 sinV, cosV;
-        Math::sinCosIdx(&sinV, &cosV, (emitter.mRandom.getU32() % arcStart) + arcWidth);
+        Math::sinCosIdx(&sinV, &cosV, randomArcOffset(emitter, arcStart) + arcWidth);
 
         const f32 radius = emitter.mRandom.getF32();
         const auto randVec3 = emitter.mRandom.getVec3();

@@ -51,6 +51,8 @@ private:
 
     using EmitFunction = PtclInstance* (*)(EmitterInstance&);
 
+    static u32 randomArcOffset(EmitterInstance& emitter, u32 sweep);
+
     static PtclInstance* emitPoint(EmitterInstance& emitter);
     static PtclInstance* emitCircle(EmitterInstance& emitter);
     static PtclInstance* emitCircleSameDivide(EmitterInstance& emitter);
